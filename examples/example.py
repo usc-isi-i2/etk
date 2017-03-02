@@ -31,4 +31,7 @@ print tk.extract_using_dictionary(['brown'], name='eyecolor')
 print "\nNames Dictionary Extractor"
 print tk.extract_using_dictionary(['june'], name='names')
 
+print "\nAddress Extractor"
+print tk.extract_address('The LA area has many airports.  LAX is located at 1 World Way, Los Angeles, CA 90045.  The Bob Hope airport is at 2627 N Hollywood Way, Burbank, CA 91505.  Both are very busy.')
+
 # API methods to be decided

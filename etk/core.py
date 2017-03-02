@@ -8,7 +8,7 @@ class Core(object):
 	""" Define all API methods """
 
 	# Set the path to dig-dictionaries repo here
-	path_to_dig_dict = "/home/vinay/Documents/Study/ISI/dig-dictionaries/"
+	path_to_dig_dict = "/home/ashish/Searching for Cohorts on the Web/DIG_Extraction/dig-dictionaries/"
 
 	paths = {
 	"cities": path_to_dig_dict + "geonames-populated-places/curated_cities.json",
@@ -37,6 +37,18 @@ class Core(object):
 		else:
 			print "wrong dict"
 			return []
+
+	def extract_address(self, document):
+		""" 
+		Takes text document as input. 
+		
+		Note:
+		1. Add keyword list as a user parameter
+		2. Add documentation
+		3. Add unit tests
+		"""
+
+		return extract_address(document)
 
 
 
