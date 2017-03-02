@@ -1,0 +1,1 @@
+from dictionary_extractor import populate_trie, extract_using_dictionary
