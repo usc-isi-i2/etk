@@ -19,6 +19,9 @@ print "Time taken to load all the tries: {0}".format(end_time - start_time)
 print "\nCity Dictionary Extractor"
 print tk.extract_using_dictionary(['portland'], name='cities')
 
+print "\nCity Dictionary Extractor with structured tokens"
+print tk.extract_using_dictionary([{"type": "normal", "value": "Los Angeles"}], name='cities', ngrams = 2)
+
 print "\nHair Color Dictionary Extractor"
 print tk.extract_using_dictionary(['brunette'], name='haircolor')
 

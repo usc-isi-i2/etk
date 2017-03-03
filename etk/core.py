@@ -31,11 +31,21 @@ class Core(object):
 		for key, value in paths.iteritems():
 			self.tries[key] = self.load_trie(value)
 
-	def extract_using_dictionary(self, tokens, name):
+	def extract_using_dictionary(self, tokens, name, 
+									pre_process = lambda x: x.lower(), 
+									pre_filter = lambda x: x, 
+									post_filter = lambda x: isinstance(x, basestring),
+									ngrams = 1,
+									joiner = ' '):
 		""" Takes in tokens as input along with the dict name"""
 
 		if name in self.tries:
-			return extract_using_dictionary(tokens, pre_process = lambda x: x.lower(), trie=self.tries[name])
+			return extract_using_dictionary(tokens, pre_process = pre_process, 
+												trie=self.tries[name], 
+												pre_filter = pre_filter,
+												post_filter = post_filter, 
+												ngrams = ngrams, 
+												joiner = joiner)
 		else:
 			print "wrong dict"
 			return []

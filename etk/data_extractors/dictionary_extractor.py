@@ -142,12 +142,19 @@ def extract_using_dictionary(tokens, pre_process = lambda x: x,
 				trie = None,
 				ngrams = 1,
 				joiner = ' '):
+
+    field = 'tokens'
+
+    if isinstance(tokens[0], dict):
+        tokens = [x["value"] for x in tokens]
+        field = 'structured_tokens'
+
     try:
         extracts = list()
 
         ngrams_iterable = generate_ngrams_with_context(tokens, ngrams)
         extracts.extend(
-            map(lambda ngrams_context: wrap_value_with_context(ngrams_context[0], 'tokens', ngrams_context[1], ngrams_context[2]),
+            map(lambda ngrams_context: wrap_value_with_context(ngrams_context[0], field, ngrams_context[1], ngrams_context[2]),
                 ifilter(lambda ngrams_context: post_filter(ngrams_context[0]),
                         map(lambda ngrams_context: (trie.get(ngrams_context[0]), ngrams_context[1], ngrams_context[2]),
                                     ifilter(lambda ngrams_context: pre_filter(ngrams_context[0]),
