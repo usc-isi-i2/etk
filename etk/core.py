@@ -2,26 +2,28 @@
 from data_extractors import *
 import json
 import codecs
+import gzip
+import os
 
 
 class Core(object):
 	""" Define all API methods """
 
-	# Set the path to dig-dictionaries repo here
-	path_to_dig_dict = "/home/ashish/Searching for Cohorts on the Web/DIG_Extraction/dig-dictionaries/"
+	path_to_dig_dict = os.path.dirname(os.path.abspath(__file__)) + "/dictionaries/"
 
 	paths = {
-	"cities": path_to_dig_dict + "geonames-populated-places/curated_cities.json",
-	"haircolor": path_to_dig_dict + "haircolor/haircolors-customized.json",
-    "eyecolor": path_to_dig_dict + "eyecolor/eyecolors-customized.json",
-    "ethnicities": path_to_dig_dict + "ethnicities/ethnicities.json",
-    "names": path_to_dig_dict + "person-names/female-names-master.json"
+	"cities": path_to_dig_dict + "curated_cities.json.gz",
+	"haircolor": path_to_dig_dict + "haircolors-customized.json.gz",
+    "eyecolor": path_to_dig_dict + "eyecolors-customized.json.gz",
+    "ethnicities": path_to_dig_dict + "ethnicities.json.gz",
+    "names": path_to_dig_dict + "female-names-master.json.gz"
 	}
 
 	tries = dict()
 
 	def load_trie(self, file_name):
-		values = json.load(codecs.open(file_name, 'r', 'utf-8'))
+		# values = json.load(codecs.open(file_name, 'r', 'utf-8'))
+		values = json.load(gzip.open(file_name), 'utf-8')
 		trie = populate_trie(map(lambda x: x.lower(), values))
 		return trie
 
