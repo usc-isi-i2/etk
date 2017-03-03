@@ -1,3 +1,4 @@
+'''
 #from digRegexExtractor.regex_extractor import RegexExtractor
 
 years = "(?:(?:years|yrs|yr|year)(?: old)?|yo(?:$|\s+))"
@@ -18,3 +19,4 @@ def extract_age():
 		RegexExtractor and 
 		ExtractorProcessor
 	"""
+'''	

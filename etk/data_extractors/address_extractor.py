@@ -1,7 +1,7 @@
 import re
 
 import copy
-from digExtractor.extractor import Extractor
+#from digExtractor.extractor import Extractor
 
 
 """

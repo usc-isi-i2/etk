@@ -52,18 +52,19 @@ class Core(object):
 
 		return extract_address(document)
 
+	"""
 	def extract_age(self,doc):
-		"""
+		
 		Extract Age(s) from document	
 		
 		Args:
 			doc (str): Document from which age needs to be extracted.
 
 		Returns <>
-		"""
+		
 
-		return	extract_age(doc)	 
-
+		#return	extract_age(doc)	 
+	"""
 
 
 
