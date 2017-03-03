@@ -1,4 +1,4 @@
-from digRegexExtractor.regex_extractor import RegexExtractor
+#from digRegexExtractor.regex_extractor import RegexExtractor
 
 years = "(?:(?:years|yrs|yr|year)(?: old)?|yo(?:$|\s+))"
 posessions = "(?:i am|i'm|iam|im)"
@@ -8,8 +8,8 @@ r3 = r"(?:[^a-zA-Z0-9]+|^)" + posessions + "[\s]+(\d\d)(?:[\s\-~#*=+/_:;,]+|$)"
 regexes = [r1, r2, r3]
 
 def get_age_regex_extractor():
-    return RegexExtractor().set_regex(regexes)\
-                           .set_metadata({'extractor': 'age regex'})
+    #return RegexExtractor().set_regex(regexes)\
+    #                       .set_metadata({'extractor': 'age regex'})
 
 def extract_age():
 	"""
