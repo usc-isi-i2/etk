@@ -1,5 +1,6 @@
 # import all extractors
 from data_extractors import *
+from structured_extractors import *
 import json
 import codecs
 import gzip
@@ -61,6 +62,10 @@ class Core(object):
 		"""
 
 		return extract_address(document)
+
+	def extract_readability(self, document, options={}):
+		e = ReadabilityExtractor()
+		return e.extract(document)
 
 	"""
 	def extract_age(self,doc):

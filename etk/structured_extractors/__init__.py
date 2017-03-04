@@ -1,0 +1,1 @@
+from digReadabilityExtractor.readability_extractor import ReadabilityExtractor
