@@ -67,20 +67,6 @@ class Core(object):
 		e = ReadabilityExtractor()
 		return e.extract(document)
 
-	"""
-	def extract_age(self,doc):
-		
-		Extract Age(s) from document	
-		
-		Args:
-			doc (str): Document from which age needs to be extracted.
-
-		Returns <>
-		
-
-		#return	extract_age(doc)	 
-	"""
-
 	def extract_table(self, html_doc):
 		return table_extract(html_doc)
 
@@ -88,4 +74,9 @@ class Core(object):
 	def extract_age(self,doc):
 		return age_extract(doc)
 
+	def extract_weight(self,doc):
+		return weight_extract(doc)	
+
+	def extract_height(self,doc):
+		return height_extract(doc)	
 

@@ -1,5 +1,6 @@
 from dictionary_extractor import populate_trie, extract_using_dictionary
 from address_extractor import extract_address
-#from age_extractor import extract_age
+from age_extractor import age_extract
 from table_extractor import table_extract
-
+from weight_extractor import weight_extract
+from height_extractor import height_extract

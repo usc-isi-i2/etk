@@ -42,3 +42,19 @@ html_doc = """
 """
 print "\nTable Extractor"
 print tk.extract_table(html_doc)
+
+doc = "32years old ,im 23"
+print "\nAge Extractor"
+print tk.extract_age(doc)
+
+text = "Hair Long Blonde Languages Afrikaans English Body Type slender Age 20-24 Breasts A Eyes " \
+	   "blue Height 1.78 Skin Fair Weight 51 Zandalee | Height 5'3\" Weight 103 | Invalid Height 220 Invalid " \
+	   "Weight 10kg"
+print "\nWeight Extractor"
+print tk.extract_weight(text)
+
+text = "Hair Long Blonde Languages Afrikaans English Body Type slender Age 20-24 Breasts A Eyes " \
+       "blue Height 1.78 Skin Fair Weight 51 Zandalee | Height 5'3\" Weight 103 | Invalid Height 220 Invalid " \
+       "Weight 10kg"
+print "\nHeight Extractor"
+print tk.extract_height(text)
