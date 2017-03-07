@@ -37,4 +37,8 @@ print tk.extract_using_dictionary(['june'], name='names')
 print "\nAddress Extractor"
 print tk.extract_address('The LA area has many airports.  LAX is located at 1 World Way, Los Angeles, CA 90045.  The Bob Hope airport is at 2627 N Hollywood Way, Burbank, CA 91505.  Both are very busy.')
 
-
+html_doc = """
+<table><tr><td><a href=\"/otra.php?c=15&amp;article=overviewthumbs\" rel=\"nofollow\"><img height=\"110\" src=\"http://images.eroticmugshots.com/adthumbs/111.jpg\" width=\"110\"/><br/>BobabyGoJugg</a> 24<br/>Buffalo</td></tr><tr><td><a href=\"/otra.php?c=15&amp;article=overviewthumbs\" rel=\"nofollow\"><img height=\"110\" src=\"http://images.eroticmugshots.com/adthumbs/113.jpg\" width=\"110\"/><br/>HrumpMeNow</a> 24<br/>Buffalo</td></tr><tr><td><a href=\"/otra.php?c=15&amp;article=overviewthumbs\" rel=\"nofollow\"><img height=\"110\" src=\"http://images.eroticmugshots.com/adthumbs/108.jpg\" width=\"110\"/><br/>littlefrom</a> 25<br/>Buffalo</td></tr><tr><td><a href=\"/otra.php?c=15&amp;article=overviewthumbs\" rel=\"nofollow\"><img height=\"110\" src=\"http://images.eroticmugshots.com/adthumbs/76.jpg\" width=\"110\"/><br/>Ginaflirt</a> 28<br/>Buffalo</td></tr><tr><td><a href=\"/otra.php?c=15&amp;article=overviewthumbs\" rel=\"nofollow\"><img height=\"110\" src=\"http://images.eroticmugshots.com/adthumbs/56.jpg\" width=\"110\"/><br/>letsGETdwn</a> 24<br/>Buffalo</td></tr></table>", "fingerprint": "-108-110-111-113-15-24-25-28-56-76-BobabyGoJugg-Buffalo-Ginaflirt-HrumpMeNow-a-adthumbs-amp-article-br-c-com-eroticmugshots-height-href-http-images-img-jpg-letsGETdwn-littlefrom-nofollow-otra-overviewthumbs-php-rel-src-table-td-tr-width
+"""
+print "\nTable Extractor"
+print tk.extract_table(html_doc)

@@ -81,6 +81,9 @@ class Core(object):
 		#return	extract_age(doc)	 
 	"""
 
+	def extract_table(self, html_doc):
+		return table_extract(html_doc)
+
 
 
 
