@@ -29,7 +29,13 @@ class ReadabilityExtractor():
         self.metadata['html_partial'] = str(html_partial)
         return self
 
-    def extract(self, html_content):
+    def __parse_options(self, options):
+        if 'recall_priority' in options.keys():
+            self.recall_priority = options['recall_priority']
+
+    def extract(self, html_content, options={}):
+        if options:
+            self.__parse_options(options)
         from readability.readability import Document
         from bs4 import BeautifulSoup
         try:

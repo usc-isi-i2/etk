@@ -65,7 +65,7 @@ class Core(object):
 
 	def extract_readability(self, document, options={}):
 		e = ReadabilityExtractor()
-		return e.extract(document)
+		return e.extract(document, options)
 
 	def extract_table(self, html_doc):
 		return table_extract(html_doc)
