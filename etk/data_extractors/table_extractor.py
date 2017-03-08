@@ -198,8 +198,7 @@ def table_extract(html_doc):
 				fingerprint = create_fingerprint(table_rep)
 				data_table["fingerprint"] = fingerprint
 				data_table['html'] = table_rep
-				dict["tables"].append(data_table)
-		return dict
+		return data_table
 
 
 def create_fingerprint(table):

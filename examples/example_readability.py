@@ -4,6 +4,7 @@ import os
 import json
 import codecs
 import fnmatch
+from jsonpath_rw import parse, jsonpath
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import time
 import etk
@@ -30,9 +31,36 @@ def jl_path_iterator(file_path):
         for file in os.listdir(abs_file_path):
             if fnmatch.fnmatch(file, '*.jl'):
                 yield os.path.join(abs_file_path, file)
-
     else:
         yield abs_file_path
+
+
+def buildContent(jl, doc):
+    extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
+    extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+    extractors['tables'] = tk.extract_table(jl['raw_content'])
+
+
+def buildTokensAndData(jl, extractors):
+    # for readability and title
+    jsonpath_expr = parse('*.text.`parent`')
+    matches = jsonpath_expr.find(extractors)
+    for match in matches:
+        processDataMatch(match)
+
+    # for tables
+    if 'tables' in extractors.keys():
+        jsonpath_expr = parse('tables.text.[*].result.value.tables[*].rows[*].cells[*].text.`parent`')
+        matches = jsonpath_expr.find(extractors)
+        for match in matches:
+            pass
+            # processDataMatch(match)
+
+
+def processDataMatch(match):
+    match.value['crf_tokens'] = tk.extract_crftokens(match.value['text'])
+    match.value['tokens'] = tk.extract_tokens_from_crf(match.value['crf_tokens'])
+
 
 if __name__ == "__main__":
 
@@ -43,12 +71,8 @@ if __name__ == "__main__":
     for jl in jl_file_iterator(input_path):
         extractors = {}
         # Content extractors
-        extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
-        extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
-        extractors['tables'] = tk.extract_table(jl['raw_content'])['tables']
-
-
-
+        buildContent(jl, extractors)
+        buildTokensAndData(jl, extractors)
 
         jl['extractors'] = extractors
         o.write(json.dumps(jl) + '\n')

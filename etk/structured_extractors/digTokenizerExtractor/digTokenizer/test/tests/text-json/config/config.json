@@ -1,0 +1,18 @@
+{
+  "fieldConfig": {
+    "0": {
+      "path": "description",
+      "allow_blank":false
+    }
+  },
+  "defaultConfig": {
+
+    "analyzer": {
+      "tokenizers": [
+        "whitespace"
+      ]
+    }
+  },
+  "settings": {
+      }
+}

@@ -1,6 +1,6 @@
 # import all extractors
 from data_extractors import *
-from structured_extractors import ReadabilityExtractor
+from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
 import os
@@ -63,6 +63,13 @@ class Core(object):
 	def extract_readability(self, document, options={}):
 		e = ReadabilityExtractor()
 		return e.extract(document, options)
+
+	def extract_crftokens(self, text, options={}):
+		t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True).set_metadata({'extractor': 'crf_tokenizer'})
+		return t.extract(text)
+
+	def extract_tokens_from_crf(self, crf_tokens):
+		return [tk['value'] for tk in crf_tokens]
 
 	def extract_table(self, html_doc):
 		return table_extract(html_doc)

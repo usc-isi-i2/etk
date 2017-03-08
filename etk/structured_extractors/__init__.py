@@ -1,1 +1,2 @@
 from digReadabilityExtractor.readability_extractor import ReadabilityExtractor
+from digTokenizerExtractor.tokenizer_extractor import TokenizerExtractor
