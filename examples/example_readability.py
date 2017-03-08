@@ -37,8 +37,17 @@ def jl_path_iterator(file_path):
 if __name__ == "__main__":
 
     input_path = sys.argv[1]
+    output_file = sys.argv[2]
+
+    o = codecs.open(output_file, 'w', 'utf-8')
     for jl in jl_file_iterator(input_path):
-        print "Readability Extractor with recall"
-        print tk.extract_readability(jl['raw_content'], {'recall_priority': True})
-        print "Readability Extractor without recall"
-        print tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+        extractors = {}
+        # Content extractors
+        extractors['content_relaxed'] = {'text': ''}
+        extractors['content_relaxed']['text'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
+        extractors['content_strict'] = {'text': ''}
+        extractors['content_strict']['text'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+        jl['extractors'] = extractors
+        o.write(json.dumps(jl) + '\n')
+
+    o.close()
