@@ -43,10 +43,13 @@ if __name__ == "__main__":
     for jl in jl_file_iterator(input_path):
         extractors = {}
         # Content extractors
-        extractors['content_relaxed'] = {'text': ''}
-        extractors['content_relaxed']['text'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
-        extractors['content_strict'] = {'text': ''}
-        extractors['content_strict']['text'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+        extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
+        extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+        extractors['tables'] = tk.extract_table(jl['raw_content'])['tables']
+
+
+
+
         jl['extractors'] = extractors
         o.write(json.dumps(jl) + '\n')
 

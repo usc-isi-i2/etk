@@ -43,7 +43,7 @@ class ReadabilityExtractor():
                 readable = Document(html_content, recallPriority=self.recall_priority).summary(html_partial=self.html_partial)
                 cleantext = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
                 readability_text = ' '.join(cleantext)
-                return readability_text
+                return {'text': readability_text}
             else:
                 return ''
         except Exception, e:
