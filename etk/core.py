@@ -75,10 +75,46 @@ class Core(object):
 		return table_extract(html_doc)
 
 	def extract_age(self, doc):
+		'''
+		Args:
+			doc (str): Document
+
+		Returns:
+			List of extractions with context and value
+
+		Examples:
+			>>> tk.extract_age('32 years old')
+			[{'context': {'field': 'text', 'end': 11, 'start': 0}, 'value': '32'}]		
+		'''
+		
 		return age_extract(doc)
 
 	def extract_weight(self, doc):
+		'''
+		Args:
+			doc (str): Document
+
+		Returns:
+			List of extractions with context and value
+
+		Examples:
+			>>> tk.extract_age('Weight 10kg')
+			[{'context': {'field': 'text', 'end': 7, 'start': 11}, 'value': {'unit': 'kilogram', 'value': 10}}]		
+		'''
+
 		return weight_extract(doc)
 
 	def extract_height(self, doc):
+		'''
+		Args:
+			doc (str): Document
+
+		Returns:
+			List of extractions with context and value
+
+		Examples:
+			>>> tk.extract_age('Height 5'3\"')
+			[{'context': {'field': 'text', 'end': 7, 'start': 12}, 'value': {'unit': 'foot/inch', 'value': '5\'3"'}}]
+		'''
+		
 		return height_extract(doc)
