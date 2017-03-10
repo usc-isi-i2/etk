@@ -82,3 +82,6 @@ class Core(object):
 
 	def extract_height(self, doc):
 		return height_extract(doc)
+
+	def extract_stock_tickers(self, doc):
+		return extract_stock_tickers(doc)

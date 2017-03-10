@@ -55,3 +55,7 @@ text = "Hair Long Blonde Languages Afrikaans English Body Type slender Age 20-24
        "Weight 10kg"
 print "\nHeight Extractor"
 print tk.extract_height(text)
+
+print '\nStock Ticker Extractor'
+doc = 'ABCD ABC.D ABC:D A ABCD. ABC-D'
+print tk.extract_stock_tickers(doc)
