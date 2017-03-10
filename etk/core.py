@@ -80,7 +80,7 @@ class Core(object):
 			doc (str): Document
 
 		Returns:
-			List of extractions with context and value
+			List of age extractions with context and value
 
 		Examples:
 			>>> tk.extract_age('32 years old')
@@ -95,7 +95,7 @@ class Core(object):
 			doc (str): Document
 
 		Returns:
-			List of extractions with context and value
+			List of weight extractions with context and value
 
 		Examples:
 			>>> tk.extract_age('Weight 10kg')
@@ -110,7 +110,7 @@ class Core(object):
 			doc (str): Document
 
 		Returns:
-			List of extractions with context and value
+			List of height extractions with context and value
 
 		Examples:
 			>>> tk.extract_age('Height 5'3\"')
