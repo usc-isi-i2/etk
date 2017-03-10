@@ -4,3 +4,4 @@ from age_extractor import age_extract
 from table_extractor import table_extract
 from weight_extractor import weight_extract
 from height_extractor import height_extract
+from stock_ticker_extractor import extract_stock_tickers
