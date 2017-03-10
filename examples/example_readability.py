@@ -11,6 +11,7 @@ import etk
 
 
 tk = etk.init()
+tk.load_dictionaries()
 
 
 def load_json_file(file_name):
@@ -49,18 +50,27 @@ def buildTokensAndData(jl, extractors):
         processDataMatch(match)
 
     # for tables
-    if 'tables' in extractors.keys():
-        jsonpath_expr = parse('tables.text.[*].result.value.tables[*].rows[*].cells[*].text.`parent`')
+    if 'tables' in extractors.keys() and extractors['tables']:
+        jsonpath_expr = parse('tables[*].rows[*].cells[*].text.`parent`')
         matches = jsonpath_expr.find(extractors)
         for match in matches:
-            pass
-            # processDataMatch(match)
+            # pass
+            processDataMatch(match)
 
 
 def processDataMatch(match):
     match.value['crf_tokens'] = tk.extract_crftokens(match.value['text'])
     match.value['tokens'] = tk.extract_tokens_from_crf(match.value['crf_tokens'])
 
+    data_extractors = {}
+    data_extractors['city'] = tk.extract_using_dictionary(match.value['crf_tokens'], name='cities', ngrams=2)
+    data_extractors['haircolor'] = tk.extract_using_dictionary(match.value['tokens'], name='haircolor')
+    data_extractors['ethnicity'] = tk.extract_using_dictionary(match.value['tokens'], name='ethnicities')
+    data_extractors['eyecolor'] = tk.extract_using_dictionary(match.value['tokens'], name='eyecolor')
+    data_extractors['name'] = tk.extract_using_dictionary(match.value['tokens'], name='names')
+    data_extractors['address'] = tk.extract_address(match.value['text'])
+
+    match.value['data_extractors'] = data_extractors
 
 if __name__ == "__main__":
 
@@ -72,9 +82,12 @@ if __name__ == "__main__":
         extractors = {}
         # Content extractors
         buildContent(jl, extractors)
+        # print extractors
+        # tokens and data
         buildTokensAndData(jl, extractors)
 
         jl['extractors'] = extractors
+        jl['raw_content'] = '...'
         o.write(json.dumps(jl) + '\n')
 
     o.close()

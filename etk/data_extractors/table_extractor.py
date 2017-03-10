@@ -114,16 +114,17 @@ def table_extract(html_doc):
 						for td in soup_row.findAll('th'):
 							cell_dict = {}
 							cell_dict["cell"] = str(td)
-							cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-							avg_cell_len += len(cell_dict["text"][0]["result"]["value"])
+							# cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
+							cell_dict["text"] = ''.join(td.stripped_strings)
+							avg_cell_len += len(cell_dict["text"])
 							cell_list.append(cell_dict)
 						for td in soup_row.findAll('td'):
 							cell_dict = {}
 							cell_dict["cell"] = str(td)
-							cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-							avg_cell_len += len(cell_dict["text"][0]["result"]["value"])
+							cell_dict["text"] = ''.join(td.stripped_strings)
+							avg_cell_len += len(cell_dict["text"])
 							cell_list.append(cell_dict)
-						avg_row_len_dev += pstdev([len(x["text"][0]["result"]["value"]) for x in cell_list])
+						avg_row_len_dev += pstdev([len(x["text"]) for x in cell_list])
 						row_dict["cells"] = cell_list
 						row_list.append(row_dict)
 
