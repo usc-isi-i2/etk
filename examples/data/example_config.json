@@ -6,16 +6,34 @@
       "input": [
         "*.text.`parent`"
       ],
-      "city": {
-        "input_type": "tokens",
-        "extractor": "extract_using_dictionary",
-        "config": {}
-      },
-      "hair_color": {
-        "input_type": "tokens",
-        "extractor": "extract_using_dictionary",
-        "config": {
-          "name": "ethincities_dict"
+      "extractors": {
+        "city": {
+          "input_type": "tokens",
+          "extractor": "extract_using_dictionary",
+          "config": {
+            "name": "cities"
+          }
+        },
+        "hair_color": {
+          "input_type": "tokens",
+          "extractor": "extract_using_dictionary",
+          "config": {
+            "name": "ethnicities"
+          }
+        },
+        "eye_color": {
+          "input_type": "tokens",
+          "extractor": "extract_using_dictionary",
+          "config": {
+            "name": "eyecolor"
+          }
+        },
+        "names": {
+          "input_type": "tokens",
+          "extractor": "extract_using_dictionary",
+          "config": {
+            "name": "names"
+          }
         }
       }
     },
@@ -23,9 +41,22 @@
       "input": [
         "tables[*].rows[*].cells[*].text.`parent`"
       ],
-      "date_published": {
-        "input_type": "text",
-        "extractor": "extract_date"
+      "extractors": {
+        "city": {
+          "input_type": "tokens",
+          "extractor": "extract_using_dictionary",
+          "config": {
+            "name": "cities"
+          }
+        },
+        "date_published": {
+          "input_type": "text",
+          "extractor": "extract_date"
+        },
+        "address": {
+          "input_type": "text",
+          "extractor": "extract_address"
+        }
       }
     }
   ]

@@ -49,7 +49,6 @@ def buildTokensAndData(jl, extractors, config):
 
     for extractions in config['extractions']:
         for path in extractions['input']:
-            print path
             jsonpath_expr = parse(path)
             try:
                 matches = jsonpath_expr.find(extractors)
@@ -101,24 +100,50 @@ def annotateTokenToExtractions(tokens, extractions):
 
 
 def processDataMatch(match, extractions):
-    if 'crf_tokens' not in match.value.keys():
-        match.value['crf_tokens'] = tk.extract_crftokens(match.value['text'])
     if 'tokens' not in match.value.keys():
-        match.value['tokens'] = tk.extract_tokens_from_crf(match.value['crf_tokens'])
+        match.value['tokens'] = tk.extract_crftokens(match.value['text'])
+    if 'simple_tokens' not in match.value.keys():
+        match.value['simple_tokens'] = tk.extract_tokens_from_crf(match.value['tokens'])
 
     data_extractors = {}
-    data_extractors['city'] = tk.extract_using_dictionary(match.value['crf_tokens'], name='cities', ngrams=2)
-    data_extractors['haircolor'] = tk.extract_using_dictionary(match.value['tokens'], name='haircolor')
-    data_extractors['ethnicity'] = tk.extract_using_dictionary(match.value['tokens'], name='ethnicities')
-    data_extractors['eyecolor'] = tk.extract_using_dictionary(match.value['tokens'], name='eyecolor')
-    data_extractors['name'] = tk.extract_using_dictionary(match.value['tokens'], name='names')
-    data_extractors['address'] = tk.extract_address(match.value['text'])
+    for extractor in extractions['extractors']:
+        extractor_info = extractions['extractors'][extractor]
+
+        try:
+            function_call = getattr(tk, extractor_info['extractor'])
+        except Exception:
+            print extractor_info['extractor'], " fucntion not found in etk"
+            continue
+
+        # intitalize the data extractor
+        data_extractors[extractor] = {'input_type': 'tokens', 'extractor': extractor}
+
+        if extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys() and 'ngrams' in extractor_info['config'].keys():
+            data_extractors[extractor]['result'] = function_call(match.value['tokens'], name=extractor_info['config']['name'], ngrams=extractor_info['config']['ngrams'])
+        elif extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys():
+            data_extractors[extractor]['result'] = function_call(match.value['simple_tokens'], name=extractor_info['config']['name'])
+        elif extractor_info['input_type'] == 'text':
+            data_extractors[extractor]['result'] = function_call(match.value['text'])
+        else:
+            print "No matching call found for input type - ", extractor_info['input_type']
+
+    #  CLEAN THE EMPTY DATA EXTRACTORS
+    # for key, value in data_extractors.items():
+    #     print key, value
+    data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
+    if data_extractors:
+        match.value['data_extractors'] = data_extractors
+    # data_extractors['city'] = tk.extract_using_dictionary(match.value['crf_tokens'], name='cities', ngrams=2)
+    # data_extractors['haircolor'] = tk.extract_using_dictionary(match.value['tokens'], name='haircolor')
+    # data_extractors['ethnicity'] = tk.extract_using_dictionary(match.value['tokens'], name='ethnicities')
+    # data_extractors['eyecolor'] = tk.extract_using_dictionary(match.value['tokens'], name='eyecolor')
+    # data_extractors['name'] = tk.extract_using_dictionary(match.value['tokens'], name='names')
+    # data_extractors['address'] = tk.extract_address(match.value['text'])
 
     # for extractor in data_extractors:
     #     if data_extractors[extractor]:
     #         annotateTokenToExtractions(match.value['crf_tokens'], data_extractors[extractor])
 
-    match.value['data_extractors'] = data_extractors
 
 if __name__ == "__main__":
     input_path = sys.argv[1]
