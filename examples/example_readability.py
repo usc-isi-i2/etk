@@ -59,14 +59,6 @@ def buildTokensAndData(jl, extractors):
             for match in matches:
                 processDataMatch(match, extractions)
 
-    # # for tables
-    # if 'tables' in extractors.keys() and extractors['tables']:
-    #     jsonpath_expr = parse('tables[*].rows[*].cells[*].text.`parent`')
-    #     matches = jsonpath_expr.find(extractors)
-    #     for match in matches:
-    #         # pass
-    #         processDataMatch(match)
-
 
 def annotateTokenToExtractions(tokens, extractions):
     for extractor, extractions in extractions.iteritems():
@@ -129,21 +121,9 @@ def processDataMatch(match, extractions):
             print "No matching call found for input type - ", extractor_info['input_type']
 
     #  CLEAN THE EMPTY DATA EXTRACTORS
-    # for key, value in data_extractors.items():
-    #     print key, value
     data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
     if data_extractors:
         match.value['data_extractors'] = data_extractors
-    # data_extractors['city'] = tk.extract_using_dictionary(match.value['crf_tokens'], name='cities', ngrams=2)
-    # data_extractors['haircolor'] = tk.extract_using_dictionary(match.value['tokens'], name='haircolor')
-    # data_extractors['ethnicity'] = tk.extract_using_dictionary(match.value['tokens'], name='ethnicities')
-    # data_extractors['eyecolor'] = tk.extract_using_dictionary(match.value['tokens'], name='eyecolor')
-    # data_extractors['name'] = tk.extract_using_dictionary(match.value['tokens'], name='names')
-    # data_extractors['address'] = tk.extract_address(match.value['text'])
-
-    # for extractor in data_extractors:
-    #     if data_extractors[extractor]:
-    #         annotateTokenToExtractions(match.value['crf_tokens'], data_extractors[extractor])
 
 
 def processFile(jl):
@@ -155,7 +135,6 @@ def processFile(jl):
 
     jl['extractors'] = extractors
     jl['raw_content'] = '...'
-
     return jl
 
 
@@ -171,14 +150,13 @@ if __name__ == "__main__":
         threads = sys.argv[4]
     else:
         threads = 5
-
+    pool = ThreadPool(threads)
     config = load_json_file(config_file)
-
     o = codecs.open(output_file, 'w', 'utf-8')
-    i = 1
-    files = []
+
+    # run in pool for extractors in batch of threads
+    i, files = 1, []
     for jl in jl_file_iterator(input_path):
-        pool = ThreadPool(threads)
         files.append(jl)
         if i % threads == 0:
             results = pool.map(processFile, files)
