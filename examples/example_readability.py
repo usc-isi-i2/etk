@@ -142,6 +142,14 @@ def write_output(out, results):
     for i in range(len(results)):
         o.write(json.dumps(results[i]) + '\n')
 
+
+def parallelProcess(files, outfile):
+    pool = ThreadPool(threads)
+    results = pool.map(processFile, files)
+    pool.close()
+    pool.join()
+    write_output(outfile, results)
+
 if __name__ == "__main__":
     input_path = sys.argv[1]
     output_file = sys.argv[2]
@@ -150,26 +158,20 @@ if __name__ == "__main__":
         threads = sys.argv[4]
     else:
         threads = 5
-    pool = ThreadPool(threads)
     config = load_json_file(config_file)
     o = codecs.open(output_file, 'w', 'utf-8')
 
-    # run in pool for extractors in batch of threads
+    # run in pool for extractors in batch
     i, files = 1, []
     for jl in jl_file_iterator(input_path):
         files.append(jl)
         if i % threads == 0:
-            results = pool.map(processFile, files)
-            pool.close()
-            pool.join()
+            parallelProcess(files, o)
             files = []
-            write_output(o, results)
         i += 1
 
     if files:
-        results = pool.map(processFile, files)
-        pool.close()
-        pool.join()
+        parallelProcess(files, o)
         files = []
-        write_output(o, results)
+
     o.close()
