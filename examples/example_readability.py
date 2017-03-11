@@ -4,6 +4,7 @@ import os
 import json
 import codecs
 import fnmatch
+from multiprocessing.dummy import Pool as ThreadPool
 from jsonpath_rw import parse, jsonpath
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import time
@@ -36,13 +37,13 @@ def jl_path_iterator(file_path):
         yield abs_file_path
 
 
-def buildContent(jl, doc):
+def buildContent(jl, extractors):
     extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
     extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
     extractors['tables'] = tk.extract_table(jl['raw_content'])
 
 
-def buildTokensAndData(jl, extractors, config):
+def buildTokensAndData(jl, extractors):
     # for readability and title
     if not config['extractions']:
         raise "No extractions mentioned in config file"
@@ -145,22 +146,52 @@ def processDataMatch(match, extractions):
     #         annotateTokenToExtractions(match.value['crf_tokens'], data_extractors[extractor])
 
 
+def processFile(jl):
+    extractors = {}
+    # Content extractors
+    buildContent(jl, extractors)
+    # tokens and data
+    buildTokensAndData(jl, extractors)
+
+    jl['extractors'] = extractors
+    jl['raw_content'] = '...'
+
+    return jl
+
+
+def write_output(out, results):
+    for i in range(len(results)):
+        o.write(json.dumps(results[i]) + '\n')
+
 if __name__ == "__main__":
     input_path = sys.argv[1]
     output_file = sys.argv[2]
     config_file = sys.argv[3]
+    if len(sys.argv) == 5:
+        threads = sys.argv[4]
+    else:
+        threads = 5
+
     config = load_json_file(config_file)
 
     o = codecs.open(output_file, 'w', 'utf-8')
+    i = 1
+    files = []
     for jl in jl_file_iterator(input_path):
-        extractors = {}
-        # Content extractors
-        buildContent(jl, extractors)
-        # tokens and data
-        buildTokensAndData(jl, extractors, config)
+        pool = ThreadPool(threads)
+        files.append(jl)
+        if i % threads == 0:
+            results = pool.map(processFile, files)
+            pool.close()
+            pool.join()
+            files = []
+            write_output(o, results)
+        i += 1
 
-        jl['extractors'] = extractors
-        jl['raw_content'] = '...'
-        o.write(json.dumps(jl) + '\n')
-
+    if files:
+        results = pool.map(processFile, files)
+        pool.close()
+        pool.join()
+        files = []
+        write_output(o, results)
     o.close()
