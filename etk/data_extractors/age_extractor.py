@@ -21,11 +21,15 @@ def wrap_value_with_context(value, field, start, end):
 
 def apply_regex(text, regex):
 		extracts = list()
+		#To remove duplicate values
+		values = set()
 		for m in re.finditer(regex, text):
+			if(m.group(1) not in values):
 				extracts.append(wrap_value_with_context(m.group(1),
 															 'text',
 															 m.start(),
 															 m.end()))
+				values.add(m.group(1))
 		return extracts
 
 def extract(doc, regex):
