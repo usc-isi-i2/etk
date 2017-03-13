@@ -4,6 +4,7 @@ import os
 import json
 import codecs
 import fnmatch
+import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
 from jsonpath_rw import parse, jsonpath
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -61,35 +62,27 @@ def buildTokensAndData(jl, extractors):
 
 
 def annotateTokenToExtractions(tokens, extractions):
-    for extractor, extractions in extractions.iteritems():
-        if extractor in ['phone']:
-            " ignoring phone annotation.."
+    for extractor, extraction in extractions.iteritems():
+        input_type = extraction['input_type']
+        if 'text' == input_type:
+            # build text tokens
             continue
-        for extraction in extractions:
-            input_type = extraction['input_type']
-            if 'text' in input_type:
-                # build text tokens
-                pass
 
-            if 'tokens' not in input_type:
-                print "ignoring ", extractor, " as tokens not dependant.."
-                continue
-            data = extraction['result']
-            for values in data:
-                start = values['context']['start']
-                end = values['context']['end']
-                offset = 0
-                for i in range(start, end):
-                    if 'semantic_type' not in tokens[i].keys():
-                        tokens[i]['semantic_type'] = []
-                    temp = {}
-                    temp['type'] = extractor
-                    temp['offset'] = offset
-                    if offset == 0:
-                        temp['length'] = end - start
-                    tokens[i]['semantic_type'].append(temp)
-                    offset += 1
-    return tokens
+        data = extraction['result']
+        for values in data:
+            start = values['context']['start']
+            end = values['context']['end']
+            offset = 0
+            for i in range(start, end):
+                if 'semantic_type' not in tokens[i].keys():
+                    tokens[i]['semantic_type'] = []
+                temp = {}
+                temp['type'] = extractor
+                temp['offset'] = offset
+                if offset == 0:
+                    temp['length'] = end - start
+                tokens[i]['semantic_type'].append(temp)
+                offset += 1
 
 
 def processDataMatch(match, extractions):
@@ -123,6 +116,7 @@ def processDataMatch(match, extractions):
     #  CLEAN THE EMPTY DATA EXTRACTORS
     data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
     if data_extractors:
+        annotateTokenToExtractions(match.value['tokens'], data_extractors)
         match.value['data_extractors'] = data_extractors
 
 
@@ -157,12 +151,13 @@ if __name__ == "__main__":
     if len(sys.argv) == 5:
         threads = sys.argv[4]
     else:
-        threads = 5
+        threads = multiprocessing.cpu_count()
     config = load_json_file(config_file)
     o = codecs.open(output_file, 'w', 'utf-8')
 
     # run in pool for extractors in batch
     i, files = 1, []
+    print "Running with ", threads, 'threads'
     for jl in jl_file_iterator(input_path):
         files.append(jl)
         if i % threads == 0:
