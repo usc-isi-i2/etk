@@ -154,8 +154,6 @@ def processFile(jl):
     buildTokensAndData(jl, extractors)
 
     jl['extractors'] = extractors
-    # print jl
-    # jl['raw_content'] = '...'
     return jl
 
 
@@ -171,6 +169,7 @@ def parallelProcess(files, outfile):
     pool.join()
     write_output(outfile, results)
 
+
 if __name__ == "__main__":
     input_path = sys.argv[1]
     output_file = sys.argv[2]
@@ -183,24 +182,44 @@ if __name__ == "__main__":
     o = codecs.open(output_file, 'w', 'utf-8')
 
     # run in pool for extractors in batch
-    i, files = 1, []
-    print "Running with ", threads, 'threads'
 
-    for jl in jl_file_iterator(input_path):
-        print 'processing line # ', str(i)
-        # files.append(jl)
-        return_jl = processFile(jl)
-        # print return_jl
-        o.write(json.dumps(return_jl) + '\n')
+    pool = ThreadPool(processes=threads)
+    results = pool.map(processFile, jl_file_iterator(input_path))
+    pool.close()
+    pool.join()
+    write_output(o, results)
 
-        # if i % threads == 0:
-        #     parallelProcess(files, o)
-        #     processFile(jl)
-        #     files = []
-        i += 1
+    # for jl in jl_file_iterator(input_path):
+    #     files.append(jl)
+    #     if i % threads == 0:
+    #         parallelProcess(files, o)
+    #         files = []
+    #     i += 1
+    # o.close()
+# if __name__ == "__main__":
+#     input_path = sys.argv[1]
+#     output_file = sys.argv[2]
+#     config_file = sys.argv[3]
+#     if len(sys.argv) == 5:
+#         threads = sys.argv[4]
+#     else:
+#         threads = multiprocessing.cpu_count()
+#     config = load_json_file(config_file)
+#     o = codecs.open(output_file, 'w', 'utf-8')
 
-    # if files:
-    #     parallelProcess(files, o)
-    #     files = []
+#     # run in pool for extractors in batch
+#     i, files = 1, []
+#     print "Running with ", threads, 'threads'
+#     for jl in jl_file_iterator(input_path):
+#         files.append(jl)
+#         if i % threads == 0:
+#             parallelProcess(files, o)
+#             files = []
+#         i += 1
 
-    o.close()
+#     if files:
+#         parallelProcess(files, o)
+#         files = []
+
+#     o.close()
+
