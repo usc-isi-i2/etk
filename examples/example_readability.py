@@ -13,7 +13,7 @@ import etk
 
 
 tk = etk.init()
-tk.load_dictionaries()
+# tk.load_dictionaries()
 
 
 def load_json_file(file_name):
@@ -39,9 +39,18 @@ def jl_path_iterator(file_path):
 
 
 def buildContent(jl, extractors):
-    extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
-    extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
-    extractors['tables'] = tk.extract_table(jl['raw_content'])
+    # extractors['content_relaxed'] = tk.extract_readability(jl['raw_content'], {'recall_priority': True})
+    # extractors['content_strict'] = tk.extract_readability(jl['raw_content'], {'recall_priority': False})
+    # found_title = False
+    # if 'extractors' in jl and 'title' in jl['extractors']:
+    #     if 'text' in jl['extractors']['title'] and len(jl['extractors']['title']['text']) > 0:
+    #         found_title = True
+    # if not found_title:
+    extractors['title'] = tk.extract_title(jl['raw_content'])
+    inferlink_extractions = tk.extract_landmark(jl, config['landmark_rules'])
+    if inferlink_extractions:
+        extractors['inferlink_extractions'] = inferlink_extractions
+    # extractors['tables'] = tk.extract_table(jl['raw_content'])
 
 
 def buildTokensAndData(jl, extractors):
@@ -51,6 +60,7 @@ def buildTokensAndData(jl, extractors):
 
     for extractions in config['extractions']:
         for path in extractions['input']:
+            # print path
             jsonpath_expr = parse(path)
             try:
                 matches = jsonpath_expr.find(extractors)
@@ -58,6 +68,7 @@ def buildTokensAndData(jl, extractors):
                 print "No matches for ", path
                 matches = []
             for match in matches:
+                # print match.value
                 processDataMatch(match, extractions)
 
 
@@ -74,6 +85,7 @@ def annotateTokenToExtractions(tokens, extractions):
             end = values['context']['end']
             offset = 0
             for i in range(start, end):
+                # print tokens
                 if 'semantic_type' not in tokens[i].keys():
                     tokens[i]['semantic_type'] = []
                 temp = {}
@@ -87,7 +99,14 @@ def annotateTokenToExtractions(tokens, extractions):
 
 def processDataMatch(match, extractions):
     if 'tokens' not in match.value.keys():
-        match.value['tokens'] = tk.extract_crftokens(match.value['text'])
+        if 'text' in match.value:
+            input_name = 'text'
+        elif 'content' in match.value:
+            input_name = 'content'
+        temp_text = match.value[input_name]
+        if isinstance(temp_text, list):
+            temp_text = temp_text[0]
+        match.value['tokens'] = tk.extract_crftokens(temp_text)
     if 'simple_tokens' not in match.value.keys():
         match.value['simple_tokens'] = tk.extract_tokens_from_crf(match.value['tokens'])
 
@@ -109,26 +128,34 @@ def processDataMatch(match, extractions):
         elif extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys():
             data_extractors[extractor]['result'] = function_call(match.value['simple_tokens'], name=extractor_info['config']['name'])
         elif extractor_info['input_type'] == 'text':
-            data_extractors[extractor]['result'] = function_call(match.value['text'])
+            if 'input_name' in extractor_info:
+                input_name = extractor_info['input_name']
+            else:
+                input_name = 'text'
+            temp_text = match.value[input_name]
+            if isinstance(temp_text, list):
+                temp_text = temp_text[0]
+            data_extractors[extractor]['result'] = function_call(temp_text)
         else:
             print "No matching call found for input type - ", extractor_info['input_type']
 
     #  CLEAN THE EMPTY DATA EXTRACTORS
     data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
     if data_extractors:
-        annotateTokenToExtractions(match.value['tokens'], data_extractors)
+        # annotateTokenToExtractions(match.value['tokens'], data_extractors)
         match.value['data_extractors'] = data_extractors
 
 
 def processFile(jl):
-    extractors = {}
+    extractors = jl['extractors']
     # Content extractors
     buildContent(jl, extractors)
     # tokens and data
     buildTokensAndData(jl, extractors)
 
     jl['extractors'] = extractors
-    jl['raw_content'] = '...'
+    # print jl
+    # jl['raw_content'] = '...'
     return jl
 
 
@@ -149,7 +176,7 @@ if __name__ == "__main__":
     output_file = sys.argv[2]
     config_file = sys.argv[3]
     if len(sys.argv) == 5:
-        threads = sys.argv[4]
+        threads = int(sys.argv[4])
     else:
         threads = multiprocessing.cpu_count()
     config = load_json_file(config_file)
@@ -158,15 +185,22 @@ if __name__ == "__main__":
     # run in pool for extractors in batch
     i, files = 1, []
     print "Running with ", threads, 'threads'
+
     for jl in jl_file_iterator(input_path):
-        files.append(jl)
-        if i % threads == 0:
-            parallelProcess(files, o)
-            files = []
+        print 'processing line # ', str(i)
+        # files.append(jl)
+        return_jl = processFile(jl)
+        # print return_jl
+        o.write(json.dumps(return_jl) + '\n')
+
+        # if i % threads == 0:
+        #     parallelProcess(files, o)
+        #     processFile(jl)
+        #     files = []
         i += 1
 
-    if files:
-        parallelProcess(files, o)
-        files = []
+    # if files:
+    #     parallelProcess(files, o)
+    #     files = []
 
     o.close()
