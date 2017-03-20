@@ -13,7 +13,7 @@ class Core(object):
     """ Define all API methods """
 
     # html_title_regex = r'<title>[\r|\n|\t]*(.*)[\r|\n|\t]*</title>'
-    html_title_regex = r'<title>(.*)</title>'
+    html_title_regex = r'<title>(.*)?</title>'
 
     path_to_dig_dict = os.path.dirname(os.path.abspath(__file__)) + "/dictionaries/"
 
