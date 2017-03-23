@@ -630,7 +630,7 @@
                 "inferlink_phone",
                 "inferlink_phone-1"
               ],
-              "post_filter": ["etk.extract_phone"]
+              "post_filter": ["extract_phone"]
             },
             "extraction_policy": "keep_existing|replace"
           }
