@@ -1,0 +1,600 @@
+{
+  "extraction_policy": "keep_existing|replace",
+  "error_handling": "ignore_extraction|ignore_document|raise_error",
+  "content_extraction": {
+    "path": "_json_path_to_html",
+    "extractors": {
+      "readability": [
+        {
+          "strict": "yes",
+          "extraction_policy": "keep_existing|replace",
+          "field_name": "content_strict"
+        },
+        {
+          "strict": "no",
+          "extraction_policy": "keep_existing|replace",
+          "field_name": "content_relaxed"
+        }
+      ],
+      "title": {
+        "extraction_policy": "keep_existing|replace"
+      },
+      "landmark": {
+        "extraction_policy": "keep_existing|replace",
+        "landmark_rules": {
+          "globenewswire.com": [
+            {
+              "begin_regex": "scale=1\"\\>\\s+\\<.*?title\\>",
+              "end_regex": "\\</title\\>\\s+\\<link",
+              "include_end_regex": true,
+              "name": "title",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</title\\>\\s+\\<link"
+            },
+            {
+              "begin_regex": "!important;margin\\-top.*?=\"author\\s+copyrightHolder\"\\>",
+              "end_regex": "\\</span\\>\\s+\\<div",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\s+\\<div",
+              "visible_chunk_before": "Source:"
+            },
+            {
+              "begin_regex": "!important;margin\\-top.*?itemprop=\"articleBody\"\\>.*?\\<p",
+              "end_regex": "\\</span\\>\\s+\\<!",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\s+\\<!"
+            }
+          ],
+          "investorshangout.com": [
+            {
+              "begin_regex": "/\"\\s+rel=\"v.*?:url\"\\s+property=\".*?v:title\"\\>",
+              "end_regex": "\\</a\\>\\<",
+              "include_end_regex": true,
+              "name": "forum_name",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\<"
+            },
+            {
+              "begin_regex": "_date\"\\s+style=\".*?font\\-size:12px;\"\\>\\s+\\<b.*?\\>Posted\\s+On:",
+              "end_regex": "\\</b\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "posting_date",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</b\\>\\s+\\</",
+              "visible_chunk_before": "Posted On:"
+            },
+            {
+              "begin_regex": "\\>Posted\\s+By:\\s+\\<a.*?href=\"/profile/view\\?id=",
+              "end_regex": "style=\"clear:both",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "style=\"clear:both",
+              "visible_chunk_before": "Posted By:"
+            },
+            {
+              "begin_regex": ";\\s+min\\-height:650px.*?;\"\\>",
+              "end_regex": "\\.\\s+\\<br\\s+/\\>\\s+\\<",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\.\\s+\\<br\\s+/\\>\\s+\\<",
+              "visible_chunk_after": "."
+            },
+            {
+              "begin_regex": "div\\s+style=\"margin\\-.*?top:10px;\"\\>",
+              "end_regex": "\\</div\\>\\s+\\<div",
+              "include_end_regex": true,
+              "name": "disclaimer",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</div\\>\\s+\\<div"
+            }
+          ],
+          "investorshub.advfn.com/boards/read_msg.aspx": [
+            {
+              "begin_regex": "=\"ctl00_Head1\".*?\\>\\<title\\>",
+              "end_regex": "Inc",
+              "include_end_regex": true,
+              "name": "company",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "Inc",
+              "visible_chunk_after": "Inc",
+              "visible_chunk_before": "BEGINOFPAGE"
+            },
+            {
+              "begin_regex": "en\"\\>\\s+\\<head\\s+id.*?=\"ctl00_Head1\".*?\\>\\<title\\>.*?\\(",
+              "end_regex": "\\):",
+              "include_end_regex": true,
+              "name": "ticker_symbol",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\):",
+              "visible_chunk_after": "):",
+              "visible_chunk_before": "("
+            },
+            {
+              "begin_regex": "=\"/boards/boards.*?\\.aspx\\?cat_id.*?\"\\>",
+              "end_regex": "\\</a\\>\\s+\\>\\s+\\<",
+              "include_end_regex": true,
+              "name": "company_type",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\s+\\>\\s+\\<",
+              "visible_chunk_after": ">"
+            },
+            {
+              "begin_regex": "Profile\"\\s+rel=\"author.*?\"\\s+href=\"profilea\\..*?aspx\\?user=.*?\"\\>",
+              "end_regex": "\\</a\\>\\s+\\&nbsp",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\s+\\&nbsp",
+              "visible_chunk_after": "&nbsp"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<td\\>\\s+Followed.*?By\\s+\\</td\\>\\s+\\<.*?td\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "followed_by",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Followed By"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<tr\\>\\s+\\<td\\>\\s+Posts.*?\\</td\\>\\s+\\<td.*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "num_posts",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Posts"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<td\\>\\s+Alias.*?Born\\s+\\</td\\>\\s+\\<.*?td\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "date_profile_created",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Alias Born"
+            },
+            {
+              "begin_regex": "=\"2\"\\>\\s+\\<span.*?id=\"ctl00_CP1_mh1_lblDate.*?\"\\>",
+              "end_regex": "10",
+              "include_end_regex": true,
+              "name": "posting_date",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "10",
+              "visible_chunk_after": "10"
+            },
+            {
+              "begin_regex": "word;\"\\>\\s+\\<span.*?\\>",
+              "end_regex": "\\</span\\>\\s+\\<br",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\s+\\<br"
+            }
+          ],
+          "investorshub.advfn.com/boards/profilea.aspx": [
+            {
+              "begin_regex": "\\>\\<title\\>\\s+Profile\\s+for",
+              "end_regex": "\\</title\\>\\<meta",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</title\\>\\<meta",
+              "visible_chunk_before": "Profile for"
+            },
+            {
+              "begin_regex": "\\&nbsp;Stocks\\&nbsp.*?;\\&nbsp;\\s+\\(",
+              "end_regex": "\\)\\&nbsp\\</a",
+              "include_end_regex": true,
+              "name": "stocks_owned",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\)\\&nbsp\\</a",
+              "visible_chunk_after": ")&nbsp",
+              "visible_chunk_before": "My Stocks   ("
+            },
+            {
+              "begin_regex": "td\\s+id=\"ctl00_CP1_tcPersonMarks.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "followed_by",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Followed By"
+            },
+            {
+              "begin_regex": "\\>\\<a\\s+id=\"ctl00_CP1_hlPosts.*?\"\\s+href=\"Profile\\..*?aspx\\?user=.*?\"\\>",
+              "end_regex": "\\</a\\>\\</",
+              "include_end_regex": true,
+              "name": "num_posts",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\</"
+            },
+            {
+              "begin_regex": "td\\s+id=\"ctl00_CP1_tcBorn.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "date_profile_created",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Alias Born"
+            },
+            {
+              "begin_regex": "id=\"ctl00_CP1_tcAge.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "age",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Age"
+            },
+            {
+              "begin_regex": "id=\"ctl00_CP1_tcLocation.*?\"\\s+class=\"profilerow\".*?\\>\\<span\\>",
+              "end_regex": "\\</span\\>\\</",
+              "include_end_regex": true,
+              "name": "location",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\</",
+              "visible_chunk_before": "Location"
+            }
+          ],
+          "investorshub.com/boards/read_msg.aspx": [
+            {
+              "begin_regex": "=\"ctl00_Head1\".*?\\>\\<title\\>",
+              "end_regex": "Inc",
+              "include_end_regex": true,
+              "name": "company",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "Inc",
+              "visible_chunk_after": "Inc",
+              "visible_chunk_before": "BEGINOFPAGE"
+            },
+            {
+              "begin_regex": "en\"\\>\\s+\\<head\\s+id.*?=\"ctl00_Head1\".*?\\>\\<title\\>.*?\\(",
+              "end_regex": "\\):",
+              "include_end_regex": true,
+              "name": "ticker_symbol",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\):",
+              "visible_chunk_after": "):",
+              "visible_chunk_before": "("
+            },
+            {
+              "begin_regex": "=\"/boards/boards.*?\\.aspx\\?cat_id.*?\"\\>",
+              "end_regex": "\\</a\\>\\s+\\>\\s+\\<",
+              "include_end_regex": true,
+              "name": "company_type",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\s+\\>\\s+\\<",
+              "visible_chunk_after": ">"
+            },
+            {
+              "begin_regex": "Profile\"\\s+rel=\"author.*?\"\\s+href=\"profilea\\..*?aspx\\?user=.*?\"\\>",
+              "end_regex": "\\</a\\>\\s+\\&nbsp",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\s+\\&nbsp",
+              "visible_chunk_after": "&nbsp"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<td\\>\\s+Followed.*?By\\s+\\</td\\>\\s+\\<.*?td\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "followed_by",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Followed By"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<tr\\>\\s+\\<td\\>\\s+Posts.*?\\</td\\>\\s+\\<td.*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "num_posts",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Posts"
+            },
+            {
+              "begin_regex": "tr\\>\\s+\\<td\\>\\s+Alias.*?Born\\s+\\</td\\>\\s+\\<.*?td\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "date_profile_created",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Alias Born"
+            },
+            {
+              "begin_regex": "=\"2\"\\>\\s+\\<span.*?id=\"ctl00_CP1_mh1_lblDate.*?\"\\>",
+              "end_regex": "10",
+              "include_end_regex": true,
+              "name": "posting_date",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "10",
+              "visible_chunk_after": "10"
+            },
+            {
+              "begin_regex": "word;\"\\>\\s+\\<span.*?\\>",
+              "end_regex": "\\</span\\>\\s+\\<br",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\s+\\<br"
+            }
+          ],
+          "investorshub.com/boards/profilea.aspx": [
+            {
+              "begin_regex": "\\>\\<title\\>\\s+Profile\\s+for",
+              "end_regex": "\\</title\\>\\<meta",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</title\\>\\<meta",
+              "visible_chunk_before": "Profile for"
+            },
+            {
+              "begin_regex": "\\&nbsp;Stocks\\&nbsp.*?;\\&nbsp;\\s+\\(",
+              "end_regex": "\\)\\&nbsp\\</a",
+              "include_end_regex": true,
+              "name": "stocks_owned",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\)\\&nbsp\\</a",
+              "visible_chunk_after": ")&nbsp",
+              "visible_chunk_before": "My Stocks   ("
+            },
+            {
+              "begin_regex": "td\\s+id=\"ctl00_CP1_tcPersonMarks.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "followed_by",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Followed By"
+            },
+            {
+              "begin_regex": "\\>\\<a\\s+id=\"ctl00_CP1_hlPosts.*?\"\\s+href=\"Profile\\..*?aspx\\?user=.*?\"\\>",
+              "end_regex": "\\</a\\>\\</",
+              "include_end_regex": true,
+              "name": "num_posts",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\</"
+            },
+            {
+              "begin_regex": "td\\s+id=\"ctl00_CP1_tcBorn.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "date_profile_created",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Alias Born"
+            },
+            {
+              "begin_regex": "id=\"ctl00_CP1_tcAge.*?\"\\s+class=\"profilerow\".*?\\>",
+              "end_regex": "\\</td\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "age",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</td\\>\\s+\\</",
+              "visible_chunk_before": "Age"
+            },
+            {
+              "begin_regex": "id=\"ctl00_CP1_tcLocation.*?\"\\s+class=\"profilerow\".*?\\>\\<span\\>",
+              "end_regex": "\\</span\\>\\</",
+              "include_end_regex": true,
+              "name": "location",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</span\\>\\</",
+              "visible_chunk_before": "Location"
+            }
+          ],
+          "pennystocktweets.com": [
+            {
+              "begin_regex": "nbsp;\\s+Date/Time:",
+              "end_regex": "\\</div\\>\\s+\\<",
+              "include_end_regex": true,
+              "name": "posting_date",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</div\\>\\s+\\<",
+              "visible_chunk_before": "Date/Time:"
+            },
+            {
+              "begin_regex": "\\</div\\>\\s+\\</dt\\>\\s+\\<dd\\>.*?\\<div\\s+class=\"fieldvalue.*?\"\\>",
+              "end_regex": "\\&nbsp;\\s+\\</div",
+              "include_end_regex": true,
+              "name": "title",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\&nbsp;\\s+\\</div",
+              "visible_chunk_before": "Subject"
+            },
+            {
+              "begin_regex": "=\"newsletter_body\".*?\\>",
+              "end_regex": "\\</div\\>\\s+\\<br",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</div\\>\\s+\\<br",
+              "visible_chunk_before": "Body"
+            }
+          ],
+          "stockfolks.com": [
+            {
+              "begin_regex": "='\\?sfolks=display\\&boardId.*?'\\>",
+              "end_regex": "\\</a\\>\\.\\s+\\<",
+              "include_end_regex": true,
+              "name": "forum_name",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\.\\s+\\<",
+              "visible_chunk_after": "."
+            },
+            {
+              "begin_regex": "\\>Created\\s+on\\</strong.*?br\\>\\s+\\<strong\\>Followers.*?\\</strong\\>:",
+              "end_regex": "\\<br\\>\\</td",
+              "include_end_regex": true,
+              "name": "followed_by",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\<br\\>\\</td",
+              "visible_chunk_before": "Followers:"
+            },
+            {
+              "begin_regex": "\\-serif'\\>\\s+\\<strong\\>Moderator.*?\\&viewprofile=1'\\>",
+              "end_regex": "\\</a\\>\\<",
+              "include_end_regex": true,
+              "name": "moderator",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\<"
+            },
+            {
+              "begin_regex": "Verdana\"\\s+font='verdana.*?'\\s+\\>\\s+Post\\s+#",
+              "end_regex": "out\\s+of",
+              "include_end_regex": true,
+              "name": "post_id",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "out\\s+of",
+              "visible_chunk_after": "out of",
+              "visible_chunk_before": "Post #"
+            },
+            {
+              "begin_regex": "\\<br\\>\\s+Posted\\s+by\\s+:.*?\\&viewprofile=1'\\>",
+              "end_regex": "\\</a\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "author",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</a\\>\\s+\\</"
+            },
+            {
+              "begin_regex": "\"\\>\\s+\\</script\\>\\s+\\</div.*?\\>",
+              "end_regex": "\\<p\\>\\&nbsp;",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\<p\\>\\&nbsp;",
+              "visible_chunk_before": "Tweet"
+            }
+          ],
+          "stockpromoters.com": [
+            {
+              "begin_regex": "\\.jpg\"\\s+/\\>\\s+\\<.*?title\\>",
+              "end_regex": "\\</title\\>\\<style",
+              "include_end_regex": true,
+              "name": "title",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</title\\>\\<style"
+            },
+            {
+              "begin_regex": "/tr\\>\\s+\\<tr\\>\\<td\\>\\s+Published",
+              "end_regex": ",\\s+2017\\<br\\s+/\\>",
+              "include_end_regex": true,
+              "name": "posting_date",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": ",\\s+2017\\<br\\s+/\\>",
+              "visible_chunk_after": ", 2017",
+              "visible_chunk_before": "Published"
+            },
+            {
+              "begin_regex": ";\\s+\\</script\\>\\s+\\</div\\>\\s+\\<p.*?U\\.S\\.",
+              "end_regex": "\\</p\\>\\s+\\</",
+              "include_end_regex": true,
+              "name": "content",
+              "removehtml": true,
+              "rule_type": "ItemRule",
+              "strip_end_regex": "\\</p\\>\\s+\\</",
+              "visible_chunk_before": ".S."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "extractions": [
+    {
+      "input": [
+        "*.text.`parent`"
+      ],
+      "extractors": {
+        "ticker": {
+          "input_type": "text",
+          "extractor": "extract_stock_tickers"
+        }
+      }
+    },
+    {
+      "input": [
+        "content_strict.text.`parent`"
+      ],
+      "extractors": {
+        "spacy": {
+          "input_type": "text",
+          "extractor": "extract_spacy"
+        }
+      }
+    },
+    {
+      "input": [
+        "inferlink_extractions.content.`parent`"
+      ],
+      "extractors": {
+        "spacy": {
+          "input_type": "text",
+          "input_name": "content",
+          "extractor": "extract_spacy"
+        }
+      }
+    }
+  ]
+}
