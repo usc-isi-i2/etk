@@ -149,3 +149,10 @@ class Core(object):
         if extraction_rules:
             return landmark_extraction.landmark_extractor(doc, extraction_rules)
         return doc
+
+    def extract_price(self, doc):
+    	digpe = DIGPriceExtractor()
+    	price = digpe.extract(doc)
+    	if price['price'] or price['price_per_hour']:
+    		return price
+    	return None
