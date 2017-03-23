@@ -20,6 +20,7 @@
         "extraction_policy": "keep_existing|replace"
       },
       "landmark": {
+        "field_name": "inferlink_extractions",
         "extraction_policy": "keep_existing|replace",
         "landmark_rules": {
           "globenewswire.com": [

@@ -5,27 +5,95 @@ from data_extractors import landmark_extraction
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
-import os
 import re
+
+_EXTRACTION_POLICY = 'extraction_policy'
+_KEEP_EXISTING = 'keep_existing'
+_REPLACE = 'replace'
+_ERROR_HANDLING = 'error_handling'
+_IGNORE_EXTRACTION = 'ignore_extraction'
+_IGNORE_DOCUMENT = 'ignore_document'
+_RAISE_ERROR = 'raise_error'
+_CITY = 'city'
+_CONTENT_EXTRACTION = 'content_extraction'
+_RAW_CONTENT = 'raw_content'
+_INPUT_PATH = 'input_path'
+_READABILITY = 'readability'
+_LANDMARK = 'landmark'
+_TITLE = 'title'
+_STRICT = 'strict'
+_FIELD_NAME = 'field_name'
+_CONTENT_STRICT = 'content_strict'
+_CONTENT_RELAXED = 'content_relaxed'
 
 
 class Core(object):
+
+    def __init__(self, extraction_config=None):
+        if extraction_config:
+            self.extraction_config = extraction_config
+        self.html_title_regex = r'<title>(.*)?</title>'
+        self.dictionaries_path = 'resources/dictionaries'
+        self.tries = dict()
+        self.global_extraction_policy = None
+        self.global_error_handling = None
+
     """ Define all API methods """
 
-    # html_title_regex = r'<title>[\r|\n|\t]*(.*)[\r|\n|\t]*</title>'
-    html_title_regex = r'<title>(.*)?</title>'
+    def process(self, doc):
+        if self.extraction_config:
+            if _EXTRACTION_POLICY in self.extraction_config:
+                self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
+            if _ERROR_HANDLING in self.extraction_config:
+                self.global_error_handling = self.extraction_config[_ERROR_HANDLING]
 
-    path_to_dig_dict = os.path.dirname(os.path.abspath(__file__)) + "/dictionaries/"
+            """Handle content extraction first aka Phase 1"""
+            if _CONTENT_EXTRACTION in self.extraction_config:
+                ce_config = self.extraction_config[_CONTENT_EXTRACTION]
+                html_field = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else _RAW_CONTENT
+                if html_field not in doc:
+                    raise KeyError('{} not found in doc'.format(ce_config[_INPUT_PATH]))
+                html = doc[html_field]
+                for extractor in ce_config.keys():
+                    if extractor == _READABILITY:
+                        re_exractors = ce_config[extractor]
+                        if isinstance(re_exractors, dict):
+                            re_exractors = [re_exractors]
+                        for re_extractor in re_exractors:
+                            doc = self.run_readability(doc, html, re_extractor)
 
-    paths = {
-        "cities": path_to_dig_dict + "curated_cities.json.gz",
-        "haircolor": path_to_dig_dict + "haircolors-customized.json.gz",
-        "eyecolor": path_to_dig_dict + "eyecolors-customized.json.gz",
-        "ethnicities": path_to_dig_dict + "ethnicities.json.gz",
-        "names": path_to_dig_dict + "female-names-master.json.gz"
-    }
+    def run_readability(self, doc, html, re_config):
+        recall_priority = False
+        field_name = None
+        if _STRICT in re_config:
+            recall_priority = False if re_config[_STRICT] == 'yes' else True
+            field_name = _CONTENT_RELAXED if recall_priority else _CONTENT_STRICT
+        options = {'recall_priority': recall_priority}
 
-    tries = dict()
+        if _FIELD_NAME in re_config:
+            field_name = re_config[_FIELD_NAME]
+        if field_name not in doc:
+            doc[field_name] = self.extract_readability(html, options)
+        else:
+            # Bring extraction policy into play
+            ep = self.determine_extraction_policy(re_config)
+            if ep == _REPLACE:
+                doc[field_name] = self.extract_readability(html, options)
+
+        return doc
+
+
+    def determine_extraction_policy(self, config):
+        ep = None
+        if _EXTRACTION_POLICY in config:
+            ep = _EXTRACTION_POLICY
+        elif self.global_extraction_policy:
+            ep = self.global_extraction_policy
+        if ep and (ep != _KEEP_EXISTING or ep != _REPLACE):
+             raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
+        if not ep:
+            ep = _REPLACE  # By default run the extraction again
+        return ep
 
     def load_trie(self, file_name):
         # values = json.load(codecs.open(file_name, 'r', 'utf-8'))
@@ -33,9 +101,13 @@ class Core(object):
         trie = populate_trie(map(lambda x: x.lower(), values))
         return trie
 
-    def load_dictionaries(self, paths=paths):
-        for key, value in paths.iteritems():
-            self.tries[key] = self.load_trie(value)
+    def load_dictionary(self, field_name, dict_name):
+        if field_name not in self.tries:
+            self.tries[field_name] = self.load_trie(self.dictionaries_path + "/" + dict_name)
+
+    # def load_dictionaries(self, paths=paths):
+    #     for key, value in paths.iteritems():
+    #         self.tries[key] = self.load_trie(value)
 
     def extract_using_dictionary(self, tokens, name, pre_process=lambda x: x.lower(),
                                  pre_filter=lambda x: x,
