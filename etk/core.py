@@ -76,20 +76,20 @@ class Core(object):
                     self.content_extraction_path = parse(html_path)
                     time_taken = time.time() - start_time
                     if self.debug:
-                        print 'time taken to process parse %s' % (time_taken)
+                        print 'time taken to process parse %s' % time_taken
                 start_time = time.time()
                 matches = self.content_extraction_path.find(doc)
                 time_taken = time.time() - start_time
                 if self.debug:
-                    print 'time taken to process matches %s' % (time_taken)
+                    print 'time taken to process matches %s' % time_taken
                 extractors = ce_config['extractors']
                 for index in range(len(matches)):
                     for extractor in extractors.keys():
                         if extractor == _READABILITY:
-                            re_exractors = extractors[extractor]
-                            if isinstance(re_exractors, dict):
-                                re_exractors = [re_exractors]
-                            for re_extractor in re_exractors:
+                            re_extractors = extractors[extractor]
+                            if isinstance(re_extractors, dict):
+                                re_extractors = [re_extractors]
+                            for re_extractor in re_extractors:
                                 doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
                                                                                 matches[index].value, re_extractor)
                         elif extractor == _TITLE:
@@ -116,7 +116,7 @@ class Core(object):
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
             time_taken = time.time() - start_time
             if self.debug:
-                print 'time taken to process landmark %s' % (time_taken)
+                print 'time taken to process landmark %s' % time_taken
             if ifl_extractions:
                 out = list
                 for key in ifl_extractions:
@@ -148,7 +148,7 @@ class Core(object):
             content_extraction[field_name] = self.extract_title(html)
             time_taken = time.time() - start_time
             if self.debug:
-                print 'time taken to process title %s' % (time_taken)
+                print 'time taken to process title %s' % time_taken
         return content_extraction
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -166,7 +166,7 @@ class Core(object):
         readability_text = self.extract_readability(html, options)
         time_taken = time.time() - start_time
         if self.debug:
-            print 'time taken to process readability %s' % (time_taken)
+            print 'time taken to process readability %s' % time_taken
         if readability_text:
             if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
                 content_extraction[field_name] = readability_text
