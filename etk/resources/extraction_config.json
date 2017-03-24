@@ -1,118 +1,35 @@
 {
-  "extraction_policy": "keep_existing|replace",
-  "error_handling": "ignore_extraction|ignore_document|raise_error",
+  "extraction_policy": "replace",
+  "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
       "women_name": "names.json"
     },
-    "landmark" : ["resources/consolidated_rules.json"]
+    "landmark" : ["/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"]
   },
   "content_extraction": {
-    "input_path": "raw_content.`parent`",
+    "input_path": "raw_content",
     "extractors": {
       "readability": [
         {
           "strict": "yes",
-          "extraction_policy": "keep_existing|replace",
+          "extraction_policy": "keep_existing",
           "field_name": "content_strict"
         },
         {
           "strict": "no",
-          "extraction_policy": "keep_existing|replace",
+          "extraction_policy": "keep_existing",
           "field_name": "content_relaxed"
         }
       ],
       "title": {
-        "extraction_policy": "keep_existing|replace"
+        "extraction_policy": "keep_existing"
       },
       "landmark": {
         "field_name": "inferlink_extractions",
-        "extraction_policy": "keep_existing|replace",
+        "extraction_policy": "keep_existing",
         "landmark_threshold": 0.5 
       }
     }
-  },
-  "data_extraction": [
-    {
-      "input_path": "*.text.`parent`",
-      "fields": {
-        "name": {
-          "extractors": {
-            "extract_using_dict": {
-              "config": {
-                "dictionary": "women_name",
-                "ngrams": 1,
-                "joiner": " ",
-                "pre_filter": [
-                  "x"
-                ],
-                "post_filter": [
-                  "isinstance(x, basestring)"
-                ]
-              },
-              "extraction_policy": "keep_existing|replace"
-            },
-            "extract_using_regex": {
-              "config": {
-                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
-                "regex_options": [
-                  "IGNORECASE",
-                  "S"
-                ],
-                "pre_filter": [
-                  "x.replace('\n', '')",
-                  "x.replace('\r', '')"
-                ]
-              },
-              "extraction_policy": "keep_existing|replace"
-            },
-            "landmark": {
-              "config": {
-                "fields": [
-                  "inferlink_name",
-                  "inferlink_name-1"
-                ],
-                "post_filter": [
-                  "x.replace('\t', '')"
-                ]
-              },
-              "extraction_policy": "keep_existing|replace"
-            },
-            "spacy": {
-              "config": {
-                "entity_type": [
-                  "PER"
-                ]
-              },
-              "extraction_policy": "keep_existing|replace"
-            }
-          }
-        }
-      }
-    },
-    {
-      "input_path": "content_relaxed.text.`parent`",
-      "fields": {
-        "phone": {
-          "extractors": {
-            "extract_phone": {
-              "extraction_policy": "keep_existing|replace"
-            },
-            "landmark": {
-              "config": {
-                "fields": [
-                  "inferlink_phone",
-                  "inferlink_phone-1"
-                ],
-                "post_filter": [
-                  "extract_phone"
-                ]
-              },
-              "extraction_policy": "keep_existing|replace"
-            }
-          }
-        }
-      }
-    }
-  ]
+  }
 }

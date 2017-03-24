@@ -7,6 +7,8 @@ import json
 import gzip
 import re
 import codecs
+from jsonpath_rw import parse, jsonpath
+import time
 
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
@@ -35,9 +37,10 @@ _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _RESOURCES = 'resources'
 
+
 class Core(object):
 
-    def __init__(self, extraction_config=None):
+    def __init__(self, extraction_config=None, debug=False):
         if extraction_config:
             self.extraction_config = extraction_config
         self.html_title_regex = r'<title>(.*)?</title>'
@@ -45,6 +48,10 @@ class Core(object):
         self.tries = dict()
         self.global_extraction_policy = None
         self.global_error_handling = None
+        # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
+        self.content_extraction_path = None
+        self.data_extraction_path = list()
+        self.debug = debug
 
     """ Define all API methods """
 
@@ -57,24 +64,43 @@ class Core(object):
 
             """Handle content extraction first aka Phase 1"""
             if _CONTENT_EXTRACTION in self.extraction_config:
+                if _CONTENT_EXTRACTION not in doc:
+                    doc[_CONTENT_EXTRACTION] = dict()
                 ce_config = self.extraction_config[_CONTENT_EXTRACTION]
-                html_field = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else _RAW_CONTENT
-                if html_field not in doc:
-                    raise KeyError('{} not found in doc'.format(ce_config[_INPUT_PATH]))
-                for extractor in ce_config.keys():
-                    if extractor == _READABILITY:
-                        re_exractors = ce_config[extractor]
-                        if isinstance(re_exractors, dict):
-                            re_exractors = [re_exractors]
-                        for re_extractor in re_exractors:
-                            doc = self.run_readability(doc, html_field, re_extractor)
-                    elif extractor == _TITLE:
-                        doc = self.run_title(doc, html_field, ce_config[extractor])
-                    elif extractor == _LANDMARK:
-                        doc = self.run_landmark(doc, html_field, ce_config[extractor])
+                html_path = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else None
+                if not html_path:
+                    raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
+
+                if not self.content_extraction_path:
+                    start_time = time.time()
+                    self.content_extraction_path = parse(html_path)
+                    time_taken = time.time() - start_time
+                    if self.debug:
+                        print 'time taken to process parse %s' % (time_taken)
+                start_time = time.time()
+                matches = self.content_extraction_path.find(doc)
+                time_taken = time.time() - start_time
+                if self.debug:
+                    print 'time taken to process matches %s' % (time_taken)
+                extractors = ce_config['extractors']
+                for index in range(len(matches)):
+                    for extractor in extractors.keys():
+                        if extractor == _READABILITY:
+                            re_exractors = extractors[extractor]
+                            if isinstance(re_exractors, dict):
+                                re_exractors = [re_exractors]
+                            for re_extractor in re_exractors:
+                                doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                matches[index].value, re_extractor)
+                        elif extractor == _TITLE:
+                            doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
+                                                                      extractors[extractor])
+                        elif extractor == _LANDMARK:
+                            doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
+                                                                         extractors[extractor], doc[_URL])
         return doc
 
-    def run_landmark(self, doc, html_field, landmark_config):
+    def run_landmark(self, content_extraction, html, landmark_config, url):
         field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
         ep = self.determine_extraction_policy(landmark_config)
         extraction_rules = self.consolidate_landmark_rules()
@@ -84,11 +110,21 @@ class Core(object):
                 raise ValueError('landmark threshold should be a float between {} and {}'.format(0.0, 1.0))
         else:
             pct = 0.5
-        if field_name not in doc or (field_name in doc and ep == _REPLACE):
-            ifl_extractions = Core.extract_landmark(doc[html_field], doc[_URL], extraction_rules, pct)
+        if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
+            content_extraction[field_name] = dict()
+            start_time = time.time()
+            ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
+            time_taken = time.time() - start_time
+            if self.debug:
+                print 'time taken to process landmark %s' % (time_taken)
             if ifl_extractions:
-                doc[field_name] = ifl_extractions
-        return doc
+                out = list
+                for key in ifl_extractions:
+                    o = dict()
+                    o[key] = dict()
+                    o[key]['text'] = ifl_extractions[key]
+                    content_extraction[field_name].update(o)
+        return content_extraction
 
     def consolidate_landmark_rules(self):
         rules = dict()
@@ -102,44 +138,63 @@ class Core(object):
             else:
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _LANDMARK))
         else:
-            raise KeyError('{} not found in providede extraction config'.format(_RESOURCES))
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
-    def run_title(self, doc, html_field, title_config):
+    def run_title(self, content_extraction, html, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
-        if field_name not in doc or (field_name in doc and ep == _REPLACE):
-            doc[field_name] = self.extract_title(doc[html_field])
-        return doc
+        if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
+            start_time = time.time()
+            content_extraction[field_name] = self.extract_title(html)
+            time_taken = time.time() - start_time
+            if self.debug:
+                print 'time taken to process title %s' % (time_taken)
+        return content_extraction
 
-    def run_readability(self, doc, html_field, re_config):
+    def run_readability(self, content_extraction, html, re_extractor):
         recall_priority = False
         field_name = None
-        html = doc[html_field]
-        if _STRICT in re_config:
-            recall_priority = False if re_config[_STRICT] == _YES else True
+        if _STRICT in re_extractor:
+            recall_priority = False if re_extractor[_STRICT] == _YES else True
             field_name = _CONTENT_RELAXED if recall_priority else _CONTENT_STRICT
         options = {_RECALL_PRIORITY: recall_priority}
 
-        if _FIELD_NAME in re_config:
-            field_name = re_config[_FIELD_NAME]
-        ep = self.determine_extraction_policy(re_config)
-
-        if field_name not in doc or (field_name in doc and ep == _REPLACE):
-            doc[field_name] = self.extract_readability(html, options)
-
-        return doc
+        if _FIELD_NAME in re_extractor:
+            field_name = re_extractor[_FIELD_NAME]
+        ep = self.determine_extraction_policy(re_extractor)
+        start_time = time.time()
+        readability_text = self.extract_readability(html, options)
+        time_taken = time.time() - start_time
+        if self.debug:
+            print 'time taken to process readability %s' % (time_taken)
+        if readability_text:
+            if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
+                content_extraction[field_name] = readability_text
+        return content_extraction
 
     def determine_extraction_policy(self, config):
         ep = None
         if _EXTRACTION_POLICY in config:
-            ep = _EXTRACTION_POLICY
+            ep = config[_EXTRACTION_POLICY]
         elif self.global_extraction_policy:
             ep = self.global_extraction_policy
-        if ep and (ep != _KEEP_EXISTING or ep != _REPLACE):
-             raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
+        if ep and ep != _KEEP_EXISTING and ep != _REPLACE:
+            raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
         if not ep:
             ep = _REPLACE  # By default run the extraction again
         return ep
+
+    def update_json_at_path(self, doc, match, field_name, value, parent=False):
+        load_input_json = doc
+        datum_object = match
+        if not isinstance(datum_object, jsonpath.DatumInContext):
+            raise Exception("Nothing found by the given json-path")
+        path = datum_object.path
+        if isinstance(path, jsonpath.Index):
+            datum_object.context.value[datum_object.path.index][field_name] = value
+        elif isinstance(path, jsonpath.Fields):
+            datum_object.context.value[field_name] = value
+        return load_input_json
 
     @staticmethod
     def load_json_file(file_name):

@@ -23,13 +23,13 @@ def landmark_extractor(html, url, extractionrulesall, threshold=0.5):
                     inferlink_extraction[key] = flatten[key]
         properly_extracted_fields = len(inferlink_extraction)
         if properly_extracted_fields > 0 and float(properly_extracted_fields) / float(number_of_rules) >= threshold:
-            print 'rules  %s succeeded for  %s' % (matched_rule_key, url)
-            print '%s rules matched out of %s' % (properly_extracted_fields, number_of_rules)
+            # print 'rules  %s succeeded for  %s' % (matched_rule_key, url)
+            # print '%s rules matched out of %s' % (properly_extracted_fields, number_of_rules)
             return inferlink_extraction
         else:
-            if matched_rule_key:
-                print 'rules  %s failed for  %s' % (matched_rule_key, url)
-                print '%s rules matched out of %s' % (properly_extracted_fields, number_of_rules)
+            # if matched_rule_key:
+            #     print 'rules  %s failed for  %s' % (matched_rule_key, url)
+            #     print '%s rules matched out of %s' % (properly_extracted_fields, number_of_rules)
             return None
     except Exception, e:
         print "ERRROR:", str(e)
