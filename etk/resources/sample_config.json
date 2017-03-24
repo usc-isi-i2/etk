@@ -22,6 +22,7 @@
       "landmark": {
         "field_name": "inferlink_extractions",
         "extraction_policy": "keep_existing|replace",
+        "landmark_threshold": 0.5,
         "landmark_rules": {
           "globenewswire.com": [
             {

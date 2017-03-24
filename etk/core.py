@@ -25,6 +25,13 @@ _STRICT = 'strict'
 _FIELD_NAME = 'field_name'
 _CONTENT_STRICT = 'content_strict'
 _CONTENT_RELAXED = 'content_relaxed'
+_YES = 'yes'
+_NO = 'no'
+_RECALL_PRIORITY = 'recall_priority'
+_INFERLINK_EXTRACTIONS = 'inferlink_extractions'
+_LANDMARK_THRESHOLD = 'landmark_threshold'
+_LANDMARK_RULES = 'landmark_rules'
+_URL = 'url'
 
 
 class Core(object):
@@ -53,32 +60,61 @@ class Core(object):
                 html_field = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else _RAW_CONTENT
                 if html_field not in doc:
                     raise KeyError('{} not found in doc'.format(ce_config[_INPUT_PATH]))
-                html = doc[html_field]
                 for extractor in ce_config.keys():
                     if extractor == _READABILITY:
                         re_exractors = ce_config[extractor]
                         if isinstance(re_exractors, dict):
                             re_exractors = [re_exractors]
                         for re_extractor in re_exractors:
-                            doc = self.run_readability(doc, html, re_extractor)
+                            doc = self.run_readability(doc, html_field, re_extractor)
+                    elif extractor == _TITLE:
+                        doc = self.run_title(doc, html_field, ce_config[extractor])
+                    elif extractor == _LANDMARK:
+                        doc = self.run_landmark(doc, html_field, ce_config[extractor])
+        return doc
 
-    def run_readability(self, doc, html, re_config):
+    def run_landmark(self, doc, html_field, landmark_config):
+        field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
+        ep = self.determine_extraction_policy(landmark_config)
+        extraction_rules = None
+        if _LANDMARK_RULES in landmark_config:
+            extraction_rules = landmark_config[_LANDMARK_RULES]
+        if not extraction_rules:
+            raise ValueError('Please submit valid landmark extraction rules')
+        if _LANDMARK_THRESHOLD in landmark_config:
+            pct = landmark_config[_LANDMARK_THRESHOLD]
+            if not 0.0 <= pct <= 1.0:
+                raise ValueError('landmark threshold should be a float between {} and {}'.format(0.0, 1.0))
+        else:
+            pct = 0.5
+        if field_name not in doc or (field_name in doc and ep == _REPLACE):
+            ifl_extractions = Core.extract_landmark(doc[html_field], doc[_URL], extraction_rules, pct)
+            if ifl_extractions:
+                doc[field_name] = ifl_extractions
+        return doc
+
+    def run_title(self, doc, html_field, title_config):
+        field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
+        ep = self.determine_extraction_policy(title_config)
+        if field_name not in doc or (field_name in doc and ep == _REPLACE):
+            doc[field_name] = self.extract_title(doc[html_field])
+        return doc
+
+    def run_readability(self, doc, html_field, re_config):
         recall_priority = False
         field_name = None
+        html = doc[html_field]
         if _STRICT in re_config:
-            recall_priority = False if re_config[_STRICT] == 'yes' else True
+            recall_priority = False if re_config[_STRICT] == _YES else True
             field_name = _CONTENT_RELAXED if recall_priority else _CONTENT_STRICT
-        options = {'recall_priority': recall_priority}
+        options = {_RECALL_PRIORITY: recall_priority}
 
         if _FIELD_NAME in re_config:
             field_name = re_config[_FIELD_NAME]
-        if field_name not in doc:
+        ep = self.determine_extraction_policy(re_config)
+
+        if field_name not in doc or (field_name in doc and ep == _REPLACE):
             doc[field_name] = self.extract_readability(html, options)
-        else:
-            # Bring extraction policy into play
-            ep = self.determine_extraction_policy(re_config)
-            if ep == _REPLACE:
-                doc[field_name] = self.extract_readability(html, options)
 
         return doc
 
@@ -217,7 +253,7 @@ class Core(object):
     def extract_spacy(self, doc):
         return spacy_extractor.spacy_extract(doc)
 
-    def extract_landmark(self, doc, extraction_rules=None):
-        if extraction_rules:
-            return landmark_extraction.landmark_extractor(doc, extraction_rules)
-        return doc
+    @staticmethod
+    def extract_landmark(html, url, extraction_rules, threshold=0.5):
+        return landmark_extraction.landmark_extractor(html, url, extraction_rules, threshold)
+
