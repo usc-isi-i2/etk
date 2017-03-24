@@ -6,6 +6,7 @@ from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
 import re
+import codecs
 
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
@@ -32,7 +33,7 @@ _INFERLINK_EXTRACTIONS = 'inferlink_extractions'
 _LANDMARK_THRESHOLD = 'landmark_threshold'
 _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
-
+_RESOURCES = 'resources'
 
 class Core(object):
 
@@ -76,11 +77,7 @@ class Core(object):
     def run_landmark(self, doc, html_field, landmark_config):
         field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
         ep = self.determine_extraction_policy(landmark_config)
-        extraction_rules = None
-        if _LANDMARK_RULES in landmark_config:
-            extraction_rules = landmark_config[_LANDMARK_RULES]
-        if not extraction_rules:
-            raise ValueError('Please submit valid landmark extraction rules')
+        extraction_rules = self.consolidate_landmark_rules()
         if _LANDMARK_THRESHOLD in landmark_config:
             pct = landmark_config[_LANDMARK_THRESHOLD]
             if not 0.0 <= pct <= 1.0:
@@ -92,6 +89,20 @@ class Core(object):
             if ifl_extractions:
                 doc[field_name] = ifl_extractions
         return doc
+
+    def consolidate_landmark_rules(self):
+        rules = dict()
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _LANDMARK in resources:
+                landmark_rules_file_list = resources[_LANDMARK]
+                for landmark_rules_file in landmark_rules_file_list:
+                    rules.update(Core.load_json_file(landmark_rules_file))
+                return rules
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _LANDMARK))
+        else:
+            raise KeyError('{} not found in providede extraction config'.format(_RESOURCES))
 
     def run_title(self, doc, html_field, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
@@ -118,7 +129,6 @@ class Core(object):
 
         return doc
 
-
     def determine_extraction_policy(self, config):
         ep = None
         if _EXTRACTION_POLICY in config:
@@ -130,6 +140,11 @@ class Core(object):
         if not ep:
             ep = _REPLACE  # By default run the extraction again
         return ep
+
+    @staticmethod
+    def load_json_file(file_name):
+        json_x = json.load(codecs.open(file_name, 'r'))
+        return json_x
 
     def load_trie(self, file_name):
         # values = json.load(codecs.open(file_name, 'r', 'utf-8'))
