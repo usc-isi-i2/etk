@@ -59,3 +59,8 @@ print tk.extract_height(text)
 print '\nStock Ticker Extractor'
 doc = 'ABCD ABC.D ABC:D A ABCD. ABC-D'
 print tk.extract_stock_tickers(doc)
+
+print '\nPrice Extractor'
+doc = "Good morning I\'m doing incalls only gentleman I\'m quick 60 roses ?Hhr 80 roses "\
+		"?Hour 120 roses unrushed and f.service provided nonnegotiable donations  614-563-3342"
+print tk.extract_price(doc)

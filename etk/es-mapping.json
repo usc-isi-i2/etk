@@ -1,0 +1,279 @@
+{
+  "mappings": {
+    "microcap": {
+      "properties": {
+        "content_type": {
+          "type": "string"
+        },
+        "crawler": {
+          "type": "string"
+        },
+        "fields": {
+          "properties": {
+            "content": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "location": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "money": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "org": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "person": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "product": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "ticker": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "index": "not_analyzed"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "title": {
+              "properties": {
+                "relaxed": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "strict": {
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "team": {
+          "type": "string"
+        },
+        "timestamp_crawl": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "timestamp_index": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "url": {
+          "type": "string",
+          "analyzer": "url_component_analyzer",
+          "fields": {
+            "raw": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        },
+        "version": {
+          "type": "double"
+        }
+      }
+    }
+  },
+  "settings": {
+    "index": {
+      "number_of_shards": "10",
+      "number_of_replicas": "0",
+      "uuid": "3lwnAPPDSGOXXUuYTbomZw",
+      "version": {
+        "created": "2040199"
+      }
+    },
+    "analysis": {
+      "analyzer": {
+        "url_component_analyzer": {
+          "tokenizer": "url_component_tokenizer",
+          "filter": "url_component_filter"
+        },
+        "url_analyzer": {
+          "tokenizer": "uax_url_email"
+        }
+      },
+      "tokenizer": {
+        "url_component_tokenizer": {
+          "type": "pattern",
+          "pattern": "[^A-Za-z0-9]",
+          "flags": "CASE_INSENSITIVE|COMMENTS"
+        }
+      },
+      "filter": {
+        "url_component_filter": {
+          "type": "lowercase"
+        }
+      }
+    }
+  }
+}
