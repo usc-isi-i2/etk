@@ -100,18 +100,21 @@ def processDataMatch(match, extractions):
         except Exception:
             print extractor_info['extractor'], " fucntion not found in etk"
             continue
+        try:
+            # intitalize the data extractor
+            data_extractors[extractor] = {'input_type': 'tokens', 'extractor': extractor}
 
-        # intitalize the data extractor
-        data_extractors[extractor] = {'input_type': 'tokens', 'extractor': extractor}
-
-        if extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys() and 'ngrams' in extractor_info['config'].keys():
-            data_extractors[extractor]['result'] = function_call(match.value['tokens'], name=extractor_info['config']['name'], ngrams=extractor_info['config']['ngrams'])
-        elif extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys():
-            data_extractors[extractor]['result'] = function_call(match.value['simple_tokens'], name=extractor_info['config']['name'])
-        elif extractor_info['input_type'] == 'text':
-            data_extractors[extractor]['result'] = function_call(match.value['text'])
-        else:
-            print "No matching call found for input type - ", extractor_info['input_type']
+            if extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys() and 'ngrams' in extractor_info['config'].keys():
+                data_extractors[extractor]['result'] = function_call(match.value['tokens'], name=extractor_info['config']['name'], ngrams=extractor_info['config']['ngrams'])
+            elif extractor_info['input_type'] == 'tokens' and 'name' in extractor_info['config'].keys():
+                data_extractors[extractor]['result'] = function_call(match.value['simple_tokens'], name=extractor_info['config']['name'])
+            elif extractor_info['input_type'] == 'text':
+                data_extractors[extractor]['result'] = function_call(match.value['text'])
+            else:
+                print "No matching call found for input type - ", extractor_info['input_type']
+        except Exception as e:
+            data_extractors[extractor]['result'] = ''
+            print extractor, " crashed - ", e
 
     #  CLEAN THE EMPTY DATA EXTRACTORS
     data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
@@ -138,6 +141,10 @@ def write_output(out, results):
         o.write(json.dumps(results[i]) + '\n')
 
 
+def write_output_record(out, result):
+    o.write(json.dumps(result) + '\n')
+
+
 def parallelProcess(files, outfile):
     pool = ThreadPool(threads)
     results = pool.map(processFile, files)
@@ -150,19 +157,23 @@ if __name__ == "__main__":
     input_path = sys.argv[1]
     output_file = sys.argv[2]
     config_file = sys.argv[3]
-    if len(sys.argv) == 5:
-        threads = sys.argv[4]
-    else:
-        threads = multiprocessing.cpu_count()
     config = load_json_file(config_file)
     o = codecs.open(output_file, 'w', 'utf-8')
 
-    # run in pool for extractors in batch
-    pool = ThreadPool(processes=threads)
-    results = pool.map(processFile, jl_file_iterator(input_path))
-    pool.close()
-    pool.join()
-    write_output(o, results)
+    startTime = time.time()
+    if len(sys.argv) == 5:
+        threads = int(sys.argv[4])
+        # run in pool for extractors in batch
+        pool = ThreadPool(processes=threads)
+        results = pool.map(processFile, jl_file_iterator(input_path))
+        pool.close()
+        pool.join()
+        write_output(o, results)
+    else:
+        for jl in jl_file_iterator(input_path):
+            results = processFile(jl)
+            write_output_record(o, results)
+    print('The script took {0} second !'.format(time.time() - startTime))
 
     # for jl in jl_file_iterator(input_path):
     #     files.append(jl)
