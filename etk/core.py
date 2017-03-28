@@ -1,7 +1,7 @@
 # import all extractors
-from data_extractors import *
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
+from data_extractors import dictionary_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -36,6 +36,17 @@ _LANDMARK_THRESHOLD = 'landmark_threshold'
 _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _RESOURCES = 'resources'
+_DATA_EXTRACTION = 'data_extraction'
+_FIELDS = 'fields'
+_EXTRACTORS = 'extractors'
+_TOKENS = 'tokens'
+_SIMPLE_TOKENS = 'simple_tokens'
+_TEXT = 'text'
+_DICTIONARY = 'dictionary'
+_NGRAMS = 'ngrams'
+_JOINER = 'joiner'
+_PRE_FILTER = 'pre_filter'
+_POST_FILTER = 'post_filter'
 
 
 class Core(object):
@@ -50,7 +61,7 @@ class Core(object):
         self.global_error_handling = None
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
-        self.data_extraction_path = list()
+        self.data_extraction_path = dict()
         self.debug = debug
 
     """ Define all API methods """
@@ -82,7 +93,7 @@ class Core(object):
                 time_taken = time.time() - start_time
                 if self.debug:
                     print 'time taken to process matches %s' % time_taken
-                extractors = ce_config['extractors']
+                extractors = ce_config[_EXTRACTORS]
                 for index in range(len(matches)):
                     for extractor in extractors.keys():
                         if extractor == _READABILITY:
@@ -98,6 +109,38 @@ class Core(object):
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
+            """Phase 2: The Data Extraction"""
+            if _DATA_EXTRACTION in self.extraction_config:
+                de_configs = self.extraction_config[_DATA_EXTRACTION]
+                if isinstance(de_configs, dict):
+                    de_configs = [de_configs]
+
+                for i in range(len(de_configs)):
+                    de_config = de_configs[i]
+                    input_path = de_config[_INPUT_PATH] if _INPUT_PATH in de_config else None
+                    if not input_path:
+                        raise KeyError('{} not found for data extraction in extraction_config'.format(_INPUT_PATH))
+
+                    if _FIELDS in de_config:
+                        if i not in self.data_extraction_path:
+                            self.data_extraction_path[i] = parse(input_path)
+                        matches = self.data_extraction_path[i].find(doc)
+                        for match in matches:
+                            # First rule of DATA Extraction club: Get tokens
+                            # Get the crf tokens
+                            if _TOKENS not in match.value:
+                                match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                            if _SIMPLE_TOKENS not in match.value:
+                                match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                            fields = de_config[_FIELDS]
+                            for field in fields.keys():
+                                if _EXTRACTORS in field:
+                                    extractors = field[_EXTRACTORS]
+                                    for extractor in extractors.keys():
+                                        foo = getattr(self, extractor)
+
+
+
         return doc
 
     def run_landmark(self, content_extraction, html, landmark_config, url):
@@ -202,7 +245,6 @@ class Core(object):
         return json_x
 
     def load_trie(self, file_name):
-        # values = json.load(codecs.open(file_name, 'r', 'utf-8'))
         values = json.load(gzip.open(file_name), 'utf-8')
         trie = populate_trie(map(lambda x: x.lower(), values))
         return trie
@@ -211,27 +253,22 @@ class Core(object):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.dictionaries_path + "/" + dict_name)
 
-    # def load_dictionaries(self, paths=paths):
-    #     for key, value in paths.iteritems():
-    #         self.tries[key] = self.load_trie(value)
-
-    def extract_using_dictionary(self, tokens, name, pre_process=lambda x: x.lower(),
-                                 pre_filter=lambda x: x,
-                                 post_filter=lambda x: isinstance(x, basestring),
-                                 ngrams=1,
-                                 joiner=' '):
+    def extract_using_dictionary(self, tokens, field_name, config):
         """ Takes in tokens as input along with the dict name"""
 
-        if name in self.tries:
-            return extract_using_dictionary(tokens, pre_process=pre_process,
+        if _DICTIONARY not in config:
+            raise KeyError('No dictionary specified for {}'.format(field_name))
+
+        self.load_trie(field_name, config[_DICTIONARY])
+
+
+        return dictionary_extractor.extract_using_dictionary(tokens, pre_process=pre_process,
                                             trie=self.tries[name],
                                             pre_filter=pre_filter,
                                             post_filter=post_filter,
                                             ngrams=ngrams,
                                             joiner=joiner)
-        else:
-            print "wrong dict"
-            return []
+
 
     def extract_address(self, document):
         """
@@ -260,13 +297,13 @@ class Core(object):
             title = ''
         return {'text': title}
 
-
-    def extract_crftokens(self, text, options={}):
-        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True).set_metadata(
-            {'extractor': 'crf_tokenizer'})
+    @staticmethod
+    def extract_crftokens(text, options={}):
+        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
         return t.extract(text)
 
-    def extract_tokens_from_crf(self, crf_tokens):
+    @staticmethod
+    def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
 
     def extract_table(self, html_doc):

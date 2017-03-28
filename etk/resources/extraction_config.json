@@ -31,5 +31,56 @@
         "landmark_threshold": 0.5 
       }
     }
-  }
+  },
+    "data_extraction": [
+    {
+      "input_path": "*.*.text.`parent`",
+      "fields": {
+        "name": {
+          "extractors": {
+            "extract_using_dict": {
+              "config": {
+                "dictionary": "women_name",
+                "ngrams": 1,
+                "joiner": " ",
+                "pre_filter": [
+                  "x"
+                ],
+                "post_filter": [
+                  "isinstance(x, basestring)"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_using_regex": {
+              "config": {
+                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
+                "regex_options": [
+                  "IGNORECASE",
+                  "S"
+                ],
+                "pre_filter": [
+                  "x.replace('\n', '')",
+                  "x.replace('\r', '')"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_name",
+                  "inferlink_name-1"
+                ],
+                "post_filter": [
+                  "x.replace('\t', '')"
+                ]
+              },
+              "extraction_policy": "keep_existing|replace"
+            }
+          }
+        }
+      }
+    }
+    ]
 }
