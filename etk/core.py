@@ -24,6 +24,7 @@ _INPUT_PATH = 'input_path'
 _READABILITY = 'readability'
 _LANDMARK = 'landmark'
 _TITLE = 'title'
+_DESCRIPTION = "description"
 _STRICT = 'strict'
 _FIELD_NAME = 'field_name'
 _CONTENT_STRICT = 'content_strict'
@@ -51,6 +52,17 @@ _PRE_PROCESS = "pre_process"
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
+_INFERLINK = "inferlink"
+
+_SEGMENT_TITLE = "title"
+_SEGMENT_INFERLINK_DESC = "inferlink_description"
+_SEGMENT_READABILITY_STRICT = "readability_strict"
+_SEGMENT_OTHER = "other_segment"
+
+_METHOD_GUROBI = "gurobi"
+_METHOD_INFERLINK = "inferlink"
+_METHOD_OTHER = "other_method"
+
 
 class Core(object):
 
@@ -137,22 +149,99 @@ class Core(object):
                                 match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                             fields = de_config[_FIELDS]
                             for field in fields.keys():
-                                if _EXTRACTORS in fields[field]:
-                                    extractors = fields[field][_EXTRACTORS]
-                                    for extractor in extractors.keys():
-                                        try:
-                                            foo = getattr(self, extractor)
-                                        except Exception as e:
-                                            print e
-                                            foo = None
-                                        if foo:
-                                            if extractor == _EXTRACT_USING_DICTIONARY:
-                                                print foo
-                                                print foo(match.value[_TOKENS], field, extractors[extractor][_CONFIG])
+                                """
+                                    Special case for inferlink extractions:
+                                    For eg, We do not want to extract name from inferlink_posting-date #DUH
+                                """
+                                run_extractor = True
+                                full_path = str(match.full_path)
+                                segment = self.determine_segment(full_path)
+                                if _INFERLINK in full_path:
+                                    if field not in full_path:
+                                        run_extractor = False
+                                    if _DESCRIPTION in full_path or _TITLE in full_path:
+                                        run_extractor = True
+                                if run_extractor:
+                                    if _EXTRACTORS in fields[field]:
+                                        extractors = fields[field][_EXTRACTORS]
+                                        for extractor in extractors.keys():
+                                            try:
+                                                foo = getattr(self, extractor)
+                                            except Exception as e:
+                                                foo = None
+                                            if foo:
+                                                if extractor == _EXTRACT_USING_DICTIONARY:
+                                                    method = _METHOD_OTHER
+                                                    # score is 1.0 because this method thinks it is the best
+                                                    score = 1.0
+                                                    ep = self.determine_extraction_policy(extractors[extractor])
+                                                    print ep
+                                                    if self.check_if_run_extraction(match.value, field, extractor, ep):
+                                                        results = foo(match.value[_TOKENS], field,
+                                                                      extractors[extractor][_CONFIG])
+                                                        if results:
+                                                            self.add_data_extraction_results(match.value, field,
+                                                                                             extractor,
+                                                                                             self.add_origin_info(
+                                                                                                 results, method,
+                                                                                                 segment, score))
 
 
 
         return doc
+
+    @staticmethod
+    def add_data_extraction_results(d, field_name, method_name, results):
+        if _DATA_EXTRACTION not in d:
+            d[_DATA_EXTRACTION] = dict()
+        if field_name not in d[_DATA_EXTRACTION]:
+            d[_DATA_EXTRACTION][field_name] = dict()
+        if method_name not in d[_DATA_EXTRACTION][field_name]:
+            d[_DATA_EXTRACTION][field_name][method_name] = dict()
+        if isinstance(results, dict):
+            results = [results]
+        if 'results' not in d[_DATA_EXTRACTION][field_name][method_name]:
+            d[_DATA_EXTRACTION][field_name][method_name]['results'] = results
+        else:
+            d[_DATA_EXTRACTION][field_name][method_name]['results'].extend(results)
+        return d
+
+    @staticmethod
+    def check_if_run_extraction(d, field_name, method_name, extraction_policy):
+        if _DATA_EXTRACTION not in d:
+            return True
+        if field_name not in d[_DATA_EXTRACTION]:
+            return True
+        if method_name not in d[_DATA_EXTRACTION][field_name]:
+            return True
+        if 'results' not in d[_DATA_EXTRACTION][field_name][method_name]:
+            return True
+        else:
+            if extraction_policy == _REPLACE:
+                return True
+        return False
+
+    @staticmethod
+    def determine_segment(json_path):
+        segment = _SEGMENT_OTHER
+        if _SEGMENT_INFERLINK_DESC in json_path:
+            segment = _SEGMENT_INFERLINK_DESC
+        if _CONTENT_STRICT in json_path:
+            segment = _SEGMENT_READABILITY_STRICT
+        if _TITLE in json_path:
+            segment = _TITLE
+        return segment
+
+    @staticmethod
+    def add_origin_info(results, method, segment, score):
+        if results:
+            for result in results:
+                o = dict()
+                o['segment'] = segment
+                o['method'] = method
+                o['score'] = score
+                result['origin'] = o
+        return results
 
     def run_landmark(self, content_extraction, html, landmark_config, url):
         field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
@@ -176,7 +265,7 @@ class Core(object):
                     o = dict()
                     o[key] = dict()
                     o[key]['text'] = ifl_extractions[key]
-                    content_extraction[field_name].update(o)
+                    content_extraction.update(o)
         return content_extraction
 
     def consolidate_landmark_rules(self):
@@ -206,6 +295,7 @@ class Core(object):
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES))
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
     def run_title(self, content_extraction, html, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
@@ -306,12 +396,13 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return dictionary_extractor.extract_using_dictionary(tokens, pre_process=pre_process,
+        result = dictionary_extractor.extract_using_dictionary(tokens, pre_process=pre_process,
                                             trie=self.tries[field_name],
                                             pre_filter=pre_filter,
                                             post_filter=post_filter,
                                             ngrams=ngrams,
                                             joiner=joiner)
+        return result if result and len(result) > 0 else None
 
     @staticmethod
     def string_to_lambda(s):

@@ -53,7 +53,7 @@
                   "isinstance(x, basestring)"
                 ]
               },
-              "extraction_policy": "replace"
+              "extraction_policy": "keep_existing"
             },
             "extract_using_regex": {
               "config": {

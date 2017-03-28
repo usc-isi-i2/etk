@@ -34,7 +34,7 @@
   },
   "data_extraction": [
     {
-      "input_path": "*.text.`parent`",
+      "input_path": ["*.text.`parent`"],
       "fields": {
         "name": {
           "extractors": {
@@ -94,7 +94,7 @@
       }
     },
     {
-      "input_path": "content_relaxed.text.`parent`",
+      "input_path": ["content_relaxed.text.`parent`"],
       "fields": {
         "phone": {
           "extractors": {

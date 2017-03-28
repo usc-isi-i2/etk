@@ -75,7 +75,7 @@ def extract_using_dictionary(tokens, pre_process=lambda x: x,
 
     if isinstance(tokens[0], dict):
         tokens = [x["value"] for x in tokens]
-        field = 'structured_tokens'
+        field = 'tokens'
 
     try:
         extracts = list()
