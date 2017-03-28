@@ -4,11 +4,10 @@ import os
 import json
 import codecs
 import fnmatch
-import multiprocessing
-from multiprocessing.dummy import Pool as ThreadPool
-from jsonpath_rw import parse, jsonpath
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from multiprocessing import Pool
+from jsonpath_rw import parse
 import time
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import etk
 
 
@@ -132,8 +131,7 @@ def processFile(jl):
 
     jl['extractors'] = extractors
     jl['raw_content'] = '...'
-    # o.write(json.dumps(jl) + '\n')
-    return jl
+    o.write(json.dumps(jl) + '\n')
 
 
 def write_output(out, results):
@@ -145,13 +143,13 @@ def write_output_record(out, result):
     o.write(json.dumps(result) + '\n')
 
 
-def parallelProcess(files, outfile):
-    pool = ThreadPool(threads)
-    results = pool.map(processFile, files)
-    pool.close()
-    pool.join()
-    write_output(outfile, results)
-
+# def parallelProcess(files, outfile):
+#     processes = []
+#     for i in range(len(files)):
+#         processes.append(Process(target=processFile, args=(files[i],)))
+#         processes[i].start()
+#     for p in processes:
+#         p.join()
 
 if __name__ == "__main__":
     input_path = sys.argv[1]
@@ -159,17 +157,41 @@ if __name__ == "__main__":
     config_file = sys.argv[3]
     config = load_json_file(config_file)
     o = codecs.open(output_file, 'w', 'utf-8')
-
     startTime = time.time()
+
     if len(sys.argv) == 5:
         threads = int(sys.argv[4])
-        # run in pool for extractors in batch
-        pool = ThreadPool(processes=threads)
-        results = pool.map(processFile, jl_file_iterator(input_path))
-        pool.close()
-        pool.join()
-        write_output(o, results)
+        files, i = [], 0
+        pool = Pool(processes=threads)
+        for jl in jl_file_iterator(input_path):
+            files.append(jl)
+            if i % threads == 0:
+                pool.map(processFile, files)
+                # parallelProcess(files, o)
+                files = []
+            i += 1
+
+            if files:
+                pool.map(processFile, files)
+                # parallelProcess(files, o)
+                files = []
+
+        for jl in jl_file_iterator(input_path):
+            files.append(jl)
+            if i % threads == 0:
+                pool.map(processFile, files)
+                # parallelProcess(files, o)
+                files = []
+            i += 1
+
+            if files:
+                pool.map(processFile, files)
+                # parallelProcess(files, o)
+                files = []
     else:
+        for jl in jl_file_iterator(input_path):
+            results = processFile(jl)
+            write_output_record(o, results)
         for jl in jl_file_iterator(input_path):
             results = processFile(jl)
             write_output_record(o, results)
