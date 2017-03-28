@@ -3,7 +3,7 @@
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
-      "women_name": "names.json"
+      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz"
     },
     "landmark" : ["/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"]
   },
@@ -38,11 +38,14 @@
       "fields": {
         "name": {
           "extractors": {
-            "extract_using_dict": {
+            "extract_using_dictionary": {
               "config": {
                 "dictionary": "women_name",
                 "ngrams": 1,
                 "joiner": " ",
+                "pre_process": [
+                  "x.lower()"
+                ],
                 "pre_filter": [
                   "x"
                 ],

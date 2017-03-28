@@ -2,8 +2,8 @@ import time
 
 import json
 import codecs
-input_path = '/Users/amandeep/Github/etk/etk/test_data/cdr_1k.jl'
-output_path = '/Users/amandeep/Github/etk/etk/test_data/out_1k.jl'
+input_path = '/Users/amandeep/Github/etk/etk/test_data/cdr_two.jl'
+output_path = '/Users/amandeep/Github/etk/etk/test_data/out_two.jl'
 config_path = '/Users/amandeep/Github/etk/etk/resources/extraction_config.json'
 extraction_config = json.load(codecs.open(config_path, 'r'))
 import sys

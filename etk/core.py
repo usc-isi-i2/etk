@@ -47,7 +47,10 @@ _NGRAMS = 'ngrams'
 _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
-
+_PRE_PROCESS = "pre_process"
+_EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
+_CONFIG = "config"
+_DICTIONARIES = "dictionaries"
 
 class Core(object):
 
@@ -134,10 +137,18 @@ class Core(object):
                                 match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                             fields = de_config[_FIELDS]
                             for field in fields.keys():
-                                if _EXTRACTORS in field:
-                                    extractors = field[_EXTRACTORS]
+                                if _EXTRACTORS in fields[field]:
+                                    extractors = fields[field][_EXTRACTORS]
                                     for extractor in extractors.keys():
-                                        foo = getattr(self, extractor)
+                                        try:
+                                            foo = getattr(self, extractor)
+                                        except Exception as e:
+                                            print e
+                                            foo = None
+                                        if foo:
+                                            if extractor == _EXTRACT_USING_DICTIONARY:
+                                                print foo
+                                                print foo(match.value[_TOKENS], field, extractors[extractor][_CONFIG])
 
 
 
@@ -161,7 +172,6 @@ class Core(object):
             if self.debug:
                 print 'time taken to process landmark %s' % time_taken
             if ifl_extractions:
-                out = list
                 for key in ifl_extractions:
                     o = dict()
                     o[key] = dict()
@@ -183,6 +193,19 @@ class Core(object):
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
+    def get_dict_file_name_from_config(self, dict_name):
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _DICTIONARIES in resources:
+                if dict_name in resources[_DICTIONARIES]:
+                    return resources[_DICTIONARIES][dict_name]
+                else:
+                    raise KeyError(
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES, dict_name))
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES))
+        else:
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
     def run_title(self, content_extraction, html, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
@@ -246,12 +269,12 @@ class Core(object):
 
     def load_trie(self, file_name):
         values = json.load(gzip.open(file_name), 'utf-8')
-        trie = populate_trie(map(lambda x: x.lower(), values))
+        trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
         return trie
 
     def load_dictionary(self, field_name, dict_name):
         if field_name not in self.tries:
-            self.tries[field_name] = self.load_trie(self.dictionaries_path + "/" + dict_name)
+            self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
 
     def extract_using_dictionary(self, tokens, field_name, config):
         """ Takes in tokens as input along with the dict name"""
@@ -259,16 +282,43 @@ class Core(object):
         if _DICTIONARY not in config:
             raise KeyError('No dictionary specified for {}'.format(field_name))
 
-        self.load_trie(field_name, config[_DICTIONARY])
+        self.load_dictionary(field_name, config[_DICTIONARY])
 
+        pre_process = None
+        if _PRE_PROCESS in config and len(config[_PRE_PROCESS]) > 0:
+            pre_process = self.string_to_lambda(config[_PRE_PROCESS][0])
+        if not pre_process:
+            pre_process = lambda x: x
+
+        pre_filter = None
+        if _PRE_FILTER in config and len(config[_PRE_FILTER]) > 0:
+            pre_filter = self.string_to_lambda(config[_PRE_FILTER][0])
+        if not pre_filter:
+            pre_filter = lambda x: x
+
+        post_filter = None
+        if _PRE_FILTER in config and len(config[_PRE_FILTER]) > 0:
+            post_filter = self.string_to_lambda(config[_PRE_FILTER][0])
+        if not post_filter:
+            post_filter = lambda x: isinstance(x, basestring)
+
+        ngrams = int(config[_NGRAMS]) if _NGRAMS in config else 1
+
+        joiner = config[_JOINER] if _JOINER in config else ' '
 
         return dictionary_extractor.extract_using_dictionary(tokens, pre_process=pre_process,
-                                            trie=self.tries[name],
+                                            trie=self.tries[field_name],
                                             pre_filter=pre_filter,
                                             post_filter=post_filter,
                                             ngrams=ngrams,
                                             joiner=joiner)
 
+    @staticmethod
+    def string_to_lambda(s):
+        try:
+            return lambda x: eval(s)
+        except:
+            return None
 
     def extract_address(self, document):
         """

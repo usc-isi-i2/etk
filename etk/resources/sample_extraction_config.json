@@ -38,11 +38,14 @@
       "fields": {
         "name": {
           "extractors": {
-            "extract_using_dict": {
+            "extract_using_dictionary": {
               "config": {
                 "dictionary": "women_name",
                 "ngrams": 1,
                 "joiner": " ",
+                "pre_process": [
+                  "x.lower()"
+                ],
                 "pre_filter": [
                   "x"
                 ],
