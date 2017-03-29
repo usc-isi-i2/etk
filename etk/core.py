@@ -220,7 +220,7 @@ class Core(object):
                                                                 results = foo(doc, field,
                                                                               extractors[extractor][_CONFIG])
                                                                 if results:
-                                                                    print results
+                                                                    # print results
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
                                                                                                 self.add_origin_info(
@@ -464,7 +464,7 @@ class Core(object):
                 for regex_option in regex_options:
                     flags = flags | eval("re." + regex_option)
             if _PRE_FILTER in config:
-                text = self.run_filters(text, config[_PRE_FILTER])
+                text = self.run_user_filters(d, config[_PRE_FILTER])
             result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
             # TODO ADD code to handle post_filters
@@ -472,8 +472,7 @@ class Core(object):
             print e
             return None
 
-    @staticmethod
-    def extract_from_landmark(doc, field_name, config):
+    def extract_from_landmark(self, doc, field_name, config):
         if _CONTENT_EXTRACTION not in doc:
             return None
         if _INFERLINK_EXTRACTIONS not in doc[_CONTENT_EXTRACTION]:
@@ -487,40 +486,68 @@ class Core(object):
         if _PRE_FILTER in config:
             pre_filters = config[_PRE_FILTER]
 
+        post_filters = None
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+
         if fields:
             for field in fields:
                 if field in inferlink_extraction:
-                    o = dict()
-                    text = inferlink_extraction[field][_TEXT]
+                    d = inferlink_extraction[field]
                     if pre_filters:
-                        text = Core.run_filters(text, pre_filters)
-                    o['value'] = text
-                    results.append(o)
+                        # Assumption all pre_filters are lambdas
+                        d[_TEXT] = self.run_user_filters(d, pre_filters)
+                    post_result = None
+                    if post_filters:
+                        post_result = self.run_user_filters(d, post_filters)
+                    result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
+                        d[_TEXT])
+                    if result:
+                        results.extend(result)
         else:
             for field in inferlink_extraction.keys():
                 # The logic below: if the inferlink rules do not have semantic information in the field names returned,
                 #                                                                                               too bad
                 if field_name in field:
-                    o = dict()
-                    o['value'] = inferlink_extraction[field][_TEXT]
-                    results.append(o)
+                    d = inferlink_extraction[field]
+                    if pre_filters:
+                        # Assumption all pre_filters are lambdas
+                        d[_TEXT] = self.run_user_filters(d, pre_filters)
+                    post_result = None
+                    if post_filters:
+                        post_result = self.run_user_filters(d, post_filters)
+                    result = self.handle_text_or_results(post_result) if post_result else d[_TEXT]
+                    if result:
+                        results.extend(result)
 
         return results if len(results) > 0 else None
 
-    def run_filters(self, text, filters):
+    @staticmethod
+    def handle_text_or_results(x):
+        if isinstance(x, basestring):
+            o = dict()
+            o['value'] = x
+            return [o]
+        if isinstance(x, dict):
+            return [x]
+        if isinstance(x, list):
+            return x
+        return None
+
+    def run_user_filters(self, d, filters):
+        result = None
         if not isinstance(filters, list):
             filters = [filters]
         try:
             for text_filter in filters:
                 if hasattr(self, text_filter):
                     f = getattr(self, text_filter)
-                    text = f(text)
+                    result = f(d)
                 else:
-                    text = Core.string_to_lambda(text_filter)(text)
+                    result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:
-            print e
-            pass
-        return text
+            print 'hell',e
+        return result
 
     @staticmethod
     def string_to_lambda(s):
