@@ -184,7 +184,7 @@ class Core(object):
                                                         ep = self.determine_extraction_policy(extractors[extractor])
                                                         # print ep
                                                         if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                            results = foo(match.value[_TOKENS], field,
+                                                            results = foo(match.value, field,
                                                                           extractors[extractor][_CONFIG])
                                                             if results:
                                                                 self.add_data_extraction_results(match.value, field,
@@ -198,7 +198,7 @@ class Core(object):
                                                         score = 1.0
                                                         ep = self.determine_extraction_policy(extractors[extractor])
                                                         if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                            results = foo(match.value[_TEXT],
+                                                            results = foo(match.value,
                                                                           extractors[extractor][_CONFIG])
 
                                                             if results:
@@ -208,13 +208,26 @@ class Core(object):
                                                                                                      results, method,
                                                                                                      segment, score))
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
-                                                        method = _METHOD_INFERLINK
-                                                        score = 1.0
-                                                        ep = self.determine_extraction_policy(extractors[extractor])
-
-
-
-
+                                                        if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
+                                                            print extractor
+                                                            print full_path
+                                                            method = _METHOD_INFERLINK
+                                                            score = 1.0
+                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(doc, field,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    print results
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
 
         return doc
 
@@ -394,8 +407,9 @@ class Core(object):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
 
-    def extract_using_dictionary(self, tokens, field_name, config):
-        """ Takes in tokens as input along with the dict name"""
+    def extract_using_dictionary(self, d, field_name, config):
+        # this method is self aware that it needs tokens as input
+        tokens = d[_SIMPLE_TOKENS]
 
         if _DICTIONARY not in config:
             raise KeyError('No dictionary specified for {}'.format(field_name))
@@ -432,8 +446,10 @@ class Core(object):
                                             joiner=joiner)
         return result if result and len(result) > 0 else None
 
-    def extract_using_regex(self, text, config):
+    def extract_using_regex(self, d, config):
         try:
+            # this method is self aware that it needs the text, so look for text in the input d
+            text = d[_TEXT]
             include_context = True
             if "include_context" in config and config['include_context'].lower() == 'false':
                 include_context = False
@@ -448,15 +464,63 @@ class Core(object):
                 for regex_option in regex_options:
                     flags = flags | eval("re." + regex_option)
             if _PRE_FILTER in config:
-                pre_filters = config[_PRE_FILTER]
-                for pre_filter in pre_filters:
-                    text = Core.string_to_lambda(pre_filter)(text)
+                text = self.run_filters(text, config[_PRE_FILTER])
             result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
             # TODO ADD code to handle post_filters
         except Exception as e:
             print e
             return None
+
+    @staticmethod
+    def extract_from_landmark(doc, field_name, config):
+        if _CONTENT_EXTRACTION not in doc:
+            return None
+        if _INFERLINK_EXTRACTIONS not in doc[_CONTENT_EXTRACTION]:
+            return None
+        results = list()
+        inferlink_extraction = doc[_CONTENT_EXTRACTION][_INFERLINK_EXTRACTIONS]
+        fields = None
+        if _FIELDS in config:
+            fields = config[_FIELDS]
+        pre_filters = None
+        if _PRE_FILTER in config:
+            pre_filters = config[_PRE_FILTER]
+
+        if fields:
+            for field in fields:
+                if field in inferlink_extraction:
+                    o = dict()
+                    text = inferlink_extraction[field][_TEXT]
+                    if pre_filters:
+                        text = Core.run_filters(text, pre_filters)
+                    o['value'] = text
+                    results.append(o)
+        else:
+            for field in inferlink_extraction.keys():
+                # The logic below: if the inferlink rules do not have semantic information in the field names returned,
+                #                                                                                               too bad
+                if field_name in field:
+                    o = dict()
+                    o['value'] = inferlink_extraction[field][_TEXT]
+                    results.append(o)
+
+        return results if len(results) > 0 else None
+
+    def run_filters(self, text, filters):
+        if not isinstance(filters, list):
+            filters = [filters]
+        try:
+            for text_filter in filters:
+                if hasattr(self, text_filter):
+                    f = getattr(self, text_filter)
+                    text = f(text)
+                else:
+                    text = Core.string_to_lambda(text_filter)(text)
+        except Exception as e:
+            print e
+            pass
+        return text
 
     @staticmethod
     def string_to_lambda(s):

@@ -5,7 +5,9 @@
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz"
     },
-    "landmark" : ["/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"]
+    "landmark": [
+      "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
+    ]
   },
   "content_extraction": {
     "input_path": "raw_content",
@@ -28,13 +30,16 @@
       "landmark": {
         "field_name": "inferlink_extractions",
         "extraction_policy": "keep_existing",
-        "landmark_threshold": 0.5 
+        "landmark_threshold": 0.5
       }
     }
   },
-    "data_extraction": [
+  "data_extraction": [
     {
-      "input_path": ["*.*.text.`parent`", "*.inferlink_extractions.*.text.`parent`"],
+      "input_path": [
+        "*.*.text.`parent`",
+        "*.inferlink_extractions.*.text.`parent`"
+      ],
       "fields": {
         "name": {
           "extractors": {
@@ -79,11 +84,23 @@
                   "x.replace('\t', '')"
                 ]
               },
-              "extraction_policy": "keep_existing|replace"
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "age": {
+          "extractors": {
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_age"
+                ]
+              },
+              "extraction_policy": "replace"
             }
           }
         }
       }
     }
-    ]
+  ]
 }
