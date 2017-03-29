@@ -2,6 +2,7 @@
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
+from data_extractors import regex_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -176,7 +177,7 @@ class Core(object):
                                                     # score is 1.0 because this method thinks it is the best
                                                     score = 1.0
                                                     ep = self.determine_extraction_policy(extractors[extractor])
-                                                    print ep
+                                                    # print ep
                                                     if self.check_if_run_extraction(match.value, field, extractor, ep):
                                                         results = foo(match.value[_TOKENS], field,
                                                                       extractors[extractor][_CONFIG])
@@ -186,7 +187,23 @@ class Core(object):
                                                                                              self.add_origin_info(
                                                                                                  results, method,
                                                                                                  segment, score))
-                                                if extractor == _EXTRACT_USING_REGEX
+                                                if extractor == _EXTRACT_USING_REGEX:
+                                                    print extractor
+                                                    method = _METHOD_OTHER
+                                                    # score is 1.0 because this method thinks it is the best
+                                                    score = 1.0
+                                                    ep = self.determine_extraction_policy(extractors[extractor])
+                                                    if self.check_if_run_extraction(match.value, field, extractor, ep):
+                                                        results = foo(match.value[_TEXT],
+                                                                      extractors[extractor][_CONFIG])
+                                                        print results
+
+                                                        if results:
+                                                            self.add_data_extraction_results(match.value, field,
+                                                                                             extractor,
+                                                                                             self.add_origin_info(
+                                                                                                 results, method,
+                                                                                                 segment, score))
 
 
 
@@ -406,6 +423,31 @@ class Core(object):
                                             joiner=joiner)
         return result if result and len(result) > 0 else None
 
+    def extract_using_regex(self, text, config):
+        try:
+            include_context = True
+            if "include_context" in config and config['include_context'].lower() == 'false':
+                include_context = False
+            if "regex" not in config:
+                raise KeyError('No regular expression found in {}'.format(json.dumps(config)))
+            regex = config["regex"]
+            flags = 0
+            if "regex_options" in config:
+                regex_options = config['regex_options']
+                if not isinstance(regex_options, list):
+                    raise ValueError("regular expression options should be a list in {}".format(json.dumps(config)))
+                for regex_option in regex_options:
+                    flags = flags | eval("re." + regex_option)
+            if _PRE_FILTER in config:
+                pre_filters = config[_PRE_FILTER]
+                for pre_filter in pre_filters:
+                    text = Core.string_to_lambda(pre_filter)(text)
+            return regex_extractor.extract(text, regex, include_context, flags)
+
+            # TODO ADD code to handle post_filters
+        except Exception as e:
+            print e
+            return None
     @staticmethod
     def string_to_lambda(s):
         try:

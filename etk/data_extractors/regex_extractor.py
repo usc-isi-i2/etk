@@ -24,14 +24,21 @@ def apply_regex(text, regex, include_context, flags):
 def extract(text, regex, include_context=True,flags=0):
     extracts = list()
     try:
-        if isinstance(regex, type(re.compile(''))):
+        if isinstance(regex, type(re.compile(''))) or isinstance(regex, basestring):
+            print "here1"
             extracts = apply_regex(text, regex, include_context, flags)
+            print include_context
+            print flags
+            print regex
+            print extracts
         elif isinstance(regex, types.ListType):
+            print "here2"
             for r in regex:
                 extracts.extend(apply_regex(text, r, include_context, flags))
         if include_context:
             return extracts
         else:
             return list(frozenset(extracts))
-    except:
+    except Exception as e:
+        print e
         return list()

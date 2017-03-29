@@ -57,14 +57,14 @@
             },
             "extract_using_regex": {
               "config": {
+                "include_context": "true",
                 "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
                 "regex_options": [
-                  "IGNORECASE",
-                  "S"
+                  "IGNORECASE"
                 ],
                 "pre_filter": [
-                  "x.replace('\n', '')",
-                  "x.replace('\r', '')"
+                  "x.replace('\\n', '')",
+                  "x.replace('\\r', '')"
                 ]
               },
               "extraction_policy": "replace"

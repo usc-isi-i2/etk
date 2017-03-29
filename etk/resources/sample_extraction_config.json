@@ -57,6 +57,7 @@
             },
             "extract_using_regex": {
               "config": {
+                "include_context": "true",
                 "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
                 "regex_options": [
                   "IGNORECASE",
