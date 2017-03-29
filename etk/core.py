@@ -50,6 +50,7 @@ _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
+_EXTRACT_USING_REGEX = "extract_using_regex"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _INFERLINK = "inferlink"
@@ -185,6 +186,7 @@ class Core(object):
                                                                                              self.add_origin_info(
                                                                                                  results, method,
                                                                                                  segment, score))
+                                                if extractor == _EXTRACT_USING_REGEX
 
 
 

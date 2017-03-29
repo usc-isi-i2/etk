@@ -75,79 +75,6 @@ def getSpace(text, start):
         start = start - 1
     return start
 
-
-# class AddressExtractor(Extractor):
-
-#     def __init__(self):
-#         super(AddressExtractor, self).__init__()
-#         self.renamed_input_fields = 'text'
-
-#     def extract(self, doc):
-#         if 'text' in doc:
-#             return self.getAddressFromStringType(doc['text'], keywords)
-#         return None
-
-#     def get_metadata(self):
-#         return copy.copy(self.metadata)
-
-#     def set_metadata(self, metadata):
-#         self.metadata = metadata
-#         return self
-
-#     def get_renamed_input_fields(self):
-#         return self.renamed_input_fields
-
-#     def extractAddress(self, text, p, type1, addresses, offset=0):
-#         m = p.search(text, offset)
-#         if m is None:
-#             return addresses
-
-#         end = m.span()[0] + len(type1) + 1
-#         if end != -1:
-#             flag = 1
-#             flag, bkStart = getNum(text, end - (len(type1) + 1), 50)
-#             if flag == 0:
-#                 start = getSpace(text, end - (len(type1) + 2))
-#             elif flag == 1:
-#                 flag, start = getNum(text, bkStart - 1, 10)
-#                 if flag == 0:
-#                     start = bkStart
-#             flag, newEnd = getNumNext(text, end, 25)
-#             if flag:
-#                 end = newEnd
-#             if self.get_include_context():
-#                 address = {'value': cleanAddress(text[start:end], 3),
-#                            'context': {'start': start,
-#                                        'end': end}}
-#                 addresses.append(address)
-
-#             else:
-#                 addresses.append(cleanAddress(text[start:end], 3))
-#             addresses = self.extractAddress(text, p, type1, addresses, end)
-#             return addresses
-#         return addresses
-
-#     """
-#     Input: Text String and keyword python list ex: ["ave","street"] etc.
-#     Output: Json object containing input text string with list of
-#             associated present addresses
-
-#     Uses keywords list passed as an parameter
-#     """
-
-#     def getAddressFromStringType(self, text_string, keywords):
-#         addresses = list()
-#         text_string_lower = text_string.lower()
-#         for k, p in keyword_patterns.iteritems():
-#             self.extractAddress(text_string_lower, p, k, addresses)
-#         if not self.get_include_context():
-#             return list(frozenset(addresses))
-#         return addresses
-
-
-
-
-
 def extractAddress(text, p, type1, addresses, offset=0):
     m = p.search(text, offset)
     if m is None:
@@ -192,6 +119,7 @@ Output: Json object containing input text string with list of
 
 Uses keywords list passed as an parameter
 """
+
 
 def extract_address(text_string):
     addresses = list()
