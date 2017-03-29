@@ -34,7 +34,7 @@
   },
     "data_extraction": [
     {
-      "input_path": "*.*.text.`parent`",
+      "input_path": ["*.*.text.`parent`", "*.inferlink_extractions.*.text.`parent`"],
       "fields": {
         "name": {
           "extractors": {
@@ -69,7 +69,7 @@
               },
               "extraction_policy": "replace"
             },
-            "landmark": {
+            "extract_from_landmark": {
               "config": {
                 "fields": [
                   "inferlink_name",

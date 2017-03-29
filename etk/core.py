@@ -52,6 +52,7 @@ _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
+_EXTRACT_FROM_LANDMARK = "extract_from_landmark"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _INFERLINK = "inferlink"
@@ -134,76 +135,84 @@ class Core(object):
 
                 for i in range(len(de_configs)):
                     de_config = de_configs[i]
-                    input_path = de_config[_INPUT_PATH] if _INPUT_PATH in de_config else None
-                    if not input_path:
+                    input_paths = de_config[_INPUT_PATH] if _INPUT_PATH in de_config else None
+                    if not input_paths:
                         raise KeyError('{} not found for data extraction in extraction_config'.format(_INPUT_PATH))
 
-                    if _FIELDS in de_config:
-                        if i not in self.data_extraction_path:
-                            self.data_extraction_path[i] = parse(input_path)
-                        matches = self.data_extraction_path[i].find(doc)
-                        for match in matches:
-                            # First rule of DATA Extraction club: Get tokens
-                            # Get the crf tokens
-                            if _TOKENS not in match.value:
-                                match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
-                            if _SIMPLE_TOKENS not in match.value:
-                                match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
-                            fields = de_config[_FIELDS]
-                            for field in fields.keys():
-                                """
-                                    Special case for inferlink extractions:
-                                    For eg, We do not want to extract name from inferlink_posting-date #DUH
-                                """
-                                run_extractor = True
-                                full_path = str(match.full_path)
-                                segment = self.determine_segment(full_path)
-                                if _INFERLINK in full_path:
-                                    if field not in full_path:
-                                        run_extractor = False
-                                    if _DESCRIPTION in full_path or _TITLE in full_path:
-                                        run_extractor = True
-                                if run_extractor:
-                                    if _EXTRACTORS in fields[field]:
-                                        extractors = fields[field][_EXTRACTORS]
-                                        for extractor in extractors.keys():
-                                            try:
-                                                foo = getattr(self, extractor)
-                                            except Exception as e:
-                                                foo = None
-                                            if foo:
-                                                if extractor == _EXTRACT_USING_DICTIONARY:
-                                                    method = _METHOD_OTHER
-                                                    # score is 1.0 because this method thinks it is the best
-                                                    score = 1.0
-                                                    ep = self.determine_extraction_policy(extractors[extractor])
-                                                    # print ep
-                                                    if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                        results = foo(match.value[_TOKENS], field,
-                                                                      extractors[extractor][_CONFIG])
-                                                        if results:
-                                                            self.add_data_extraction_results(match.value, field,
-                                                                                             extractor,
-                                                                                             self.add_origin_info(
-                                                                                                 results, method,
-                                                                                                 segment, score))
-                                                if extractor == _EXTRACT_USING_REGEX:
-                                                    print extractor
-                                                    method = _METHOD_OTHER
-                                                    # score is 1.0 because this method thinks it is the best
-                                                    score = 1.0
-                                                    ep = self.determine_extraction_policy(extractors[extractor])
-                                                    if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                        results = foo(match.value[_TEXT],
-                                                                      extractors[extractor][_CONFIG])
-                                                        print results
+                    if not isinstance(input_paths, list):
+                        input_paths = [input_paths]
 
-                                                        if results:
-                                                            self.add_data_extraction_results(match.value, field,
-                                                                                             extractor,
-                                                                                             self.add_origin_info(
-                                                                                                 results, method,
-                                                                                                 segment, score))
+                    for input_path in input_paths:
+                        if _FIELDS in de_config:
+                            if input_path not in self.data_extraction_path:
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
+                            for match in matches:
+                                # First rule of DATA Extraction club: Get tokens
+                                # Get the crf tokens
+                                if _TOKENS not in match.value:
+                                    match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                                if _SIMPLE_TOKENS not in match.value:
+                                    match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                                fields = de_config[_FIELDS]
+                                for field in fields.keys():
+                                    """
+                                        Special case for inferlink extractions:
+                                        For eg, We do not want to extract name from inferlink_posting-date #DUH
+                                    """
+                                    run_extractor = True
+                                    full_path = str(match.full_path)
+                                    segment = self.determine_segment(full_path)
+                                    if _INFERLINK in full_path:
+                                        if field not in full_path:
+                                            run_extractor = False
+                                        if _DESCRIPTION in full_path or _TITLE in full_path:
+                                            run_extractor = True
+                                    if run_extractor:
+                                        if _EXTRACTORS in fields[field]:
+                                            extractors = fields[field][_EXTRACTORS]
+                                            for extractor in extractors.keys():
+                                                try:
+                                                    foo = getattr(self, extractor)
+                                                except Exception as e:
+                                                    foo = None
+                                                if foo:
+                                                    if extractor == _EXTRACT_USING_DICTIONARY:
+                                                        method = _METHOD_OTHER
+                                                        # score is 1.0 because this method thinks it is the best
+                                                        score = 1.0
+                                                        ep = self.determine_extraction_policy(extractors[extractor])
+                                                        # print ep
+                                                        if self.check_if_run_extraction(match.value, field, extractor, ep):
+                                                            results = foo(match.value[_TOKENS], field,
+                                                                          extractors[extractor][_CONFIG])
+                                                            if results:
+                                                                self.add_data_extraction_results(match.value, field,
+                                                                                                 extractor,
+                                                                                                 self.add_origin_info(
+                                                                                                     results, method,
+                                                                                                     segment, score))
+                                                    if extractor == _EXTRACT_USING_REGEX:
+                                                        method = _METHOD_OTHER
+                                                        # score is 1.0 because this method thinks it is the best
+                                                        score = 1.0
+                                                        ep = self.determine_extraction_policy(extractors[extractor])
+                                                        if self.check_if_run_extraction(match.value, field, extractor, ep):
+                                                            results = foo(match.value[_TEXT],
+                                                                          extractors[extractor][_CONFIG])
+
+                                                            if results:
+                                                                self.add_data_extraction_results(match.value, field,
+                                                                                                 extractor,
+                                                                                                 self.add_origin_info(
+                                                                                                     results, method,
+                                                                                                     segment, score))
+                                                    if extractor == _EXTRACT_FROM_LANDMARK:
+                                                        method = _METHOD_INFERLINK
+                                                        score = 1.0
+                                                        ep = self.determine_extraction_policy(extractors[extractor])
+
+
 
 
 
@@ -284,7 +293,7 @@ class Core(object):
                     o = dict()
                     o[key] = dict()
                     o[key]['text'] = ifl_extractions[key]
-                    content_extraction.update(o)
+                    content_extraction[field_name].update(o)
         return content_extraction
 
     def consolidate_landmark_rules(self):
@@ -442,12 +451,13 @@ class Core(object):
                 pre_filters = config[_PRE_FILTER]
                 for pre_filter in pre_filters:
                     text = Core.string_to_lambda(pre_filter)(text)
-            return regex_extractor.extract(text, regex, include_context, flags)
-
+            result = regex_extractor.extract(text, regex, include_context, flags)
+            return result if result and len(result) > 0 else None
             # TODO ADD code to handle post_filters
         except Exception as e:
             print e
             return None
+
     @staticmethod
     def string_to_lambda(s):
         try:
