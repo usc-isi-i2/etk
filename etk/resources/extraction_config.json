@@ -99,6 +99,16 @@
               "extraction_policy": "replace"
             }
           }
+        },
+         "phone": {
+          "extractors": {
+            "extract_phone": {
+              "config": {
+
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }

@@ -3,6 +3,7 @@ from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
+from data_extractors.digPhoneExtractor import phone_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -53,6 +54,7 @@ _PRE_PROCESS = "pre_process"
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
 _EXTRACT_FROM_LANDMARK = "extract_from_landmark"
+_EXTRACT_PHONE = "extract_phone"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _INFERLINK = "inferlink"
@@ -65,6 +67,9 @@ _SEGMENT_OTHER = "other_segment"
 _METHOD_GUROBI = "gurobi"
 _METHOD_INFERLINK = "inferlink"
 _METHOD_OTHER = "other_method"
+
+_SOURCE_TYPE = "source_type"
+_OBFUSCATION = "obfuscation"
 
 
 class Core(object):
@@ -221,6 +226,24 @@ class Core(object):
                                                                               extractors[extractor][_CONFIG])
                                                                 if results:
                                                                     # print results
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
+                                                    if extractor == _EXTRACT_PHONE:
+                                                            method = _METHOD_OTHER
+                                                            score = 1.0
+                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(match.value,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    print results
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
                                                                                                 self.add_origin_info(
@@ -438,36 +461,48 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
+        return self._extract_using_dictionary(tokens, pre_process, self.tries[field_name], pre_filter, post_filter,
+                                                ngrams, joiner)
+
+    @staticmethod
+    def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
         result = dictionary_extractor.extract_using_dictionary(tokens, pre_process=pre_process,
-                                            trie=self.tries[field_name],
-                                            pre_filter=pre_filter,
-                                            post_filter=post_filter,
-                                            ngrams=ngrams,
-                                            joiner=joiner)
+                                                               trie=trie,
+                                                               pre_filter=pre_filter,
+                                                               post_filter=post_filter,
+                                                               ngrams=ngrams,
+                                                               joiner=joiner)
         return result if result and len(result) > 0 else None
 
     def extract_using_regex(self, d, config):
+        # this method is self aware that it needs the text, so look for text in the input d
+        text = d[_TEXT]
+        include_context = True
+        if "include_context" in config and config['include_context'].lower() == 'false':
+            include_context = False
+        if "regex" not in config:
+            raise KeyError('No regular expression found in {}'.format(json.dumps(config)))
+        regex = config["regex"]
+        flags = 0
+        if "regex_options" in config:
+            regex_options = config['regex_options']
+            if not isinstance(regex_options, list):
+                raise ValueError("regular expression options should be a list in {}".format(json.dumps(config)))
+            for regex_option in regex_options:
+                flags = flags | eval("re." + regex_option)
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+
+        result = self._extract_using_regex(text, regex, include_context, flags)
+        # TODO ADD code to handle post_filters
+
+        return result
+
+    @staticmethod
+    def _extract_using_regex(text, regex, include_context, flags):
         try:
-            # this method is self aware that it needs the text, so look for text in the input d
-            text = d[_TEXT]
-            include_context = True
-            if "include_context" in config and config['include_context'].lower() == 'false':
-                include_context = False
-            if "regex" not in config:
-                raise KeyError('No regular expression found in {}'.format(json.dumps(config)))
-            regex = config["regex"]
-            flags = 0
-            if "regex_options" in config:
-                regex_options = config['regex_options']
-                if not isinstance(regex_options, list):
-                    raise ValueError("regular expression options should be a list in {}".format(json.dumps(config)))
-                for regex_option in regex_options:
-                    flags = flags | eval("re." + regex_option)
-            if _PRE_FILTER in config:
-                text = self.run_user_filters(d, config[_PRE_FILTER])
             result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
-            # TODO ADD code to handle post_filters
         except Exception as e:
             print e
             return None
@@ -522,6 +557,19 @@ class Core(object):
 
         return results if len(results) > 0 else None
 
+    def extract_phone(self, d, config):
+        tokens = d[_SIMPLE_TOKENS]
+        # source type as in text vs url #SHRUG
+        source_type = config[_SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
+        include_context = True
+        output_format= _OBFUSCATION
+        return self._extract_phone(tokens, source_type, include_context, output_format)
+
+    @staticmethod
+    def _extract_phone(tokens, source_type, include_context, output_format):
+        result = phone_extractor.extract(tokens, source_type, include_context, output_format)
+        return result if result else None
+
     @staticmethod
     def handle_text_or_results(x):
         if isinstance(x, basestring):
@@ -540,13 +588,18 @@ class Core(object):
             filters = [filters]
         try:
             for text_filter in filters:
-                if hasattr(self, text_filter):
+                try:
                     f = getattr(self, text_filter)
-                    result = f(d)
-                else:
+                    if f:
+                        result = f(d)
+                except Exception as e:
+                    # print e
+                    result = None
+
+                if not result:
                     result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:
-            print 'hell',e
+            print 'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
     @staticmethod
@@ -554,6 +607,7 @@ class Core(object):
         try:
             return lambda x: eval(s)
         except:
+            print 'Error while converting {} to lambda'.format(s)
             return None
 
     def extract_address(self, document):
