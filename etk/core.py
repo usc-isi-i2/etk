@@ -1,4 +1,5 @@
 # import all extractors
+from spacy_extractors import *
 from data_extractors import *
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
@@ -7,7 +8,7 @@ import json
 import gzip
 import os
 import re
-
+import spacy
 
 class Core(object):
     """ Define all API methods """
@@ -156,3 +157,26 @@ class Core(object):
     	if price['price'] or price['price_per_hour']:
     		return price
     	return None
+
+    # spaCy
+    def load_matchers(self):
+        nlp = spacy.load('en')
+        self.nlp = nlp
+        self.spacy_tokenizer = self.nlp.tokenizer
+
+        matchers = {}
+
+        # Load date_extractor matcher
+        matchers['date'] = load_date_matcher(nlp)
+
+        self.matchers = matchers
+
+    def extract_date_spacy(self, doc):
+
+        # Do the extraction
+        result = extract_date_spacy(self.nlp, self.matchers['date'], self, doc)
+
+        # Replace tokenizer
+        self.nlp.tokenizer = self.spacy_tokenizer
+
+        return result
