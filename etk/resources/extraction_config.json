@@ -129,6 +129,15 @@
               "extraction_policy": "replace"
             }
           }
+        },
+        "price": {
+          "extractors": {
+            "extract_price": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }

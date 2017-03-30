@@ -5,6 +5,7 @@ from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
+from data_extractors.digPriceExtractor import price_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -52,11 +53,13 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
 _EXTRACT_FROM_LANDMARK = "extract_from_landmark"
 _EXTRACT_PHONE = "extract_phone"
 _EXTRACT_EMAIL = "extract_email"
+_EXTRACT_PRICE = "extract_price"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -257,6 +260,26 @@ class Core(object):
                                                                                                          segment,
                                                                                                          score))
                                                     if extractor == _EXTRACT_EMAIL:
+                                                            # print extractor
+                                                            # print full_path
+                                                            method = _METHOD_OTHER
+                                                            score = 1.0
+                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(match.value,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    # print results
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
+                                                    if extractor == _EXTRACT_PRICE:
                                                             print extractor
                                                             print full_path
                                                             method = _METHOD_OTHER
@@ -590,6 +613,8 @@ class Core(object):
         source_type = config[_SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
         include_context = True
         output_format= _OBFUSCATION
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
         return self._extract_phone(tokens, source_type, include_context, output_format)
 
     @staticmethod
@@ -602,11 +627,24 @@ class Core(object):
         include_context = True
         if _INCLUDE_CONTEXT in config:
             include_context = config[_INCLUDE_CONTEXT].upper() == 'TRUE'
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
         return self._extract_email(text, include_context)
 
     @staticmethod
     def _extract_email(text, include_context):
         return email_extractor.extract(text, include_context)
+
+    def extract_price(self, d, config):
+        text = d[_TEXT]
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+        return self._extract_price(text)
+
+    @staticmethod
+    def _extract_price(text):
+        return price_extractor.extract_price(text)
+
 
     @staticmethod
     def handle_text_or_results(x):

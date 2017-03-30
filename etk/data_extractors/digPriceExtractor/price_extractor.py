@@ -39,16 +39,18 @@ def extract_price(text):
         tunit = price["time_unit"]
         # Converting all time units to minutes. Default - 60
         if tunit in UNIT_TIME_HALF_HOUR:
-            tunit_val = 30
+            tunit_val = "30"
         elif tunit in UNIT_TIME_HOUR:
-            tunit_val = 60
+            tunit_val = "60"
         elif tunit in UNIT_TIME_MINUTE:
+            # TODO What to do?
             tunit_val = tunit
         elif tunit in UNIT_TIME_SECOND:
-            tunit_val = tunit / 60
+            # TODO What to do?
+            tunit_val = tunit
         else:
             # Default is 60
-            tunit_val = 60
+            tunit_val = "60"
 
         ans["metadata"]["time_unit"] = tunit_val
         result.append(ans)
