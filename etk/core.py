@@ -214,8 +214,6 @@ class Core(object):
                                                                                                      segment, score))
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
                                                         if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
-                                                            print extractor
-                                                            print full_path
                                                             method = _METHOD_INFERLINK
                                                             score = 1.0
                                                             ep = self.determine_extraction_policy(extractors[extractor])
@@ -234,6 +232,8 @@ class Core(object):
                                                                                                          segment,
                                                                                                          score))
                                                     if extractor == _EXTRACT_PHONE:
+                                                            # print extractor
+                                                            # print full_path
                                                             method = _METHOD_OTHER
                                                             score = 1.0
                                                             ep = self.determine_extraction_policy(extractors[extractor])
@@ -589,11 +589,18 @@ class Core(object):
         try:
             for text_filter in filters:
                 try:
+                    if text_filter == 'extract_phone':
+                        print 'yes, here we are'
                     f = getattr(self, text_filter)
                     if f:
-                        result = f(d)
+                        if text_filter == 'extract_phone':
+                            print "ok,  getting somewhere"
+                            result = f(d, {})
+                        else:
+                            result = f(d)
+                        if text_filter == 'extract_phone':
+                            print "results", result
                 except Exception as e:
-                    # print e
                     result = None
 
                 if not result:

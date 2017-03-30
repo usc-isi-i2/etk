@@ -1,0 +1,1951 @@
+{
+    "ac010": {
+        "province": "",
+        "citys": [
+            "北京"
+        ]
+    },
+    "ac021": {
+        "province": "",
+        "citys": [
+            "上海"
+        ]
+    },
+    "ac022": {
+        "province": "",
+        "citys": [
+            "天津"
+        ]
+    },
+    "ac023": {
+        "province": "",
+        "citys": [
+            "重庆"
+        ]
+    },
+    "ac024": {
+        "province": "辽宁",
+        "citys": [
+            "沈阳"
+        ]
+    },
+    "ac025": {
+        "province": "江苏",
+        "citys": [
+            "南京"
+        ]
+    },
+    "ac027": {
+        "province": "湖北",
+        "citys": [
+            "武汉"
+        ]
+    },
+    "ac028": {
+        "province": "四川",
+        "citys": [
+            "成都"
+        ]
+    },
+    "ac029": {
+        "province": "陕西",
+        "citys": [
+            "西安"
+        ]
+    },
+    "ac020": {
+        "province": "广东",
+        "citys": [
+            "广州"
+        ]
+    },
+    "ac0311": {
+        "province": "河北",
+        "citys": [
+            "石家庄"
+        ]
+    },
+    "ac0312": {
+        "province": "河北",
+        "citys": [
+            "保定"
+        ]
+    },
+    "ac0313": {
+        "province": "河北",
+        "citys": [
+            "张家口"
+        ]
+    },
+    "ac0314": {
+        "province": "河北",
+        "citys": [
+            "承德"
+        ]
+    },
+    "ac0315": {
+        "province": "河北",
+        "citys": [
+            "唐山"
+        ]
+    },
+    "ac0316": {
+        "province": "河北",
+        "citys": [
+            "廊坊"
+        ]
+    },
+    "ac0317": {
+        "province": "河北",
+        "citys": [
+            "沧州"
+        ]
+    },
+    "ac0318": {
+        "province": "河北",
+        "citys": [
+            "衡水"
+        ]
+    },
+    "ac0319": {
+        "province": "河北",
+        "citys": [
+            "邢台"
+        ]
+    },
+    "ac0310": {
+        "province": "河北",
+        "citys": [
+            "邯郸"
+        ]
+    },
+    "ac0335": {
+        "province": "河北",
+        "citys": [
+            "秦皇岛"
+        ]
+    },
+    "ac0349": {
+        "province": "山西",
+        "citys": [
+            "朔州"
+        ]
+    },
+    "ac0351": {
+        "province": "山西",
+        "citys": [
+            "太原"
+        ]
+    },
+    "ac0352": {
+        "province": "山西",
+        "citys": [
+            "大同"
+        ]
+    },
+    "ac0353": {
+        "province": "山西",
+        "citys": [
+            "阳泉"
+        ]
+    },
+    "ac0354": {
+        "province": "山西",
+        "citys": [
+            "晋中"
+        ]
+    },
+    "ac0355": {
+        "province": "山西",
+        "citys": [
+            "长治"
+        ]
+    },
+    "ac0356": {
+        "province": "山西",
+        "citys": [
+            "晋城"
+        ]
+    },
+    "ac0357": {
+        "province": "山西",
+        "citys": [
+            "临汾"
+        ]
+    },
+    "ac0358": {
+        "province": "山西",
+        "citys": [
+            "吕梁"
+        ]
+    },
+    "ac0359": {
+        "province": "山西",
+        "citys": [
+            "运城"
+        ]
+    },
+    "ac0350": {
+        "province": "山西",
+        "citys": [
+            "忻州"
+        ]
+    },
+    "ac0371": {
+        "province": "河南",
+        "citys": [
+            "郑州",
+            "开封"
+        ]
+    },
+    "ac0372": {
+        "province": "河南",
+        "citys": [
+            "安阳"
+        ]
+    },
+    "ac0373": {
+        "province": "河南",
+        "citys": [
+            "新乡"
+        ]
+    },
+    "ac0374": {
+        "province": "河南",
+        "citys": [
+            "许昌"
+        ]
+    },
+    "ac0375": {
+        "province": "河南",
+        "citys": [
+            "平顶山"
+        ]
+    },
+    "ac0376": {
+        "province": "河南",
+        "citys": [
+            "信阳"
+        ]
+    },
+    "ac0377": {
+        "province": "河南",
+        "citys": [
+            "南阳"
+        ]
+    },
+    "ac0379": {
+        "province": "河南",
+        "citys": [
+            "洛阳"
+        ]
+    },
+    "ac0370": {
+        "province": "河南",
+        "citys": [
+            "商丘"
+        ]
+    },
+    "ac0391": {
+        "province": "河南",
+        "citys": [
+            "焦作",
+            "济源"
+        ]
+    },
+    "ac0392": {
+        "province": "河南",
+        "citys": [
+            "鹤壁"
+        ]
+    },
+    "ac0393": {
+        "province": "河南",
+        "citys": [
+            "濮阳"
+        ]
+    },
+    "ac0394": {
+        "province": "河南",
+        "citys": [
+            "周口"
+        ]
+    },
+    "ac0395": {
+        "province": "河南",
+        "citys": [
+            "漯河"
+        ]
+    },
+    "ac0396": {
+        "province": "河南",
+        "citys": [
+            "驻马店"
+        ]
+    },
+    "ac0398": {
+        "province": "河南",
+        "citys": [
+            "三门峡"
+        ]
+    },
+    "ac0411": {
+        "province": "辽宁",
+        "citys": [
+            "大连"
+        ]
+    },
+    "ac0412": {
+        "province": "辽宁",
+        "citys": [
+            "鞍山"
+        ]
+    },
+    "ac0415": {
+        "province": "辽宁",
+        "citys": [
+            "丹东"
+        ]
+    },
+    "ac0416": {
+        "province": "辽宁",
+        "citys": [
+            "锦州"
+        ]
+    },
+    "ac0417": {
+        "province": "辽宁",
+        "citys": [
+            "营口"
+        ]
+    },
+    "ac0418": {
+        "province": "辽宁",
+        "citys": [
+            "阜新"
+        ]
+    },
+    "ac0419": {
+        "province": "辽宁",
+        "citys": [
+            "辽阳"
+        ]
+    },
+    "ac0421": {
+        "province": "辽宁",
+        "citys": [
+            "朝阳"
+        ]
+    },
+    "ac0427": {
+        "province": "辽宁",
+        "citys": [
+            "盘锦"
+        ]
+    },
+    "ac0429": {
+        "province": "辽宁",
+        "citys": [
+            "葫芦岛"
+        ]
+    },
+    "ac0431": {
+        "province": "吉林",
+        "citys": [
+            "长春"
+        ]
+    },
+    "ac0432": {
+        "province": "吉林",
+        "citys": [
+            "吉林"
+        ]
+    },
+    "ac0433": {
+        "province": "吉林",
+        "citys": [
+            "延边"
+        ]
+    },
+    "ac0434": {
+        "province": "吉林",
+        "citys": [
+            "四平"
+        ]
+    },
+    "ac0435": {
+        "province": "吉林",
+        "citys": [
+            "通化"
+        ]
+    },
+    "ac0436": {
+        "province": "吉林",
+        "citys": [
+            "白城"
+        ]
+    },
+    "ac0437": {
+        "province": "吉林",
+        "citys": [
+            "辽源"
+        ]
+    },
+    "ac0438": {
+        "province": "吉林",
+        "citys": [
+            "松原"
+        ]
+    },
+    "ac0439": {
+        "province": "吉林",
+        "citys": [
+            "白山"
+        ]
+    },
+    "ac0451": {
+        "province": "黑龙江",
+        "citys": [
+            "哈尔滨"
+        ]
+    },
+    "ac0452": {
+        "province": "黑龙江",
+        "citys": [
+            "齐齐哈尔"
+        ]
+    },
+    "ac0453": {
+        "province": "黑龙江",
+        "citys": [
+            "牡丹江"
+        ]
+    },
+    "ac0454": {
+        "province": "黑龙江",
+        "citys": [
+            "佳木斯"
+        ]
+    },
+    "ac0455": {
+        "province": "黑龙江",
+        "citys": [
+            "绥化"
+        ]
+    },
+    "ac0456": {
+        "province": "黑龙江",
+        "citys": [
+            "黑河"
+        ]
+    },
+    "ac0457": {
+        "province": "黑龙江",
+        "citys": [
+            "大兴安岭"
+        ]
+    },
+    "ac0458": {
+        "province": "黑龙江",
+        "citys": [
+            "伊春"
+        ]
+    },
+    "ac0459": {
+        "province": "黑龙江",
+        "citys": [
+            "大庆"
+        ]
+    },
+    "ac0464": {
+        "province": "黑龙江",
+        "citys": [
+            "七台河"
+        ]
+    },
+    "ac0467": {
+        "province": "黑龙江",
+        "citys": [
+            "鸡西"
+        ]
+    },
+    "ac0468": {
+        "province": "黑龙江",
+        "citys": [
+            "鹤岗"
+        ]
+    },
+    "ac0469": {
+        "province": "黑龙江",
+        "citys": [
+            "双鸭山"
+        ]
+    },
+    "ac0471": {
+        "province": "内蒙古",
+        "citys": [
+            "呼和浩特"
+        ]
+    },
+    "ac0472": {
+        "province": "内蒙古",
+        "citys": [
+            "包头"
+        ]
+    },
+    "ac0473": {
+        "province": "内蒙古",
+        "citys": [
+            "乌海"
+        ]
+    },
+    "ac0474": {
+        "province": "内蒙古",
+        "citys": [
+            "乌兰察布"
+        ]
+    },
+    "ac0475": {
+        "province": "内蒙古",
+        "citys": [
+            "通辽"
+        ]
+    },
+    "ac0476": {
+        "province": "内蒙古",
+        "citys": [
+            "赤峰"
+        ]
+    },
+    "ac0477": {
+        "province": "内蒙古",
+        "citys": [
+            "鄂尔多斯"
+        ]
+    },
+    "ac0478": {
+        "province": "内蒙古",
+        "citys": [
+            "巴彦淖尔"
+        ]
+    },
+    "ac0479": {
+        "province": "内蒙古",
+        "citys": [
+            "锡林郭勒盟"
+        ]
+    },
+    "ac0470": {
+        "province": "内蒙古",
+        "citys": [
+            "呼伦贝尔"
+        ]
+    },
+    "ac0482": {
+        "province": "内蒙古",
+        "citys": [
+            "兴安盟"
+        ]
+    },
+    "ac0483": {
+        "province": "内蒙古",
+        "citys": [
+            "阿拉善盟"
+        ]
+    },
+    "ac0511": {
+        "province": "江苏",
+        "citys": [
+            "镇江"
+        ]
+    },
+    "ac0512": {
+        "province": "江苏",
+        "citys": [
+            "苏州"
+        ]
+    },
+    "ac0513": {
+        "province": "江苏",
+        "citys": [
+            "南通"
+        ]
+    },
+    "ac0514": {
+        "province": "江苏",
+        "citys": [
+            "扬州"
+        ]
+    },
+    "ac0515": {
+        "province": "江苏",
+        "citys": [
+            "盐城"
+        ]
+    },
+    "ac0516": {
+        "province": "江苏",
+        "citys": [
+            "徐州"
+        ]
+    },
+    "ac0517": {
+        "province": "江苏",
+        "citys": [
+            "淮安"
+        ]
+    },
+    "ac0518": {
+        "province": "江苏",
+        "citys": [
+            "连云港"
+        ]
+    },
+    "ac0519": {
+        "province": "江苏",
+        "citys": [
+            "常州"
+        ]
+    },
+    "ac0510": {
+        "province": "江苏",
+        "citys": [
+            "无锡"
+        ]
+    },
+    "ac0523": {
+        "province": "江苏",
+        "citys": [
+            "泰州"
+        ]
+    },
+    "ac0527": {
+        "province": "江苏",
+        "citys": [
+            "宿迁"
+        ]
+    },
+    "ac0531": {
+        "province": "山东",
+        "citys": [
+            "济南"
+        ]
+    },
+    "ac0532": {
+        "province": "山东",
+        "citys": [
+            "青岛"
+        ]
+    },
+    "ac0533": {
+        "province": "山东",
+        "citys": [
+            "淄博"
+        ]
+    },
+    "ac0534": {
+        "province": "山东",
+        "citys": [
+            "德州"
+        ]
+    },
+    "ac0535": {
+        "province": "山东",
+        "citys": [
+            "烟台"
+        ]
+    },
+    "ac0536": {
+        "province": "山东",
+        "citys": [
+            "潍坊"
+        ]
+    },
+    "ac0537": {
+        "province": "山东",
+        "citys": [
+            "济宁"
+        ]
+    },
+    "ac0538": {
+        "province": "山东",
+        "citys": [
+            "泰安"
+        ]
+    },
+    "ac0539": {
+        "province": "山东",
+        "citys": [
+            "临沂"
+        ]
+    },
+    "ac0530": {
+        "province": "山东",
+        "citys": [
+            "菏泽"
+        ]
+    },
+    "ac0543": {
+        "province": "山东",
+        "citys": [
+            "滨州"
+        ]
+    },
+    "ac0546": {
+        "province": "山东",
+        "citys": [
+            "东营"
+        ]
+    },
+    "ac0551": {
+        "province": "安徽",
+        "citys": [
+            "合肥"
+        ]
+    },
+    "ac0552": {
+        "province": "安徽",
+        "citys": [
+            "蚌埠"
+        ]
+    },
+    "ac0553": {
+        "province": "安徽",
+        "citys": [
+            "芜湖"
+        ]
+    },
+    "ac0554": {
+        "province": "安徽",
+        "citys": [
+            "淮南"
+        ]
+    },
+    "ac0555": {
+        "province": "安徽",
+        "citys": [
+            "马鞍山"
+        ]
+    },
+    "ac0556": {
+        "province": "安徽",
+        "citys": [
+            "安庆"
+        ]
+    },
+    "ac0557": {
+        "province": "安徽",
+        "citys": [
+            "宿州"
+        ]
+    },
+    "ac0558": {
+        "province": "安徽",
+        "citys": [
+            "阜阳",
+            "亳州"
+        ]
+    },
+    "ac0559": {
+        "province": "安徽",
+        "citys": [
+            "黄山"
+        ]
+    },
+    "ac0550": {
+        "province": "安徽",
+        "citys": [
+            "滁州"
+        ]
+    },
+    "ac0561": {
+        "province": "安徽",
+        "citys": [
+            "淮北"
+        ]
+    },
+    "ac0562": {
+        "province": "安徽",
+        "citys": [
+            "铜陵"
+        ]
+    },
+    "ac0563": {
+        "province": "安徽",
+        "citys": [
+            "宣城"
+        ]
+    },
+    "ac0564": {
+        "province": "安徽",
+        "citys": [
+            "六安"
+        ]
+    },
+    "ac0566": {
+        "province": "安徽",
+        "citys": [
+            "池州"
+        ]
+    },
+    "ac0571": {
+        "province": "浙江",
+        "citys": [
+            "杭州"
+        ]
+    },
+    "ac0572": {
+        "province": "浙江",
+        "citys": [
+            "湖州"
+        ]
+    },
+    "ac0573": {
+        "province": "浙江",
+        "citys": [
+            "嘉兴"
+        ]
+    },
+    "ac0574": {
+        "province": "浙江",
+        "citys": [
+            "宁波"
+        ]
+    },
+    "ac0575": {
+        "province": "浙江",
+        "citys": [
+            "绍兴"
+        ]
+    },
+    "ac0576": {
+        "province": "浙江",
+        "citys": [
+            "台州"
+        ]
+    },
+    "ac0577": {
+        "province": "浙江",
+        "citys": [
+            "温州"
+        ]
+    },
+    "ac0578": {
+        "province": "浙江",
+        "citys": [
+            "丽水"
+        ]
+    },
+    "ac0579": {
+        "province": "浙江",
+        "citys": [
+            "金华"
+        ]
+    },
+    "ac0570": {
+        "province": "浙江",
+        "citys": [
+            "衢州"
+        ]
+    },
+    "ac0580": {
+        "province": "浙江",
+        "citys": [
+            "舟山"
+        ]
+    },
+    "ac0591": {
+        "province": "福建",
+        "citys": [
+            "福州"
+        ]
+    },
+    "ac0592": {
+        "province": "福建",
+        "citys": [
+            "厦门"
+        ]
+    },
+    "ac0593": {
+        "province": "福建",
+        "citys": [
+            "宁德"
+        ]
+    },
+    "ac0594": {
+        "province": "福建",
+        "citys": [
+            "莆田"
+        ]
+    },
+    "ac0595": {
+        "province": "福建",
+        "citys": [
+            "泉州"
+        ]
+    },
+    "ac0596": {
+        "province": "福建",
+        "citys": [
+            "漳州"
+        ]
+    },
+    "ac0597": {
+        "province": "福建",
+        "citys": [
+            "龙岩"
+        ]
+    },
+    "ac0598": {
+        "province": "福建",
+        "citys": [
+            "三明"
+        ]
+    },
+    "ac0599": {
+        "province": "福建",
+        "citys": [
+            "南平"
+        ]
+    },
+    "ac0631": {
+        "province": "山东",
+        "citys": [
+            "威海"
+        ]
+    },
+    "ac0632": {
+        "province": "山东",
+        "citys": [
+            "枣庄"
+        ]
+    },
+    "ac0633": {
+        "province": "山东",
+        "citys": [
+            "日照"
+        ]
+    },
+    "ac0634": {
+        "province": "山东",
+        "citys": [
+            "莱芜"
+        ]
+    },
+    "ac0635": {
+        "province": "山东",
+        "citys": [
+            "聊城"
+        ]
+    },
+    "ac0662": {
+        "province": "广东",
+        "citys": [
+            "阳江"
+        ]
+    },
+    "ac0663": {
+        "province": "广东",
+        "citys": [
+            "揭阳"
+        ]
+    },
+    "ac0668": {
+        "province": "广东",
+        "citys": [
+            "茂名"
+        ]
+    },
+    "ac0660": {
+        "province": "广东",
+        "citys": [
+            "汕尾"
+        ]
+    },
+    "ac0691": {
+        "province": "云南",
+        "citys": [
+            "西双版纳"
+        ]
+    },
+    "ac0692": {
+        "province": "云南",
+        "citys": [
+            "德宏"
+        ]
+    },
+    "ac0711": {
+        "province": "湖北",
+        "citys": [
+            "鄂州"
+        ]
+    },
+    "ac0712": {
+        "province": "湖北",
+        "citys": [
+            "孝感"
+        ]
+    },
+    "ac0713": {
+        "province": "湖北",
+        "citys": [
+            "黄冈"
+        ]
+    },
+    "ac0714": {
+        "province": "湖北",
+        "citys": [
+            "黄石"
+        ]
+    },
+    "ac0715": {
+        "province": "湖北",
+        "citys": [
+            "咸宁"
+        ]
+    },
+    "ac0716": {
+        "province": "湖北",
+        "citys": [
+            "荆州"
+        ]
+    },
+    "ac0717": {
+        "province": "湖北",
+        "citys": [
+            "宜昌"
+        ]
+    },
+    "ac0718": {
+        "province": "湖北",
+        "citys": [
+            "恩施"
+        ]
+    },
+    "ac0719": {
+        "province": "湖北",
+        "citys": [
+            "十堰",
+            "神农架"
+        ]
+    },
+    "ac0710": {
+        "province": "湖北",
+        "citys": [
+            "襄阳"
+        ]
+    },
+    "ac0722": {
+        "province": "湖北",
+        "citys": [
+            "随州"
+        ]
+    },
+    "ac0724": {
+        "province": "湖北",
+        "citys": [
+            "荆门"
+        ]
+    },
+    "ac0728": {
+        "province": "湖北",
+        "citys": [
+            "仙桃",
+            "天门",
+            "潜江"
+        ]
+    },
+    "ac0731": {
+        "province": "湖南",
+        "citys": [
+            "长沙",
+            "湘潭",
+            "株洲"
+        ]
+    },
+    "ac0734": {
+        "province": "湖南",
+        "citys": [
+            "衡阳"
+        ]
+    },
+    "ac0735": {
+        "province": "湖南",
+        "citys": [
+            "郴州"
+        ]
+    },
+    "ac0736": {
+        "province": "湖南",
+        "citys": [
+            "常德"
+        ]
+    },
+    "ac0737": {
+        "province": "湖南",
+        "citys": [
+            "益阳"
+        ]
+    },
+    "ac0738": {
+        "province": "湖南",
+        "citys": [
+            "娄底"
+        ]
+    },
+    "ac0739": {
+        "province": "湖南",
+        "citys": [
+            "邵阳"
+        ]
+    },
+    "ac0730": {
+        "province": "湖南",
+        "citys": [
+            "岳阳"
+        ]
+    },
+    "ac0743": {
+        "province": "湖南",
+        "citys": [
+            "湘西"
+        ]
+    },
+    "ac0744": {
+        "province": "湖南",
+        "citys": [
+            "张家界"
+        ]
+    },
+    "ac0745": {
+        "province": "湖南",
+        "citys": [
+            "怀化"
+        ]
+    },
+    "ac0746": {
+        "province": "湖南",
+        "citys": [
+            "永州"
+        ]
+    },
+    "ac0751": {
+        "province": "广东",
+        "citys": [
+            "韶关"
+        ]
+    },
+    "ac0752": {
+        "province": "广东",
+        "citys": [
+            "惠州"
+        ]
+    },
+    "ac0753": {
+        "province": "广东",
+        "citys": [
+            "梅州"
+        ]
+    },
+    "ac0754": {
+        "province": "广东",
+        "citys": [
+            "汕头"
+        ]
+    },
+    "ac0755": {
+        "province": "广东",
+        "citys": [
+            "深圳"
+        ]
+    },
+    "ac0756": {
+        "province": "广东",
+        "citys": [
+            "珠海"
+        ]
+    },
+    "ac0757": {
+        "province": "广东",
+        "citys": [
+            "佛山"
+        ]
+    },
+    "ac0758": {
+        "province": "广东",
+        "citys": [
+            "肇庆"
+        ]
+    },
+    "ac0759": {
+        "province": "广东",
+        "citys": [
+            "湛江"
+        ]
+    },
+    "ac0750": {
+        "province": "广东",
+        "citys": [
+            "江门"
+        ]
+    },
+    "ac0762": {
+        "province": "广东",
+        "citys": [
+            "河源"
+        ]
+    },
+    "ac0763": {
+        "province": "广东",
+        "citys": [
+            "清远"
+        ]
+    },
+    "ac0766": {
+        "province": "广东",
+        "citys": [
+            "云浮"
+        ]
+    },
+    "ac0768": {
+        "province": "广东",
+        "citys": [
+            "潮州"
+        ]
+    },
+    "ac0769": {
+        "province": "广东",
+        "citys": [
+            "东莞"
+        ]
+    },
+    "ac0760": {
+        "province": "广东",
+        "citys": [
+            "中山"
+        ]
+    },
+    "ac0771": {
+        "province": "广西",
+        "citys": [
+            "南宁",
+            "崇左"
+        ]
+    },
+    "ac0772": {
+        "province": "广西",
+        "citys": [
+            "柳州",
+            "来宾"
+        ]
+    },
+    "ac0773": {
+        "province": "广西",
+        "citys": [
+            "桂林"
+        ]
+    },
+    "ac0774": {
+        "province": "广西",
+        "citys": [
+            "梧州",
+            "贺州"
+        ]
+    },
+    "ac0775": {
+        "province": "广西",
+        "citys": [
+            "贵港",
+            "玉林"
+        ]
+    },
+    "ac0776": {
+        "province": "广西",
+        "citys": [
+            "百色"
+        ]
+    },
+    "ac0777": {
+        "province": "广西",
+        "citys": [
+            "钦州"
+        ]
+    },
+    "ac0778": {
+        "province": "广西",
+        "citys": [
+            "河池"
+        ]
+    },
+    "ac0779": {
+        "province": "广西",
+        "citys": [
+            "北海"
+        ]
+    },
+    "ac0770": {
+        "province": "广西",
+        "citys": [
+            "防城港"
+        ]
+    },
+    "ac0791": {
+        "province": "江西",
+        "citys": [
+            "南昌"
+        ]
+    },
+    "ac0792": {
+        "province": "江西",
+        "citys": [
+            "九江"
+        ]
+    },
+    "ac0793": {
+        "province": "江西",
+        "citys": [
+            "上饶"
+        ]
+    },
+    "ac0794": {
+        "province": "江西",
+        "citys": [
+            "抚州"
+        ]
+    },
+    "ac0795": {
+        "province": "江西",
+        "citys": [
+            "宜春"
+        ]
+    },
+    "ac0796": {
+        "province": "江西",
+        "citys": [
+            "吉安"
+        ]
+    },
+    "ac0797": {
+        "province": "江西",
+        "citys": [
+            "赣州"
+        ]
+    },
+    "ac0798": {
+        "province": "江西",
+        "citys": [
+            "景德镇"
+        ]
+    },
+    "ac0799": {
+        "province": "江西",
+        "citys": [
+            "萍乡"
+        ]
+    },
+    "ac0790": {
+        "province": "江西",
+        "citys": [
+            "新余"
+        ]
+    },
+    "ac0701": {
+        "province": "江西",
+        "citys": [
+            "鹰潭"
+        ]
+    },
+    "ac0812": {
+        "province": "四川",
+        "citys": [
+            "攀枝花"
+        ]
+    },
+    "ac0813": {
+        "province": "四川",
+        "citys": [
+            "自贡"
+        ]
+    },
+    "ac0816": {
+        "province": "四川",
+        "citys": [
+            "绵阳"
+        ]
+    },
+    "ac0817": {
+        "province": "四川",
+        "citys": [
+            "南充"
+        ]
+    },
+    "ac0818": {
+        "province": "四川",
+        "citys": [
+            "达州"
+        ]
+    },
+    "ac0825": {
+        "province": "四川",
+        "citys": [
+            "遂宁"
+        ]
+    },
+    "ac0826": {
+        "province": "四川",
+        "citys": [
+            "广安"
+        ]
+    },
+    "ac0827": {
+        "province": "四川",
+        "citys": [
+            "巴中"
+        ]
+    },
+    "ac0831": {
+        "province": "四川",
+        "citys": [
+            "宜宾"
+        ]
+    },
+    "ac0832": {
+        "province": "四川",
+        "citys": [
+            "内江"
+        ]
+    },
+    "ac0833": {
+        "province": "四川",
+        "citys": [
+            "乐山"
+        ]
+    },
+    "ac0834": {
+        "province": "四川",
+        "citys": [
+            "凉山"
+        ]
+    },
+    "ac0835": {
+        "province": "四川",
+        "citys": [
+            "雅安"
+        ]
+    },
+    "ac0836": {
+        "province": "四川",
+        "citys": [
+            "甘孜"
+        ]
+    },
+    "ac0837": {
+        "province": "四川",
+        "citys": [
+            "阿坝"
+        ]
+    },
+    "ac0838": {
+        "province": "四川",
+        "citys": [
+            "德阳"
+        ]
+    },
+    "ac0839": {
+        "province": "四川",
+        "citys": [
+            "广元"
+        ]
+    },
+    "ac0830": {
+        "province": "四川",
+        "citys": [
+            "泸州"
+        ]
+    },
+    "ac0851": {
+        "province": "贵州",
+        "citys": [
+            "贵阳",
+            "遵义",
+            "安顺"
+        ]
+    },
+    "ac0854": {
+        "province": "贵州",
+        "citys": [
+            "黔南"
+        ]
+    },
+    "ac0855": {
+        "province": "贵州",
+        "citys": [
+            "黔东南"
+        ]
+    },
+    "ac0856": {
+        "province": "贵州",
+        "citys": [
+            "铜仁"
+        ]
+    },
+    "ac0857": {
+        "province": "贵州",
+        "citys": [
+            "毕节"
+        ]
+    },
+    "ac0858": {
+        "province": "贵州",
+        "citys": [
+            "六盘水"
+        ]
+    },
+    "ac0859": {
+        "province": "贵州",
+        "citys": [
+            "黔西南"
+        ]
+    },
+    "ac0871": {
+        "province": "云南",
+        "citys": [
+            "昆明"
+        ]
+    },
+    "ac0872": {
+        "province": "云南",
+        "citys": [
+            "大理"
+        ]
+    },
+    "ac0873": {
+        "province": "云南",
+        "citys": [
+            "红河"
+        ]
+    },
+    "ac0874": {
+        "province": "云南",
+        "citys": [
+            "曲靖"
+        ]
+    },
+    "ac0875": {
+        "province": "云南",
+        "citys": [
+            "保山"
+        ]
+    },
+    "ac0876": {
+        "province": "云南",
+        "citys": [
+            "文山"
+        ]
+    },
+    "ac0877": {
+        "province": "云南",
+        "citys": [
+            "玉溪"
+        ]
+    },
+    "ac0878": {
+        "province": "云南",
+        "citys": [
+            "楚雄"
+        ]
+    },
+    "ac0879": {
+        "province": "云南",
+        "citys": [
+            "普洱"
+        ]
+    },
+    "ac0870": {
+        "province": "云南",
+        "citys": [
+            "昭通"
+        ]
+    },
+    "ac0883": {
+        "province": "云南",
+        "citys": [
+            "临沧"
+        ]
+    },
+    "ac0886": {
+        "province": "云南",
+        "citys": [
+            "怒江"
+        ]
+    },
+    "ac0887": {
+        "province": "云南",
+        "citys": [
+            "迪庆"
+        ]
+    },
+    "ac0888": {
+        "province": "云南",
+        "citys": [
+            "丽江"
+        ]
+    },
+    "ac0891": {
+        "province": "西藏",
+        "citys": [
+            "拉萨"
+        ]
+    },
+    "ac0892": {
+        "province": "西藏",
+        "citys": [
+            "日喀则"
+        ]
+    },
+    "ac0893": {
+        "province": "西藏",
+        "citys": [
+            "山南"
+        ]
+    },
+    "ac0894": {
+        "province": "西藏",
+        "citys": [
+            "林芝"
+        ]
+    },
+    "ac0895": {
+        "province": "西藏",
+        "citys": [
+            "昌都"
+        ]
+    },
+    "ac0896": {
+        "province": "西藏",
+        "citys": [
+            "那曲"
+        ]
+    },
+    "ac0897": {
+        "province": "西藏",
+        "citys": [
+            "阿里"
+        ]
+    },
+    "ac0898": {
+        "province": "海南",
+        "citys": [
+            "海口",
+            "三亚",
+            "儋州"
+        ]
+    },
+    "ac0911": {
+        "province": "陕西",
+        "citys": [
+            "延安"
+        ]
+    },
+    "ac0912": {
+        "province": "陕西",
+        "citys": [
+            "榆林"
+        ]
+    },
+    "ac0913": {
+        "province": "陕西",
+        "citys": [
+            "渭南"
+        ]
+    },
+    "ac0914": {
+        "province": "陕西",
+        "citys": [
+            "商洛"
+        ]
+    },
+    "ac0915": {
+        "province": "陕西",
+        "citys": [
+            "安康"
+        ]
+    },
+    "ac0916": {
+        "province": "陕西",
+        "citys": [
+            "汉中"
+        ]
+    },
+    "ac0917": {
+        "province": "陕西",
+        "citys": [
+            "宝鸡"
+        ]
+    },
+    "ac0919": {
+        "province": "陕西",
+        "citys": [
+            "铜川"
+        ]
+    },
+    "ac0931": {
+        "province": "甘肃",
+        "citys": [
+            "兰州"
+        ]
+    },
+    "ac0932": {
+        "province": "甘肃",
+        "citys": [
+            "定西"
+        ]
+    },
+    "ac0933": {
+        "province": "甘肃",
+        "citys": [
+            "平凉"
+        ]
+    },
+    "ac0934": {
+        "province": "甘肃",
+        "citys": [
+            "庆阳"
+        ]
+    },
+    "ac0935": {
+        "province": "甘肃",
+        "citys": [
+            "武威",
+            "金昌"
+        ]
+    },
+    "ac0936": {
+        "province": "甘肃",
+        "citys": [
+            "张掖"
+        ]
+    },
+    "ac0937": {
+        "province": "甘肃",
+        "citys": [
+            "酒泉",
+            "嘉峪关"
+        ]
+    },
+    "ac0938": {
+        "province": "甘肃",
+        "citys": [
+            "天水"
+        ]
+    },
+    "ac0939": {
+        "province": "甘肃",
+        "citys": [
+            "陇南"
+        ]
+    },
+    "ac0930": {
+        "province": "甘肃",
+        "citys": [
+            "临夏"
+        ]
+    },
+    "ac0941": {
+        "province": "甘肃",
+        "citys": [
+            "甘南"
+        ]
+    },
+    "ac0943": {
+        "province": "甘肃",
+        "citys": [
+            "白银"
+        ]
+    },
+    "ac0951": {
+        "province": "宁夏",
+        "citys": [
+            "银川"
+        ]
+    },
+    "ac0952": {
+        "province": "宁夏",
+        "citys": [
+            "石嘴山"
+        ]
+    },
+    "ac0953": {
+        "province": "宁夏",
+        "citys": [
+            "吴忠"
+        ]
+    },
+    "ac0954": {
+        "province": "宁夏",
+        "citys": [
+            "固原"
+        ]
+    },
+    "ac0955": {
+        "province": "宁夏",
+        "citys": [
+            "中卫"
+        ]
+    },
+    "ac0971": {
+        "province": "青海",
+        "citys": [
+            "西宁"
+        ]
+    },
+    "ac0972": {
+        "province": "青海",
+        "citys": [
+            "海东"
+        ]
+    },
+    "ac0973": {
+        "province": "青海",
+        "citys": [
+            "黄南"
+        ]
+    },
+    "ac0974": {
+        "province": "青海",
+        "citys": [
+            "海南"
+        ]
+    },
+    "ac0975": {
+        "province": "青海",
+        "citys": [
+            "果洛"
+        ]
+    },
+    "ac0976": {
+        "province": "青海",
+        "citys": [
+            "玉树"
+        ]
+    },
+    "ac0977": {
+        "province": "青海",
+        "citys": [
+            "海西"
+        ]
+    },
+    "ac0979": {
+        "province": "青海",
+        "citys": [
+            "海西"
+        ]
+    },
+    "ac0970": {
+        "province": "青海",
+        "citys": [
+            "海北"
+        ]
+    },
+    "ac0991": {
+        "province": "新疆",
+        "citys": [
+            "乌鲁木齐"
+        ]
+    },
+    "ac0992": {
+        "province": "新疆",
+        "citys": [
+            "伊犁奎屯",
+            "塔城乌苏",
+            "克拉玛依独山子"
+        ]
+    },
+    "ac0993": {
+        "province": "新疆",
+        "citys": [
+            "石河子",
+            "塔城沙湾县"
+        ]
+    },
+    "ac0994": {
+        "province": "新疆",
+        "citys": [
+            "昌吉"
+        ]
+    },
+    "ac0995": {
+        "province": "新疆",
+        "citys": [
+            "吐鲁番"
+        ]
+    },
+    "ac0996": {
+        "province": "新疆",
+        "citys": [
+            "巴音郭楞"
+        ]
+    },
+    "ac0997": {
+        "province": "新疆",
+        "citys": [
+            "阿克苏"
+        ]
+    },
+    "ac0998": {
+        "province": "新疆",
+        "citys": [
+            "喀什"
+        ]
+    },
+    "ac0999": {
+        "province": "新疆",
+        "citys": [
+            "伊犁"
+        ]
+    },
+    "ac0990": {
+        "province": "新疆",
+        "citys": [
+            "克拉玛依",
+            "塔城",
+            "布克赛尔"
+        ]
+    },
+    "ac0901": {
+        "province": "新疆",
+        "citys": [
+            "塔城"
+        ]
+    },
+    "ac0902": {
+        "province": "新疆",
+        "citys": [
+            "哈密"
+        ]
+    },
+    "ac0903": {
+        "province": "新疆",
+        "citys": [
+            "和田"
+        ]
+    },
+    "ac0906": {
+        "province": "新疆",
+        "citys": [
+            "阿勒泰"
+        ]
+    },
+    "ac0908": {
+        "province": "新疆",
+        "citys": [
+            "克孜勒"
+        ]
+    },
+    "ac0909": {
+        "province": "新疆",
+        "citys": [
+            "博尔塔拉"
+        ]
+    }
+}

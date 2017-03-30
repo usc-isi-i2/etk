@@ -107,6 +107,17 @@
 
               },
               "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_phone"
+                ],
+                "post_filter": [
+                  "extract_phone"
+                ]
+              },
+              "extraction_policy": "replace"
             }
           }
         }
