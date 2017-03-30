@@ -10,9 +10,9 @@ regexes = [r1, r2, r3]
 regexes = [re.compile(x) for x in regexes]
 
 
-def wrap_value_with_context(value, field, start, end):
+def wrap_value_with_context(value, start, end):
     return {'value': value,
-            'context': {'field': field,
+            'context': {
                         'start': start,
                         'end': end
                         }
@@ -26,27 +26,20 @@ def apply_regex(text, regex):
     for m in re.finditer(regex, text):
         if (m.group(1) not in values):
             extracts.append(wrap_value_with_context(m.group(1),
-                                                    'text',
                                                     m.start(),
                                                     m.end()))
             values.add(m.group(1))
     return extracts
 
 
-def extract(doc, regex):
+def extract(doc):
+    extracts = list()
     try:
-        if isinstance(regex, type(re.compile(''))):
-            extracts = apply_regex(doc, regex)
-        elif isinstance(regex, types.ListType):
-            extracts = list()
-            for r in regex:
+        if isinstance(regexes, type(re.compile(''))):
+            extracts = apply_regex(doc, regexes)
+        elif isinstance(regexes, types.ListType):
+            for r in regexes:
                 extracts.extend(apply_regex(doc, r))
-        return (extracts)
+        return extracts
     except:
         return list()
-
-
-def age_extract(doc):
-    updated_doc = extract(doc, regexes)
-
-    return updated_doc

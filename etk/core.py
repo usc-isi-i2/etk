@@ -6,6 +6,7 @@ from data_extractors import regex_extractor
 from data_extractors import height_extractor
 from data_extractors import weight_extractor
 from data_extractors import address_extractor
+from data_extractors import age_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -66,6 +67,7 @@ _EXTRACT_PRICE = "extract_price"
 _EXTRACT_HEIGHT = "extract_height"
 _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
+_EXTRACT_AGE = "extract_age"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -346,6 +348,26 @@ class Core(object):
                                                                                                          segment,
                                                                                                          score))
                                                     if extractor == _EXTRACT_ADDRESS:
+                                                            # print extractor
+                                                            # print full_path
+                                                            method = _METHOD_OTHER
+                                                            score = 1.0
+                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(match.value,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    # print results
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
+                                                    if extractor == _EXTRACT_AGE:
                                                             print extractor
                                                             print full_path
                                                             method = _METHOD_OTHER
@@ -740,6 +762,16 @@ class Core(object):
     def _extract_address(text):
         return address_extractor.extract(text)
 
+    def extract_age(self, d, config):
+        text = d[_TEXT]
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+        return self._extract_age(text)
+
+    @staticmethod
+    def _extract_age(text):
+        return age_extractor.extract(text)
+
     @staticmethod
     def handle_text_or_results(x):
         if isinstance(x, basestring):
@@ -807,20 +839,6 @@ class Core(object):
     def extract_table(self, html_doc):
         return table_extract(html_doc)
 
-    def extract_age(self, doc):
-        '''
-        Args:
-            doc (str): Document
-
-        Returns:
-            List of age extractions with context and value
-
-        Examples:
-            >>> tk.extract_age('32 years old')
-            [{'context': {'field': 'text', 'end': 11, 'start': 0}, 'value': '32'}]
-        '''
-
-        return age_extract(doc)\
 
     def extract_stock_tickers(self, doc):
         return extract_stock_tickers(doc)

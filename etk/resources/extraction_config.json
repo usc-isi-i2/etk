@@ -97,6 +97,11 @@
                 ]
               },
               "extraction_policy": "replace"
+            },
+            "extract_age": {
+              "config": {
+                
+              }
             }
           }
         },
