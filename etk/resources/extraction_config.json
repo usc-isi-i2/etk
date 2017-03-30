@@ -156,6 +156,15 @@
               "extraction_policy": "replace"
             }
           }
+        },
+        "address": {
+          "extractors": {
+            "extract_address": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }
