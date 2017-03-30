@@ -208,7 +208,7 @@ def remove_dup(extractions):
         if extractions[i]['value'] not in value_set:
             value_set.add(extractions[i]['value'])
             result = normalize_height(extractions[i]['value'])
-            extractions[i]['value'] = result['value']
+            extractions[i]['value'] = str(result['value'])
             extractions[i]['metadata'] = dict()
             extractions[i]['metadata']['unit'] = result['unit']
             height_extractions.append(extractions[i])
@@ -227,5 +227,4 @@ def extract(text):
     height_extractions = us_h + ls_h
 
     height_extractions = remove_dup(height_extractions)
-    print height_extractions
     return height_extractions

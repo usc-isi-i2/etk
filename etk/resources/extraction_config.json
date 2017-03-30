@@ -147,6 +147,15 @@
               "extraction_policy": "replace"
             }
           }
+        },
+        "weight": {
+          "extractors": {
+            "extract_weight": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }

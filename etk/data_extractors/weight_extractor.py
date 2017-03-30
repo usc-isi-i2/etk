@@ -126,10 +126,9 @@ def format_output(value):
     return int(value)
 
 
-def wrap_value_with_context(value, field, start, end):
+def wrap_value_with_context(value, start, end):
     return {'value': value,
-            'context': {'field': field,
-                        'start': start,
+            'context': {'start': start,
                         'end': end
                         }
             }
@@ -139,7 +138,6 @@ def apply_regex(text, regex):
     extracts = list()
     for m in re.finditer(regex, text):
         extracts.append(wrap_value_with_context(m.group(),
-                                                'int',
                                                 m.start(),
                                                 m.end()))
     return extracts
@@ -150,9 +148,12 @@ def remove_dup(extractions):
     weight_extractions = []
     for i in range(len(extractions)):
         extractions[i]['value'] = extractions[i]['value'].strip()
-        if (extractions[i]['value'] not in value_set):
+        if extractions[i]['value'] not in value_set:
             value_set.add(extractions[i]['value'])
-            extractions[i]['value'] = normalize_weight(extractions[i]['value'])
+            result = normalize_weight(extractions[i]['value'])
+            extractions[i]['value'] = str(result['value'])
+            extractions[i]['metadata'] = dict()
+            extractions[i]['metadata']['unit'] = result['unit']
             weight_extractions.append(extractions[i])
         else:
             continue
@@ -164,31 +165,11 @@ def remove_dup(extractions):
 ######################################################################
 
 
-
-def weight_extract(text):
+def extract(text):
     us_h = apply_regex(text, re_us_weight)
     ls_h = apply_regex(text, re_ls_weight)
     weight_extractions = us_h + ls_h
 
     weight_extractions = remove_dup(weight_extractions)
     return weight_extractions
-    exit()
-    weight_extractions = re_us_weight.findall(text) + re_ls_weight.findall(text)
 
-    weight_extractions = remove_dups(
-        [normalize_weight(_) for _ in weight_extractions])
-
-    weight = {'raw': weight_extractions}
-
-    for target_unit in [WEIGHT_UNIT_KILOGRAM, WEIGHT_UNIT_POUND]:
-        weight[target_unit] = [format_output(_) for _ in
-                               transform(weight_extractions, target_unit)]
-    output = {}
-
-    if len(weight['raw']) > 0:
-        output['weight'] = weight
-
-    if 'weight' not in output:
-        return None
-
-    return output
