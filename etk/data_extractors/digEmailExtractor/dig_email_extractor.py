@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-# @Author: ZwEin
-# @Date:   2016-09-30 15:37:23
-# @Last Modified by:   ZwEin
-# @Last Modified time: 2016-11-16 16:28:51
-
-
 import re
-from sets import Set
 
 ################################################
 # Content
@@ -348,13 +341,14 @@ class DIGEmailExtractor(object):
             if username in DE_SOCIAL_MEDIA_NAMES:
                 continue
 
-            context = {}
-            context['value'] = clean_email
-            context['field'] = 'text'
+            output = dict()
+            output['value'] = clean_email
+            context = dict()
             context['start'] = m.start()
             context['end'] = m.end()
             context['obfuscation'] = self.is_email_match_obfuscated(clean_email, m)
-            clean_results.append(context)
+            output['context'] = context
+            clean_results.append(output)
         return clean_results
 
     

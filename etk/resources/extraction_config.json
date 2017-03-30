@@ -120,6 +120,15 @@
               "extraction_policy": "replace"
             }
           }
+        },
+         "email": {
+          "extractors": {
+            "extract_email": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }
