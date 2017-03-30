@@ -138,6 +138,15 @@
               "extraction_policy": "replace"
             }
           }
+        },
+        "height": {
+          "extractors": {
+            "extract_height": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
         }
       }
     }

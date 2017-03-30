@@ -3,6 +3,7 @@ from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
+from data_extractors import height_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -60,6 +61,8 @@ _EXTRACT_FROM_LANDMARK = "extract_from_landmark"
 _EXTRACT_PHONE = "extract_phone"
 _EXTRACT_EMAIL = "extract_email"
 _EXTRACT_PRICE = "extract_price"
+_EXTRACT_HEIGHT = "extract_height"
+_EXTRACT_WEIGHT = "extract_weight"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -280,6 +283,26 @@ class Core(object):
                                                                                                          segment,
                                                                                                          score))
                                                     if extractor == _EXTRACT_PRICE:
+                                                            # print extractor
+                                                            # print full_path
+                                                            method = _METHOD_OTHER
+                                                            score = 1.0
+                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(match.value,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    # print results
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
+                                                    if extractor == _EXTRACT_HEIGHT:
                                                             print extractor
                                                             print full_path
                                                             method = _METHOD_OTHER
@@ -291,7 +314,7 @@ class Core(object):
                                                                 results = foo(match.value,
                                                                               extractors[extractor][_CONFIG])
                                                                 if results:
-                                                                    print results
+                                                                    # print results
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
                                                                                                 self.add_origin_info(
@@ -645,6 +668,16 @@ class Core(object):
     def _extract_price(text):
         return price_extractor.extract_price(text)
 
+    def extract_height(self, d, config):
+        text = d[_TEXT]
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+        return self._extract_height(text)
+
+    @staticmethod
+    def _extract_height(text):
+        return height_extractor.extract(text)
+
 
     @staticmethod
     def handle_text_or_results(x):
@@ -754,20 +787,7 @@ class Core(object):
 
         return weight_extract(doc)
 
-    def extract_height(self, doc):
-        '''
-        Args:
-            doc (str): Document
 
-        Returns:
-            List of height extractions with context and value
-
-        Examples:
-            >>> tk.extract_age('Height 5'3\"')
-            [{'context': {'field': 'text', 'end': 7, 'start': 12}, 'value': {'unit': 'foot/inch', 'value': '5\'3"'}}]
-        '''
-
-        return height_extract(doc)
 
     def extract_stock_tickers(self, doc):
         return extract_stock_tickers(doc)

@@ -137,7 +137,6 @@ def normalize_height(extraction):
     elif extraction.isdigit():
         ans['value'] = int(extraction)
         ans['unit'] = HEIGHT_UNIT_CENTIMETER
-
     return ans
 
 
@@ -184,10 +183,9 @@ def format_output(target_unit, value):
     return int(value)
 
 
-def wrap_value_with_context(value, field, start, end):
+def wrap_value_with_context(value, start, end):
     return {'value': value,
-            'context': {'field': field,
-                        'start': start,
+            'context': {'start': start,
                         'end': end
                         }
             }
@@ -197,7 +195,6 @@ def apply_regex(text, regex):
     extracts = list()
     for m in re.finditer(regex, text):
         extracts.append(wrap_value_with_context(m.group(),
-                                                'text',
                                                 m.start(),
                                                 m.end()))
     return extracts
@@ -208,9 +205,12 @@ def remove_dup(extractions):
     height_extractions = []
     for i in range(len(extractions)):
         extractions[i]['value'] = extractions[i]['value'].strip()
-        if (extractions[i]['value'] not in value_set):
+        if extractions[i]['value'] not in value_set:
             value_set.add(extractions[i]['value'])
-            extractions[i]['value'] = normalize_height(extractions[i]['value'])
+            result = normalize_height(extractions[i]['value'])
+            extractions[i]['value'] = result['value']
+            extractions[i]['metadata'] = dict()
+            extractions[i]['metadata']['unit'] = result['unit']
             height_extractions.append(extractions[i])
         else:
             continue
@@ -221,10 +221,11 @@ def remove_dup(extractions):
 #   Main
 ######################################################################
 
-def height_extract(text):
+def extract(text):
     us_h = apply_regex(text, re_us_height)
     ls_h = apply_regex(text, re_ls_height)
     height_extractions = us_h + ls_h
 
     height_extractions = remove_dup(height_extractions)
+    print height_extractions
     return height_extractions
