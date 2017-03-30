@@ -151,8 +151,4 @@ class Core(object):
         return doc
 
     def extract_price(self, doc):
-    	digpe = DIGPriceExtractor()
-    	price = digpe.extract(doc)
-    	if price['price'] or price['price_per_hour']:
-    		return price
-    	return None
+    	return extract_price(doc)
