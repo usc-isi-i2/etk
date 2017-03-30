@@ -189,8 +189,8 @@ class Core(object):
                                                         ep = self.determine_extraction_policy(extractors[extractor])
                                                         # print ep
                                                         if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                            results = foo(match.value, field,
-                                                                          extractors[extractor][_CONFIG])
+                                                            extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                            results = foo(match.value, extractors[extractor][_CONFIG])
                                                             if results:
                                                                 self.add_data_extraction_results(match.value, field,
                                                                                                  extractor,
@@ -220,8 +220,8 @@ class Core(object):
                                                             if self.check_if_run_extraction(match.value, field,
                                                                                             extractor,
                                                                                             ep):
-                                                                results = foo(doc, field,
-                                                                              extractors[extractor][_CONFIG])
+                                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                                results = foo(doc, extractors[extractor][_CONFIG])
                                                                 if results:
                                                                     # print results
                                                                     self.add_data_extraction_results(match.value, field,
@@ -430,7 +430,8 @@ class Core(object):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
 
-    def extract_using_dictionary(self, d, field_name, config):
+    def extract_using_dictionary(self, d, config):
+        field_name = config[_FIELD_NAME]
         # this method is self aware that it needs tokens as input
         tokens = d[_SIMPLE_TOKENS]
 
@@ -507,7 +508,8 @@ class Core(object):
             print e
             return None
 
-    def extract_from_landmark(self, doc, field_name, config):
+    def extract_from_landmark(self, doc, config):
+        field_name = config[_FIELD_NAME]
         if _CONTENT_EXTRACTION not in doc:
             return None
         if _INFERLINK_EXTRACTIONS not in doc[_CONTENT_EXTRACTION]:
@@ -589,17 +591,9 @@ class Core(object):
         try:
             for text_filter in filters:
                 try:
-                    if text_filter == 'extract_phone':
-                        print 'yes, here we are'
                     f = getattr(self, text_filter)
                     if f:
-                        if text_filter == 'extract_phone':
-                            print "ok,  getting somewhere"
-                            result = f(d, {})
-                        else:
-                            result = f(d)
-                        if text_filter == 'extract_phone':
-                            print "results", result
+                        result = f(d, {})
                 except Exception as e:
                     result = None
 
