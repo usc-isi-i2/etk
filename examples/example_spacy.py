@@ -6,12 +6,14 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import time
 import etk
 
+print 'start'
 tk = etk.init()
 
 start_time = time.time()
 # Load all the dictionaries here
+print 'loading'
 tk.load_matchers()
-
+print 'done loading'
 end_time = time.time()
 
 print "Time taken to load all the matchers: {0}".format(end_time - start_time)
@@ -41,3 +43,18 @@ strings = [
 for string in strings:
 	print string
 	print tk.extract_date_spacy(string)
+
+
+age_docs = [
+			'start Age : 22 years end',
+			'start age : 22 yrs end',
+			'start Age 22-40 end',
+			'start 22 yrs end',
+			'start 23yrs end',
+			'start 22-40 years end',
+			'start About me 22 end'
+		]
+
+for doc in age_docs:
+	print doc
+	print tk.extract_age_spacy(doc)

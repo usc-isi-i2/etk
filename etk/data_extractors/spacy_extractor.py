@@ -1,5 +1,5 @@
-import spacy
-nlp = spacy.load('en')
+#import spacy
+#nlp = spacy.load('en')
 
 def spacy_extract(text_string):
     out = dict()
