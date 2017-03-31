@@ -91,17 +91,15 @@ _INCLUDE_CONTEXT = "include_context"
 class Core(object):
 
     def __init__(self, extraction_config=None, debug=False):
-        if extraction_config:
-            self.extraction_config = extraction_config
+        self.extraction_config = extraction_config
+        self.debug = debug
         self.html_title_regex = r'<title>(.*)?</title>'
-        self.dictionaries_path = 'resources/dictionaries'
         self.tries = dict()
         self.global_extraction_policy = None
         self.global_error_handling = None
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
-        self.debug = debug
 
     """ Define all API methods """
 
@@ -220,8 +218,6 @@ class Core(object):
                                                                                                          segment,
                                                                                                          score))
                                                     else:
-
-
                                                         if self.check_if_run_extraction(match.value, field,
                                                                                         extractor,
                                                                                         ep):
@@ -377,15 +373,15 @@ class Core(object):
         return content_extraction
 
     def determine_extraction_policy(self, config):
-        ep = None
+        ep = _REPLACE
+        if not config:
+            return ep
         if _EXTRACTION_POLICY in config:
             ep = config[_EXTRACTION_POLICY]
         elif self.global_extraction_policy:
             ep = self.global_extraction_policy
         if ep and ep != _KEEP_EXISTING and ep != _REPLACE:
             raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
-        if not ep:
-            ep = _REPLACE  # By default run the extraction again
         return ep
 
     def update_json_at_path(self, doc, match, field_name, value, parent=False):
@@ -661,11 +657,11 @@ class Core(object):
             return None
 
     @staticmethod
-    def extract_readability(document, options={}):
+    def extract_readability(document, options=None):
         e = ReadabilityExtractor()
         return e.extract(document, options)
 
-    def extract_title(self, html_content, options={}):
+    def extract_title(self, html_content, options=None):
         matches = re.search(self.html_title_regex, html_content, re.IGNORECASE | re.S)
         title = None
         if matches:
@@ -678,7 +674,7 @@ class Core(object):
         return {'text': title}
 
     @staticmethod
-    def extract_crftokens(text, options={}):
+    def extract_crftokens(text, options=None):
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
         return t.extract(text)
 
