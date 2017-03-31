@@ -63,7 +63,7 @@ _EXTRACT_USING_REGEX = "extract_using_regex"
 _EXTRACT_FROM_LANDMARK = "extract_from_landmark"
 _EXTRACT_PHONE = "extract_phone"
 _EXTRACT_EMAIL = "extract_email"
-_EXTRACT_PRICE = "extract"
+_EXTRACT_PRICE = "extract_price"
 _EXTRACT_HEIGHT = "extract_height"
 _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
@@ -228,9 +228,6 @@ class Core(object):
                                                             results = foo(match.value,
                                                                           extractors[extractor][_CONFIG])
                                                             if results:
-                                                                if extractor == _EXTRACT_PRICE:
-                                                                    print results
-                                                                    print full_path
                                                                 self.add_data_extraction_results(match.value, field,
                                                                                                  extractor,
                                                                                             self.add_origin_info(
@@ -701,5 +698,5 @@ class Core(object):
 
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
-        return landmark_extraction.landmark_extractor(html, url, extraction_rules, threshold)
+        return landmark_extraction.extract(html, url, extraction_rules, threshold)
 

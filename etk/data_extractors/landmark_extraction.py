@@ -1,7 +1,7 @@
 from landmark_extractor.extraction.Landmark import Rule, RuleSet, flattenResult
 
 
-def landmark_extractor(html, url, extractionrulesall, threshold=0.5):
+def extract(html, url, extractionrulesall, threshold=0.5):
     inferlink_extraction = dict()
     extractionrules = None
     number_of_rules = 0
