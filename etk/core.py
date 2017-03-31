@@ -198,12 +198,11 @@ class Core(object):
                                                 except Exception as e:
                                                     foo = None
                                                 if foo:
+                                                    # score is 1.0 because every method thinks it is the best
+                                                    score = 1.0
+                                                    method = _METHOD_OTHER
+                                                    ep = self.determine_extraction_policy(extractors[extractor])
                                                     if extractor == _EXTRACT_USING_DICTIONARY:
-                                                        method = _METHOD_OTHER
-                                                        # score is 1.0 because this method thinks it is the best
-                                                        score = 1.0
-                                                        ep = self.determine_extraction_policy(extractors[extractor])
-                                                        # print ep
                                                         if self.check_if_run_extraction(match.value, field, extractor, ep):
                                                             extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                             results = foo(match.value, extractors[extractor][_CONFIG])
@@ -213,26 +212,9 @@ class Core(object):
                                                                                                  self.add_origin_info(
                                                                                                      results, method,
                                                                                                      segment, score))
-                                                    if extractor == _EXTRACT_USING_REGEX:
-                                                        method = _METHOD_OTHER
-                                                        # score is 1.0 because this method thinks it is the best
-                                                        score = 1.0
-                                                        ep = self.determine_extraction_policy(extractors[extractor])
-                                                        if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                            results = foo(match.value,
-                                                                          extractors[extractor][_CONFIG])
-
-                                                            if results:
-                                                                self.add_data_extraction_results(match.value, field,
-                                                                                                 extractor,
-                                                                                                 self.add_origin_info(
-                                                                                                     results, method,
-                                                                                                     segment, score))
-                                                    if extractor == _EXTRACT_FROM_LANDMARK:
+                                                    elif extractor == _EXTRACT_FROM_LANDMARK:
                                                         if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
                                                             method = _METHOD_INFERLINK
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
                                                             if self.check_if_run_extraction(match.value, field,
                                                                                             extractor,
                                                                                             ep):
@@ -247,19 +229,14 @@ class Core(object):
                                                                                                          method,
                                                                                                          segment,
                                                                                                          score))
-                                                    if extractor == _EXTRACT_PHONE:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
+                                                    else:
+
                                                             if self.check_if_run_extraction(match.value, field,
                                                                                             extractor,
                                                                                             ep):
                                                                 results = foo(match.value,
                                                                               extractors[extractor][_CONFIG])
                                                                 if results:
-                                                                    # print results
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
                                                                                                 self.add_origin_info(
@@ -267,126 +244,7 @@ class Core(object):
                                                                                                          method,
                                                                                                          segment,
                                                                                                          score))
-                                                    if extractor == _EXTRACT_EMAIL:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    if extractor == _EXTRACT_PRICE:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    if extractor == _EXTRACT_HEIGHT:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    if extractor == _EXTRACT_WEIGHT:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    if extractor == _EXTRACT_ADDRESS:
-                                                            # print extractor
-                                                            # print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    if extractor == _EXTRACT_AGE:
-                                                            print extractor
-                                                            print full_path
-                                                            method = _METHOD_OTHER
-                                                            score = 1.0
-                                                            ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
+
         return doc
 
     @staticmethod
