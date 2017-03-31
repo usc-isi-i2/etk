@@ -22,7 +22,7 @@ UNIT_TIME_SECOND = [
 ]
 
 
-def extract_price(text):
+def extract(text):
     digpe = DIGPriceExtractor()
     prices = digpe.extract(text)
 
