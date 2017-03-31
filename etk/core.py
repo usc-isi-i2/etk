@@ -201,49 +201,30 @@ class Core(object):
                                                     # score is 1.0 because every method thinks it is the best
                                                     score = 1.0
                                                     method = _METHOD_OTHER
+                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     ep = self.determine_extraction_policy(extractors[extractor])
-                                                    if extractor == _EXTRACT_USING_DICTIONARY:
-                                                        if self.check_if_run_extraction(match.value, field, extractor, ep):
-                                                            extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                            results = foo(match.value, extractors[extractor][_CONFIG])
+                                                    run_extractor = False
+                                                    if extractor == _EXTRACT_FROM_LANDMARK:
+                                                        if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
+                                                            method = _METHOD_INFERLINK
+                                                            run_extractor = True
+                                                    else:
+                                                        run_extractor = True
+
+                                                    if run_extractor:
+                                                        if self.check_if_run_extraction(match.value, field,
+                                                                                        extractor,
+                                                                                        ep):
+                                                            results = foo(match.value,
+                                                                          extractors[extractor][_CONFIG])
                                                             if results:
                                                                 self.add_data_extraction_results(match.value, field,
                                                                                                  extractor,
-                                                                                                 self.add_origin_info(
-                                                                                                     results, method,
-                                                                                                     segment, score))
-                                                    elif extractor == _EXTRACT_FROM_LANDMARK:
-                                                        if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
-                                                            method = _METHOD_INFERLINK
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                                results = foo(doc, extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    # print results
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
-                                                    else:
-
-                                                            if self.check_if_run_extraction(match.value, field,
-                                                                                            extractor,
-                                                                                            ep):
-                                                                results = foo(match.value,
-                                                                              extractors[extractor][_CONFIG])
-                                                                if results:
-                                                                    self.add_data_extraction_results(match.value, field,
-                                                                                                     extractor,
-                                                                                                self.add_origin_info(
-                                                                                                         results,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score))
+                                                                                            self.add_origin_info(
+                                                                                                     results,
+                                                                                                     method,
+                                                                                                     segment,
+                                                                                                     score))
 
         return doc
 
