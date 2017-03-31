@@ -85,6 +85,10 @@ class TestExtractions(unittest.TestCase):
         title = """323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23"""
         self.assertEqual(r["content_extraction"]["title"]["text"], title)
 
+        self.assertTrue("content_strict" not in r["content_extraction"])
+        self.assertTrue("content_relaxed" not in r["content_extraction"])
+        self.assertTrue("inferlink_extractions" not in r["content_extraction"])
+
     def test_landmark_no_resources(self):
         e_config = {'content_extraction': {
             "input_path": "raw_content",
@@ -122,6 +126,10 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("inferlink_extractions" in r["content_extraction"])
         self.assertTrue(len(r["content_extraction"]["inferlink_extractions"].keys()) > 0)
+
+        self.assertTrue("content_strict" not in r["content_extraction"])
+        self.assertTrue("content_relaxed" not in r["content_extraction"])
+        self.assertTrue("title" not in r["content_extraction"])
 
         ifl_extractions = {
             "inferlink_location": {
@@ -183,6 +191,48 @@ class TestExtractions(unittest.TestCase):
         }
 
         self.assertEqual(r["content_extraction"]["inferlink_extractions"], ifl_extractions)
+
+        self.assertTrue("content_strict" not in r["content_extraction"])
+        self.assertTrue("content_relaxed" not in r["content_extraction"])
+        self.assertTrue("title" not in r["content_extraction"])
+
+    def test_content_extractions(self):
+        e_config = {"resources": {
+            "landmark": [
+                "resources/consolidated_rules.json"
+            ]
+        }, 'content_extraction': {
+            "input_path": "raw_content",
+            "extractors": {
+                "title": {
+                    "extraction_policy": "keep_existing"
+                },
+                "landmark": {
+                    "extraction_policy": "keep_existing",
+                    "landmark_threshold": 0.5
+                },
+                "readability": [
+                    {
+                        "strict": "yes",
+                        "extraction_policy": "keep_existing"
+                    },
+                    {
+                        "strict": "no",
+                        "extraction_policy": "keep_existing",
+                        "field_name": "content_relaxed"
+                    }
+                ]
+            }
+        }
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(self.doc)
+        self.assertTrue("content_extraction" in r)
+
+        self.assertTrue("content_strict" in r["content_extraction"])
+        self.assertTrue("content_relaxed" in r["content_extraction"])
+        self.assertTrue("title" in r["content_extraction"])
+        self.assertTrue("inferlink_extractions" in r["content_extraction"])
 
 if __name__ == '__main__':
     unittest.main()
