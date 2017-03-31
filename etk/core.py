@@ -658,7 +658,8 @@ class Core(object):
             print 'Error while converting {} to lambda'.format(s)
             return None
 
-    def extract_readability(self, document, options={}):
+    @staticmethod
+    def extract_readability(document, options={}):
         e = ReadabilityExtractor()
         return e.extract(document, options)
 
