@@ -203,15 +203,23 @@ class Core(object):
                                                     method = _METHOD_OTHER
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     ep = self.determine_extraction_policy(extractors[extractor])
-                                                    run_extractor = False
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
                                                         if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
                                                             method = _METHOD_INFERLINK
-                                                            run_extractor = True
-                                                    else:
-                                                        run_extractor = True
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
 
-                                                    if run_extractor:
+                                                                results = foo(doc, extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score))
+                                                    else:
                                                         if self.check_if_run_extraction(match.value, field,
                                                                                         extractor,
                                                                                         ep):
