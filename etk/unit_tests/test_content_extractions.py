@@ -3,7 +3,6 @@ import unittest
 import sys
 sys.path.append('../../')
 from etk.core import Core
-from etk import core
 import json
 import codecs
 
