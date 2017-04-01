@@ -45,7 +45,6 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         with self.assertRaises(KeyError):
             r = c.process(self.doc)
 
-
     def test_extractor_regex(self):
         e_config = {
             "data_extraction": [
