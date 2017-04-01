@@ -7,7 +7,7 @@ import json
 import codecs
 
 
-class TestExtractionsUsingDictionaries(unittest.TestCase):
+class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
         self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
