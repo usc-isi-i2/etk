@@ -12,6 +12,40 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
     def setUp(self):
         self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
 
+    def test_extractor__no_regex(self):
+        e_config = {
+            "data_extraction": [
+                {
+                    "input_path": ["content_extraction.content_strict.text.`parent`"]
+                    ,
+                    "fields": {
+                        "name": {
+                            "extractors": {
+                                "extract_using_regex": {
+                                    "config": {
+                                        "include_context": "true",
+                                        "regex_options": [
+                                            "IGNORECASE"
+                                        ],
+                                        "pre_filter": [
+                                            "x.replace('\\n', '')",
+                                            "x.replace('\\r', '')"
+                                        ]
+                                    },
+                                    "extraction_policy": "replace"
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        with self.assertRaises(KeyError):
+            r = c.process(self.doc)
+
+
     def test_extractor_regex(self):
         e_config = {
             "data_extraction": [
