@@ -199,6 +199,8 @@ class Core(object):
                                                     # score is 1.0 because every method thinks it is the best
                                                     score = 1.0
                                                     method = _METHOD_OTHER
+                                                    if _CONFIG not in extractors[extractor]:
+                                                        extractors[extractor][_CONFIG] = dict()
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     ep = self.determine_extraction_policy(extractors[extractor])
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
@@ -533,7 +535,8 @@ class Core(object):
                     post_result = None
                     if post_filters:
                         post_result = self.run_user_filters(d, post_filters)
-                    result = self.handle_text_or_results(post_result) if post_result else d[_TEXT]
+                    result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
+                        d[_TEXT])
                     if result:
                         results.extend(result)
 
