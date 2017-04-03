@@ -6,10 +6,16 @@
 Welcome to etk's documentation!
 ===============================
 
-Contents:
+Getting Started
+---------------
 
-.. toctree::
-   :maxdepth: 2
+Installation (need to upload to PyPI later)::
+
+   pip install etk
+
+Example 1::
+
+   >>> Work in progress
 
 
 
