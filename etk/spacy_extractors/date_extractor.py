@@ -6,6 +6,7 @@ import spacy
 from spacy.matcher import Matcher
 from spacy.attrs import *
 
+date_delimiters = ['.', '/', '-', 'de']
 ordinals = ['rd', 'st', 'th', 'nd']
 months_dict = {
         "01": 1,
@@ -134,55 +135,150 @@ def load_date_matcher(nlp):
 	# Create matcher object with list of rules and return
 	matcher = Matcher(nlp.vocab)
 
-	#Add rules
-	matcher.add_pattern('DATE', 
-	                    [{POS : 'NUM', LENGTH : 2}, {ORTH: "/", 'OP' : '+'}, {POS : 'NUM'}, {ORTH: "/", 'OP' : '+'}, {POS : 'NUM'}])
-	matcher.add_pattern('DATE', 
-	                    [{POS : 'NUM'}, {ORTH: "-", 'OP' : '+'}, {POS : 'NUM'}, {ORTH: "-", 'OP' : '+'}, {POS : 'NUM'}])
+	# Create flag for MONTH
+	IS_MONTH = FLAG63
+	target_ids = {nlp.vocab.strings[s.lower()] for s in months_dict.keys()}
+	for lexeme in nlp.vocab:
+		if lexeme.lower in target_ids:
+			lexeme.set_flag(IS_MONTH, True)
+
+    # Create flag for ORDINALS
+	IS_ORDINAL = FLAG62
+	target_ids = {nlp.vocab.strings[s.lower()] for s in ordinals}
+	for lexeme in nlp.vocab:
+		if lexeme.lower in target_ids:
+			lexeme.set_flag(IS_ORDINAL, True)
+
+    # Create flag for DATE_DELIMITER
+	IS_DATE_DELIMITER = FLAG61
+	target_ids = {nlp.vocab.strings[s.lower()] for s in date_delimiters}
+	for lexeme in nlp.vocab:
+		if lexeme.lower in target_ids:
+			lexeme.set_flag(IS_DATE_DELIMITER, True)
+
+    # Add rules
 
 	# March 25, 2017
 	# March 25th, 2017
 	# March 25th 2017
 	# March 25 2017
+	matcher.add_pattern('DATE',
+		[
+			{IS_MONTH : True}, 
+			{POS : 'NUM', LENGTH : 1}, 
+			{IS_ORDINAL : True, 'OP' : '?'},
+			{ORTH : ',', 'OP' : '?'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+	matcher.add_pattern('DATE',
+		[
+			{IS_MONTH : True}, 
+			{POS : 'NUM', LENGTH : 2}, 
+			{IS_ORDINAL : True, 'OP' : '?'},
+			{ORTH : ',', 'OP' : '?'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+
 	# 25 March, 2017
 	# 25th March, 2017
 	# 25th March 2017
 	# 25 March 2017
-	for month in months_dict.keys():		
-		for ordinal in ordinals:
-			matcher.add_pattern('DATE',
-				[
-					{LOWER : month}, 
-					{POS : 'NUM', LENGTH : 1}, 
-					{LOWER : ordinal, 'OP' : '?'},
-					{ORTH : ',', 'OP' : '?'},
-					{POS : 'NUM', LENGTH : 4}
-				])
-			matcher.add_pattern('DATE',
-				[
-					{LOWER : month}, 
-					{POS : 'NUM', LENGTH : 2}, 
-					{LOWER : ordinal, 'OP' : '?'},
-					{ORTH : ',', 'OP' : '?'},
-					{POS : 'NUM', LENGTH : 4}
-				])
+	matcher.add_pattern('DATE',
+		[
+			{POS : 'NUM', LENGTH : 1}, 
+			{IS_MONTH : True}, 
+			{IS_ORDINAL : True, 'OP' : '?'},
+			{ORTH : ',', 'OP' : '?'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+	matcher.add_pattern('DATE',
+		[ 
+			{POS : 'NUM', LENGTH : 2},
+			{IS_MONTH : True}, 
+			{IS_ORDINAL : True, 'OP' : '?'},
+			{ORTH : ',', 'OP' : '?'},
+			{POS : 'NUM', LENGTH : 4}
+		])
 
-			matcher.add_pattern('DATE',
-				[
-					{POS : 'NUM', LENGTH : 1}, 
-					{LOWER : month}, 
-					{LOWER : ordinal, 'OP' : '?'},
-					{ORTH : ',', 'OP' : '?'},
-					{POS : 'NUM', LENGTH : 4}
-				])
-			matcher.add_pattern('DATE',
-				[ 
-					{POS : 'NUM', LENGTH : 2},
-					{LOWER : month}, 
-					{LOWER : ordinal, 'OP' : '?'},
-					{ORTH : ',', 'OP' : '?'},
-					{POS : 'NUM', LENGTH : 4}
-				])
+	# 25/05/2016
+	matcher.add_pattern('DATE',
+		[
+			{POS : 'NUM', LENGTH : 1},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{IS_MONTH : True},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+	matcher.add_pattern('DATE',
+		[
+			{POS : 'NUM', LENGTH : 2},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{IS_MONTH : True},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+	
+	# 05/25/2016
+	matcher.add_pattern('DATE',
+		[
+			{IS_MONTH : True},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 1},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+	matcher.add_pattern('DATE',
+		[
+			{IS_MONTH : True},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 2},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+
+	# Diciembre, 2009
+	# December 2009
+	matcher.add_pattern('DATE',
+		[
+			{IS_MONTH : True},
+			{ORTH : ',', 'OP' : '?'},
+			{POS : 'NUM', LENGTH : 4}
+		])
+
+	# 2013-12-04
+	matcher.add_pattern('DATE',
+		[
+			{POS : 'NUM', LENGTH : 4},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{IS_MONTH : True},
+			{IS_DATE_DELIMITER : True, 'OP' : '+'},
+			{POS : 'NUM', LENGTH : 2}			
+		])
+
+	# 9 days ago
+	matcher.add_pattern('DATE',
+		[
+			{POS : 'NUM'},
+			{},
+			{LOWER : 'ago'}
+		])
+
+	# # 1 Jul
+	# matcher.add_pattern('DATE',
+	# 	[
+	# 		{POS : 'NUM', LENGTH : 2},
+	# 		{IS_DATE_DELIMITER : True, 'OP' : '?'},
+	# 		{IS_MONTH : True}
+	# 	])
+
+	# # Jul 2
+	# matcher.add_pattern('DATE',
+	# 	[
+	# 		{IS_MONTH : True},
+	# 		{IS_DATE_DELIMITER : True, 'OP' : '?'},
+	# 		{POS : 'NUM', LENGTH : 2}
+	# 	])
+
 
 	return matcher
 
@@ -199,6 +295,7 @@ def replace_tokenizer(nlp, tk):
     spacy_tokenizer = nlp.tokenizer 
     nlp.tokenizer = lambda string: spacy_tokenizer.tokens_from_list(remove_ordinals(tk.extract_tokens_from_crf(tk.extract_crftokens(string))))
 
+
 def extract_date_spacy(nlp, matcher, tk, string):
 
 	# Override tokenizer
@@ -208,11 +305,15 @@ def extract_date_spacy(nlp, matcher, tk, string):
 	# Run matcher and return results
 	extracted_dates = []
 	extractions = set()
-	matches = matcher(doc)
-	for ent_id, label, start, end in matches:
-		extractions.add((start, end))
-	for extraction in extractions:
-		extracted_dates.append({'value' : (doc[extraction[0] : extraction[1]].text)})
+	date_matches = matcher(doc)
+
+	extracted_dates = []
+	for ent_id,label,start,end in date_matches:
+		extracted_date = {'context' : {}}
+		extracted_date['value'] = doc[start:end].text
+		# extracted_date['context']['start'] = string.index(extracted_date['value']),
+		# extracted_date['context']['end'] = extracted_date['context']['start'] + len(extracted_date['value'])
+		extracted_dates.append(extracted_date)
 
 	# Return the results
 	return extracted_dates

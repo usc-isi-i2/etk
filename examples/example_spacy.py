@@ -6,20 +6,18 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import time
 import etk
 
-print 'start'
 tk = etk.init()
 
 start_time = time.time()
 # Load all the dictionaries here
-print 'loading'
+print '...loading spaCy'
 tk.load_matchers()
-print 'done loading'
 end_time = time.time()
 
 print "Time taken to load all the matchers: {0}".format(end_time - start_time)
 
 print "\nDate Extractor"
-strings = [
+date_docs = [
 		'23/05/2016',
 		'05/23/2016',
 		'23-05-2016',
@@ -40,9 +38,9 @@ strings = [
 		'Romans and others will play this 23rd May 2016',
 		'Can 23rd May, 2016 be the day the Romans win?',
 	]
-for string in strings:
-	print string
-	print tk.extract_date_spacy(string)
+for date_doc in date_docs:
+	print date_doc
+	print tk.extract_date_spacy(date_doc)
 
 
 age_docs = [
