@@ -1,0 +1,358 @@
+201	NJ	New Jersey	Jersey City	US	840
+202	DC	Washington, D.C.		US	840
+203	CT	Connecticut	New Haven	US	840
+204	MB	Manitoba		CA	124
+205	AL	Alabama	Birmingham	US	840
+206	WA	Washington	Seattle	US	840
+207	ME	Maine	Estcourt Station	US	840
+208	ID	Idaho		US	840
+209	CA	California	Stockton	US	840
+210	TX	Texas	San Antonio	US	840
+212	NY	New York	Manhattan	US	840
+213	CA	California	Downtown Los Angeles	US	840
+214	TX	Texas	Dallas/Fort Worth metroplex	US	840
+215	PA	Pennsylvania	Philadelphia	US	840
+216	OH	Ohio	Cleveland	US	840
+217	IL	Illinois	Springfield	US	840
+218	MN	Minnesota	Duluth	US	840
+219	IN	Indiana	Gary	US	840
+224	IL	Illinois	Arlington Heights	US	840
+225	LA	Louisiana	Baton Rouge	US	840
+226	ON	Ontario		CA	124
+228	MS	Mississippi	Pascagoula	US	840
+229	GA	Georgia	Albany	US	840
+231	MI	Michigan	Traverse City	US	840
+234	OH	Ohio		US	840
+239	FL	Florida	Lee County	US	840
+240	MD	Maryland		US	840
+242	00	Bahamas		BS	44
+246	00	Barbados		BB	52
+248	MI	Michigan	Oakland County	US	840
+249	ON	Ontario	Northeastern Ontario	CA	124
+250	BC	British Columbia	Victoria	CA	124
+251	AL	Alabama	Mobile County	US	840
+252	NC	North Carolina	Rocky Mount	US	840
+253	WA	Washington	Tacoma	US	840
+254	TX	Texas	Waco	US	840
+256	AL	Alabama	Huntsville	US	840
+260	IN	Indiana	Fort Wayne	US	840
+262	WI	Wisconsin	Kenosha	US	840
+264	00	Anguilla		AI	660
+267	PA	Pennsylvania		US	840
+268	00	Antigua and Barbuda		AG	28
+269	MI	Michigan	Kalamazoo	US	840
+270	KY	Kentucky	Paducah	US	840
+272	PA	Pennsylvania		US	840
+274	WI	Wisconsin		US	840
+276	VA	Virginia	Bristol	US	840
+281	TX	Texas	Houston	US	840
+283	OH	Ohio		US	840
+284	00	British Virgin Islands		VG	92
+289	ON	Ontario		CA	124
+301	MD	Maryland	Washington, D.C., suburbs	US	840
+302	DE	Delaware		US	840
+303	CO	Colorado	Denver	US	840
+304	WV	West Virginia		US	840
+305	FL	Florida	Miami-Dade County	US	840
+306	SK	Saskatchewan		CA	124
+307	WY	Wyoming		US	840
+308	NE	Nebraska	Grand Island	US	840
+309	IL	Illinois	Peoria	US	840
+310	CA	California	Beverly Hills	US	840
+312	IL	Illinois	Chicago	US	840
+313	MI	Michigan	Detroit	US	840
+314	MO	Missouri	St. Louis	US	840
+315	NY	New York	Syracuse	US	840
+316	KS	Kansas	Wichita metropolitan area	US	840
+317	IN	Indiana	Indianapolis	US	840
+318	LA	Louisiana	Shreveport	US	840
+319	IA	Iowa	Cedar Rapids	US	840
+320	MN	Minnesota	St. Cloud	US	840
+321	FL	Florida	Orlando	US	840
+323	CA	California	City of Los Angeles	US	840
+325	TX	Texas	Abilene	US	840
+327	AR	Arkansas	Pine Bluff	US	840
+330	OH	Ohio	Akron	US	840
+331	IL	Illinois	Aurora	US	840
+334	AL	Alabama	Montgomery	US	840
+336	NC	North Carolina	Greensboro	US	840
+337	LA	Louisiana	Lake Charles	US	840
+339	MA	Massachusetts		US	840
+340	VI	US Virgin Islands		VI	850
+343	ON	Ontario	Ottawa metropolitan area	CA	124
+345	00	Cayman Islands		KY	136
+347	NY	New York		US	840
+351	MA	Massachusetts		US	840
+352	FL	Florida	Gainesville	US	840
+360	WA	Washington	Olympia	US	840
+361	TX	Texas	Corpus Christi	US	840
+364	KY	Kentucky		US	840
+365	ON	Ontario		CA	124
+385	UT	Utah		US	840
+386	FL	Florida	Daytona Beach	US	840
+401	RI	Rhode Island		US	840
+402	NE	Nebraska	Omaha	US	840
+403	AB	Alberta	Calgary	CA	124
+404	GA	Georgia	Atlanta	US	840
+405	OK	Oklahoma	Oklahoma City	US	840
+406	MT	Montana		US	840
+407	FL	Florida	Orlando	US	840
+408	CA	California	San Jose	US	840
+409	TX	Texas	Beaumont	US	840
+410	MD	Maryland	Chesapeake Bay	US	840
+412	PA	Pennsylvania	Pittsburgh	US	840
+413	MA	Massachusetts	Springfield	US	840
+414	WI	Wisconsin	Milwaukee County	US	840
+415	CA	California	San Francisco	US	840
+416	ON	Ontario	Toronto	CA	124
+417	MO	Missouri	Branson	US	840
+418	QC	Quebec	Quebec City	CA	124
+419	OH	Ohio	Toledo	US	840
+423	TN	Tennessee	Chattanooga	US	840
+424	CA	California	Beverly Hills	US	840
+425	WA	Washington	Bellevue	US	840
+430	TX	Texas	Texarkana	US	840
+432	TX	Texas	Midland	US	840
+434	VA	Virginia	Charlottesville	US	840
+435	UT	Utah	Park City	US	840
+437	ON	Ontario	Toronto metropolitan area	CA	124
+438	QC	Quebec	Montreal metropolitan area	CA	124
+440	OH	Ohio	Cleveland	US	840
+441	00	Bermuda		BM	60
+442	CA	California		US	840
+443	MD	Maryland		US	840
+450	QC	Quebec	City of Montreal	CA	124
+458	OR	Oregon	Eugene	US	840
+469	TX	Texas	Dallas	US	840
+470	GA	Georgia	Atlanta	US	840
+473	00	Grenada		GD	308
+475	CT	Connecticut		US	840
+478	GA	Georgia	Macon	US	840
+479	AR	Arkansas	Fort Smith	US	840
+480	AZ	Arizona	Scottsdale	US	840
+484	PA	Pennsylvania	Allentown	US	840
+501	AR	Arkansas	Little Rock	US	840
+502	KY	Kentucky	Louisiville	US	840
+503	OR	Oregon	Portland	US	840
+504	LA	Louisiana	New Orleans metropolitan area	US	840
+505	NM	New Mexico	Albuquerque	US	840
+506	NB	New Brunswick		CA	124
+507	MN	Minnesota	Rochester	US	840
+508	MA	Massachusetts	Worcester	US	840
+509	WA	Washington	Spokane	US	840
+510	CA	California	Oakland	US	840
+512	TX	Texas	Austin	US	840
+513	OH	Ohio	Cincinnati	US	840
+514	QC	Quebec	Island of Montreal	CA	124
+515	IA	Iowa	Des Moines	US	840
+516	NY	New York	Nassau County	US	840
+517	MI	Michigan	Lansing	US	840
+518	NY	New York	Albany	US	840
+519	ON	Ontario	London	CA	124
+520	AZ	Arizona	Tucson	US	840
+530	CA	California	Redding	US	840
+531	NE	Nebraska	Omaha	US	840
+534	WI	Wisconsin		US	840
+539	OK	Oklahoma	Tulsa	US	840
+540	VA	Virginia	Fredericksburg	US	840
+541	OR	Oregon	Eugene	US	840
+551	NJ	New Jersey		US	840
+559	CA	California	Fresno	US	840
+561	FL	Florida	Palm Beach County	US	840
+562	CA	California	Long Beach	US	840
+563	IA	Iowa	Davenport	US	840
+564	WA	Washington	Western Washington	US	840
+567	OH	Ohio		US	840
+570	PA	Pennsylvania	Scranton	US	840
+571	VA	Virginia		US	840
+573	MO	Missouri	Columbia	US	840
+574	IN	Indiana	South Bend	US	840
+575	NM	New Mexico	Las Cruces	US	840
+579	QC	Quebec	Laval	CA	124
+580	OK	Oklahoma	Ponca City	US	840
+581	QC	Quebec		CA	124
+582	PA	Pennsylvania	Erie	US	840
+585	NY	New York	Rochester	US	840
+586	MI	Michigan	Warren	US	840
+587	AB	Alberta		CA	124
+601	MS	Mississippi	Jackson	US	840
+602	AZ	Arizona	Downtown Phoenix	US	840
+603	NH	New Hampshire		US	840
+604	BC	British Columbia	Greater Vancouver Regional District	CA	124
+605	SD	South Dakota		US	840
+606	KY	Kentucky	London	US	840
+607	NY	New York	Binghamton	US	840
+608	WI	Wisconsin	Madison	US	840
+609	NJ	New Jersey	Trenton	US	840
+610	PA	Pennsylvania		US	840
+612	MN	Minnesota	Minneapolis	US	840
+613	ON	Ontario	Ottawa	CA	124
+614	OH	Ohio		US	840
+615	TN	Tennessee	Nashville	US	840
+616	MI	Michigan	Grand Rapids	US	840
+617	MA	Massachusetts	Boston	US	840
+618	IL	Illinois	Carbondale	US	840
+619	CA	California	San Diego, California	US	840
+620	KS	Kansas	Wichita Metropolitan Area	US	840
+623	AZ	Arizona	Maricopa County	US	840
+626	CA	California	Pasadena	US	840
+630	IL	Illinois	Aurora	US	840
+631	NY	New York	Suffolk County	US	840
+636	MO	Missouri	St. Charles	US	840
+641	IA	Iowa	Mason City	US	840
+646	NY	New York	Borough of Manhattan	US	840
+647	ON	Ontario		CA	124
+649	00	Turks and Caicos		TC	796
+650	CA	California	Palo Alto	US	840
+651	MN	Minnesota	St. Paul	US	840
+657	CA	California		US	840
+660	MO	Missouri	Sedalia	US	840
+661	CA	California	Bakersfield	US	840
+662	MS	Mississippi	Tupelo	US	840
+664	00	Montserrat		MS	500
+670	00	Northern Mariana Islands	Commonwealth of the United States	MP	580
+671	00	Guam	Andersen Air Force Base	GU	316
+672	BC	British Columbia		CA	124
+678	GA	Georgia		US	840
+681	WV	West Virginia		US	840
+682	TX	Texas		US	840
+684	AS	American Samoa		AS	16
+701	ND	North Dakota		US	840
+702	NV	Nevada	Clark County	US	840
+703	VA	Virginia	Northern Virginia	US	840
+704	NC	North Carolina	Charlotte	US	840
+705	ON	Ontario	Northeastern Ontario	CA	124
+706	GA	Georgia	Augusta	US	840
+707	CA	California	Vallejo	US	840
+708	IL	Illinois	Oak Park	US	840
+709	NL	Newfoundland and Labrador		CA	124
+712	IA	Iowa	Sioux City	US	840
+713	TX	Texas	Houston	US	840
+714	CA	California	Orange County	US	840
+715	WI	Wisconsin	Wausau	US	840
+716	NY	New York	Buffalo	US	840
+717	PA	Pennsylvania	Harrisburg	US	840
+718	NY	New York	New York City	US	840
+719	CO	Colorado	Colorado Springs	US	840
+720	CO	Colorado		US	840
+721	00	Sint Maarten		SX	920
+724	PA	Pennsylvania	Washington, Pa.	US	840
+727	FL	Florida	Pinellas County	US	840
+730	IL	Illinois		US	840
+731	TN	Tennessee	West Tennessee	US	840
+732	NJ	New Jersey	New Brunswick	US	840
+734	MI	Michigan	Ann Arbor	US	840
+740	OH	Ohio	Columbus	US	840
+747	CA	California	Los Angeles County	US	840
+754	FL	Florida		US	840
+757	VA	Virginia	Hampton Roads	US	840
+758	00	Saint Lucia		LC	662
+760	CA	California	San Bernardino County	US	840
+762	GA	Georgia		US	840
+763	MN	Minnesota	Minneapolis	US	840
+765	IN	Indiana	Lafayette	US	840
+767	00	Dominica		DM	212
+769	MS	Mississippi		US	840
+770	GA	Georgia	Marietta	US	840
+772	FL	Florida	Fort Pierce	US	840
+773	IL	Illinois	Chicago	US	840
+774	MA	Massachusetts		US	840
+775	NV	Nevada	Carson City	US	840
+778	BC	British Columbia		US	840
+779	IL	Illinois		US	840
+780	AB	Alberta	Edmonton	CA	124
+781	MA	Massachusetts	Waltham	US	840
+784	00	Saint Vincent and the Grenadines		VC	670
+785	KS	Kansas	Topeka	US	840
+786	FL	Florida	Miami-Dade County	US	840
+787	PR	Puerto Rico		PR	630
+801	UT	Utah	Wasatch Front	US	840
+802	VT	Vermont		US	840
+803	SC	South Carolina	Columbia	US	840
+804	VA	Virginia	Richmond Metropolitan Area	US	840
+805	CA	California	Ventura County	US	840
+806	TX	Texas	Lubbock	US	840
+807	ON	Ontario	Northwestern Ontario	CA	124
+808	HI	Hawaii	Midway Atoll	US	840
+809	00	Dominican Republic		DO	214
+810	MI	Michigan		US	840
+812	IN	Indiana	Bloomington	US	840
+813	FL	Florida	Hillsborough County	US	840
+814	PA	Pennsylvania	Erie	US	840
+815	IL	Illinois	Rockford	US	840
+816	MO	Missouri	Kansas City	US	840
+817	TX	Texas	Fort Worth	US	840
+818	CA	California	San Fernando Valley	US	840
+819	QC	Quebec		CA	124
+828	NC	North Carolina	Asheville	US	840
+829	00	Dominican Republic		DO	214
+830	TX	Texas	Del Rio	US	840
+831	CA	California	Monterey	US	840
+832	TX	Texas		US	840
+843	SC	South Carolina	Charleston	US	840
+845	NY	New York	Poughkeepsie	US	840
+847	IL	Illinois	Arlington Heights	US	840
+848	NJ	New Jersey		US	840
+849	00	Dominican Republic		DO	214
+850	FL	Florida	Pensacola	US	840
+856	NJ	New Jersey	Cherry Hill	US	840
+857	MA	Massachusetts	Boston	US	840
+858	CA	California	San Diego	US	840
+859	KY	Kentucky	Lexington	US	840
+860	CT	Connecticut	Hartford	US	840
+862	NJ	New Jersey		US	840
+863	FL	Florida	Lakeland	US	840
+864	SC	South Carolina	Greenville	US	840
+865	TN	Tennessee	Knoxville	US	840
+867	YT	Yukon	Northwest Territories	CA	124
+868	00	Trinidad and Tobago		TT	780
+869	00	Saint Kitts and Nevis		KN	659
+870	AR	Arkansas	Texarkana	US	840
+872	IL	Illinois		US	840
+876	00	Jamaica		JM	388
+878	PA	Pennsylvania		US	840
+901	TN	Tennessee	Memphis	US	840
+902	NS	Nova Scotia	Prince Edward Island	CA	124
+903	TX	Texas	Tyler	US	840
+904	FL	Florida	Jacksonville	US	840
+905	ON	Ontario	Niagara Falls Region	CA	124
+906	MI	Michigan	Upper Peninsula of Michigan	US	840
+907	AK	Alaska	Anchorage	US	840
+908	NJ	New Jersey		US	840
+909	CA	California	San Bernardino County	US	840
+910	NC	North Carolina	Fayetteville	US	840
+912	GA	Georgia	Savannah	US	840
+913	KS	Kansas	Kansas City, Kansas	US	840
+914	NY	New York	Westchester County	US	840
+915	TX	Texas	El Paso County	US	840
+916	CA	California	Sacramento Metropolitan Area	US	840
+917	NY	New York	New York City	US	840
+918	OK	Oklahoma	Tulsa	US	840
+919	NC	North Carolina	Raleigh	US	840
+920	WI	Wisconsin	Green Bay	US	840
+925	CA	California	Livermore	US	840
+928	AZ	Arizona	Flagstaff	US	840
+929	NY	New York		US	840
+931	TN	Tennessee	Middle Tennessee	US	840
+936	TX	Texas	Nacogdoches	US	840
+937	OH	Ohio	Dayton	US	840
+938	AL	Alabama	Huntsville	US	840
+939	PR	Puerto Rico		PR	630
+940	TX	Texas	Denton	US	840
+941	FL	Florida	Tampa Bay	US	840
+947	MI	Michigan		US	840
+949	CA	California	Irvine	US	840
+951	CA	California	Riverside County	US	840
+952	MN	Minnesota	Bloomington	US	840
+954	FL	Florida	Broward County	US	840
+956	TX	Texas	Laredo	US	840
+959	CT	Connecticut		US	840
+970	CO	Colorado	Grand Junction	US	840
+971	OR	Oregon	Portland	US	840
+972	TX	Texas		US	840
+973	NJ	New Jersey	Newark	US	840
+978	MA	Massachusetts		US	840
+979	TX	Texas	College Station	US	840
+980	NC	North Carolina		US	840
+985	LA	Louisiana	Houma	US	840
+989	MI	Michigan	Bay City	US	840

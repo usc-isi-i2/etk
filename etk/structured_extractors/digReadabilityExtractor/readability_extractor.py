@@ -14,7 +14,7 @@ class ReadabilityExtractor():
         }
 
     def get_recall_priority(self):
-        self.recall_priority
+        return self.recall_priority
 
     def set_recall_priority(self, recall_priority):
         self.recall_priority = recall_priority
@@ -22,7 +22,7 @@ class ReadabilityExtractor():
         return self
 
     def get_html_partial(self):
-        self.recall_priority
+        return self.recall_priority
 
     def set_html_partial(self, html_partial):
         self.html_partial = html_partial
@@ -33,7 +33,7 @@ class ReadabilityExtractor():
         if 'recall_priority' in options.keys():
             self.recall_priority = options['recall_priority']
 
-    def extract(self, html_content, options={}):
+    def extract(self, html_content, options=None):
         if options:
             self.__parse_options(options)
         from readability.readability import Document
@@ -45,10 +45,10 @@ class ReadabilityExtractor():
                 readability_text = ' '.join(cleantext)
                 return {'text': readability_text}
             else:
-                return ''
+                return None
         except Exception, e:
             print 'Error in extracting readability %s' % e
-            return ''
+            return None
 
     def get_metadata(self):
         return copy.copy(self.metadata)

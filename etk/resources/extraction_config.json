@@ -1,0 +1,177 @@
+{
+  "extraction_policy": "replace",
+  "error_handling": "raise_error",
+  "resources": {
+    "dictionaries": {
+      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz"
+    },
+    "landmark": [
+      "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
+    ]
+  },
+  "content_extraction": {
+    "input_path": "raw_content",
+    "extractors": {
+      "readability": [
+        {
+          "strict": "yes",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_strict"
+        },
+        {
+          "strict": "no",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_relaxed"
+        }
+      ],
+      "title": {
+        "extraction_policy": "keep_existing"
+      },
+      "landmark": {
+        "field_name": "inferlink_extractions",
+        "extraction_policy": "keep_existing",
+        "landmark_threshold": 0.5
+      }
+    }
+  },
+  "data_extraction": [
+    {
+      "input_path": [
+        "*.*.text.`parent`",
+        "*.inferlink_extractions.*.text.`parent`"
+      ],
+      "fields": {
+        "name": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "women_name",
+                "ngrams": 1,
+                "joiner": " ",
+                "pre_process": [
+                  "x.lower()"
+                ],
+                "pre_filter": [
+                  "x"
+                ],
+                "post_filter": [
+                  "isinstance(x, basestring)"
+                ]
+              },
+              "extraction_policy": "keep_existing"
+            },
+            "extract_using_regex": {
+              "config": {
+                "include_context": "true",
+                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
+                "regex_options": [
+                  "IGNORECASE"
+                ],
+                "pre_filter": [
+                  "x.replace('\\n', '')",
+                  "x.replace('\\r', '')"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_name",
+                  "inferlink_name-1"
+                ],
+                "post_filter": [
+                  "x.replace('\t', '')"
+                ]
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "age": {
+          "extractors": {
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_age"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_age": {
+              "config": {
+                
+              }
+            }
+          }
+        },
+         "phone": {
+          "extractors": {
+            "extract_phone": {
+              "config": {
+
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_phone"
+                ],
+                "post_filter": [
+                  "extract_phone"
+                ]
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+         "email": {
+          "extractors": {
+            "extract_email": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "price": {
+          "extractors": {
+            "extract_price": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "height": {
+          "extractors": {
+            "extract_height": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "weight": {
+          "extractors": {
+            "extract_weight": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "address": {
+          "extractors": {
+            "extract_address": {
+              "config": {
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
