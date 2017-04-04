@@ -57,16 +57,6 @@ class TestExtractions(unittest.TestCase):
         self.assertEqual(json.dumps(r["content_extraction"]["content_strict"]["text"]), json.dumps(c_s))
         self.assertEqual(json.dumps(r["content_extraction"]["content_relaxed"]["text"]), json.dumps(c_r))
 
-        # self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
-        # self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
-        # self.assertTrue(len(r["content_extraction"]["content_strict"]["tokens"]) > 0)
-        # self.assertTrue(len(r["content_extraction"]["content_strict"]["simple_tokens"]) > 0)
-        #
-        # self.assertTrue("tokens" in r["content_extraction"]["content_relaxed"])
-        # self.assertTrue("simple_tokens" in r["content_extraction"]["content_relaxed"])
-        # self.assertTrue(len(r["content_extraction"]["content_relaxed"]["tokens"]) > 0)
-        # self.assertTrue(len(r["content_extraction"]["content_relaxed"]["simple_tokens"]) > 0)
-
     def test_title(self):
         e_config = {'content_extraction': {
             "input_path": "raw_content",

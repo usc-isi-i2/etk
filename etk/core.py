@@ -10,6 +10,7 @@ from data_extractors import age_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
+from data_extractors.digReviewIDExtractor import review_id_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -625,6 +626,16 @@ class Core(object):
     @staticmethod
     def _extract_age(text):
         return age_extractor.extract(text)
+
+    def extract_review_id(self, d, config):
+        text = d[_TEXT]
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+        return self._extract_review_id(text)
+
+    @staticmethod
+    def _extract_review_id(text):
+        return review_id_extractor.extract(text)
 
     @staticmethod
     def handle_text_or_results(x):
