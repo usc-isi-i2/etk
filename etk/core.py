@@ -568,6 +568,12 @@ class Core(object):
 
     @staticmethod
     def _extract_email(text, include_context):
+        """
+        A regular expression based function to extract emails from text
+        :param text: The input text
+        :param include_context: True or False, will include context matched by the regular expressions
+        :return: An object, with extracted email and/or context
+        """
         return email_extractor.extract(text, include_context)
 
     def extract_price(self, d, config):
