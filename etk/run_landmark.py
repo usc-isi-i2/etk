@@ -19,7 +19,7 @@ if __name__ == "__main__":
     for line in input:
         print 'processing line # :', str(i)
         jl = json.loads(line)
-        result = landmark_extraction.landmark_extractor(jl, landmark_rules)
+        result = landmark_extraction.extract(jl, landmark_rules)
         output.write(json.dumps(result) + '\n')
         i += 1
     output.close()
