@@ -507,9 +507,9 @@ class Core(object):
 
     def run_spacy_extraction(self, d):
         spacy_extractions = dict()
-        spacy_extractions[_AGE] = spacy_date_extractor.extract(self.nlp, self.matchers['date'],
+        spacy_extractions[_POSTING_DATE] = spacy_date_extractor.extract(self.nlp, self.matchers['date'],
                                                                           d[_SIMPLE_TOKENS])
-        spacy_extractions[_POSTING_DATE] = spacy_age_extractor.extract(d[_TEXT], self.nlp,
+        spacy_extractions[_AGE] = spacy_age_extractor.extract(d[_TEXT], self.nlp,
                                                                                  self.matchers['age'])
         return spacy_extractions
 
