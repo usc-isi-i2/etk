@@ -1,26 +1,17 @@
 from __future__ import unicode_literals
 import unittest
 import sys
-import json
-import time
 sys.path.append('../../')
-sys.path.append('../')
 from etk.core import Core
-from spacy_extractors import age_extractor as spacy_age_extractor
-
+import json
+import codecs
+import time
 
 class TestExtractionsUsingRegex(unittest.TestCase):
 
-    def setUp(self):
-        f = open('ground_truth/age.jl', 'r')
+    # def setUp(self):
+    #     self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
 
-        data = f.read().split('\n')
-        self.doc = []
-
-        for t in data:
-            self.doc.append(json.loads(t))
-
-    '''
     def test_extractor(self):
         c = Core()
 
@@ -34,40 +25,64 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
         print "\nDate Extractor"
         date_docs = [
-                    '23/05/2016',
-                    '05/23/2016',
-                    '23-05-2016',
-                    '05-23-2016',
-                    '23 May 2016',
-                    '23rd May 2016',
-                    '23rd May, 2016',
-                    '23rd-05-2016',
-                    'March 25, 2017',
-                    'March 25th, 2017',
-                    'March 25th 2017',
-                    'March 25 2017',
-                    'The meeting is on 23/05/2016',
-                    'Can 05/23/2016 be the date of the meeting?',
-                    'Lyonne was born on 23-05-2016 at 5 in the morning',
-                    'Kramer is here on 05-23-2016',
-                    'Google Inc is planning to make the acquisition on 23 May 2016',
-                    'Romans and others will play this 23rd May 2016',
-                    'Can 23rd May, 2016 be the day the Romans win?',
+                    'Thursday, September 4, 2014, 4:57 PM PST',
+                    'September 9, 2012  10:29 AM',
+                    'Diciembre, 2009 & nbsp; \n 04:00',
+                    'December, 2009 & nbsp; \n 04:00',
+                    '2013-12-04,  7:44PM CST',
+                    'saturday, 1 february 2014, 12:03 am',
+                    'friday, december 6, 2013 3:16 pm',
+                    'wednesday, april 16th, 2014',
+                    'wednesday, april 16th, 2014',
+                    '9 days ago',
+                    '22 hours ago',
+                    'lunes, 27 de junio de 2016, 14:07',
+                    'lunes, 4 de julio de 2016, 9:01',
+                    'torsdag, 7. juli 2016, 12:01',
+                    '1 Jul',
+                    ' 3. jul',
+                    'Jul-01',
+                    'Jun 25'
+                    # '23/05/2016',
+                    # '05/23/2016',
+                    # '23-05-2016',
+                    # '05-23-2016',
+                    # '23 May 2016',
+                    # '23rd May 2016',
+                    # '23rd May, 2016',
+                    # '23rd-05-2016',
+                    # 'March 25, 2017',
+                    # 'March 25th, 2017',
+                    # 'March 25th 2017',
+                    # 'March 25 2017',
+                    # 'The meeting is on 23/05/2016',
+                    # 'Can 05/23/2016 be the date of the meeting?',
+                    # 'Lyonne was born on 23-05-2016 at 5 in the morning',
+                    # 'Kramer is here on 05-23-2016',
+                    # 'Google Inc is planning to make the acquisition on 23 May 2016',
+                    # 'Romans and others will play this 23rd May 2016',
+                    # 'Can 23rd May, 2016 be the day the Romans win?',
                 ]
 
         for date_doc in date_docs:
+            print '\n'
             print date_doc
             print c.extract_date_spacy(date_doc)
 
-        print "\nDate Extractor"
-    '''
+        # print "\nDate Extractor"
+        # age_docs = [
+        #         'start Age : 22 years end',
+        #         'start age : 22 yrs end',
+        #         'start Age 22-40 end',
+        #         'start 22 yrs end',
+        #         'start 23yrs end',
+        #         'start 22-40 years end',
+        #         'start About me 22 end'
+        # ]
 
-    def test_extraction_from_age_spacy(self):
-        c = Core()
-        for t in self.doc:
-            extracted_ages = spacy_age_extractor.extract(t['content'], c.nlp, c.matchers['age'])
-            extracted_ages = [age['value'] for age in extracted_ages]
-            self.assertTrue(set(extracted_ages),set(t['correct']))
+        # for doc in age_docs:
+        #     print doc
+        #     print c.extract_age_spacy(doc)
 
 if __name__ == '__main__':
     unittest.main()
