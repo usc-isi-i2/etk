@@ -121,7 +121,9 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                     "start": 10
                 },
                 "value": "helena"
-            }]}
+            },
+            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'other_method'},
+             'context': {'field': 'tokens', 'end': 137, 'start': 136}, 'value': u'luna'}]}
         self.assertEqual(extraction, ex)
 
 if __name__ == '__main__':
