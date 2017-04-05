@@ -1,4 +1,5 @@
 # import all extractors
+from spacy_extractors import *
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -15,6 +16,7 @@ from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
 import re
+import spacy
 import codecs
 from jsonpath_rw import parse, jsonpath
 import time
@@ -716,3 +718,34 @@ class Core(object):
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
 
+
+    # spaCy extractors
+    def load_matchers(self):
+        nlp = spacy.load('en')
+        self.nlp = nlp
+        self.spacy_tokenizer = self.nlp.tokenizer
+
+        matchers = {}
+
+        # Load date_extractor matcher
+        matchers['date'] = load_date_matcher(nlp)
+
+        #Load age_extractor matcher
+        matchers['age'] = load_age_matcher(nlp)
+
+        self.matchers = matchers
+
+    def extract_date_spacy(self, doc):
+
+        # Do the extraction
+        result = extract_date_spacy(self.nlp, self.matchers['date'], self, doc)
+
+        # Replace tokenizer
+        self.nlp.tokenizer = self.spacy_tokenizer
+
+        return result
+
+
+    def extract_age_spacy(self, doc):
+
+        return extract_age_spacy(doc, self.nlp, self.matchers['age'])
