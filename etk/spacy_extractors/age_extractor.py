@@ -49,7 +49,7 @@ def load_age_matcher(nlp):
 
 
 	#New Entity Type : Age
-	matcher.add_entity("Age",acceptor=get_age)
+	matcher.add_entity("Age",acceptor=get_age)\t
 
 
 	#Age Matcher Patterns
@@ -100,7 +100,7 @@ def wrap_value_with_context(age,doc):
 			}
 
 
-def extract_age_spacy(doc,nlp,matcher):
+def extract(doc,nlp,matcher):
 
 	doc = preprocess_doc(doc)
 	nlp_doc = nlp(doc)

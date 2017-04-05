@@ -65,5 +65,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             print doc
             print c.extract_age_spacy(doc)
 
+    def test_extraction_from_age_spacy(self):
+
+
 if __name__ == '__main__':
     unittest.main()
