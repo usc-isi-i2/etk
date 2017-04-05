@@ -1,17 +1,26 @@
 from __future__ import unicode_literals
 import unittest
 import sys
-sys.path.append('../../')
-from etk.core import Core
 import json
-import codecs
 import time
+sys.path.append('../../')
+sys.path.append('../')
+from etk.core import Core
+from spacy_extractors import age_extractor as spacy_age_extractor
+
 
 class TestExtractionsUsingRegex(unittest.TestCase):
 
-    # def setUp(self):
-    #     self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
+    def setUp(self):
+        f = open('ground_truth/age.jl', 'r')
 
+        data = f.read().split('\n')
+        self.doc = []
+
+        for t in data:
+            self.doc.append(json.loads(t))
+
+    '''
     def test_extractor(self):
         c = Core()
 
@@ -51,22 +60,14 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             print c.extract_date_spacy(date_doc)
 
         print "\nDate Extractor"
-        age_docs = [
-                'start Age : 22 years end',
-                'start age : 22 yrs end',
-                'start Age 22-40 end',
-                'start 22 yrs end',
-                'start 23yrs end',
-                'start 22-40 years end',
-                'start About me 22 end'
-        ]
-
-        for doc in age_docs:
-            print doc
-            print c.extract_age_spacy(doc)
+    '''
 
     def test_extraction_from_age_spacy(self):
-
+        c = Core()
+        for t in self.doc:
+            extracted_ages = spacy_age_extractor.extract(t['content'], c.nlp, c.matchers['age'])
+            extracted_ages = [age['value'] for age in extracted_ages]
+            self.assertTrue(set(extracted_ages),set(t['correct']))
 
 if __name__ == '__main__':
     unittest.main()
