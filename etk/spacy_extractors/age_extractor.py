@@ -94,7 +94,6 @@ def wrap_value_with_context(age,doc):
 			'value':age,
 			'context':
 				{
-					'field':'text',
 					'start':doc.index(age),
 					'end':doc.index(age)+len(age)
 				}
