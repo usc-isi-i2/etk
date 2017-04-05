@@ -25,45 +25,64 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
         print "\nDate Extractor"
         date_docs = [
-                    '23/05/2016',
-                    '05/23/2016',
-                    '23-05-2016',
-                    '05-23-2016',
-                    '23 May 2016',
-                    '23rd May 2016',
-                    '23rd May, 2016',
-                    '23rd-05-2016',
-                    'March 25, 2017',
-                    'March 25th, 2017',
-                    'March 25th 2017',
-                    'March 25 2017',
-                    'The meeting is on 23/05/2016',
-                    'Can 05/23/2016 be the date of the meeting?',
-                    'Lyonne was born on 23-05-2016 at 5 in the morning',
-                    'Kramer is here on 05-23-2016',
-                    'Google Inc is planning to make the acquisition on 23 May 2016',
-                    'Romans and others will play this 23rd May 2016',
-                    'Can 23rd May, 2016 be the day the Romans win?',
+                    'Thursday, September 4, 2014, 4:57 PM PST',
+                    'September 9, 2012  10:29 AM',
+                    'Diciembre, 2009 & nbsp; \n 04:00',
+                    'December, 2009 & nbsp; \n 04:00',
+                    '2013-12-04,  7:44PM CST',
+                    'saturday, 1 february 2014, 12:03 am',
+                    'friday, december 6, 2013 3:16 pm',
+                    'wednesday, april 16th, 2014',
+                    'wednesday, april 16th, 2014',
+                    '9 days ago',
+                    '22 hours ago',
+                    'lunes, 27 de junio de 2016, 14:07',
+                    'lunes, 4 de julio de 2016, 9:01',
+                    'torsdag, 7. juli 2016, 12:01',
+                    '1 Jul',
+                    ' 3. jul',
+                    'Jul-01',
+                    'Jun 25'
+                    # '23/05/2016',
+                    # '05/23/2016',
+                    # '23-05-2016',
+                    # '05-23-2016',
+                    # '23 May 2016',
+                    # '23rd May 2016',
+                    # '23rd May, 2016',
+                    # '23rd-05-2016',
+                    # 'March 25, 2017',
+                    # 'March 25th, 2017',
+                    # 'March 25th 2017',
+                    # 'March 25 2017',
+                    # 'The meeting is on 23/05/2016',
+                    # 'Can 05/23/2016 be the date of the meeting?',
+                    # 'Lyonne was born on 23-05-2016 at 5 in the morning',
+                    # 'Kramer is here on 05-23-2016',
+                    # 'Google Inc is planning to make the acquisition on 23 May 2016',
+                    # 'Romans and others will play this 23rd May 2016',
+                    # 'Can 23rd May, 2016 be the day the Romans win?',
                 ]
 
         for date_doc in date_docs:
+            print '\n'
             print date_doc
             print c.extract_date_spacy(date_doc)
 
-        print "\nDate Extractor"
-        age_docs = [
-                'start Age : 22 years end',
-                'start age : 22 yrs end',
-                'start Age 22-40 end',
-                'start 22 yrs end',
-                'start 23yrs end',
-                'start 22-40 years end',
-                'start About me 22 end'
-        ]
+        # print "\nDate Extractor"
+        # age_docs = [
+        #         'start Age : 22 years end',
+        #         'start age : 22 yrs end',
+        #         'start Age 22-40 end',
+        #         'start 22 yrs end',
+        #         'start 23yrs end',
+        #         'start 22-40 years end',
+        #         'start About me 22 end'
+        # ]
 
-        for doc in age_docs:
-            print doc
-            print c.extract_age_spacy(doc)
+        # for doc in age_docs:
+        #     print doc
+        #     print c.extract_age_spacy(doc)
 
 if __name__ == '__main__':
     unittest.main()
