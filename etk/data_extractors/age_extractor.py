@@ -8,9 +8,10 @@ r1 = age+r"[\s\-~#*=+/_:;]*(\d\d)(?:[^+]|$)"
 r2 = r"(\d\d)\s*(?:\+)?" + years
 r3 = r"(?:[^a-zA-Z0-9]+|^)" + posessions + "[\s]+(\d\d)(?:[\s\-~#*=+/_:;,]+|$)"
 r4 = age+r"\s+(\d\d)-(\d\d)\s+"
-r5 = r"(\d\d)-(\d\d)\s+"+years
+r5 = r"(\d\d)-(\d\d)\s"+years
+r6 = r"(\d\d)\s+(?:\w+)\s+(\d\d)\s"+years
 
-regexes = [r1, r2, r3, r4, r5]
+regexes = [r1, r2, r3, r4, r5,r6]
 regexes = [re.compile(x,re.I) for x in regexes]
 
 def wrap_value_with_context(value, field, start, end):

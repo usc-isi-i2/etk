@@ -63,7 +63,8 @@ def load_age_matcher(nlp):
 
 	matcher.add_pattern("Age",[{SUFFIX:"yrs",LENGTH:5}])
 
-	matcher.add_pattern("Age",[{IS_DIGIT:True,LENGTH:2},{IS_PUNCT:True},{IS_DIGIT:True,LENGTH:2},{is_year:True}])
+	matcher.add_pattern("Age",[{IS_DIGIT:True,LENGTH:2},{IS_PUNCT:True,'OP':'?'},{IS_DIGIT:True,LENGTH:2},{is_year:True}])
+	matcher.add_pattern("Age",[{IS_DIGIT:True,LENGTH:2},{IS_ASCII:True,'OP':'?'},{IS_DIGIT:True,LENGTH:2},{is_year:True}])
 
 	matcher.add_pattern("Age",[{LOWER:'about'},{LOWER:'me','OP':'?'},{IS_DIGIT:True}])
 
@@ -83,7 +84,7 @@ def postprocess(matches,doc):
 	ages = set()
 	for ent_id,label,start,end in matches:
 		print doc[start:end]
-		ages.update(re.findall('\d+',str(doc[start:end])))
+		ages.update(re.findall('\d\d',str(doc[start:end])))
 	return ages
 
 
