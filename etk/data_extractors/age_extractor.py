@@ -6,11 +6,7 @@ posessions = "(?:i am|i'm|iam|im)"
 r1 = r"age[\s\-~#*=+/_:;]*(\d\d)(?:[^+]|$)"
 r2 = r"(\d\d)[^0-9+]*" + years
 r3 = r"(?:[^a-zA-Z0-9]+|^)" + posessions + "[\s]+(\d\d)(?:[\s\-~#*=+/_:;,]+|$)"
-r4 = age+r"\s+(\d\d)-(\d\d)\s+"
-r5 = r"(\d\d)-(\d\d)\s"+years
-r6 = r"(\d\d)\s+(?:\w+)\s+(\d\d)\s"+years
-
-regexes = [r1, r2, r3, r4, r5, r6]
+regexes = [r1, r2, r3]
 regexes = [re.compile(x) for x in regexes]
 
 
