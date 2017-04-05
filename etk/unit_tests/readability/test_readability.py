@@ -1,7 +1,10 @@
 import os
 import codecs
 import unittest
-from readability_extractor import ReadabilityExtractor
+import sys
+import json
+sys.path.append('../../')
+from structured_extractors import ReadabilityExtractor
 
 
 class TestReadabilityExtractor(unittest.TestCase):
@@ -15,9 +18,9 @@ class TestReadabilityExtractor(unittest.TestCase):
         dig_html = self.load_file("dig.html")
         dig_text = self.load_file("dig.txt")
         e = ReadabilityExtractor()
-        print dig_html
-        value = e.extract(dig_html)
-        # self.assertEquals(updated_doc['extracted'][0]['result']['value'],dig_text)
+        options = {'recall_priority': True}
+        readability_text = e.extract(dig_html, options)
+        self.assertEquals(json.dumps(readability_text['text']), json.dumps(dig_text))
 
 
 if __name__ == '__main__':
