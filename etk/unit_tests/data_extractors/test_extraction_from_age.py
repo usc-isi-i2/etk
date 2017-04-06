@@ -25,7 +25,7 @@ class TestExtractionFromAge(unittest.TestCase):
         for t in self.doc:
             extracted_ages = c._extract_age(t['content'])
             extracted_ages = [age['value'] for age in extracted_ages]
-            self.assertTrue(set(extracted_ages),set(t['correct']))
+            self.assertEquals(set(extracted_ages), set(t['correct']))
 
 if __name__ == '__main__':
     unittest.main()
