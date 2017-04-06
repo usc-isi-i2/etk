@@ -1,5 +1,5 @@
 import unittest
-import sys
+import sys, os
 import json
 import re
 sys.path.append('../../')
@@ -14,8 +14,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     def setUp(self):
         
         self.c = Core()
-
-        f = open('ground_truth/age.jl', 'r')
+        file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
+        f = open(file_path_age, 'r')
 
         data = f.read().split('\n')
         self.doc = dict()
@@ -25,8 +25,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.doc['age'].append(json.loads(t))
 
         f.close()
-
-        f = open('ground_truth/date.jl', 'r')
+        file_path_date = os.path.join(os.path.dirname(__file__), "ground_truth/date.jl")
+        f = open(file_path_date, 'r')
 
         # data = f.read().split('\n')
         self.doc['date'] = []

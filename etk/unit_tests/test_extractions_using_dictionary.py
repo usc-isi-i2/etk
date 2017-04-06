@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import sys
+import sys, os
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -10,7 +10,8 @@ import codecs
 class TestExtractionsUsingDictionaries(unittest.TestCase):
 
     def setUp(self):
-        self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
+        file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
+        self.doc = json.load(codecs.open(file_path))
 
     def test_extractor_dictionary_no_resources(self):
         e_config = {
@@ -59,10 +60,11 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
             self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
 
     def test_extractor_dictionary(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {
                 "dictionaries": {
-                    "women_name": "resources/female-names.json.gz"
+                    "women_name": women_name_file_path
                 }
             },
             "data_extraction": [

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import sys
-
+import sys, os
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -10,13 +9,15 @@ import codecs
 
 class TestExtractionsInputPaths(unittest.TestCase):
     def setUp(self):
-        self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
+        file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
+        self.doc = json.load(codecs.open(file_path))
 
     def test_extraction_input_path(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {
                 "dictionaries": {
-                    "women_name": "resources/female-names.json.gz"
+                    "women_name": women_name_file_path
                 }
             },
             "data_extraction": [
@@ -201,12 +202,12 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("tokens" in r["content_extraction"]["title"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["title"])
 
-
     def test_extraction_multiple_input_paths(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {
                 "dictionaries": {
-                    "women_name": "resources/female-names.json.gz"
+                    "women_name": women_name_file_path
                 }
             },
             "data_extraction": [
@@ -296,6 +297,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                 }
             ]
         }
+        self.assertEqual(eud, ex_eud)
 
         self.assertTrue("extract_using_regex" in de_cs)
         eur = de_cs["extract_using_regex"]
