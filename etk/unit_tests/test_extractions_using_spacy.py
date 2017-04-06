@@ -61,9 +61,10 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             extracted_ages = spacy_age_extractor.extract(
                 t['content'], self.c.nlp, self.c.matchers['age'])
             extracted_ages = [age['value'] for age in extracted_ages]
-            if(extracted_ages == [] and t['correct'] == []):
-                continue
-            self.assertTrue(set(extracted_ages), set(t['correct']))
+            if extracted_ages == [] and t['correct'] == []:
+                self.assertEquals(set(extracted_ages), set(t['correct']))
+            else:
+                self.assertTrue(set(extracted_ages), set(t['correct']))
 
 if __name__ == '__main__':
     unittest.main()
