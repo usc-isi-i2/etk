@@ -13,6 +13,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
         
+        self.c = Core()
 
         f = open('ground_truth/age.jl', 'r')
 
@@ -37,17 +38,17 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def test_extraction_from_date_spacy(self):
         
-        c = Core()
+        c = self.c
 
         for t in self.doc['date']:
-            crf_tokens = c.extract_tokens_from_crf(
-                c.extract_crftokens(t['content']))
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['content']))
             extracted_dates = spacy_date_extractor.extract(
-                c.nlp, c.matchers['date'], crf_tokens)
+                self.c.nlp, self.c.matchers['date'], crf_tokens)
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
-            correct_dates = [' '.join(c.extract_tokens_from_crf(c.extract_crftokens(
+            correct_dates = [' '.join(self.c.extract_tokens_from_crf(self.c.extract_crftokens(
                 re.sub(r'(\d)(st|nd|rd|th)', r'\1', x)))) for x in
                 t['correct'].lower()]
 
@@ -58,11 +59,11 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def test_extraction_from_age_spacy(self):
         
-        c = Core()
+        c = self.c
         
         for t in self.doc['age']:
             extracted_ages = spacy_age_extractor.extract(
-                t['content'], c.nlp, c.matchers['age'])
+                t['content'], self.c.nlp, self.c.matchers['age'])
             extracted_ages = [age['value'] for age in extracted_ages]
             if(extracted_ages == [] and t['correct'] == []):
                 continue
