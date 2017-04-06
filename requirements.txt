@@ -5,3 +5,5 @@ python-dateutil==2.5.2
 six==1.10.0
 tldextract>=2.0.2
 dateparser>=0.5.1
+cssselect>=1.0.1
+spacy>=1.7.3
