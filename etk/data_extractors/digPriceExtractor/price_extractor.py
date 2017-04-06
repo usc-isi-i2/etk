@@ -21,6 +21,18 @@ UNIT_TIME_SECOND = [
     'second'
 ]
 
+def cleaner(prices):
+    new_prices = []
+    for price in prices:
+        val = int(price["value"])
+        tunit = price["metadata"]["time_unit"]
+        # For now, just remove these values
+        if tunit in UNIT_TIME_SECOND or tunit in UNIT_TIME_MINUTE:
+            continue
+        if val % 5 == 0 and val < 1500 and val > 0:
+            new_prices.append(price)
+
+    return new_prices
 
 def extract(text):
     digpe = DIGPriceExtractor()
@@ -33,7 +45,7 @@ def extract(text):
     result = []
     for price in prices:
         ans = dict()
-        ans["value"] = price["price"]
+        ans["value"] = int(price["price"])
         ans["metadata"] = {}
         ans["metadata"]["currency"] = price["price_unit"]
         tunit = price["time_unit"]
@@ -55,7 +67,9 @@ def extract(text):
         ans["metadata"]["time_unit"] = tunit_val
         result.append(ans)
 
-    return result
+    # Clean results
+    new_prices = cleaner(result)
+    return new_prices
 
 
 
