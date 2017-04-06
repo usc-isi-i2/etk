@@ -37,8 +37,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
     def test_extraction_from_date_spacy(self):
-        
-        c = self.c
 
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
@@ -58,8 +56,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             break
 
     def test_extraction_from_age_spacy(self):
-        
-        c = self.c
         
         for t in self.doc['age']:
             extracted_ages = spacy_age_extractor.extract(
