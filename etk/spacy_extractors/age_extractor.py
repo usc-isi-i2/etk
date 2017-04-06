@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from spacy.matcher import Matcher
-from spacy.attrs import *
+from spacy.attrs import IS_DIGIT, FLAG63, LOWER, IS_PUNCT, LENGTH, SUFFIX, IS_ASCII
 import re
 
 
