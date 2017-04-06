@@ -18,7 +18,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f = open('ground_truth/age.jl', 'r')
 
         data = f.read().split('\n')
-        self.doc = {}
+        self.doc = dict()
         self.doc['age'] = []
 
         for t in data:
