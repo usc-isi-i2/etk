@@ -1,73 +1,69 @@
-from __future__ import unicode_literals
 import unittest
 import sys
 import json
-import time
+import re
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
 from spacy_extractors import age_extractor as spacy_age_extractor
+from spacy_extractors import date_extractor as spacy_date_extractor
 
 
 class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
+        
+        self.c = Core()
+
         f = open('ground_truth/age.jl', 'r')
 
         data = f.read().split('\n')
-        self.doc = []
+        self.doc = {}
+        self.doc['age'] = []
 
         for t in data:
-            self.doc.append(json.loads(t))
+            self.doc['age'].append(json.loads(t))
 
-    '''
-    def test_extractor(self):
-        c = Core()
+        f.close()
 
-        start_time = time.time()
-        # Load all the dictionaries here
-        print '...loading spaCy'
-        c.load_matchers()
-        end_time = time.time()
+        f = open('ground_truth/date.jl', 'r')
 
-        print "Time taken to load all the matchers: {0}".format(end_time - start_time)
+        # data = f.read().split('\n')
+        self.doc['date'] = []
 
-        print "\nDate Extractor"
-        date_docs = [
-                    '23/05/2016',
-                    '05/23/2016',
-                    '23-05-2016',
-                    '05-23-2016',
-                    '23 May 2016',
-                    '23rd May 2016',
-                    '23rd May, 2016',
-                    '23rd-05-2016',
-                    'March 25, 2017',
-                    'March 25th, 2017',
-                    'March 25th 2017',
-                    'March 25 2017',
-                    'The meeting is on 23/05/2016',
-                    'Can 05/23/2016 be the date of the meeting?',
-                    'Lyonne was born on 23-05-2016 at 5 in the morning',
-                    'Kramer is here on 05-23-2016',
-                    'Google Inc is planning to make the acquisition on 23 May 2016',
-                    'Romans and others will play this 23rd May 2016',
-                    'Can 23rd May, 2016 be the day the Romans win?',
-                ]
+        for t in f:
+            self.doc['date'].append(json.loads(t))
 
-        for date_doc in date_docs:
-            print date_doc
-            print c.extract_date_spacy(date_doc)
+        f.close()
 
-        print "\nDate Extractor"
-    '''
+    def test_extraction_from_date_spacy(self):
+
+        for t in self.doc['date']:
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['content']))
+            extracted_dates = spacy_date_extractor.extract(
+                self.c.nlp, self.c.matchers['date'], crf_tokens)
+
+            extracted_dates = [date['value'] for date in extracted_dates]
+
+            correct_dates = [' '.join(self.c.extract_tokens_from_crf(self.c.extract_crftokens(
+                re.sub(r'(\d)(st|nd|rd|th)', r'\1', x)))) for x in
+                t['correct'].lower()]
+
+            # print extracted_dates
+            self.assertTrue(set(extracted_dates), set(correct_dates))
+
+            break
 
     def test_extraction_from_age_spacy(self):
-        c = Core()
-        for t in self.doc:
-            extracted_ages = spacy_age_extractor.extract(t['content'], c.nlp, c.matchers['age'])
+        
+        for t in self.doc['age']:
+            extracted_ages = spacy_age_extractor.extract(
+                t['content'], self.c.nlp, self.c.matchers['age'])
             extracted_ages = [age['value'] for age in extracted_ages]
-            self.assertTrue(set(extracted_ages),set(t['correct']))
+            if(extracted_ages == [] and t['correct'] == []):
+                continue
+            self.assertTrue(set(extracted_ages), set(t['correct']))
 
 if __name__ == '__main__':
     unittest.main()
