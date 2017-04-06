@@ -12,7 +12,7 @@ from spacy_extractors import date_extractor as spacy_date_extractor
 class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
-        
+
         self.c = Core()
 
         f = open('ground_truth/age.jl', 'r')
@@ -37,7 +37,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
     def test_extraction_from_date_spacy(self):
-
+        extractions = []
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
@@ -46,17 +46,12 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
-            correct_dates = [' '.join(self.c.extract_tokens_from_crf(self.c.extract_crftokens(
-                re.sub(r'(\d)(st|nd|rd|th)', r'\1', x)))) for x in
-                t['correct'].lower()]
+            correct_dates = t['extracted']
 
-            # print extracted_dates
-            self.assertTrue(set(extracted_dates), set(correct_dates))
-
-            break
+            self.assertEquals(extracted_dates, correct_dates)
 
     def test_extraction_from_age_spacy(self):
-        
+
         for t in self.doc['age']:
             extracted_ages = spacy_age_extractor.extract(
                 t['content'], self.c.nlp, self.c.matchers['age'])
