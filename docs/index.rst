@@ -17,7 +17,13 @@ Example 1::
 
    >>> Work in progress
 
+API Reference
+-------------
 
+.. toctree::
+   :maxdepth: 2
+
+   modules.rst
 
 Indices and tables
 ==================

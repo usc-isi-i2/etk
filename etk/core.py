@@ -1,4 +1,6 @@
 # import all extractors
+from spacy_extractors import age_extractor as spacy_age_extractor
+from spacy_extractors import date_extractor as spacy_date_extractor
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -10,10 +12,12 @@ from data_extractors import age_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
+from data_extractors.digReviewIDExtractor import review_id_extractor
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
 import re
+import spacy
 import codecs
 from jsonpath_rw import parse, jsonpath
 import time
@@ -27,6 +31,7 @@ _IGNORE_DOCUMENT = 'ignore_document'
 _RAISE_ERROR = 'raise_error'
 _CITY = 'city'
 _CONTENT_EXTRACTION = 'content_extraction'
+_SPACY_EXTRACTION = 'spacy_extraction'
 _RAW_CONTENT = 'raw_content'
 _INPUT_PATH = 'input_path'
 _READABILITY = 'readability'
@@ -44,6 +49,8 @@ _INFERLINK_EXTRACTIONS = 'inferlink_extractions'
 _LANDMARK_THRESHOLD = 'landmark_threshold'
 _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
+_AGE = 'age'
+_POSTING_DATE = 'posting_date'
 _RESOURCES = 'resources'
 _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
@@ -100,6 +107,7 @@ class Core(object):
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
+        self.load_matchers()
 
     """ Define all API methods """
 
@@ -385,18 +393,18 @@ class Core(object):
         if ep and ep != _KEEP_EXISTING and ep != _REPLACE:
             raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
         return ep
-
-    def update_json_at_path(self, doc, match, field_name, value, parent=False):
-        load_input_json = doc
-        datum_object = match
-        if not isinstance(datum_object, jsonpath.DatumInContext):
-            raise Exception("Nothing found by the given json-path")
-        path = datum_object.path
-        if isinstance(path, jsonpath.Index):
-            datum_object.context.value[datum_object.path.index][field_name] = value
-        elif isinstance(path, jsonpath.Fields):
-            datum_object.context.value[field_name] = value
-        return load_input_json
+    #
+    # def update_json_at_path(self, doc, match, field_name, value, parent=False):
+    #     load_input_json = doc
+    #     datum_object = match
+    #     if not isinstance(datum_object, jsonpath.DatumInContext):
+    #         raise Exception("Nothing found by the given json-path")
+    #     path = datum_object.path
+    #     if isinstance(path, jsonpath.Index):
+    #         datum_object.context.value[datum_object.path.index][field_name] = value
+    #     elif isinstance(path, jsonpath.Fields):
+    #         datum_object.context.value[field_name] = value
+    #     return load_input_json
 
     @staticmethod
     def load_json_file(file_name):
@@ -490,6 +498,21 @@ class Core(object):
             print e
             return None
 
+    def extract_using_spacy(self, d, config):
+        field = config[_FIELD_NAME]
+        if _SPACY_EXTRACTION not in d:
+            d[_SPACY_EXTRACTION] = self.run_spacy_extraction(d)
+
+        return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
+
+    def run_spacy_extraction(self, d):
+        spacy_extractions = dict()
+        spacy_extractions[_POSTING_DATE] = spacy_date_extractor.extract(self.nlp, self.matchers['date'],
+                                                                          d[_SIMPLE_TOKENS])
+        spacy_extractions[_AGE] = spacy_age_extractor.extract(d[_TEXT], self.nlp,
+                                                                                 self.matchers['age'])
+        return spacy_extractions
+
     def extract_from_landmark(self, doc, config):
         field_name = config[_FIELD_NAME]
         if _CONTENT_EXTRACTION not in doc:
@@ -568,6 +591,15 @@ class Core(object):
 
     @staticmethod
     def _extract_email(text, include_context):
+        """
+        A regular expression based function to extract emails from text
+
+        :param text: The input text.
+
+        :param include_context: True or False, will include context matched by the regular expressions.
+
+        :return: An object, with extracted email and/or context.
+        """
         return email_extractor.extract(text, include_context)
 
     def extract_price(self, d, config):
@@ -619,6 +651,16 @@ class Core(object):
     @staticmethod
     def _extract_age(text):
         return age_extractor.extract(text)
+
+    def extract_review_id(self, d, config):
+        text = d[_TEXT]
+        if _PRE_FILTER in config:
+            text = self.run_user_filters(d, config[_PRE_FILTER])
+        return self._extract_review_id(text)
+
+    @staticmethod
+    def _extract_review_id(text):
+        return review_id_extractor.extract(text)
 
     @staticmethod
     def handle_text_or_results(x):
@@ -698,4 +740,16 @@ class Core(object):
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
+
+    def load_matchers(self):
+        self.nlp = spacy.load('en')
+        self.spacy_tokenizer = self.nlp.tokenizer
+        matchers = dict()
+
+        # Load date_extractor matcher
+        matchers['date'] = spacy_date_extractor.load_date_matcher(self.nlp)
+
+        # Load age_extractor matcher
+        matchers['age'] = spacy_age_extractor.load_age_matcher(self.nlp)
+        self.matchers = matchers
 

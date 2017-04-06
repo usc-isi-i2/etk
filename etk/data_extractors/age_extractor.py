@@ -1,13 +1,18 @@
 import re
 import types
 
+age = "\s+(?:Age|age|AGE)"
 years = "(?:(?:years|yrs|yr|year)(?: old)?|yo(?:$|\s+))"
-posessions = "(?:i am|i'm|iam|im)"
+possessions = "(?:i am|i'm|iam|im)"
 r1 = r"age[\s\-~#*=+/_:;]*(\d\d)(?:[^+]|$)"
 r2 = r"(\d\d)[^0-9+]*" + years
-r3 = r"(?:[^a-zA-Z0-9]+|^)" + posessions + "[\s]+(\d\d)(?:[\s\-~#*=+/_:;,]+|$)"
-regexes = [r1, r2, r3]
-regexes = [re.compile(x) for x in regexes]
+r3 = r"(?:[^a-zA-Z0-9]+|^)" + possessions + "[\s]+(\d\d)(?:[\s\-~#*=+/_:;,]+|$)"
+r4 = age+r"\s+(\d\d)-(\d\d)\s+"
+r5 = r"(\d\d)-(\d\d)\s"+years
+r6 = r"(\d\d)\s+(?:\w+)\s+(\d\d)\s"+years
+
+regexes = [r1, r2, r3, r4, r5, r6]
+regexes = [re.compile(x,re.I) for x in regexes]
 
 
 def wrap_value_with_context(value, start, end):
@@ -24,7 +29,7 @@ def apply_regex(text, regex):
     # To remove duplicate values
     values = set()
     for m in re.finditer(regex, text):
-        if (m.group(1) not in values):
+        if m.group(1) not in values:
             extracts.append(wrap_value_with_context(m.group(1),
                                                     m.start(),
                                                     m.end()))
@@ -32,14 +37,14 @@ def apply_regex(text, regex):
     return extracts
 
 
-def extract(doc):
+def extract(text):
     extracts = list()
     try:
         if isinstance(regexes, type(re.compile(''))):
-            extracts = apply_regex(doc, regexes)
+            extracts = apply_regex(text, regexes)
         elif isinstance(regexes, types.ListType):
             for r in regexes:
-                extracts.extend(apply_regex(doc, r))
+                extracts.extend(apply_regex(text, r))
         return extracts
     except:
         return list()

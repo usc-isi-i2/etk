@@ -1,0 +1,7 @@
+jsonpath-rw>=1.4.0
+backports.ssl-match-hostname==3.4.0.2
+esmre==0.3.1
+python-dateutil==2.5.2
+six==1.10.0
+tldextract>=2.0.2
+dateparser>=0.5.1
