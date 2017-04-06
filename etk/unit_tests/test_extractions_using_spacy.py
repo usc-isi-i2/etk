@@ -7,7 +7,7 @@ sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
 from spacy_extractors import age_extractor as spacy_age_extractor
-
+from spacy_extractors import date_extractor as spacy_date_extractor
 
 class TestExtractionsUsingRegex(unittest.TestCase):
 
