@@ -1,9 +1,6 @@
 # coding: utf-8
 
-import json
 import re
-from pathlib import Path
-
 import spacy
 from spacy.matcher import Matcher
 from spacy.attrs import FLAG62, FLAG61, FLAG60, POS, ORTH, LENGTH, LOWER, IS_DIGIT
