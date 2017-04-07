@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 import unittest
-import sys
-
-sys.path.append('../../')
-sys.path.append('../')
 from etk.core import Core
 import json
+import os
 
 
 class TestExtractionFromAge(unittest.TestCase):
     def setUp(self):
-        f = open('ground_truth/age.jl','r')
+        file_path = os.path.join(os.path.dirname(__file__), "../ground_truth/age.jl")
+        f = open(file_path,'r')
 
         data = f.read().split('\n')
         self.doc = []

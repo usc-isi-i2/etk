@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import sys
+import sys, os
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -10,7 +10,8 @@ import codecs
 class TestExtractions(unittest.TestCase):
 
     def setUp(self):
-        self.doc = json.load(codecs.open('ground_truth/1.jl'))
+        file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1.jl")
+        self.doc = json.load(codecs.open(file_path, 'r'))
 
     def test_no_config(self):
         e_config = None
@@ -95,9 +96,10 @@ class TestExtractions(unittest.TestCase):
             r = c.process(self.doc)
 
     def test_landmark_with_field_name(self):
+        rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [
-                "resources/consolidated_rules.json"
+                rules_file_path
             ]
         }, 'content_extraction': {
             "input_path": "raw_content",
@@ -141,9 +143,10 @@ class TestExtractions(unittest.TestCase):
         self.assertEqual(r["content_extraction"]["inferlink_extractions"], ifl_extractions)
 
     def test_landmark_no_field_name(self):
+        rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [
-                "resources/consolidated_rules.json"
+                rules_file_path
             ]
         }, 'content_extraction': {
             "input_path": "raw_content",
@@ -186,9 +189,10 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("title" not in r["content_extraction"])
 
     def test_content_extractions(self):
+        rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [
-                "resources/consolidated_rules.json"
+                rules_file_path
             ]
         }, 'content_extraction': {
             "input_path": "raw_content",
