@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import sys, os
+
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -120,7 +121,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                         "method": "other_method"
                     },
                     "context": {
-                        "field": "text",
+                        'text': u' 27 \n \n \n My name is Helena height 16',
                         "end": 73,
                         "start": 56
                     },
@@ -142,36 +143,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
         de_cr = r["content_extraction"]["content_relaxed"]["data_extraction"]["name"]
         self.assertTrue("extract_using_dictionary" in de_cr)
         eudr = de_cr["extract_using_dictionary"]
-        ex_eudr = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "other_segment",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 11,
-                        "start": 10
-                    },
-                    "value": "helena"
-                },
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "other_segment",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 137,
-                        "start": 136
-                    },
-                    "value": "luna"
-                }
-            ]
-        }
+
+        ex_eudr = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'other_method'},
+                                'context': {'start': 10, 'end': 11, 'text': u'my name is helena height 160cms weight'},
+                                'value': u'helena'},
+                               {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'other_method'},
+                                'context': {'start': 136, 'end': 137, 'text': u"i ' m luna 3234522013 let '"},
+                                'value': u'luna'}]}
         self.assertEqual(eudr, ex_eudr)
 
         self.assertTrue("extract_using_regex" in de_cr)
@@ -185,7 +163,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                         "method": "other_method"
                     },
                     "context": {
-                        "field": "text",
+                        'text': u' 27 \n \n \n My name is Helena height 16',
                         "end": 75,
                         "start": 58
                     },
@@ -267,36 +245,12 @@ class TestExtractionsInputPaths(unittest.TestCase):
         de_cs = r["content_extraction"]["content_strict"]["data_extraction"]["name"]
         self.assertTrue("extract_using_dictionary" in de_cs)
         eud = de_cs["extract_using_dictionary"]
-        ex_eud = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "readability_strict",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 11,
-                        "start": 10
-                    },
-                    "value": "helena"
-                },
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "readability_strict",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 137,
-                        "start": 136
-                    },
-                    "value": "luna"
-                }
-            ]
-        }
+        ex_eud = {'results': [{'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'other_method'},
+                               'context': {'start': 10, 'end': 11, 'text': u'my name is helena height 160cms weight'},
+                               'value': u'helena'},
+                              {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'other_method'},
+                               'context': {'start': 136, 'end': 137, 'text': u"i ' m luna 3234522013 let '"},
+                               'value': u'luna'}]}
         self.assertEqual(eud, ex_eud)
 
         self.assertTrue("extract_using_regex" in de_cs)
@@ -310,7 +264,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                         "method": "other_method"
                     },
                     "context": {
-                        "field": "text",
+                        "text": u' 27 \n \n \n My name is Helena height 16',
                         "end": 73,
                         "start": 56
                     },
@@ -332,57 +286,19 @@ class TestExtractionsInputPaths(unittest.TestCase):
         de_cr = r["content_extraction"]["content_relaxed"]["data_extraction"]["name"]
         self.assertTrue("extract_using_dictionary" in de_cr)
         eudr = de_cr["extract_using_dictionary"]
-        ex_eudr = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "other_segment",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 11,
-                        "start": 10
-                    },
-                    "value": "helena"
-                },
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "other_segment",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 137,
-                        "start": 136
-                    },
-                    "value": "luna"
-                }
-            ]
-        }
+        ex_eudr = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'other_method'},
+                                'context': {'start': 10, 'end': 11, 'text': u'my name is helena height 160cms weight'},
+                                'value': u'helena'},
+                               {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'other_method'},
+                                'context': {'start': 136, 'end': 137, 'text': u"i ' m luna 3234522013 let '"},
+                                'value': u'luna'}]}
         self.assertEqual(eudr, ex_eudr)
 
         self.assertTrue("extract_using_regex" in de_cr)
         eurr = de_cr["extract_using_regex"]
-        ex_eurr = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "other_segment",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "text",
-                        "end": 75,
-                        "start": 58
-                    },
-                    "value": "Helena"
-                }
-            ]
-        }
+        ex_eurr = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'other_method'},
+                                'context': {'start': 58, 'end': 75,
+                                            'text': u' 27 \n \n \n My name is Helena height 16'}, 'value': u'Helena'}]}
 
         self.assertEqual(eurr, ex_eurr)
 
@@ -424,28 +340,12 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("extract_using_dictionary" in ie_ex["inferlink_description"]["data_extraction"]["name"])
         ie_desc_ex = ie_ex["inferlink_description"]["data_extraction"]["name"]["extract_using_dictionary"]
 
-        ie_desc_name ={
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "inferlink_description",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 5,
-                        "start": 4
-                    },
-                    "value": "luna"
-                }
-            ]
-        }
+        ie_desc_name = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'inferlink_description', 'method': 'other_method'},
+             'context': {'start': 4, 'end': 5, 'text': u"i ' m luna 3234522013 let '"}, 'value': u'luna'}]}
         self.assertEqual(ie_desc_ex, ie_desc_name)
 
         self.assertFalse("extract_using_regex" in ie_ex["inferlink_description"]["data_extraction"]["name"])
-
-
 
 
 if __name__ == '__main__':

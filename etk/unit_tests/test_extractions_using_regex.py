@@ -96,7 +96,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                         "method": "other_method"
                     },
                     "context": {
-                        "field": "text",
+                        'text': u' 27 \n \n \n My name is Helena height 16',
                         "end": 73,
                         "start": 56
                     },

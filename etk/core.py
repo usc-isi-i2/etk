@@ -407,6 +407,38 @@ class Core(object):
     #     return load_input_json
 
     @staticmethod
+    def _relevant_text_from_context(text_or_tokens, results):
+        if results:
+            tokens_len = len(text_or_tokens)
+            if not isinstance(results, list):
+                results = [results]
+            for result in results:
+                if 'context' in result:
+                    start = int(result['context']['start'])
+                    end = int(result['context']['end'])
+                    if isinstance(text_or_tokens, basestring):
+                        if start - 10 < 0:
+                            start = 0
+                        else:
+                            start -= 10
+                        if end + 10 > tokens_len:
+                            end = tokens_len
+                        else:
+                            end += 10
+                        result['context']['text'] = text_or_tokens[start:end]
+                    else:
+                        if start - 3 < 0:
+                            start = 0
+                        else:
+                            start -= 3
+                        if end + 3 > tokens_len:
+                            end = tokens_len
+                        else:
+                            end += 3
+                        result['context']['text'] = ' '.join(text_or_tokens[start:end])
+        return results
+
+    @staticmethod
     def load_json_file(file_name):
         json_x = json.load(codecs.open(file_name, 'r'))
         return json_x
@@ -452,8 +484,12 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._extract_using_dictionary(tokens, pre_process, self.tries[field_name], pre_filter, post_filter,
-                                                ngrams, joiner)
+        return self._relevant_text_from_context(d[_SIMPLE_TOKENS], self._extract_using_dictionary(tokens, pre_process,
+                                                                                                  self.tries[
+                                                                                                      field_name],
+                                                                                                  pre_filter,
+                                                                                                  post_filter,
+                                                                                                  ngrams, joiner))
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
@@ -487,7 +523,7 @@ class Core(object):
         result = self._extract_using_regex(text, regex, include_context, flags)
         # TODO ADD code to handle post_filters
 
-        return result
+        return self._relevant_text_from_context(d[_TEXT], result)
 
     @staticmethod
     def _extract_using_regex(text, regex, include_context, flags):
@@ -507,10 +543,12 @@ class Core(object):
 
     def run_spacy_extraction(self, d):
         spacy_extractions = dict()
-        spacy_extractions[_POSTING_DATE] = spacy_date_extractor.extract(self.nlp, self.matchers['date'],
-                                                                          d[_SIMPLE_TOKENS])
-        spacy_extractions[_AGE] = spacy_age_extractor.extract(d[_TEXT], self.nlp,
-                                                                                 self.matchers['age'])
+        spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
+                                                                            extract(self.nlp, self.matchers['date'],
+                                                                                    d[_SIMPLE_TOKENS]))
+        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_TEXT],
+                                                                   spacy_age_extractor.extract(d[_TEXT], self.nlp,
+                                                                                               self.matchers['age']))
         return spacy_extractions
 
     def extract_from_landmark(self, doc, config):
@@ -573,7 +611,9 @@ class Core(object):
         output_format= _OBFUSCATION
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_phone(tokens, source_type, include_context, output_format)
+        return self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                self._extract_phone(tokens, source_type, include_context,
+                                                                    output_format))
 
     @staticmethod
     def _extract_phone(tokens, source_type, include_context, output_format):
@@ -587,7 +627,7 @@ class Core(object):
             include_context = config[_INCLUDE_CONTEXT].upper() == 'TRUE'
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_email(text, include_context)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_email(text, include_context))
 
     @staticmethod
     def _extract_email(text, include_context):
@@ -606,7 +646,8 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_price(text)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_price(text))
+
 
     @staticmethod
     def _extract_price(text):
@@ -616,7 +657,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_height(text)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_height(text))
 
     @staticmethod
     def _extract_height(text):
@@ -626,7 +667,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_weight(text)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_weight(text))
 
     @staticmethod
     def _extract_weight(text):
@@ -636,7 +677,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_address(text)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_address(text))
 
     @staticmethod
     def _extract_address(text):
@@ -646,7 +687,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_age(text)
+        return self._relevant_text_from_context(d[_TEXT],self._extract_age(text))
 
     @staticmethod
     def _extract_age(text):
@@ -656,7 +697,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._extract_review_id(text)
+        return self._relevant_text_from_context(d[_TEXT], self._extract_review_id(text))
 
     @staticmethod
     def _extract_review_id(text):

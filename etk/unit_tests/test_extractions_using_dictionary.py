@@ -118,14 +118,14 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                     "method": "other_method"
                 },
                 "context": {
-                    "field": "tokens",
+                    'text': u'my name is helena height 160cms weight',
                     "end": 11,
                     "start": 10
                 },
                 "value": "helena"
             },
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'other_method'},
-             'context': {'field': 'tokens', 'end': 137, 'start': 136}, 'value': u'luna'}]}
+             'context': {'text': u"i ' m luna 3234522013 let '", 'end': 137, 'start': 136}, 'value': u'luna'}]}
         self.assertEqual(extraction, ex)
 
 if __name__ == '__main__':

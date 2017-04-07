@@ -2,10 +2,9 @@ import re
 import types
 
 
-def wrap_value_with_context(value, field, start, end):
+def wrap_value_with_context(value, start, end):
     return {'value': value,
-            'context': {'field': field,
-                        'start': start,
+            'context': {'start': start,
                         'end': end
                         }
             }
@@ -15,7 +14,7 @@ def apply_regex(text, regex, include_context, flags):
     extracts = list()
     for m in re.finditer(regex, text, flags=flags):
         if include_context:
-            extracts.append(wrap_value_with_context(m.group(1), 'text', m.start(), m.end()))
+            extracts.append(wrap_value_with_context(m.group(1), m.start(), m.end()))
         else:
             extracts.append(m.group(1))
     return extracts

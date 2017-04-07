@@ -25,10 +25,9 @@ def populate_trie(values):
     return reduce(__populate_trie_reducer, iter(values), trie.CharTrie())
 
 
-def wrap_value_with_context(value, field, start, end):
+def wrap_value_with_context(value, start, end):
     return {'value': value,
-            'context': {'field': field,
-                        'start': start,
+            'context': {'start': start,
                         'end': end
                         }
             }
@@ -82,7 +81,7 @@ def extract_using_dictionary(tokens, pre_process=lambda x: x,
 
         ngrams_iterable = generate_ngrams_with_context(tokens, ngrams)
         extracts.extend(
-            map(lambda ngrams_context: wrap_value_with_context(ngrams_context[0], field, ngrams_context[1],
+            map(lambda ngrams_context: wrap_value_with_context(ngrams_context[0], ngrams_context[1],
                                                                ngrams_context[2]),
                 ifilter(lambda ngrams_context: post_filter(ngrams_context[0]),
                         map(lambda ngrams_context: (trie.get(ngrams_context[0]), ngrams_context[1], ngrams_context[2]),

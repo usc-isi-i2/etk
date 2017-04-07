@@ -41,6 +41,15 @@
         "*.inferlink_extractions.*.text.`parent`"
       ],
       "fields": {
+        "posting_date": {
+          "extractors": {
+            "extract_using_spacy": {
+              "config": {
+
+              }
+            }
+          }
+        },
         "name": {
           "extractors": {
             "extract_using_dictionary": {
@@ -101,6 +110,11 @@
             "extract_age": {
               "config": {
                 
+              }
+            },
+            "extract_using_spacy": {
+              "config": {
+
               }
             }
           }
