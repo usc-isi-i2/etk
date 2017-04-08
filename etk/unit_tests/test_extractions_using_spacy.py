@@ -35,7 +35,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.doc['date'].append(json.loads(t))
 
         f.close()
-    '''
+
     def test_extraction_from_date_spacy(self):
 
         for t in self.doc['date']:
@@ -54,7 +54,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.assertTrue(set(extracted_dates), set(correct_dates))
 
             break
-    '''
+
     def test_extraction_from_age_spacy(self):
 
         for t in self.doc['age']:
