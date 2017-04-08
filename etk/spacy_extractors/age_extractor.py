@@ -5,19 +5,6 @@ from spacy.attrs import IS_DIGIT, FLAG63, LOWER, IS_PUNCT, LENGTH, SUFFIX, IS_AS
 import re
 
 
-# Acceptor Function
-def get_age(doc, ent_id, label, start, end):
-    num_ages = 0
-    index = 0
-    for i in range(start, end):
-        if doc[i].check_flag(IS_DIGIT):
-            num_ages += 1
-            index = i
-    if num_ages == 1:
-        return ent_id, label, index, index + 1
-    return ent_id, label, start, end
-
-
 def load_age_matcher(nlp):
     """
     Matcher Handles:
@@ -41,7 +28,7 @@ def load_age_matcher(nlp):
             lexeme.set_flag(is_year, True)
 
     # New Entity Type : Age
-    matcher.add_entity("Age", acceptor=get_age)
+    matcher.add_entity("Age")
 
     # Age Matcher Patterns
     matcher.add_pattern("Age", [{LOWER: "age"}, {IS_PUNCT: True}, {IS_DIGIT: True, LENGTH: 2}])
@@ -67,7 +54,7 @@ def load_age_matcher(nlp):
 
 
 # Preprocessing the document - removing extra whitespaces
-def preprocess_doc(doc):
+def pre_process_doc(doc):
     doc = doc.replace('\n', '')
     doc = doc.replace('\r', '')
     doc = re.sub(' +', ' ', doc)
@@ -75,32 +62,38 @@ def preprocess_doc(doc):
 
 
 # Postprocessing the matches - extracting the ages from the matches
-def postprocess(matches, doc):
-    ages = set()
+def post_process(matches, nlp_doc, text):
+    ages = dict()
     for ent_id, label, start, end in matches:
-        ages.update(re.findall('\d\d', str(doc[start:end])))
+        age = re.findall('\d\d', str(nlp_doc[start:end]))
+        if start-3 >= 0 and end+3 < len(nlp_doc):
+            text = str(nlp_doc[start-3:end+3])
+        else:
+            text = str(nlp_doc[start:end])
+        for a in age:
+            if a not in ages:
+                ages[a] = text
     return ages
 
 
-def wrap_value_with_context(age, doc):
+def wrap_value_with_context(age):
     return {
-        'value': age,
+        'value': age[0],
         'context':
             {
-                'start': doc.index(age),
-                'end': doc.index(age) + len(age)
+                "text": age[1]
             }
     }
 
 
 def extract(text, nlp, matcher):
-    text = preprocess_doc(text)
+    text = pre_process_doc(text)
     nlp_doc = nlp(text)
 
     age_matches = matcher(nlp_doc)
 
-    processed_matches = postprocess(age_matches, nlp_doc)
+    processed_matches = post_process(age_matches, nlp_doc, text)
 
-    extracts = [wrap_value_with_context(age, text) for age in processed_matches]
+    extracts = [wrap_value_with_context(age) for age in processed_matches.items()]
 
     return extracts
