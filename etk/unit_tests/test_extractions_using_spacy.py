@@ -1,7 +1,8 @@
+# coding: utf-8
+
 import unittest
-import sys
+import sys, os
 import json
-import re
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
@@ -14,8 +15,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     def setUp(self):
 
         self.c = Core()
-
-        f = open('ground_truth/age.jl', 'r')
+        file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
+        f = open(file_path_age, 'r')
 
         data = f.read().split('\n')
         self.doc = dict()
@@ -25,8 +26,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.doc['age'].append(json.loads(t))
 
         f.close()
-
-        f = open('ground_truth/date.jl', 'r')
+        file_path_date = os.path.join(os.path.dirname(__file__), "ground_truth/date.jl")
+        f = open(file_path_date, 'r')
 
         # data = f.read().split('\n')
         self.doc['date'] = []
@@ -37,7 +38,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
     def test_extraction_from_date_spacy(self):
-
+        extractions = []
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
@@ -46,14 +47,9 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
-            correct_dates = [' '.join(self.c.extract_tokens_from_crf(self.c.extract_crftokens(
-                re.sub(r'(\d)(st|nd|rd|th)', r'\1', x)))) for x in
-                t['correct'].lower()]
+            correct_dates = t['extracted']
 
-            # print extracted_dates
-            self.assertTrue(set(extracted_dates), set(correct_dates))
-
-            break
+            self.assertEquals(extracted_dates, correct_dates)
 
     def test_extraction_from_age_spacy(self):
 

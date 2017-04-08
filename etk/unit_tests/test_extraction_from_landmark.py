@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
-import sys
-
+import sys, os
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -10,7 +9,8 @@ import codecs
 
 class TestExtractionFromLandmark(unittest.TestCase):
     def setUp(self):
-        self.doc = json.load(codecs.open('ground_truth/1_content_extracted.jl'))
+        file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
+        self.doc = json.load(codecs.open(file_path))
 
     def test_extraction_from_landmark_fields(self):
         e_config = {
