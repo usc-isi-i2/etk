@@ -1,7 +1,7 @@
 import unittest
 import sys
 sys.path.append('../../')
-sys.path.append('../')
+print sys.path
 from structured_extractors import TokenizerExtractor
 
 
