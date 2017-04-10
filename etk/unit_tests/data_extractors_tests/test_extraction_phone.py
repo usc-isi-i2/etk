@@ -31,6 +31,10 @@ class TestPhoneExtractorMethods(unittest.TestCase):
         expected_extraction = [{'obfuscation': 'False', 'value': '6022284192'}]
         self.assertEqual(extraction, expected_extraction)
 
+    def test_phone_extractor_empty_tokens(self):
+        extraction = phone_extractor.extract([], 'text', True, 'obfuscation')
+        expected_extraction = []
+        self.assertEqual(extraction, expected_extraction)
 
 if __name__ == '__main__':
     unittest.main()
