@@ -19,7 +19,6 @@ class TestHeightExtractorMethods(unittest.TestCase):
 
     def test_height_extractor(self):
         data_lines = height_test_data['jsonlines']
-        out_data_lines = list()
         for line in data_lines:
             extraction = height_extractor.extract(line['text'])
             self.assertEqual(extraction, line['height'])
