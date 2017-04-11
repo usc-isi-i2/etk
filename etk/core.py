@@ -107,7 +107,7 @@ class Core(object):
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
-        self.load_matchers()
+        self.nlp = None
 
     """ Define all API methods """
 
@@ -542,6 +542,8 @@ class Core(object):
         return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
 
     def run_spacy_extraction(self, d):
+        if not self.nlp:
+            self.load_matchers()
         spacy_extractions = dict()
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
                                                                             extract(self.nlp, self.matchers['date'],
