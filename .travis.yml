@@ -15,6 +15,7 @@ install:
   - conda info -a
   - conda-env create .
   - source activate etk_env
+  - python -m spacy download en
 script: python -m unittest discover
 notifications:
   slack:
