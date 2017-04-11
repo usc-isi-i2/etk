@@ -1,7 +1,8 @@
 # coding: utf-8
 
 import unittest
-import sys, os
+import sys
+import os
 import json
 sys.path.append('../../')
 sys.path.append('../')
@@ -15,7 +16,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     def setUp(self):
 
         self.c = Core()
-        file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
+        file_path_age = os.path.join(
+            os.path.dirname(__file__), "ground_truth/age.jl")
         f = open(file_path_age, 'r')
 
         data = f.read().split('\n')
@@ -26,7 +28,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.doc['age'].append(json.loads(t))
 
         f.close()
-        file_path_date = os.path.join(os.path.dirname(__file__), "ground_truth/date.jl")
+        file_path_date = os.path.join(
+            os.path.dirname(__file__), "ground_truth/date.jl")
         f = open(file_path_date, 'r')
 
         # data = f.read().split('\n')
@@ -39,6 +42,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def test_extraction_from_date_spacy(self):
         extractions = []
+
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))

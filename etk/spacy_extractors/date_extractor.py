@@ -422,19 +422,7 @@ def extract(nlp, matcher, tokens):
 
     # Load the document
     doc = nlp(tokens)
-    # print([(word.text, word.pos_) for word in doc])
-
-    # # Run matcher and return results
-    # extracted_dates = []
-    # extractions = set()
-    # date_matches = matcher(doc)
-
-    # extracted_dates = []
-    # extractions = set()
-    # for ent_id, label, start, end in date_matches:
-    #     if label != 0:
-    #         extractions.add((start, end))
-    #         print(label)
+    # print [(word.text, word.pos_) for word in doc]
 
     # Run matcher and return results
     extracted_dates = []
