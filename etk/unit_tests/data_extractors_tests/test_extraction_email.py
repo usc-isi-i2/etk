@@ -14,7 +14,6 @@ class TestEmailExtractorMethods(unittest.TestCase):
         pass
 
     def test_email_extractor_include_context(self):
-        print "data_extractors.email.email_extractor"
         text = 'To Make A Booking You Can Call : +31 6 57 921 210 Between 10AM and 1AM Or Email ' \
                'misstheresaberkley@gmail.com For More Information Please Visit http://www.theresaberkley.com'
 
@@ -25,7 +24,6 @@ class TestEmailExtractorMethods(unittest.TestCase):
         self.assertEqual(extraction, expected_extraction)
 
     def test_email_extractor_not_include_context(self):
-        print "data_extractors.email.email_extractor_no_context"
         text = 'To Make A Booking You Can Call : +31 6 57 921 210 Between 10AM and 1AM Or Email ' \
                'misstheresaberkley@gmail.com For More Information Please Visit http://www.theresaberkley.com'
 

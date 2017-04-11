@@ -19,7 +19,6 @@ class TestExtractionFromAge(unittest.TestCase):
     def test_extraction_from_age(self):
 
         c = Core()
-        print "data_extractors.age.age_extractor"
         for t in self.doc:
             extracted_ages = c._extract_age(t['content'])
             extracted_ages = [age['value'] for age in extracted_ages]

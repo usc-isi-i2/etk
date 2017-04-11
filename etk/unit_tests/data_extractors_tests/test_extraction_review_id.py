@@ -13,7 +13,6 @@ class TestReviewIDExtractorMethods(unittest.TestCase):
         pass
 
     def test_review_id_extractor(self):
-        print "data_extractors.review_id.review_id_extractor"
         text = 'Hey guys! I\'m Heidi!!! I am a bubbly, busty, blonde massage therapist and only provide the most ' \
                'sensual therapeutic experience! I love what I do and so will YOU!!! I am always learning new techniqes ' \
                'and helping other feel relaxed. Just send Me an email and lets meet!!!  I am reviewed! #263289 ' \

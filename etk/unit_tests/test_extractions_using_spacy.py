@@ -39,8 +39,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
     def test_extraction_from_date_spacy(self):
-        print "extractions_using_spacy.extraction_from_date_spacy"
-        extractions = []
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
@@ -54,7 +52,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.assertEquals(extracted_dates, correct_dates)
 
     def test_extraction_from_age_spacy(self):
-        print "extractions_using_spacy.extraction_from_age_spacy"
         for t in self.doc['age']:
             extracted_ages = spacy_age_extractor.extract(
                 t['content'], self.c.nlp, self.c.matchers['age'])

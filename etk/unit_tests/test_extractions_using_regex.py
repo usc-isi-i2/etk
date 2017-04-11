@@ -14,7 +14,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.doc = json.load(codecs.open(file_path))
 
     def test_extractor__no_regex(self):
-        print "extractions_using_regex.extractor_no_regex"
         e_config = {
             "data_extraction": [
                 {
@@ -48,7 +47,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             r = c.process(self.doc)
 
     def test_extractor_regex(self):
-        print "extractions_using_regex.extractor_regex"
         e_config = {
             "data_extraction": [
                 {

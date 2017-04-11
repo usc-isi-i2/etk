@@ -21,19 +21,16 @@ class TestPhoneExtractorMethods(unittest.TestCase):
         pass
 
     def test_phone_extractor_text(self):
-        print "data_extractors.phone.phone_extractor_text"
         extraction = phone_extractor.extract(self.doc['content'], 'text', True, 'obfuscation')
         expected_extraction = [{'obfuscation': 'True', 'value': '4802671904'}]
         self.assertEqual(extraction, expected_extraction)
 
     def test_phone_extractor_url(self):
-        print "data_extractors.phone.phone_extractor_url"
         extraction = phone_extractor.extract(self.doc['url'], 'url', True, 'obfuscation')
         expected_extraction = [{'obfuscation': 'False', 'value': '6022284192'}]
         self.assertEqual(extraction, expected_extraction)
 
     def test_phone_extractor_empty_tokens(self):
-        print "data_extractors.phone.phone_extractor_empty_tokens"
         extraction = phone_extractor.extract([], 'text', True, 'obfuscation')
         expected_extraction = []
         self.assertEqual(extraction, expected_extraction)
