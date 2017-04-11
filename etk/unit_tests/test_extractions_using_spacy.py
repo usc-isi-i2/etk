@@ -15,7 +15,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
 
-        self.c = Core()
+        self.c = Core(load_spacy=True)
         file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
         f = open(file_path_age, 'r')
 
@@ -39,7 +39,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
     def test_extraction_from_date_spacy(self):
-        extractions = []
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
@@ -53,7 +52,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             self.assertEquals(extracted_dates, correct_dates)
 
     def test_extraction_from_age_spacy(self):
-
         for t in self.doc['age']:
             extracted_ages = spacy_age_extractor.extract(
                 t['content'], self.c.nlp, self.c.matchers['age'])

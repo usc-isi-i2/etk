@@ -21,7 +21,6 @@ class TestPhoneExtractorMethods(unittest.TestCase):
         pass
 
     def test_phone_extractor_text(self):
-
         extraction = phone_extractor.extract(self.doc['content'], 'text', True, 'obfuscation')
         expected_extraction = [{'obfuscation': 'True', 'value': '4802671904'}]
         self.assertEqual(extraction, expected_extraction)
