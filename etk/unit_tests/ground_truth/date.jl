@@ -31,8 +31,8 @@
 {"content": "friday, december 6, 2013 3:16 pm", "extracted": ["december 6 , 2013"], "correct": ""}
 {"content": "wednesday, april 16th, 2014", "extracted": ["april 16 , 2014"], "correct": ""}
 {"content": "wednesday, april 16th, 2014", "extracted": ["april 16 , 2014"], "correct": ""}
-{"content": "9 days ago", "extracted": [], "correct": ""}
-{"content": "22 hours ago", "extracted": [], "correct": ""}
+{"content": "9 days ago", "extracted": ["9 days ago"], "correct": ""}
+{"content": "22 hours ago", "extracted": ["22 hours ago"], "correct": ""}
 {"content": "lunes, 27 de junio de 2016, 14:07", "extracted": ["27 de junio de 2016"], "correct": ""}
 {"content": "lunes, 4 de julio de 2016, 9:01", "extracted": ["4 de julio de 2016"], "correct": ""}
 {"content": "torsdag, 7. juli 2016, 12:01", "extracted": ["7 . juli 2016"], "correct": ""}
