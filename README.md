@@ -14,3 +14,7 @@ It will be built in stages to contain the following capabilities:
 
 ## Run Tests  
 `python -m unittest discover`
+
+## Launch Jupyter Notebook  
+`jupyter notebook etk_examples.ipynb`  
+> Before running the code in the notebook, change the kernel to `Python [conda env:etk_env]`
