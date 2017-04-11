@@ -1,6 +1,5 @@
-# etk
 ![travis ci](https://travis-ci.org/usc-isi-i2/etk.svg?branch=development)  
-
+# etk
 ## Setup
 `conda-env create .`  
 `source activate etk_env`   
