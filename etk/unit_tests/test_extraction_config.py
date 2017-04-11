@@ -11,6 +11,7 @@ class TestExtractionConfig(unittest.TestCase):
         self.c = Core()
 
     def test_extraction_policy(self):
+        print "extraction_config.extraction_policy"
         config = {}
         self.assertEqual(self.c.determine_extraction_policy(config), core._REPLACE)
         config = {'extraction_policy': 'replace'}
@@ -24,6 +25,7 @@ class TestExtractionConfig(unittest.TestCase):
             self.c.determine_extraction_policy(config)
 
     def test_determine_segment(self):
+        print "extraction_config.determine_segment"
         full_path = ''
         self.assertEqual(self.c.determine_segment(full_path), core._SEGMENT_OTHER)
         full_path = 'content_extraction.title'

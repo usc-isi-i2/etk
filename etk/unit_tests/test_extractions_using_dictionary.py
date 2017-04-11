@@ -14,6 +14,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.doc = json.load(codecs.open(file_path))
 
     def test_extractor_dictionary_no_resources(self):
+        print "extractions_using_dictionary.extractor_dictionary_no_resources"
         e_config = {
             "resources": {
                 "dictionaries": {
@@ -60,6 +61,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
             self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
 
     def test_extractor_dictionary(self):
+        print "extractions_using_dictionary.extractor_dictionary"
         women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {

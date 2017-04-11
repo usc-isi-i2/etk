@@ -5,6 +5,7 @@ from structured_extractors import TokenizerExtractor
 class TestTokenizerExtractor(unittest.TestCase):
 
     def test_tokenizer_extractor(self):
+        print "tokenizer.tokenizer.tokenizer_extractor"
         text = "my name is foo"
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
         updated_doc = t.extract(text)

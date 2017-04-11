@@ -13,6 +13,7 @@ class TestReadabilityExtractor(unittest.TestCase):
         return text
 
     def test_readability_extractor(self):
+        print "readability.readability.readability_extractor"
         dig_html = self.load_file("dig.html")
         dig_text = self.load_file("dig.txt")
         e = ReadabilityExtractor()

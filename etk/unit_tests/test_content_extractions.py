@@ -14,6 +14,7 @@ class TestExtractions(unittest.TestCase):
         self.doc = json.load(codecs.open(file_path, 'r'))
 
     def test_no_config(self):
+        print "content_extractor.no_config"
         e_config = None
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
@@ -21,12 +22,14 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("content_extraction" not in r)
 
     def test_ce_no_inputpath(self):
+        print "content_extractor.ce_no_inputpath"
         e_config = {'content_extraction': {}}
         c = Core(extraction_config=e_config)
         with self.assertRaises(KeyError):
             r = c.process(self.doc)
 
     def test_ce_readability(self):
+        print "content_extractor.ce_readability"
         e_config = {'content_extraction': {
                         "input_path": "raw_content",
                         "extractors": {
@@ -59,6 +62,7 @@ class TestExtractions(unittest.TestCase):
         self.assertEqual(json.dumps(r["content_extraction"]["content_relaxed"]["text"]), json.dumps(c_r))
 
     def test_title(self):
+        print "content_extractor.title"
         e_config = {'content_extraction': {
             "input_path": "raw_content",
             "extractors": {
@@ -80,6 +84,7 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("inferlink_extractions" not in r["content_extraction"])
 
     def test_landmark_no_resources(self):
+        print "content_extractor.landmark_no_resources"
         e_config = {'content_extraction': {
             "input_path": "raw_content",
             "extractors": {
@@ -96,6 +101,7 @@ class TestExtractions(unittest.TestCase):
             r = c.process(self.doc)
 
     def test_landmark_with_field_name(self):
+        print "content_extractor.landmark_with_field_name"
         rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [
@@ -143,6 +149,7 @@ class TestExtractions(unittest.TestCase):
         self.assertEqual(r["content_extraction"]["inferlink_extractions"], ifl_extractions)
 
     def test_landmark_no_field_name(self):
+        print "content_extractor.landmark_no_field_name"
         rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [
@@ -189,6 +196,7 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("title" not in r["content_extraction"])
 
     def test_content_extractions(self):
+        print "content_extractor.content_extractions"
         rules_file_path = os.path.join(os.path.dirname(__file__), "resources/consolidated_rules.json")
         e_config = {"resources": {
             "landmark": [

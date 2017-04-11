@@ -14,6 +14,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.doc = json.load(codecs.open(file_path))
 
     def test_extraction_input_path(self):
+        print "extractions_input_path.extraction_input_path"
         women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {
@@ -181,6 +182,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("simple_tokens" in r["content_extraction"]["title"])
 
     def test_extraction_multiple_input_paths(self):
+        print "extractions_input_path.extraction_multiple_input_paths"
         women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {
             "resources": {

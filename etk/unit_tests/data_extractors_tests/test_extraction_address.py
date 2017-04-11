@@ -14,6 +14,7 @@ class TestAddressExtractorMethods(unittest.TestCase):
         pass
 
     def test_address_extractor(self):
+        print "data_extractors.adress.address_extractor"
         text = 'Very passable black 25 year young TS girl with the best of the best! 9193959158 hosting off ' \
                'Western Boulevard NCstate area I\'m waiting! 20-40 $pecial$'
 
@@ -23,6 +24,7 @@ class TestAddressExtractorMethods(unittest.TestCase):
         self.assertEqual(extraction, expected_extraction)
 
     def test_multiple_address_extractor_with_context(self):
+        print "data_extractors.adress.multiple_address_extractor"
         text = 'The LA area has many airports.  LAX is located at 1 World Way, Los Angeles, CA 90045.  The Bob ' \
                'Hope airport is at 2627 N Hollywood Way, Burbank, CA 91505.  Both are very busy.'
         extraction = address_extractor.extract(text)

@@ -18,6 +18,7 @@ class TestHeightExtractorMethods(unittest.TestCase):
         pass
 
     def test_height_extractor(self):
+        print "data_extractors.weight.weight_extractor"
         data_lines = weight_test_data['jsonlines']
         for line in data_lines:
             extraction = weight_extractor.extract(line['text'])

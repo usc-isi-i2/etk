@@ -13,6 +13,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
         self.doc = json.load(codecs.open(file_path))
 
     def test_extraction_from_landmark_fields(self):
+        print "extraction_from_landmark.extraction_from_landmark_fields"
         e_config = {
             "data_extraction": [
                 {
@@ -95,6 +96,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
         self.assertFalse("inferlink_name" in inferlink_extractions)
 
     def test_extract_landmark_no_fields(self):
+        print "extraction_from_landmark.extract_landmark_no_fields"
         e_config = {
             "data_extraction": [
                 {
@@ -132,6 +134,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
         self.assertEqual(ex_posting_date, ifl_posting_date)
 
     def test_extract_landmark_post_filter(self):
+        print "extraction_from_landmark.extract_landmark_post_filter"
         e_config = {
             "data_extraction": [
                 {

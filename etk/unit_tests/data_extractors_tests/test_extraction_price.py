@@ -13,6 +13,7 @@ class TestPriceExtractorMethods(unittest.TestCase):
         pass
 
     def test_price_extractor(self):
+        print "data_extractors.price.price_extractor"
         text = 'Good morning I\'m doing incalls only gentleman I\'m quick 60 roses ?Hhr 80 roses ' \
                           '?Hour 120 roses unrushed and f.service provided nonnegotiable donations  614-563-3342'
 
@@ -23,6 +24,7 @@ class TestPriceExtractorMethods(unittest.TestCase):
         self.assertEqual(extraction, expected_extraction)
 
     def test_empty_price_extractor(self):
+        print "data_extractors.price.empty_price_extractor"
         text = 'something unrelated'
 
         extraction = price_extractor.extract(text)
