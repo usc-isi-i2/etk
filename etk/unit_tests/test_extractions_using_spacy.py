@@ -15,7 +15,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
 
-        self.c = Core()
+        self.c = Core(load_spacy=True)
         file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
         f = open(file_path_age, 'r')
 

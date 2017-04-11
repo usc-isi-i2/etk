@@ -97,7 +97,7 @@ _INCLUDE_CONTEXT = "include_context"
 
 class Core(object):
 
-    def __init__(self, extraction_config=None, debug=False):
+    def __init__(self, extraction_config=None, debug=False, load_spacy=False):
         self.extraction_config = extraction_config
         self.debug = debug
         self.html_title_regex = r'<title>(.*)?</title>'
@@ -107,7 +107,10 @@ class Core(object):
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
-        self.nlp = None
+        if load_spacy:
+            self.load_matchers()
+        else:
+            self.nlp = None
 
     """ Define all API methods """
 
