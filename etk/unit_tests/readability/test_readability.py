@@ -1,9 +1,7 @@
 import os
 import codecs
 import unittest
-import sys
 import json
-sys.path.append('../../')
 from structured_extractors import ReadabilityExtractor
 
 

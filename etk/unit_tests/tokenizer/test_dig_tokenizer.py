@@ -1,6 +1,4 @@
 import unittest
-import sys
-sys.path.append('../../')
 from structured_extractors import TokenizerExtractor
 
 
