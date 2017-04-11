@@ -33,13 +33,13 @@ def data_for_mayank(x):
         out_extractors = dict()
         if 'content_strict' in extractors and 'data_extractors' in extractors['content_strict']:
             out_extractors['content_strict'] = dict()
-            out_extractors['content_strict']['data_extractors'] = extractors['content_strict']['data_extractors']
+            out_extractors['content_strict']['data_extractors'] = extractors['content_strict']['data_extractors_tests']
         if 'content_relaxed' in extractors and 'data_extractors' in extractors['content_relaxed']:
             out_extractors['content_relaxed'] = dict()
-            out_extractors['content_relaxed']['data_extractors'] = extractors['content_relaxed']['data_extractors']
+            out_extractors['content_relaxed']['data_extractors'] = extractors['content_relaxed']['data_extractors_tests']
         if 'title' in extractors and 'data_extractors' in extractors['title']:
             out_extractors['title'] = dict()
-            out_extractors['title']['data_extractors'] = extractors['title']['data_extractors']
+            out_extractors['title']['data_extractors'] = extractors['title']['data_extractors_tests']
         x['extractors'] = out_extractors
     x.pop('raw_content', None)
     return x
@@ -226,8 +226,8 @@ def handle_strict_data_extractions(doc, semantic_type_objs, obj_dedup_semantic_t
                     semantic_type_objs, obj_dedup_semantic_types,
                     key, extraction, 'landmark')
 
-    strict_de_paths = ['inferlink_extractions.data_extractors', 'extractors.content_strict.data_extractors',
-                       'extractors.title.data_extractors']
+    strict_de_paths = ['inferlink_extractions.data_extractors_tests', 'extractors.content_strict.data_extractors_tests',
+                       'extractors.title.data_extractors_tests']
     for path in strict_de_paths:
         expr = parse(path)
         matches = expr.find(doc)
@@ -263,7 +263,7 @@ def handle_strict_data_extractions(doc, semantic_type_objs, obj_dedup_semantic_t
     return semantic_type_objs, obj_dedup_semantic_types
 
 def handle_relaxed_data_extractions(doc, semantic_type_objs, obj_dedup_semantic_types):
-    relaxed_de_paths = ['extractors.content_relaxed.data_extractors']
+    relaxed_de_paths = ['extractors.content_relaxed.data_extractors_tests']
     for path in relaxed_de_paths:
         expr = parse(path)
         matches = expr.find(doc)
