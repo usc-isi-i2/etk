@@ -49,20 +49,29 @@ def extract(text):
         ans["metadata"] = {}
         ans["metadata"]["currency"] = price["price_unit"]
         tunit = price["time_unit"]
-        # Converting all time units to minutes. Default - 60
-        if tunit in UNIT_TIME_HALF_HOUR:
-            tunit_val = "30"
-        elif tunit in UNIT_TIME_HOUR:
-            tunit_val = "60"
-        elif tunit in UNIT_TIME_MINUTE:
-            # TODO What to do?
-            tunit_val = tunit
-        elif tunit in UNIT_TIME_SECOND:
-            # TODO What to do?
-            tunit_val = tunit
+        if " " in tunit:
+            num = int(tunit.split()[0])
+            time_unit = tunit.split()[1]
+            if time_unit in UNIT_TIME_HOUR:
+                multiplier = 60
+            elif time_unit in UNIT_TIME_MINUTE:
+                multiplier = 1
+            tunit_val = str(num * multiplier)
         else:
-            # Default is 60
-            tunit_val = "60"
+            # Converting all time units to minutes. Default - 60
+            if tunit in UNIT_TIME_HALF_HOUR:
+                tunit_val = "30"
+            elif tunit in UNIT_TIME_HOUR:
+                tunit_val = "60"
+            # elif tunit in UNIT_TIME_MINUTE:
+                # TODO What to do?
+                # tunit_val = tunit
+            # elif tunit in UNIT_TIME_SECOND:
+                # TODO What to do?
+                # tunit_val = tunit
+            else:
+                # Default is 60
+                tunit_val = "60"
 
         ans["metadata"]["time_unit"] = tunit_val
         result.append(ans)
