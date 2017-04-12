@@ -32,22 +32,22 @@ class DIGPriceExtractor():
         cleaned_text_list = self.preprocessor.preprocess(text)
         extracted_text_list = self.extractor.extract_from_list(cleaned_text_list)
         normalized_text_list = self.normalizer.normalize_from_list(extracted_text_list)
-        ans = {}
+        ans = dict()
         ans.setdefault(PE_DICT_NAME_PRICE, [])
-        ans.setdefault(PE_DICT_NAME_PPH, [])
-        for normalized in normalized_text_list:
-            if not normalized[PE_JSON_NAME_TIME_UNIT]:
-                ans[PE_DICT_NAME_PPH].append(normalized[PE_JSON_NAME_PRICE])
-            else:
-                tunit = DIGPriceExtractor.re_alphabet.findall(normalized[PE_JSON_NAME_TIME_UNIT])
-                if tunit and tunit[0].strip() in UNIT_TIME_HOUR:
-                    if tunit[0].strip() in UNIT_TIME_HOUR:
-                        digits = DIGPriceExtractor.re_digits.findall(normalized[PE_JSON_NAME_TIME_UNIT])
-                        if not digits or int(digits[0]) == 1:
-                            # ans.append(normalized)
-                            ans[PE_DICT_NAME_PPH].append(normalized[PE_JSON_NAME_PRICE])
+        # ans.setdefault(PE_DICT_NAME_PPH, [])
+        # for normalized in normalized_text_list:
+        #     if not normalized[PE_JSON_NAME_TIME_UNIT]:
+        #         ans[PE_DICT_NAME_PPH].append(normalized[PE_JSON_NAME_PRICE])
+        #     else:
+        #         tunit = DIGPriceExtractor.re_alphabet.findall(normalized[PE_JSON_NAME_TIME_UNIT])
+        #         if tunit and tunit[0].strip() in UNIT_TIME_HOUR:
+        #             if tunit[0].strip() in UNIT_TIME_HOUR:
+        #                 digits = DIGPriceExtractor.re_digits.findall(normalized[PE_JSON_NAME_TIME_UNIT])
+        #                 if not digits or int(digits[0]) == 1:
+        #                     # ans.append(normalized)
+        #                     ans[PE_DICT_NAME_PPH].append(normalized[PE_JSON_NAME_PRICE])
 
-            ans[PE_DICT_NAME_PRICE].append(normalized)
+        ans[PE_DICT_NAME_PRICE] = normalized_text_list
         return ans
 
 

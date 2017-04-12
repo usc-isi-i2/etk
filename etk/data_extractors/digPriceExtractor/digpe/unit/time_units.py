@@ -35,8 +35,8 @@ UNIT_TIME_UNITS = [
     'minute',
     'mins',
     'min',
-    'ss',
-    'second',
+    # 'ss',
+    # 'second',
     r'\bh\b'
 ]
     # '30',
