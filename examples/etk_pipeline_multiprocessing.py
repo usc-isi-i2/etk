@@ -113,6 +113,28 @@ class ETKParallelProcess:
                     tokens[i]['semantic_type'].append(temp)
                     offset += 1
 
+    @staticmethod
+    def annotate_text_to_extractions(tokens, extractions):
+        for extractor, extraction in extractions.iteritems():
+            input_type = extraction['input_type']
+            if 'text' == input_type:
+                # build text tokens
+                continue
+
+            data = extraction['result']
+            for values in data:
+                start = values['context']['start']
+                end = values['context']['end']
+                offset = 0
+                for i in range(start, end):
+                    if 'semantic_type' not in tokens[i].keys():
+                        tokens[i]['semantic_type'] = []
+                    temp = {'type': extractor, 'offset': offset}
+                    if offset == 0:
+                        temp['length'] = end - start
+                    tokens[i]['semantic_type'].append(temp)
+                    offset += 1
+
     def process_data_match(self, match, extractions):
         if 'tokens' not in match.value.keys():
             match.value['tokens'] = self.tk.extract_crftokens(match.value['text'])
@@ -148,6 +170,7 @@ class ETKParallelProcess:
         data_extractors = dict((key, value) for key, value in data_extractors.iteritems() if value['result'])
         if data_extractors:
             self.annotate_token_to_extractions(match.value['tokens'], data_extractors)
+            self.annotate_text_to_extractions(match.value['tokens'], data_extractors)
             match.value['data_extractors'] = data_extractors
 
     def run_parallel(self, processes=4):
