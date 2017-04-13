@@ -8,7 +8,6 @@ from data_extractors.digPhoneExtractor import phone_extractor
 
 class TestPhoneExtractorMethods(unittest.TestCase):
 
-
     def setUp(self):
         self.doc = {
             'content': [u'Sexy', u'new', u'girl', u'in', 'town', 'searching', 'for', 'a', 'great', 'date', 'wiff', 'u',
