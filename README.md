@@ -17,4 +17,7 @@ It will be built in stages to contain the following capabilities:
 
 ## Launch Jupyter Notebook  
 `jupyter notebook etk_examples.ipynb`  
+or  
+`jupyter notebook etk_extraction_using_config.ipynb`  
+
 > Before running the code in the notebook, change the kernel to `Python [conda env:etk_env]`
