@@ -1,7 +1,7 @@
 name: etk_env
 dependencies:
-- ipython=3.1.0=py27_0
-- ipython-notebook=3.1.0=py27_1
+- ipython=5.3.0=py27_0
+- ipython-notebook=4.0.4=py27_0
 - jinja2=2.7.3=py27_1
 - jsonschema=2.4.0=py27_0
 - libsodium=0.4.5=0
@@ -11,7 +11,7 @@ dependencies:
 - markupsafe=0.23=py27_0
 - mistune=0.5.1=py27_1
 - openssl=1.0.2h=1
-- pip=8.1.2=py27_0
+- pip=9.0.1=py27_0
 - ptyprocess=0.4=py27_0
 - pycosat=0.6.1=py27_0
 - pygments=2.0.2=py27_0
@@ -30,6 +30,7 @@ dependencies:
 - yaml=0.1.4=0
 - zeromq=4.0.5=0
 - zlib=1.2.8=3
+- nb_conda=2.0.0=py27_0
 - pip:
   - jsonpath-rw>=1.4.0
   - backports.ssl-match-hostname==3.4.0.2
