@@ -10,7 +10,6 @@ from etk.core import Core
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 
-
 class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
@@ -39,6 +38,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
         f.close()
 
+    '''
     def test_extraction_from_date_spacy(self):
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
@@ -51,16 +51,26 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-
+    '''
     def test_extraction_from_age_spacy(self):
         for t in self.doc['age']:
-            extracted_ages = spacy_age_extractor.extract(
-                t['content'], self.c.nlp, self.c.matchers['age'])
-            for correct_age in t['correct']:
-                for extracted_age in extracted_ages:
-                    if extracted_age['value'] == correct_age:
-                        self.assertTrue(extracted_age, correct_age)
 
+            t['content'] = spacy_age_extractor.pre_process(t['content'])
+            crf_tokens = self.c.extract_tokens_from_crf(self.c.extract_crftokens(t['content']))
+            spacy_tokenizer = self.c.nlp.tokenizer
+            self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
+
+            nlp_doc = self.c.nlp(crf_tokens)
+            self.c.nlp.tokenizer = spacy_tokenizer
+
+            extracted_ages = spacy_age_extractor.extract(nlp_doc, self.c.matchers['age'])
+
+            extracted_ages = [match['value'] for match in extracted_ages]
+
+            if len(extracted_ages) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_ages)
+
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
 if __name__ == '__main__':
     unittest.main()
