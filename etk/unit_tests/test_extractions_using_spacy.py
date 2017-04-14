@@ -10,12 +10,14 @@ from etk.core import Core
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 
+
 class TestExtractionsUsingRegex(unittest.TestCase):
 
     def setUp(self):
 
         self.c = Core(load_spacy=True)
-        file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
+        file_path_age = os.path.join(
+            os.path.dirname(__file__), "ground_truth/age.jl")
         f = open(file_path_age, 'r')
 
         data = f.read().split('\n')
@@ -38,30 +40,32 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
         f.close()
 
-    '''
+        spacy_tokenizer = self.c.nlp.tokenizer
+        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
+
     def test_extraction_from_date_spacy(self):
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
+            doc = self.c.nlp(crf_tokens)
+            
             extracted_dates = spacy_date_extractor.extract(
-                self.c.nlp, self.c.matchers['date'], crf_tokens)
+                self.c.nlp, self.c.matchers['date'], doc)
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-    '''
+
+
     def test_extraction_from_age_spacy(self):
         for t in self.doc['age']:
 
             t['content'] = spacy_age_extractor.pre_process(t['content'])
             crf_tokens = self.c.extract_tokens_from_crf(self.c.extract_crftokens(t['content']))
-            spacy_tokenizer = self.c.nlp.tokenizer
-            self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
 
             nlp_doc = self.c.nlp(crf_tokens)
-            self.c.nlp.tokenizer = spacy_tokenizer
 
             extracted_ages = spacy_age_extractor.extract(nlp_doc, self.c.matchers['age'])
 
