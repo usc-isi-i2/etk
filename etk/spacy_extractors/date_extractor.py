@@ -3,7 +3,7 @@
 import re
 import spacy
 from spacy.matcher import Matcher
-from spacy.attrs import FLAG62, FLAG61, FLAG60, POS, ORTH, LENGTH, LOWER, IS_DIGIT
+from spacy.attrs import FLAG62, FLAG61, FLAG60, FLAG59, POS, ORTH, LENGTH, LOWER, IS_DIGIT
 
 
 date_delimiters = ['.', '/', '-', 'de']
@@ -130,6 +130,21 @@ months_dict = {
     # "december": 12
 }
 
+date_digits = list()
+for i in range(1, 32):
+    if i in [1, 21, 31]:
+        date_digits.append(str(i) + 'st')
+        date_digits.append('0' + str(i) + 'st')
+    elif i in [2, 22]:
+        date_digits.append(str(i) + 'nd')
+        date_digits.append('0' + str(i) + 'nd')
+    elif i in [3, 23]:
+        date_digits.append(str(i) + 'rd')
+        date_digits.append('0' + str(i) + 'rd')
+    else:
+        date_digits.append(str(i) + 'th')
+        date_digits.append('0' + str(i) + 'th')
+
 
 def add_to_vocab(nlp, lst):
     for lexeme in lst:
@@ -145,27 +160,41 @@ def load_date_matcher(nlp):
     add_to_vocab(nlp, months_dict.keys())
     add_to_vocab(nlp, ordinals)
     add_to_vocab(nlp, date_delimiters)
+    add_to_vocab(nlp, date_digits)
 
     # Create flag for MONTH
     is_month = FLAG62
-    target_ids = {nlp.vocab.strings[s.lower()] for s in months_dict.keys()}
-    for lexeme in nlp.vocab:
-        if lexeme.lower in target_ids:
-            lexeme.set_flag(is_month, True)
+    month_target_ids = {nlp.vocab.strings[
+        s.lower()] for s in months_dict.keys()}
 
     # Create flag for ORDINALS
     is_ordinal = FLAG61
-    target_ids = {nlp.vocab.strings[s.lower()] for s in ordinals}
-    for lexeme in nlp.vocab:
-        if lexeme.lower in target_ids:
-            lexeme.set_flag(is_ordinal, True)
+    ordinal_target_ids = {nlp.vocab.strings[s.lower()] for s in ordinals}
 
     # Create flag for DATE_DELIMITER
     is_date_delimiter = FLAG60
-    target_ids = {nlp.vocab.strings[s.lower()] for s in date_delimiters}
+    date_delimiter_target_ids = {nlp.vocab.strings[
+        s.lower()] for s in date_delimiters}
+
+    # Create flag for DIGIT
+    is_date_digit = FLAG59
+    date_digit_target_ids = {nlp.vocab.strings[
+        s.lower()] for s in date_digits}
+
+    # Add the flags
     for lexeme in nlp.vocab:
-        if lexeme.lower in target_ids:
+        if lexeme.lower in month_target_ids:
+            lexeme.set_flag(is_month, True)
+        if lexeme.lower in ordinal_target_ids:
+            lexeme.set_flag(is_ordinal, True)
+        if lexeme.lower in date_delimiter_target_ids:
             lexeme.set_flag(is_date_delimiter, True)
+        if lexeme.lower in date_digit_target_ids:
+            lexeme.set_flag(is_date_digit, True)
+        if lexeme.is_digit == True:
+            lexeme.set_flag(is_date_digit, True)
+        # if is_date_digit_with_ordinal(lexeme.lower_):
+        #     lexeme.set_flag(is_date_digit, True)
 
     # Add rules
 
@@ -176,19 +205,11 @@ def load_date_matcher(nlp):
     matcher.add_pattern('DATE',
                         [
                             {is_month: True},
-                            {IS_DIGIT: True, LENGTH: 1},
+                            {is_date_digit: True},
                             {is_ordinal: True, 'OP': '?'},
                             {ORTH: ',', 'OP': '?'},
                             {IS_DIGIT: True, LENGTH: 4}
                         ], label=1)
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True},
-                            {IS_DIGIT: True, LENGTH: 2},
-                            {is_ordinal: True, 'OP': '?'},
-                            {ORTH: ',', 'OP': '?'},
-                            {IS_DIGIT: True, LENGTH: 4}
-                        ], label=2)
 
     # 25 March, 2017
     # 25th March, 2017
@@ -196,70 +217,45 @@ def load_date_matcher(nlp):
     # 25 March 2017
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 1},
+                            {is_date_digit: True},
                             {is_date_delimiter: True, 'OP': '?'},
                             {is_month: True},
                             {is_ordinal: True, 'OP': '?'},
                             {ORTH: ',', 'OP': '?'},
                             {IS_DIGIT: True, LENGTH: 4}
-                        ], label=3)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 2},
-                            {is_date_delimiter: True, 'OP': '?'},
-                            {is_month: True},
-                            {is_ordinal: True, 'OP': '?'},
-                            {ORTH: ',', 'OP': '?'},
-                            {IS_DIGIT: True, LENGTH: 4}
-                        ], label=4)
+                        ], label=2)
 
     # 25/05/2016
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 1},
+                            {is_date_digit: True},
                             {is_date_delimiter: True, 'OP': '+'},
                             {is_month: True},
                             {is_date_delimiter: True, 'OP': '+'},
                             {IS_DIGIT: True, LENGTH: 4}
-                        ], label=5)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 2},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {is_month: True},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 4}
-                        ], label=6)
+                        ], label=3)
 
     # 05/25/2016
     matcher.add_pattern('DATE',
                         [
                             {is_month: True},
                             {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 1},
+                            {is_date_digit: True},
                             {is_date_delimiter: True, 'OP': '+'},
                             {IS_DIGIT: True, LENGTH: 4}
-                        ], label=7)
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 2},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 4}
-                        ], label=8)
+                        ], label=4)
 
     # Diciembre, 2009
     # December 2009
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
+                            {is_month: True, is_date_digit: False},
                             {ORTH: ','},
                             {IS_DIGIT: True, LENGTH: 4}
                         ], label=9)
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
+                            {is_month: True, is_date_digit: False},
                             {IS_DIGIT: True, LENGTH: 4}
                         ], label=9)
 
@@ -270,16 +266,8 @@ def load_date_matcher(nlp):
                             {is_date_delimiter: True, 'OP': '+'},
                             {is_month: True},
                             {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 2}
+                            {is_date_digit: True}
                         ], label=10)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 4},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {is_month: True},
-                            {is_date_delimiter: True, 'OP': '+'},
-                            {IS_DIGIT: True, LENGTH: 1}
-                        ], label=11)
 
     # 9 days ago
     matcher.add_pattern('DATE',
@@ -293,134 +281,65 @@ def load_date_matcher(nlp):
     # 1. Jul
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 2},
+                            {is_date_digit: True},
                             {is_ordinal: True},
                             {is_date_delimiter: True},
-                            {is_month: True, IS_DIGIT: False}
+                            {is_month: True, is_date_digit: False}
                         ], label=13)
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 2},
+                            {is_date_digit: True},
                             {is_ordinal: True},
-                            {is_month: True, IS_DIGIT: False}
+                            {is_month: True, is_date_digit: False}
                         ], label=13)
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 2},
+                            {is_date_digit: True},
                             {is_date_delimiter: True},
-                            {is_month: True, IS_DIGIT: False}
+                            {is_month: True, is_date_digit: False}
                         ], label=13)
     matcher.add_pattern('DATE',
                         [
-                            {IS_DIGIT: True, LENGTH: 2},
-                            {is_month: True, IS_DIGIT: False}
+                            {is_date_digit: True},
+                            {is_month: True, is_date_digit: False}
                         ], label=13)
-
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_ordinal: True},
-                            {is_date_delimiter: True},
-                            {is_month: True, IS_DIGIT: False}
-                        ], label=14)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_ordinal: True},
-                            {is_month: True, IS_DIGIT: False}
-                        ], label=14)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_date_delimiter: True},
-                            {is_month: True, IS_DIGIT: False}
-                        ], label=14)
-    matcher.add_pattern('DATE',
-                        [
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_month: True, IS_DIGIT: False}
-                        ], label=14)
 
     # Jul 2nd
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
+                            {is_month: True, is_date_digit: False},
                             {is_date_delimiter: True},
-                            {IS_DIGIT: True, LENGTH: 2},
+                            {is_date_digit: True},
                             {is_ordinal: True}
                         ], label=15)
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
+                            {is_month: True, is_date_digit: False},
                             {is_date_delimiter: True},
-                            {IS_DIGIT: True, LENGTH: 2}
+                            {is_date_digit: True}
                         ], label=15)
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
-                            {IS_DIGIT: True, LENGTH: 2},
+                            {is_month: True, is_date_digit: False},
+                            {is_date_digit: True},
                             {is_ordinal: True}
                         ], label=15)
     matcher.add_pattern('DATE',
                         [
-                            {is_month: True, IS_DIGIT: False},
-                            {IS_DIGIT: True, LENGTH: 2}
+                            {is_month: True, is_date_digit: False},
+                            {is_date_digit: True}
                         ], label=15)
-
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True, IS_DIGIT: False},
-                            {is_date_delimiter: True},
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_ordinal: True}
-                        ], label=16)
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True, IS_DIGIT: False},
-                            {is_date_delimiter: True},
-                            {IS_DIGIT: True, LENGTH: 1}
-                        ], label=16)
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True, IS_DIGIT: False},
-                            {IS_DIGIT: True, LENGTH: 1},
-                            {is_ordinal: True}
-                        ], label=16)
-    matcher.add_pattern('DATE',
-                        [
-                            {is_month: True, IS_DIGIT: False},
-                            {IS_DIGIT: True, LENGTH: 1}
-                        ], label=16)
 
     return matcher
 
 
-def remove_ordinals(tokens):
-    for i in range(len(tokens)):
-        tokens[i] = re.sub(r'(\d)(st|nd|rd|th)', r'\1', tokens[i])
-    return tokens
+def extract(nlp, matcher, doc):
 
-
-def replace_tokenizer(nlp):
-    spacy_tokenizer = nlp.tokenizer
-    nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
-        remove_ordinals(tokens))
-
-    return spacy_tokenizer
-
-
-def extract(nlp, matcher, tokens):
-
-    # Override tokenizer
-    spacy_tokenizer = replace_tokenizer(nlp)
-
-    # Load the document
-    doc = nlp(tokens)
     # print [(word.text, word.pos_) for word in doc]
 
     # Run matcher and return results
-    extracted_dates = []
-    extractions = []
+    extracted_dates = list()
+    extractions = list()
     count = 0
 
     date_matches = matcher(doc)
@@ -444,9 +363,6 @@ def extract(nlp, matcher, tokens):
         extracted_date['value'] = doc[start:end].text
         extracted_date['context'] = {'start': start, 'end': end}
         extracted_dates.append(extracted_date)
-
-    # Replace with parent tokenizer
-    nlp.tokenizer = spacy_tokenizer
 
     # Return the results
     return extracted_dates
