@@ -167,12 +167,6 @@ def load_date_matcher(nlp):
         if lexeme.lower in target_ids:
             lexeme.set_flag(is_date_delimiter, True)
 
-    # print('December', nlp.vocab.__contains__('December'))
-    # print('Diciembre', nlp.vocab.__contains__('diciembre'))
-
-    # print('December', nlp.vocab['december'].check_flag(is_month))
-    # print('Diciembre', nlp.vocab['diciembre'].check_flag(is_month))
-
     # Add rules
 
     # March 25, 2017
@@ -449,8 +443,6 @@ def extract(nlp, matcher, tokens):
         extracted_date = {'context': {}}
         extracted_date['value'] = doc[start:end].text
         extracted_date['context'] = {'start': start, 'end': end}
-        # extracted_date['context']['start'] = string.index(extracted_date['value']),
-        # extracted_date['context']['end'] = extracted_date['context']['start'] + len(extracted_date['value'])
         extracted_dates.append(extracted_date)
 
     # Replace with parent tokenizer
