@@ -1,48 +1,27 @@
 import time
-
 import json
 import codecs
-import os
 import sys
 import multiprocessing as mp, os
-
-# input_path = '/Users/amandeep/Github/etk/etk/test_data/cdr_two.jl'
-# output_path = '/Users/amandeep/Github/etk/etk/test_data/out_two.jl'
-# config_path = '/Users/amandeep/Github/etk/etk/resources/extraction_config.json'
-
-input_path = '/Users/Muthu/Desktop/cdr_1k.jl'
-output_path = '/Users/Muthu/Desktop/cc'
-config_path = './resources/extraction_config.json'
-extraction_config = json.load(codecs.open(config_path, 'r'))
-
-# print sys.path
-sys.path.append('./core.py')
-# sys.path.append('/Users/amandeep/anaconda2/envs/memexeval2017/lib/python2.7/site-packages')
-from core import Core
-
-start_time = time.time()
-from pprint import pprint
-
+import core
+from optparse import OptionParser
 """ Process code begins here """
-o = codecs.open(output_path, 'w')
-c = Core(extraction_config)
-time_taken = time.time() - start_time
 
 
 class ParallelPtocess(object):
     """ Class to run the process in parallel """
 
-    def __init__(self, input_path, output, config, processes=0):
+    def __init__(self, input_path, output_path, config, processes=0):
         self.input = input_path
-        self.output = self.output_write(output)
+        self.output = output_path
         self.processes = processes
-        self.core = Core(extraction_config)
+        self.core = core.Core(json.load(codecs.open(config, 'r')))
 
     @staticmethod
     def output_write(output_path):
         return codecs.open(output_path, 'w')
 
-
+    @staticmethod
     def chunk_file(self, file_name, size=1024 * 1024):
         """ Splitting data into chunks for parallel processing
         :param file_name - name of the file to split
@@ -61,19 +40,19 @@ class ParallelPtocess(object):
                     break
 
     def process_wrapper(self, chunk_start, chunk_size):
+        output = codecs.open(self.output, 'w')
         with open(self.input) as f:
             f.seek(chunk_start)
             lines = f.read(chunk_size).splitlines()
             for i, line in enumerate(lines):
-                start_time_doc = time.time()
                 document = json.loads(line)
                 try:
                     document = self.core.process(document)
                 except Exception as e:
                     print "Failed - ", e
-                o.write(json.dumps(document) + '\n')
-                time_taken_doc = time.time() - start_time_doc
-                print "Processing chunk - ", str(chunk_start), " File - ", str(i), str(time_taken_doc), " seconds"
+                output.write(json.dumps(document) + '\n')
+                print "Processing chunk - ", str(chunk_start), " File - ", str(i)
+        output.close()
 
     def run_parallel(self, processes=0):
         self.processes = self.processes or processes or mp.cpu_count()
@@ -84,40 +63,56 @@ class ParallelPtocess(object):
         for job in jobs:
             job.get()
         pool.close()
-        self.output.close()
 
     def run_serial(self):
+        output = codecs.open(self.output, 'w')
         for line in codecs.open(self.input):
             start_time_doc = time.time()
             jl = json.loads(line)
-            o.write(json.dumps(c.process(jl)) + '\n')
+            try:
+                output.write(json.dumps(self.core.process(jl)) + '\n')
+            except Exception as e:
+                    print "Failed - ", e
             time_taken_doc = time.time() - start_time_doc
             print "Took", str(time_taken_doc), " seconds"
-        self.output.close()
+        output.close()
+
 
 def work(instance, start, size):
     instance.process_wrapper(start, size)
 
+
 def usage():
     return """\
 Usage: python run_core.py [args]
-<input_doc>                  Input file
-<output_doc>                 Output file
-<config>                     Config file
-Optional <processes_count>   Run Parallel
+-i, --input <input_doc>                   Input file
+-o, --output <output_doc>                 Output file
+-c, --config <config>                     Config file
+
+Optional
+-t, --thread <processes_count>            Serial(default=0)
+                                          Run Parallel(>0)
     """
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
+    parser = OptionParser()
+    parser.add_option("-i", "--input", action="store", type="string", dest="inputPath")
+    parser.add_option("-o", "--output", action="store", type="string", dest="outputPath")
+    parser.add_option("-c", "--config", action="store", type="string", dest="configPath")
+    parser.add_option("-t", "--thread", action="store", type="string", dest="threadCount", default=0)
+
+    (c_options, args) = parser.parse_args()
+
+    if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
         print usage()
         sys.exit()
     try:
         start_time = time.time()
-        inst = ParallelPtocess(sys.argv[1], sys.argv[2], sys.argv[3])
-        if len(sys.argv) == 5:
-            print "Processing parallel with " + sys.argv[4] + " processes"
-            inst.run_parallel(int(sys.argv[4]))
+        inst = ParallelPtocess(c_options.inputPath, c_options.outputPath, c_options.configPath)
+        if c_options.threadCount:
+            print "Processing parallel with " + c_options.threadCount + " processes"
+            inst.run_parallel(int(c_options.threadCount))
         else:
             print "processing serially"
             inst.run_serial()
