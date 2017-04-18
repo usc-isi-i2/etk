@@ -656,7 +656,6 @@ class Core(object):
             text = self.run_user_filters(d, config[_PRE_FILTER])
         return self._relevant_text_from_context(d[_TEXT], self._extract_price(text))
 
-
     @staticmethod
     def _extract_price(text):
         return price_extractor.extract(text)
