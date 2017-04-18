@@ -22,7 +22,7 @@ class ParallelPtocess(object):
         return codecs.open(output_path, 'w')
 
     @staticmethod
-    def chunk_file(self, file_name, size=1024 * 1024):
+    def chunk_file(file_name, size=1024 * 1024):
         """ Splitting data into chunks for parallel processing
         :param file_name - name of the file to split
         :param size - size of file to split
