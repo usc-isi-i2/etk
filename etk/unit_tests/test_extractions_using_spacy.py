@@ -41,8 +41,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
         spacy_tokenizer = self.c.nlp.tokenizer
-        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
-            tokens)
+        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
 
     def test_extraction_from_date_spacy(self):
         for t in self.doc['date']:
@@ -62,7 +61,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     def test_extraction_from_age_spacy(self):
         for t in self.doc['age']:
 
-            t['content'] = spacy_age_extractor.pre_process(t['content'])
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
 
@@ -72,7 +70,6 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 nlp_doc, self.c.matchers['age'])
 
             extracted_ages = [match['value'] for match in extracted_ages]
-
             if len(extracted_ages) == 0 and len(t['correct']) == 0:
                 self.assertFalse(extracted_ages)
 

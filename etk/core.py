@@ -547,12 +547,18 @@ class Core(object):
     def run_spacy_extraction(self, d):
         if not self.nlp:
             self.load_matchers()
+
+        spacy_tokenizer = self.c.nlp.tokenizer
+        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
+
         spacy_extractions = dict()
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
                                                                             extract(self.nlp, self.matchers['date'],
                                                                                     d[_SIMPLE_TOKENS]))
-        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_TEXT],
-                                                                   spacy_age_extractor.extract(d[_TEXT], self.nlp,
+
+        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                                   spacy_age_extractor.extract(nlp_doc,
                                                                                                self.matchers['age']))
         return spacy_extractions
 
