@@ -71,10 +71,10 @@ def extract_using_dictionary(tokens, pre_process=lambda x: x,
                              ngrams=1,
                              joiner=' '):
     field = 'tokens'
-
-    if isinstance(tokens[0], dict):
-        tokens = [x["value"] for x in tokens]
-        field = 'tokens'
+    if len(tokens) > 0:
+        if isinstance(tokens[0], dict):
+            tokens = [x["value"] for x in tokens]
+            field = 'tokens'
 
     try:
         extracts = list()

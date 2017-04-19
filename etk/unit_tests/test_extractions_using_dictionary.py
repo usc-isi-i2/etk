@@ -5,6 +5,7 @@ sys.path.append('../../')
 from etk.core import Core
 import json
 import codecs
+import pygtrie as trie
 
 
 class TestExtractionsUsingDictionaries(unittest.TestCase):
@@ -127,6 +128,19 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'other_method'},
              'context': {'text': u"i ' m luna 3234522013 let '", 'end': 137, 'start': 136}, 'value': u'luna'}]}
         self.assertEqual(extraction, ex)
+
+    def test_empty_tokens(self):
+        tokens = []
+        pre_process = lambda x: x
+        pre_filter = lambda x: x
+        post_filter = lambda x: isinstance(x, basestring)
+        ngrams = 1
+        joiner = ' '
+        n_trie = trie.CharTrie()
+        c = Core()
+        r = c._extract_using_dictionary(tokens, pre_process, n_trie, pre_filter, post_filter,
+                                        ngrams, joiner)
+        self.assertEqual(r, None)
 
 if __name__ == '__main__':
     unittest.main()

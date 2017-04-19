@@ -41,7 +41,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         f.close()
 
         spacy_tokenizer = self.c.nlp.tokenizer
-        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(tokens)
+        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
+            tokens)
 
     def test_extraction_from_date_spacy(self):
         for t in self.doc['date']:

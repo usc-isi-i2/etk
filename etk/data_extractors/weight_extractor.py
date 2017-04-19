@@ -85,7 +85,7 @@ def normalize_weight(extraction):
             ans['value'] = int(extraction)
             ans['unit'] = WEIGHT_UNIT_POUND
         else:
-            print 'WARNING: contain uncatched case:', extraction
+            return None
 
     return ans
 
@@ -151,10 +151,11 @@ def remove_dup(extractions):
         if extractions[i]['value'] not in value_set:
             value_set.add(extractions[i]['value'])
             result = normalize_weight(extractions[i]['value'])
-            extractions[i]['value'] = str(result['value'])
-            extractions[i]['metadata'] = dict()
-            extractions[i]['metadata']['unit'] = result['unit']
-            weight_extractions.append(extractions[i])
+            if result:
+                extractions[i]['value'] = str(result['value'])
+                extractions[i]['metadata'] = dict()
+                extractions[i]['metadata']['unit'] = result['unit']
+                weight_extractions.append(extractions[i])
         else:
             continue
     return weight_extractions
@@ -168,8 +169,9 @@ def remove_dup(extractions):
 def extract(text):
     us_h = apply_regex(text, re_us_weight)
     ls_h = apply_regex(text, re_ls_weight)
-    weight_extractions = us_h + ls_h
 
+    weight_extractions = us_h + ls_h
     weight_extractions = remove_dup(weight_extractions)
+
     return weight_extractions
 
