@@ -37,11 +37,13 @@ def load_age_matcher(nlp):
     matcher.add_entity("Age")
 
     # Age Matcher Patterns
-    matcher.add_pattern("Age", [{LOWER: "age"}, {IS_PUNCT: True, 'OP': '?'}, {IS_DIGIT: True, LENGTH: 2}])
+    matcher.add_pattern("Age", [{LOWER: "age"}, {IS_PUNCT: True, 'OP': '?'}, {
+                        IS_DIGIT: True, LENGTH: 2}])
 
     matcher.add_pattern("Age", [{LOWER: "age"}, {IS_PUNCT: True}, {IS_DIGIT: True, LENGTH: 2}, {IS_PUNCT: True},
                                 {IS_DIGIT: True, LENGTH: 2}])
-    matcher.add_pattern("Age", [{LOWER: "age"}, {IS_DIGIT: True, LENGTH: 2}, {IS_PUNCT: True}, {IS_DIGIT: True, LENGTH: 2}])
+    matcher.add_pattern("Age", [{LOWER: "age"}, {IS_DIGIT: True, LENGTH: 2}, {
+                        IS_PUNCT: True}, {IS_DIGIT: True, LENGTH: 2}])
 
     matcher.add_pattern("Age", [{IS_DIGIT: True, LENGTH: 2}, {is_year: True}])
 
@@ -55,7 +57,6 @@ def load_age_matcher(nlp):
     matcher.add_pattern(
         "Age", [{LOWER: 'about'}, {LOWER: 'me', 'OP': '?'}, {IS_DIGIT: True}])
 
-    print nlp.vocab[u'yrs'].check_flag(is_year)
     return matcher
 
 
@@ -67,7 +68,7 @@ def post_process(matches, nlp_doc):
 
         for a in age:
             if a not in ages:
-                ages[a] = {'start':start, 'end':end}
+                ages[a] = {'start': start, 'end': end}
     return ages
 
 

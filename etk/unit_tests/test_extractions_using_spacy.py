@@ -47,10 +47,10 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         for t in self.doc['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
-            doc = self.c.nlp(crf_tokens)
+            nlp_doc = self.c.nlp(crf_tokens)
 
             extracted_dates = spacy_date_extractor.extract(
-                self.c.nlp, self.c.matchers['date'], doc)
+                nlp_doc, self.c.matchers['date'])
 
             extracted_dates = [date['value'] for date in extracted_dates]
 

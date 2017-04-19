@@ -333,7 +333,7 @@ def load_date_matcher(nlp):
     return matcher
 
 
-def extract(nlp, matcher, doc):
+def extract(doc, matcher):
 
     # print [(word.text, word.pos_) for word in doc]
 

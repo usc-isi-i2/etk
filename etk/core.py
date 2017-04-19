@@ -554,8 +554,7 @@ class Core(object):
 
         spacy_extractions = dict()
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
-                                                                            extract(self.nlp, self.matchers['date'],
-                                                                                    d[_SIMPLE_TOKENS]))
+                                                                            extract(nlp_doc, self.matchers['date']))
 
         spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                                    spacy_age_extractor.extract(nlp_doc,
