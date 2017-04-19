@@ -43,3 +43,6 @@
 {"content": "Jun 25th", "extracted": ["jun 25th"], "correct": ""}
 {"content": "1st Jul", "extracted": ["1st jul"], "correct": ""}
 {"content": "Jun 05th", "extracted": ["jun 05th"], "correct": ""}
+{"content": "☺☻✌☹♡♥❤⚘❀❃❁✼☀â€™Ű ű Ų ų Ŵ ŵ Ŷ ŷ Ÿ Ź ź Ż ż Ž ž ſ 0180 ƀ Ɓ Ƃ ƃ Ƅ ƅ Ɔ Ƈ ƈ Ɖ Ɗ Ƌ ƌ ƍ Ǝ Ə 0190 Ɛ Ƒ ƒ Ɠ Ɣ ƕ Ɩ Ɨ Ƙ ƙ ƚ ƛ Ɯ Ɲ ƞ Ɵ","extracted":[]} 
+{"content": " ","extracted":[]}
+{"content": "","extracted":[]}
