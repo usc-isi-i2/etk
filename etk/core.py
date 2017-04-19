@@ -9,6 +9,7 @@ from data_extractors import height_extractor
 from data_extractors import weight_extractor
 from data_extractors import address_extractor
 from data_extractors import age_extractor
+from data_extractors import table_extractor 
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -64,6 +65,7 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+_TABLE = "table"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -157,6 +159,9 @@ class Core(object):
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
+                        elif extractor == _TABLE:
+                            doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION], 
+                                                                        matches[index].value, extractors[extractor])
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
                 de_configs = self.extraction_config[_DATA_EXTRACTION]
@@ -362,6 +367,17 @@ class Core(object):
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process title %s' % time_taken
+        return content_extraction
+
+    def run_table_extractor(self, content_extraction, html, table_config):
+        field_name = table_config[_FIELD_NAME] if _FIELD_NAME in table_config else _TABLE
+        ep = self.determine_extraction_policy(table_config)
+        if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
+            start_time = time.time()
+            content_extraction[field_name] = self.extract_table(html)
+            time_taken = time.time() - start_time
+            if self.debug:
+                print 'time taken to process table %s' % time_taken
         return content_extraction
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -776,7 +792,7 @@ class Core(object):
         return [tk['value'] for tk in crf_tokens]
 
     def extract_table(self, html_doc):
-        return table_extract(html_doc)
+        return table_extractor.extract(html_doc)
 
 
     def extract_stock_tickers(self, doc):
