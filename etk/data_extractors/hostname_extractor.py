@@ -8,19 +8,31 @@ from sets import Set
 # Main
 ################################################
 
-"""Extractor of md5 hash from text.
+def wrap_value_with_context(value, start, end):
+    return {
+            'value': value,
+            'context': {
+                        'start': start,
+                        'end': end
+                        }
+            }
+
+"""Extractor of hostname from text.
 
 Users of this class should call extract_hostname(), see documentation.
 """
-def remove_dup(arr):
-    return list(set(arr))
 
 def extract_hostname(string):
     """Extract all hostnames from string.
     :param string: the text to extract from
     """
     pattern = r'(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}'
-    hostnames = re.findall(pattern, string)
+    hostnames = []
+    h_map = list()
+    for match in re.finditer(pattern, string):
+        if match.group(0) not in h_map:
+            hostnames.append(wrap_value_with_context(match.group(0),match.start(),match.end()))
+        h_map.append(match.group(0))
 
-    return remove_dup(hostnames)
+    return hostnames    	
 

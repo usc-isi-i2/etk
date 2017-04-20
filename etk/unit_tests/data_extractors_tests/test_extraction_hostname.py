@@ -19,10 +19,19 @@ class TestHostnameExtractorMethods(unittest.TestCase):
         str = 'Hi im Natsume, check out my site brun1989.itldc-customer.net, www.google.com and https://www.google.com'
         result = hostname_extractor.extract_hostname(str)
         self.assertEqual(len(result),2)
-        self.assertEqual(result[0],
+        self.assertTrue('value' in result[0])
+        self.assertTrue('context' in result[0])
+        self.assertEqual(result[0]['context']['start'],
+                         33)
+        self.assertEqual(result[0]['context']['end'],
+                         60)
+        self.assertEqual(result[0]['value'],
                          'brun1989.itldc-customer.net')
-        self.assertEqual(result[1],
+        self.assertEqual(result[1]['value'],
                          'www.google.com')
-
+        #Check if it does extract any illegal hostname
+        str = "Illegal hostname.....a ..www..google..com."
+        result = hostname_extractor.extract_hostname(str)
+        self.assertEqual(len(result),0)
 if __name__ == '__main__':
     unittest.main()
