@@ -30,6 +30,8 @@ class TestIpAddressExtractorMethods(unittest.TestCase):
                          '192.168.0.1')
         self.assertEqual(result[1]['value'],
                          '193.14.1.1')
-
+        str= ""
+        result    = ipaddress_extractor.extract_ipaddress(str)
+        self.assertEqual(len(result),0)
 if __name__ == '__main__':
     unittest.main()
