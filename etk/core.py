@@ -460,6 +460,8 @@ class Core(object):
         # this method is self aware that it needs tokens as input
         tokens = d[_SIMPLE_TOKENS]
 
+        if not tokens:
+            return None
         if _DICTIONARY not in config:
             raise KeyError('No dictionary specified for {}'.format(field_name))
 
@@ -541,17 +543,18 @@ class Core(object):
         field = config[_FIELD_NAME]
         if _SPACY_EXTRACTION not in d:
             d[_SPACY_EXTRACTION] = self.run_spacy_extraction(d)
-
         return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
 
     def run_spacy_extraction(self, d):
         if not self.nlp:
             self.load_matchers()
         spacy_extractions = dict()
-        spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
+        if len(d[_SIMPLE_TOKENS]) > 0:
+            spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
                                                                             extract(self.nlp, self.matchers['date'],
                                                                                     d[_SIMPLE_TOKENS]))
-        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_TEXT],
+        if d[_TEXT].strip() != '':
+            spacy_extractions[_AGE] = self._relevant_text_from_context(d[_TEXT],
                                                                    spacy_age_extractor.extract(d[_TEXT], self.nlp,
                                                                                                self.matchers['age']))
         return spacy_extractions
@@ -652,7 +655,6 @@ class Core(object):
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
         return self._relevant_text_from_context(d[_TEXT], self._extract_price(text))
-
 
     @staticmethod
     def _extract_price(text):

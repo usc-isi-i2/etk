@@ -3,10 +3,10 @@
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
-      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz"
+      "women_name": "./unit_tests/resources/female-names.json.gz"
     },
     "landmark": [
-      "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
+      "./unit_tests/resources/consolidated_rules.json"
     ]
   },
   "content_extraction": {
