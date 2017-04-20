@@ -62,6 +62,18 @@ _digits = re.compile('\d')
 def contains_digits(d):
     return bool(_digits.search(d))
 
+def gen_context(seq):
+    seen = set()
+    seen_add = seen.add
+    uniq_list = [x for x in seq if not (x in seen or seen_add(x))]
+    if len(uniq_list) > 5:
+        uniq_list = uniq_list[:5]
+    uniq_list = [x.replace("\t", "").replace("\r", "").replace("\n", "").strip() for x in uniq_list]
+    if '' in uniq_list:
+        uniq_list.remove('')
+    if ' ' in uniq_list:
+        uniq_list.remove(' ')
+    return uniq_list
 
 def extract(html_doc, min_data_rows = 1):
     soup = BeautifulSoup(html_doc, 'html.parser')
@@ -194,8 +206,12 @@ def extract(html_doc, min_data_rows = 1):
                 features["no_of_cols_empty"] = no_of_cols_empty
                 data_table["features"] = features
                 data_table["rows"] = row_list
+                context_before = ' '.join(gen_context(table.find_all_previous(string=True)))
+                context_after = ' '.join(gen_context(table.find_all_next(string=True)))
                 table_rep = gen_html(row_list)
                 fingerprint = create_fingerprint(table_rep)
+                data_table["context_before"] = context_before
+                data_table["context_after"] = context_after
                 data_table["fingerprint"] = fingerprint
                 data_table['html'] = table_rep
                 result_tables.append(data_table)

@@ -30,6 +30,8 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
+        # with open("table_out.jl", "w") as f:
+            # f.write(json.dumps(r["content_extraction"]["table"]))
         ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
 
         self.assertTrue("content_extraction" in r)
