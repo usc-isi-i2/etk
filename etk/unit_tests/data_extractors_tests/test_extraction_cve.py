@@ -19,10 +19,24 @@ class TestCveExtractorMethods(unittest.TestCase):
 
         extracted_cve    = cve_extractor.extract_cve(str)
         self.assertEqual(len(extracted_cve),2)
-        self.assertEqual(extracted_cve[0],
+        self.assertTrue('value' in extracted_cve[0])
+        self.assertTrue('context' in extracted_cve[0])
+        self.assertEqual(extracted_cve[0]['context']['start'],
+                         16)
+        self.assertEqual(extracted_cve[0]['context']['end'],
+                         29)
+        self.assertEqual(extracted_cve[0]['value'],
                          'CVE-1993-1344')
-        self.assertEqual(extracted_cve[1],
+        self.assertEqual(extracted_cve[1]['value'],
                          'CVE-2006-1232')
+
+        str = "Sample cves are none"
+        extracted_cve    = cve_extractor.extract_cve(str)
+        self.assertEqual(len(extracted_cve),0)
+
+        str= ""
+        extracted_cve    = cve_extractor.extract_cve(str)
+        self.assertEqual(len(extracted_cve),0)
 
 if __name__ == '__main__':
     unittest.main()
