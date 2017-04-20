@@ -19,9 +19,10 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.c = Core(load_spacy=True)
         self.ground_truth = dict()
 
-        ground_truth_files = {"age": "ground_truth/age.jl",
-                              "date": "ground_truth/date.jl",
-                              "social_media": "ground_truth/social_media.jl"}
+        ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
+                              "date": os.path.join(os.path.dirname(__file__), "ground_truth/date.jl"),
+                              "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl")
+                              }
 
         for extractor, file_name in ground_truth_files.items():
             with open(file_name, 'r') as f:
