@@ -780,8 +780,15 @@ class Core(object):
     def extract_stock_tickers(self, doc):
         return extract_stock_tickers(doc)
 
-    def extract_spacy(self, doc):
-        return spacy_extractor.spacy_extract(doc)
+    def extract_spacy(self, text_string):
+        #return spacy_extractor.spacy_extract(doc)
+        out = dict()
+        doc = self.nlp(text_string)
+        for ent in doc.ents:
+           if ent.label_ not in out:
+              out[ent.label_] = list()
+           out[ent.label_].append(ent.text)
+        return out
 
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
