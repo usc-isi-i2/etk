@@ -1,5 +1,6 @@
 # import all extractors
 from spacy_extractors import age_extractor as spacy_age_extractor
+from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
@@ -843,4 +844,7 @@ class Core(object):
 
         # Load age_extractor matcher
         matchers['age'] = spacy_age_extractor.load_age_matcher(self.nlp)
+
+        # Load social_media_extractor matcher
+        matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
         self.matchers = matchers
