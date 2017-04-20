@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import sys, os
+
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -21,15 +22,15 @@ class TestExtractionFromLandmark(unittest.TestCase):
                     ],
                     "fields": {
                         "location": {
-                          "extractors": {
-                              "extract_from_landmark": {
-                                  "config": {
-                                      "fields": [
-                                          "inferlink_location"
-                                      ]
-                                  }
-                              }
-                          }
+                            "extractors": {
+                                "extract_from_landmark": {
+                                    "config": {
+                                        "fields": [
+                                            "inferlink_location"
+                                        ]
+                                    }
+                                }
+                            }
                         },
                         "name": {
                             "extractors": {
@@ -76,8 +77,8 @@ class TestExtractionFromLandmark(unittest.TestCase):
         ex_location = inferlink_extractions["inferlink_location"]["data_extraction"]["location"][
             "extract_from_landmark"]
 
-        ifl_location = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'inferlink'},
-                                     'value': 'Los Angeles, California'}]}
+        ifl_location = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': u'Los Angeles, California'}]}
         self.assertEqual(ex_location, ifl_location)
 
         self.assertTrue("inferlink_age" in inferlink_extractions)
@@ -88,7 +89,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
         ex_age = inferlink_extractions["inferlink_age"]["data_extraction"]["age"]["extract_from_landmark"]
 
         ifl_age = {
-            'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'inferlink'}, 'value': '23'}]}
+            'results': [{'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': '23'}]}
 
         self.assertEqual(ex_age, ifl_age)
 
@@ -126,8 +127,8 @@ class TestExtractionFromLandmark(unittest.TestCase):
         ex_posting_date = inferlink_extractions["inferlink_posting-date"]["data_extraction"]["posting-date"][
             "extract_from_landmark"]
 
-        ifl_posting_date = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'inferlink'},
-                                         'value': u'2017-01-02 06:46'}]}
+        ifl_posting_date = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': u'2017-01-02 06:46'}]}
 
         self.assertEqual(ex_posting_date, ifl_posting_date)
 
@@ -168,9 +169,10 @@ class TestExtractionFromLandmark(unittest.TestCase):
         ex_phone = inferlink_extractions["inferlink_phone"]["data_extraction"]["phone"]["extract_from_landmark"]
 
         expected_phone = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'inferlink'}, 'obfuscation': 'False',
+            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'obfuscation': 'False',
              'value': '3234522013'}]}
         self.assertEqual(ex_phone, expected_phone)
+
 
 if __name__ == '__main__':
     unittest.main()

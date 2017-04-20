@@ -47,11 +47,11 @@ class ParallelPtocess(object):
             for i, line in enumerate(lines):
                 document = json.loads(line)
                 # try:
-                document = self.core.process(document)
+                document = self.core.process(document, create_knowledge_graph=True)
                 # except Exception as e:
                 #     print "Failed - ", e
                 output.write(json.dumps(document) + '\n')
-                print "Processing chunk - ", str(chunk_start), " File - ", str(i)
+                # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
         output.close()
 
     def run_parallel(self, processes=0):
@@ -72,7 +72,7 @@ class ParallelPtocess(object):
             start_time_doc = time.time()
             jl = json.loads(line)
             # try:
-            result = self.core.process(jl)
+            result = self.core.process(jl, create_knowledge_graph=True)
             output.write(json.dumps(result) + '\n')
             # except Exception as e:
             #         print "Failed - %s : %s" % (e, jl['url'])

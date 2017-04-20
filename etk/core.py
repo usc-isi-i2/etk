@@ -21,7 +21,10 @@ import spacy
 import codecs
 from jsonpath_rw import parse, jsonpath
 import time
+import collections
+import numbers
 
+_KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
 _REPLACE = 'replace'
@@ -79,6 +82,7 @@ _EXTRACT_AGE = "extract_age"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _INFERLINK = "inferlink"
+_HTML = "html"
 
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
@@ -114,7 +118,7 @@ class Core(object):
 
     """ Define all API methods """
 
-    def process(self, doc):
+    def process(self, doc, create_knowledge_graph=False):
         if self.extraction_config:
             if _EXTRACTION_POLICY in self.extraction_config:
                 self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
@@ -209,7 +213,7 @@ class Core(object):
                                                 if foo:
                                                     # score is 1.0 because every method thinks it is the best
                                                     score = 1.0
-                                                    method = _METHOD_OTHER
+                                                    method = extractor
                                                     if _CONFIG not in extractors[extractor]:
                                                         extractors[extractor][_CONFIG] = dict()
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
@@ -230,6 +234,8 @@ class Core(object):
                                                                                                          method,
                                                                                                          segment,
                                                                                                          score))
+                                                                    if create_knowledge_graph:
+                                                                        self.create_knowledge_graph(doc, field, results)
                                                     else:
                                                         if self.check_if_run_extraction(match.value, field,
                                                                                         extractor,
@@ -244,8 +250,50 @@ class Core(object):
                                                                                                      method,
                                                                                                      segment,
                                                                                                      score))
+                                                                if create_knowledge_graph:
+                                                                    self.create_knowledge_graph(doc, field, results)
+
+        if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
+            doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+        return doc
+
+    @staticmethod
+    def create_knowledge_graph(doc, field_name, extractions):
+        if _KNOWLEDGE_GRAPH not in doc:
+            doc[_KNOWLEDGE_GRAPH] = dict()
+
+        if field_name not in doc[_KNOWLEDGE_GRAPH]:
+            doc[_KNOWLEDGE_GRAPH][field_name] = dict()
+
+        for extraction in extractions:
+            key = extraction['value']
+            if isinstance(key, str) or isinstance(key, numbers.Number):
+                key = str(key).strip().lower()
+
+            if 'metadata' in extraction:
+                sorted_metadata = Core.sort_dict(extraction['metadata'])
+                for k, v in sorted_metadata.iteritems():
+                    if v and v.strip() != '':
+                        key += '-' + str(k) + ':' + str(v)
+
+            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
+
+    @staticmethod
+    def reformat_knowledge_graph(knowledge_graph):
+        new_kg = dict()
+        for semantic_type in knowledge_graph.keys():
+            new_kg[semantic_type] = list()
+            values = knowledge_graph[semantic_type]
+            for key in values.keys():
+                o = dict()
+                o['key'] = key
+                o['provenance'] = values[key]
+                new_kg[semantic_type].append(o)
+        return new_kg
 
     @staticmethod
     def add_data_extraction_results(d, field_name, method_name, results):
@@ -283,10 +331,14 @@ class Core(object):
         segment = _SEGMENT_OTHER
         if _SEGMENT_INFERLINK_DESC in json_path:
             segment = _SEGMENT_INFERLINK_DESC
-        if _CONTENT_STRICT in json_path:
+        elif _INFERLINK in json_path and _SEGMENT_INFERLINK_DESC not in json_path:
+            segment = _HTML
+        elif _CONTENT_STRICT in json_path:
             segment = _SEGMENT_READABILITY_STRICT
-        if _TITLE in json_path:
+        elif _TITLE in json_path:
             segment = _TITLE
+        elif _URL in json_path:
+            segment = _URL
         return segment
 
     @staticmethod
@@ -429,17 +481,26 @@ class Core(object):
                         else:
                             end += 10
                         result['context']['text'] = text_or_tokens[start:end]
+                        result['context']['source'] = _TEXT
                     else:
-                        if start - 3 < 0:
-                            start = 0
+                        if start - 5 < 0:
+                            new_start = 0
                         else:
-                            start -= 3
-                        if end + 3 > tokens_len:
-                            end = tokens_len
+                            new_start = start - 5
+                        if end + 5 > tokens_len:
+                            new_end = tokens_len
                         else:
-                            end += 3
-                        result['context']['text'] = ' '.join(text_or_tokens[start:end])
+                            new_end = end + 5
+                        result['context']['text'] = ' '.join(text_or_tokens[new_start:new_end])
+                        result['context']['tokens_left'] = text_or_tokens[new_start:start]
+                        result['context']['tokens_right'] =  text_or_tokens[end:new_end]
+                        result['context']['source'] = _TOKENS
         return results
+
+
+    @staticmethod
+    def sort_dict(dictionary):
+        return collections.OrderedDict(sorted(dictionary.items()))
 
     @staticmethod
     def load_json_file(file_name):
