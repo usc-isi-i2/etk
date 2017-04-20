@@ -14,12 +14,13 @@ class ParallelPtocess(object):
     def __init__(self, input_path, output_path, config, processes=0):
         self.input = input_path
         self.output = output_path
+        self.output_write(output_path)
         self.processes = processes
-        self.core = core.Core(extraction_config=json.load(codecs.open(config, 'r')))
+        self.core = core.Core(json.load(codecs.open(config, 'r')))
 
     @staticmethod
     def output_write(output_path):
-        return codecs.open(output_path, 'w')
+        return codecs.open(output_path, 'w+')
 
     @staticmethod
     def chunk_file(file_name, size=1024 * 1024):
@@ -40,24 +41,29 @@ class ParallelPtocess(object):
                     break
 
     def process_wrapper(self, chunk_start, chunk_size):
-        output = codecs.open(self.output, 'w')
+        results = []
+
         with open(self.input) as f:
             f.seek(chunk_start)
             lines = f.read(chunk_size).splitlines()
             for i, line in enumerate(lines):
                 document = json.loads(line)
-                # try:
-                document = self.core.process(document)
-                # except Exception as e:
-                #     print "Failed - ", e
-                output.write(json.dumps(document) + '\n')
+                try:
+                    document = self.core.process(document)
+                except Exception as e:
+                    print "Failed - ", e
+                with open(self.output, "a") as file_write:
+                    file_write.write(json.dumps(document) + '\n')
+                # results.append(json.dumps(document))
                 print "Processing chunk - ", str(chunk_start), " File - ", str(i)
-        output.close()
+
+            # file_write.write('\n'.join(results))
 
     def run_parallel(self, processes=0):
         self.processes = self.processes or processes or mp.cpu_count()
         pool = mp.Pool(self.processes)
         jobs = []
+        file_write = open(self.output, 'w')
         for chunk_start, chunk_size in self.chunk_file(self.input):
             jobs.append(pool.apply_async(work, (self, chunk_start, chunk_size)))
         for job in jobs:
@@ -66,21 +72,15 @@ class ParallelPtocess(object):
 
     def run_serial(self):
         output = codecs.open(self.output, 'w')
-        index = 1
         for line in codecs.open(self.input):
-            print 'processing line:', index
             start_time_doc = time.time()
             jl = json.loads(line)
-            # try:
-            result = self.core.process(jl)
-            output.write(json.dumps(result) + '\n')
-            # except Exception as e:
-            #         print "Failed - %s : %s" % (e, jl['url'])
+            try:
+                output.write(json.dumps(self.core.process(jl)) + '\n')
+            except Exception as e:
+                    print "Failed - ", e
             time_taken_doc = time.time() - start_time_doc
-            # print "Took", str(time_taken_doc), " seconds"
-            if time_taken_doc > 5:
-                print 'long time for %s - %s' % (jl['url'], jl['tld'])
-            index += 1
+            print "Took", str(time_taken_doc), " seconds"
         output.close()
 
 
