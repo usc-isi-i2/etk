@@ -14,15 +14,16 @@ class ParallelPtocess(object):
     def __init__(self, input_path, output_path, config, processes=0):
         self.input = input_path
         self.output = output_path
+        self.output_write(output_path)
         self.processes = processes
         self.core = core.Core(json.load(codecs.open(config, 'r')))
 
     @staticmethod
     def output_write(output_path):
-        return codecs.open(output_path, 'w')
+        return codecs.open(output_path, 'w+')
 
     @staticmethod
-    def chunk_file(self, file_name, size=1024 * 1024):
+    def chunk_file(file_name, size=1024 * 1024):
         """ Splitting data into chunks for parallel processing
         :param file_name - name of the file to split
         :param size - size of file to split
@@ -40,7 +41,8 @@ class ParallelPtocess(object):
                     break
 
     def process_wrapper(self, chunk_start, chunk_size):
-        output = codecs.open(self.output, 'w')
+        results = []
+
         with open(self.input) as f:
             f.seek(chunk_start)
             lines = f.read(chunk_size).splitlines()
@@ -50,14 +52,18 @@ class ParallelPtocess(object):
                     document = self.core.process(document)
                 except Exception as e:
                     print "Failed - ", e
-                output.write(json.dumps(document) + '\n')
+                with open(self.output, "a") as file_write:
+                    file_write.write(json.dumps(document) + '\n')
+                # results.append(json.dumps(document))
                 print "Processing chunk - ", str(chunk_start), " File - ", str(i)
-        output.close()
+
+            # file_write.write('\n'.join(results))
 
     def run_parallel(self, processes=0):
         self.processes = self.processes or processes or mp.cpu_count()
         pool = mp.Pool(self.processes)
         jobs = []
+        file_write = open(self.output, 'w')
         for chunk_start, chunk_size in self.chunk_file(self.input):
             jobs.append(pool.apply_async(work, (self, chunk_start, chunk_size)))
         for job in jobs:
