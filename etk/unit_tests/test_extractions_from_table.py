@@ -30,12 +30,12 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        # with open("table_out.jl", "w") as f:
-            # f.write(json.dumps(r["content_extraction"]["table"]))
-        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
+        with open("table_out.jl", "w") as f:
+            f.write(json.dumps(r["content_extraction"]["table"]))
 
         self.assertTrue("content_extraction" in r)
         self.assertTrue("table" in r["content_extraction"])
+        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
         self.assertEqual(ex, self.table_ex)
 
     def test_table_extractor_no_field_name(self):
@@ -50,10 +50,10 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
 
         self.assertTrue("content_extraction" in r)
         self.assertTrue("table" in r["content_extraction"])
+        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
         self.assertEqual(ex, self.table_ex)
 
     def test_table_extractor_empty_config(self):
@@ -67,10 +67,10 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
 
         self.assertTrue("content_extraction" in r)
         self.assertTrue("table" in r["content_extraction"])
+        ex = json.loads(json.JSONEncoder().encode(r["content_extraction"]["table"]))
         self.assertEqual(ex, self.table_ex)
 
     def test_table_extractor_no_table(self):
