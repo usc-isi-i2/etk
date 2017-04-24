@@ -31,6 +31,10 @@
         "field_name": "inferlink_extractions",
         "extraction_policy": "keep_existing",
         "landmark_threshold": 0.5
+      },
+      "table": {
+        "field_name": "table",
+        "extraction_policy": "keep_existing"
       }
     }
   },

@@ -1,5 +1,7 @@
 import unittest
 import os, sys
+import codecs
+import json
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from data_extractors.digPriceExtractor import price_extractor
@@ -7,7 +9,11 @@ from data_extractors.digPriceExtractor import price_extractor
 class TestPriceExtractorMethods(unittest.TestCase):
 
     def setUp(self):
-        pass
+        file_path = os.path.join(os.path.dirname(__file__), "../test_price_extractor/groundtruth_price.jl")
+        f = codecs.open(file_path, "r", "utf-8")
+        self.doc = list()
+        for line in f:
+            self.doc.append(json.loads(line))
 
     def tearDown(self):
         pass
@@ -28,6 +34,16 @@ class TestPriceExtractorMethods(unittest.TestCase):
         extraction = price_extractor.extract(text)
         expected_extraction = []
         self.assertEqual(extraction, expected_extraction)
+
+    def test_price_extractor_groundtruth(self):
+        # outfile = codecs.open("p_output.jl", "w", "utf-8")
+        for i, line in enumerate(self.doc):
+            text = line["text"]
+            extraction = price_extractor.extract(text)
+            # outfile.write(json.dumps(extraction) + '\n')
+            expected_extraction = line["extracted_price"]
+            self.assertEqual(extraction, expected_extraction)
+        # outfile.close()
 
 
 if __name__ == '__main__':
