@@ -10,6 +10,7 @@ from data_extractors import height_extractor
 from data_extractors import weight_extractor
 from data_extractors import address_extractor
 from data_extractors import age_extractor
+from data_extractors import table_extractor 
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -20,9 +21,12 @@ import gzip
 import re
 import spacy
 import codecs
-from jsonpath_rw import parse, jsonpath
+from jsonpath_rw import parse
 import time
+import collections
+import numbers
 
+_KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
 _REPLACE = 'replace'
@@ -65,6 +69,7 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+_TABLE = "table"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -80,10 +85,12 @@ _EXTRACT_AGE = "extract_age"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _INFERLINK = "inferlink"
+_HTML = "html"
 
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
 _SEGMENT_READABILITY_STRICT = "readability_strict"
+_SEGMENT_READABILITY_RELAXED = "readability_relaxed"
 _SEGMENT_OTHER = "other_segment"
 
 _METHOD_GUROBI = "gurobi"
@@ -105,8 +112,7 @@ class Core(object):
         self.tries = dict()
         self.global_extraction_policy = None
         self.global_error_handling = None
-        # to make sure we do not parse json_paths more times than needed, we
-        # define the following 2 properties
+        # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
         if load_spacy:
@@ -116,25 +122,21 @@ class Core(object):
 
     """ Define all API methods """
 
-    def process(self, doc):
+    def process(self, doc, create_knowledge_graph=False):
         if self.extraction_config:
             if _EXTRACTION_POLICY in self.extraction_config:
-                self.global_extraction_policy = self.extraction_config[
-                    _EXTRACTION_POLICY]
+                self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
             if _ERROR_HANDLING in self.extraction_config:
-                self.global_error_handling = self.extraction_config[
-                    _ERROR_HANDLING]
+                self.global_error_handling = self.extraction_config[_ERROR_HANDLING]
 
             """Handle content extraction first aka Phase 1"""
             if _CONTENT_EXTRACTION in self.extraction_config:
                 if _CONTENT_EXTRACTION not in doc:
                     doc[_CONTENT_EXTRACTION] = dict()
                 ce_config = self.extraction_config[_CONTENT_EXTRACTION]
-                html_path = ce_config[
-                    _INPUT_PATH] if _INPUT_PATH in ce_config else None
+                html_path = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else None
                 if not html_path:
-                    raise KeyError(
-                        '{} not found in extraction_config'.format(_INPUT_PATH))
+                    raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
 
                 if not self.content_extraction_path:
                     start_time = time.time()
@@ -163,6 +165,9 @@ class Core(object):
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
+                        elif extractor == _TABLE:
+                            doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
+                                                                        matches[index].value, extractors[extractor])
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
                 de_configs = self.extraction_config[_DATA_EXTRACTION]
@@ -171,11 +176,9 @@ class Core(object):
 
                 for i in range(len(de_configs)):
                     de_config = de_configs[i]
-                    input_paths = de_config[
-                        _INPUT_PATH] if _INPUT_PATH in de_config else None
+                    input_paths = de_config[_INPUT_PATH] if _INPUT_PATH in de_config else None
                     if not input_paths:
-                        raise KeyError(
-                            '{} not found for data extraction in extraction_config'.format(_INPUT_PATH))
+                        raise KeyError('{} not found for data extraction in extraction_config'.format(_INPUT_PATH))
 
                     if not isinstance(input_paths, list):
                         input_paths = [input_paths]
@@ -183,19 +186,15 @@ class Core(object):
                     for input_path in input_paths:
                         if _FIELDS in de_config:
                             if input_path not in self.data_extraction_path:
-                                self.data_extraction_path[
-                                    input_path] = parse(input_path)
-                            matches = self.data_extraction_path[
-                                input_path].find(doc)
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
                             for match in matches:
                                 # First rule of DATA Extraction club: Get tokens
                                 # Get the crf tokens
                                 if _TOKENS not in match.value:
-                                    match.value[_TOKENS] = self.extract_crftokens(
-                                        match.value[_TEXT])
+                                    match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
                                 if _SIMPLE_TOKENS not in match.value:
-                                    match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[
-                                                                                               _TOKENS])
+                                    match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                 fields = de_config[_FIELDS]
                                 for field in fields.keys():
                                     """
@@ -212,27 +211,20 @@ class Core(object):
                                             run_extractor = True
                                     if run_extractor:
                                         if _EXTRACTORS in fields[field]:
-                                            extractors = fields[
-                                                field][_EXTRACTORS]
+                                            extractors = fields[field][_EXTRACTORS]
                                             for extractor in extractors.keys():
                                                 try:
-                                                    foo = getattr(
-                                                        self, extractor)
+                                                    foo = getattr(self, extractor)
                                                 except Exception as e:
                                                     foo = None
                                                 if foo:
-                                                    # score is 1.0 because
-                                                    # every method thinks it is
-                                                    # the best
+                                                    # score is 1.0 because every method thinks it is the best
                                                     score = 1.0
-                                                    method = _METHOD_OTHER
+                                                    method = extractor
                                                     if _CONFIG not in extractors[extractor]:
-                                                        extractors[extractor][
-                                                            _CONFIG] = dict()
-                                                    extractors[extractor][_CONFIG][
-                                                        _FIELD_NAME] = field
-                                                    ep = self.determine_extraction_policy(
-                                                        extractors[extractor])
+                                                        extractors[extractor][_CONFIG] = dict()
+                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                    ep = self.determine_extraction_policy(extractors[extractor])
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
                                                         if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
                                                             method = _METHOD_INFERLINK
@@ -240,16 +232,17 @@ class Core(object):
                                                                                             extractor,
                                                                                             ep):
 
-                                                                results = foo(doc, extractors[
-                                                                              extractor][_CONFIG])
+                                                                results = foo(doc, extractors[extractor][_CONFIG])
                                                                 if results:
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
-                                                                                                     self.add_origin_info(
+                                                                                                self.add_origin_info(
                                                                                                          results,
                                                                                                          method,
                                                                                                          segment,
                                                                                                          score))
+                                                                    if create_knowledge_graph:
+                                                                        self.create_knowledge_graph(doc, field, results)
                                                     else:
                                                         if self.check_if_run_extraction(match.value, field,
                                                                                         extractor,
@@ -259,13 +252,97 @@ class Core(object):
                                                             if results:
                                                                 self.add_data_extraction_results(match.value, field,
                                                                                                  extractor,
-                                                                                                 self.add_origin_info(
+                                                                                            self.add_origin_info(
                                                                                                      results,
                                                                                                      method,
                                                                                                      segment,
                                                                                                      score))
+                                                                if create_knowledge_graph:
+                                                                    self.create_knowledge_graph(doc, field, results)
+
+        if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
+            doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+        return doc
+
+    @staticmethod
+    def create_knowledge_graph(doc, field_name, extractions):
+        if _KNOWLEDGE_GRAPH not in doc:
+            doc[_KNOWLEDGE_GRAPH] = dict()
+
+        if field_name not in doc[_KNOWLEDGE_GRAPH]:
+            doc[_KNOWLEDGE_GRAPH][field_name] = dict()
+
+        for extraction in extractions:
+            key = extraction['value']
+            if isinstance(key, str) or isinstance(key, numbers.Number):
+                key = str(key).strip().lower()
+
+            if 'metadata' in extraction:
+                sorted_metadata = Core.sort_dict(extraction['metadata'])
+                for k, v in sorted_metadata.iteritems():
+                    if v and v.strip() != '':
+                        key += '-' + str(k) + ':' + str(v)
+
+            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
+
+    @staticmethod
+    def reformat_knowledge_graph(knowledge_graph):
+        new_kg = dict()
+        for semantic_type in knowledge_graph.keys():
+            new_kg[semantic_type] = list()
+            values = knowledge_graph[semantic_type]
+            for key in values.keys():
+                o = dict()
+                o['key'] = key
+                new_provenances, metadata, value = Core.rearrange_provenance(values[key])
+                o['provenance'] = new_provenances
+                if metadata:
+                    o['qualifiers'] = metadata
+                o['value'] = value
+                # default confidence value, to be updated by later analysis
+                o['confidence'] = 1000
+                new_kg[semantic_type].append(o)
+        return new_kg
+
+    @staticmethod
+    def rearrange_provenance(old_provenances):
+        new_provenances = list()
+        metadata = None
+        value = None
+        for prov in old_provenances:
+            new_prov = dict()
+            method = None
+            confidence = None
+
+            if 'origin' in prov:
+                origin = prov['origin']
+                if 'obfuscation' in prov:
+                    origin['extraction_metadata'] = dict()
+                    origin['extraction_metadata']['obfuscation'] = prov['obfuscation']
+                method = origin['method']
+                confidence = origin['score']
+                origin.pop('score', None)
+                origin.pop('method', None)
+                new_prov['source'] = origin
+
+            if 'context' in prov:
+                new_prov['source']['context'] = prov['context']
+            if 'metadata' in prov and not metadata:
+                metadata = prov['metadata']
+            if method:
+                new_prov["method"] = method
+            if not value:
+                value = prov['value']
+            new_prov['extracted_value'] = value
+            if confidence:
+                new_prov['confidence'] = dict()
+                new_prov['confidence']['extraction'] = confidence
+            new_provenances.append(new_prov)
+        return new_provenances, metadata, value
 
     @staticmethod
     def add_data_extraction_results(d, field_name, method_name, results):
@@ -280,8 +357,7 @@ class Core(object):
         if 'results' not in d[_DATA_EXTRACTION][field_name][method_name]:
             d[_DATA_EXTRACTION][field_name][method_name]['results'] = results
         else:
-            d[_DATA_EXTRACTION][field_name][
-                method_name]['results'].extend(results)
+            d[_DATA_EXTRACTION][field_name][method_name]['results'].extend(results)
         return d
 
     @staticmethod
@@ -304,10 +380,16 @@ class Core(object):
         segment = _SEGMENT_OTHER
         if _SEGMENT_INFERLINK_DESC in json_path:
             segment = _SEGMENT_INFERLINK_DESC
-        if _CONTENT_STRICT in json_path:
+        elif _INFERLINK in json_path and _SEGMENT_INFERLINK_DESC not in json_path:
+            segment = _HTML
+        elif _CONTENT_STRICT in json_path:
             segment = _SEGMENT_READABILITY_STRICT
-        if _TITLE in json_path:
+        elif _CONTENT_RELAXED in json_path:
+            segment = _SEGMENT_READABILITY_RELAXED
+        elif _TITLE in json_path:
             segment = _TITLE
+        elif _URL in json_path:
+            segment = _URL
         return segment
 
     @staticmethod
@@ -322,22 +404,19 @@ class Core(object):
         return results
 
     def run_landmark(self, content_extraction, html, landmark_config, url):
-        field_name = landmark_config[
-            _FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
+        field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config else _INFERLINK_EXTRACTIONS
         ep = self.determine_extraction_policy(landmark_config)
         extraction_rules = self.consolidate_landmark_rules()
         if _LANDMARK_THRESHOLD in landmark_config:
             pct = landmark_config[_LANDMARK_THRESHOLD]
             if not 0.0 <= pct <= 1.0:
-                raise ValueError(
-                    'landmark threshold should be a float between {} and {}'.format(0.0, 1.0))
+                raise ValueError('landmark threshold should be a float between {} and {}'.format(0.0, 1.0))
         else:
             pct = 0.5
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             content_extraction[field_name] = dict()
             start_time = time.time()
-            ifl_extractions = Core.extract_landmark(
-                html, url, extraction_rules, pct)
+            ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process landmark %s' % time_taken
@@ -359,11 +438,9 @@ class Core(object):
                     rules.update(Core.load_json_file(landmark_rules_file))
                 return rules
             else:
-                raise KeyError('{}.{} not found in provided extraction config'.format(
-                    _RESOURCES, _LANDMARK))
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _LANDMARK))
         else:
-            raise KeyError(
-                '{} not found in provided extraction config'.format(_RESOURCES))
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
     def get_dict_file_name_from_config(self, dict_name):
         if _RESOURCES in self.extraction_config:
@@ -375,15 +452,12 @@ class Core(object):
                     raise KeyError(
                         '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES, dict_name))
             else:
-                raise KeyError('{}.{} not found in provided extraction config'.format(
-                    _RESOURCES, _DICTIONARIES))
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES))
         else:
-            raise KeyError(
-                '{} not found in provided extraction config'.format(_RESOURCES))
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
     def run_title(self, content_extraction, html, title_config):
-        field_name = title_config[
-            _FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
+        field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
@@ -391,6 +465,17 @@ class Core(object):
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process title %s' % time_taken
+        return content_extraction
+
+    def run_table_extractor(self, content_extraction, html, table_config):
+        field_name = table_config[_FIELD_NAME] if _FIELD_NAME in table_config else _TABLE
+        ep = self.determine_extraction_policy(table_config)
+        if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
+            start_time = time.time()
+            content_extraction[field_name] = self.extract_table(html)
+            time_taken = time.time() - start_time
+            if self.debug:
+                print 'time taken to process table %s' % time_taken
         return content_extraction
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -423,21 +508,8 @@ class Core(object):
         elif self.global_extraction_policy:
             ep = self.global_extraction_policy
         if ep and ep != _KEEP_EXISTING and ep != _REPLACE:
-            raise ValueError('extraction_policy can either be {} or {}'.format(
-                _KEEP_EXISTING, _REPLACE))
+            raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
         return ep
-    #
-    # def update_json_at_path(self, doc, match, field_name, value, parent=False):
-    #     load_input_json = doc
-    #     datum_object = match
-    #     if not isinstance(datum_object, jsonpath.DatumInContext):
-    #         raise Exception("Nothing found by the given json-path")
-    #     path = datum_object.path
-    #     if isinstance(path, jsonpath.Index):
-    #         datum_object.context.value[datum_object.path.index][field_name] = value
-    #     elif isinstance(path, jsonpath.Fields):
-    #         datum_object.context.value[field_name] = value
-    #     return load_input_json
 
     @staticmethod
     def _relevant_text_from_context(text_or_tokens, results):
@@ -459,18 +531,25 @@ class Core(object):
                         else:
                             end += 10
                         result['context']['text'] = text_or_tokens[start:end]
+                        result['context']['input'] = _TEXT
                     else:
-                        if start - 3 < 0:
-                            start = 0
+                        if start - 5 < 0:
+                            new_start = 0
                         else:
-                            start -= 3
-                        if end + 3 > tokens_len:
-                            end = tokens_len
+                            new_start = start - 5
+                        if end + 5 > tokens_len:
+                            new_end = tokens_len
                         else:
-                            end += 3
-                        result['context']['text'] = ' '.join(
-                            text_or_tokens[start:end])
+                            new_end = end + 5
+                        result['context']['text'] = ' '.join(text_or_tokens[new_start:new_end])
+                        result['context']['tokens_left'] = text_or_tokens[new_start:start]
+                        result['context']['tokens_right'] =  text_or_tokens[end:new_end]
+                        result['context']['input'] = _TOKENS
         return results
+
+    @staticmethod
+    def sort_dict(dictionary):
+        return collections.OrderedDict(sorted(dictionary.items()))
 
     @staticmethod
     def load_json_file(file_name):
@@ -479,14 +558,12 @@ class Core(object):
 
     def load_trie(self, file_name):
         values = json.load(gzip.open(file_name), 'utf-8')
-        trie = dictionary_extractor.populate_trie(
-            map(lambda x: x.lower(), values))
+        trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
         return trie
 
     def load_dictionary(self, field_name, dict_name):
         if field_name not in self.tries:
-            self.tries[field_name] = self.load_trie(
-                self.get_dict_file_name_from_config(dict_name))
+            self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
 
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
@@ -540,22 +617,19 @@ class Core(object):
         return result if result and len(result) > 0 else None
 
     def extract_using_regex(self, d, config):
-        # this method is self aware that it needs the text, so look for text in
-        # the input d
+        # this method is self aware that it needs the text, so look for text in the input d
         text = d[_TEXT]
         include_context = True
         if "include_context" in config and config['include_context'].lower() == 'false':
             include_context = False
         if "regex" not in config:
-            raise KeyError(
-                'No regular expression found in {}'.format(json.dumps(config)))
+            raise KeyError('No regular expression found in {}'.format(json.dumps(config)))
         regex = config["regex"]
         flags = 0
         if "regex_options" in config:
             regex_options = config['regex_options']
             if not isinstance(regex_options, list):
-                raise ValueError(
-                    "regular expression options should be a list in {}".format(json.dumps(config)))
+                raise ValueError("regular expression options should be a list in {}".format(json.dumps(config)))
             for regex_option in regex_options:
                 flags = flags | eval("re." + regex_option)
         if _PRE_FILTER in config:
@@ -569,8 +643,7 @@ class Core(object):
     @staticmethod
     def _extract_using_regex(text, regex, include_context, flags):
         try:
-            result = regex_extractor.extract(
-                text, regex, include_context, flags)
+            result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
         except Exception as e:
             print e
@@ -637,7 +710,7 @@ class Core(object):
         else:
             for field in inferlink_extraction.keys():
                 # The logic below: if the inferlink rules do not have semantic information in the field names returned,
-                # too bad
+                #                                                                                               too bad
                 if field_name in field:
                     d = inferlink_extraction[field]
                     if pre_filters:
@@ -656,10 +729,9 @@ class Core(object):
     def extract_phone(self, d, config):
         tokens = d[_SIMPLE_TOKENS]
         # source type as in text vs url #SHRUG
-        source_type = config[
-            _SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
+        source_type = config[_SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
         include_context = True
-        output_format = _OBFUSCATION
+        output_format= _OBFUSCATION
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
         return self._relevant_text_from_context(d[_SIMPLE_TOKENS],
@@ -668,8 +740,7 @@ class Core(object):
 
     @staticmethod
     def _extract_phone(tokens, source_type, include_context, output_format):
-        result = phone_extractor.extract(
-            tokens, source_type, include_context, output_format)
+        result = phone_extractor.extract(tokens, source_type, include_context, output_format)
         return result if result else None
 
     def extract_email(self, d, config):
@@ -685,11 +756,8 @@ class Core(object):
     def _extract_email(text, include_context):
         """
         A regular expression based function to extract emails from text
-
         :param text: The input text.
-
         :param include_context: True or False, will include context matched by the regular expressions.
-
         :return: An object, with extracted email and/or context.
         """
         return email_extractor.extract(text, include_context)
@@ -738,7 +806,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_age(text))
+        return self._relevant_text_from_context(d[_TEXT],self._extract_age(text))
 
     @staticmethod
     def _extract_age(text):
@@ -799,8 +867,7 @@ class Core(object):
         return e.extract(document, options)
 
     def extract_title(self, html_content, options=None):
-        matches = re.search(self.html_title_regex,
-                            html_content, re.IGNORECASE | re.S)
+        matches = re.search(self.html_title_regex, html_content, re.IGNORECASE | re.S)
         title = None
         if matches:
             title = matches.group(1)
@@ -813,8 +880,7 @@ class Core(object):
 
     @staticmethod
     def extract_crftokens(text, options=None):
-        t = TokenizerExtractor(recognize_linebreaks=True,
-                               create_structured_tokens=True)
+        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
         return t.extract(text)
 
     @staticmethod
@@ -822,7 +888,7 @@ class Core(object):
         return [tk['value'] for tk in crf_tokens]
 
     def extract_table(self, html_doc):
-        return table_extract(html_doc)
+        return table_extractor.extract(html_doc)
 
     def extract_stock_tickers(self, doc):
         return extract_stock_tickers(doc)

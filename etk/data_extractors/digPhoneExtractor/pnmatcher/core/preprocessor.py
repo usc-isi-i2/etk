@@ -9,7 +9,7 @@ preprocess digits that must not belong to phone number
 
 """
 import re
-from pnmatcher.core.common import datetime_helper
+from common import datetime_helper
 
 
 class Preprocessor():

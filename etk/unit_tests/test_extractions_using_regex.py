@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import sys, os
+
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -8,7 +9,6 @@ import codecs
 
 
 class TestExtractionsUsingRegex(unittest.TestCase):
-
     def setUp(self):
         file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
         self.doc = json.load(codecs.open(file_path))
@@ -87,23 +87,10 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
         self.assertTrue("extract_using_regex" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_regex"]
-        ex = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "readability_strict",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        'text': u' 27 \n \n \n My name is Helena height 16',
-                        "end": 73,
-                        "start": 56
-                    },
-                    "value": "Helena"
-                }
-            ]
-        }
+        
+        ex = {'results': [{'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
+                           'context': {'start': 56, 'end': 73, 'input': 'text',
+                                       'text': u' 27 \n \n \n My name is Helena height 16'}, 'value': u'Helena'}]}
         self.assertEqual(extraction, ex)
 
 

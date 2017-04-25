@@ -62,6 +62,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 nlp_doc, self.c.matchers['age'])
 
             extracted_ages = [match['value'] for match in extracted_ages]
+
             if len(extracted_ages) == 0 and len(t['correct']) == 0:
                 self.assertFalse(extracted_ages)
 

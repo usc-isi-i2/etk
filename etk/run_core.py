@@ -40,19 +40,18 @@ class ParallelPtocess(object):
                     break
 
     def process_wrapper(self, chunk_start, chunk_size):
-        output = codecs.open(self.output, 'w')
         with open(self.input) as f:
             f.seek(chunk_start)
             lines = f.read(chunk_size).splitlines()
             for i, line in enumerate(lines):
                 document = json.loads(line)
-                # try:
-                document = self.core.process(document)
-                # except Exception as e:
-                #     print "Failed - ", e
-                output.write(json.dumps(document) + '\n')
-                print "Processing chunk - ", str(chunk_start), " File - ", str(i)
-        output.close()
+                try:
+                    document = self.core.process(document, create_knowledge_graph=True)
+                except Exception as e:
+                    print "Failed - ", e
+                with open(self.output, "a") as file_write:
+                    file_write.write(json.dumps(document) + '\n')
+                # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
 
     def run_parallel(self, processes=0):
         self.processes = self.processes or processes or mp.cpu_count()
@@ -72,7 +71,7 @@ class ParallelPtocess(object):
             start_time_doc = time.time()
             jl = json.loads(line)
             # try:
-            result = self.core.process(jl)
+            result = self.core.process(jl, create_knowledge_graph=True)
             output.write(json.dumps(result) + '\n')
             # except Exception as e:
             #         print "Failed - %s : %s" % (e, jl['url'])
