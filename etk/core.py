@@ -1,5 +1,6 @@
 # import all extractors
 from spacy_extractors import age_extractor as spacy_age_extractor
+from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
@@ -20,7 +21,7 @@ import gzip
 import re
 import spacy
 import codecs
-from jsonpath_rw import parse, jsonpath
+from jsonpath_rw import parse
 import time
 import collections
 import numbers
@@ -165,7 +166,7 @@ class Core(object):
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
                         elif extractor == _TABLE:
-                            doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION], 
+                            doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                         matches[index].value, extractors[extractor])
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
@@ -546,7 +547,6 @@ class Core(object):
                         result['context']['input'] = _TOKENS
         return results
 
-
     @staticmethod
     def sort_dict(dictionary):
         return collections.OrderedDict(sorted(dictionary.items()))
@@ -658,15 +658,20 @@ class Core(object):
     def run_spacy_extraction(self, d):
         if not self.nlp:
             self.load_matchers()
+
+        spacy_tokenizer = self.c.nlp.tokenizer
+        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
+            tokens)
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
+
         spacy_extractions = dict()
-        if len(d[_SIMPLE_TOKENS]) > 0:
-            spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
-                                                                            extract(self.nlp, self.matchers['date'],
-                                                                                    d[_SIMPLE_TOKENS]))
-        if d[_TEXT].strip() != '':
-            spacy_extractions[_AGE] = self._relevant_text_from_context(d[_TEXT],
-                                                                   spacy_age_extractor.extract(d[_TEXT], self.nlp,
-                                                                                               self.matchers['age']))
+
+        spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
+                                                                            extract(nlp_doc, self.matchers['date']))
+
+        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                                   spacy_age_extractor.extract(nlp_doc, self.matchers['age']))
+
         return spacy_extractions
 
     def extract_from_landmark(self, doc, config):
@@ -751,11 +756,8 @@ class Core(object):
     def _extract_email(text, include_context):
         """
         A regular expression based function to extract emails from text
-
         :param text: The input text.
-
         :param include_context: True or False, will include context matched by the regular expressions.
-
         :return: An object, with extracted email and/or context.
         """
         return email_extractor.extract(text, include_context)
@@ -888,7 +890,6 @@ class Core(object):
     def extract_table(self, html_doc):
         return table_extractor.extract(html_doc)
 
-
     def extract_stock_tickers(self, doc):
         return extract_stock_tickers(doc)
 
@@ -909,5 +910,7 @@ class Core(object):
 
         # Load age_extractor matcher
         matchers['age'] = spacy_age_extractor.load_age_matcher(self.nlp)
-        self.matchers = matchers
 
+        # Load social_media_extractor matcher
+        matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
+        self.matchers = matchers
