@@ -31,7 +31,7 @@ class TestExtractionConfig(unittest.TestCase):
         full_path = 'content_extraction.inferlink_extractions.inferlink_description'
         self.assertEqual(self.c.determine_segment(full_path), core._SEGMENT_INFERLINK_DESC)
         full_path = 'content_extraction.content_relaxed'
-        self.assertEqual(self.c.determine_segment(full_path), core._SEGMENT_OTHER)
+        self.assertEqual(self.c.determine_segment(full_path), core._SEGMENT_READABILITY_RELAXED)
 
 
 if __name__ == '__main__':

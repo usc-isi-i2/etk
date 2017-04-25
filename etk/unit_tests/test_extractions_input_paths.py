@@ -79,42 +79,24 @@ class TestExtractionsInputPaths(unittest.TestCase):
         de_cs = r["content_extraction"]["content_strict"]["data_extraction"]["name"]
         self.assertTrue("extract_using_dictionary" in de_cs)
         eud = de_cs["extract_using_dictionary"]
-        ex_eud = {
-            "results": [
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "readability_strict",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 11,
-                        "start": 10
-                    },
-                    "value": "helena"
-                },
-                {
-                    "origin": {
-                        "score": 1,
-                        "segment": "readability_strict",
-                        "method": "other_method"
-                    },
-                    "context": {
-                        "field": "tokens",
-                        "end": 137,
-                        "start": 136
-                    },
-                    "value": "luna"
-                }
-            ]
-        }
+        ex_eud = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+                         'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos', 'start': 10,
+                         'input': 'tokens', 'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']},
+             'value': u'helena'},
+            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+                         'text': u"\n\n hey i ' m luna 3234522013 let ' s explore", 'start': 136, 'input': 'tokens',
+                         'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
+
+        self.assertEqual(eud, ex_eud)
 
         self.assertTrue("extract_using_regex" in de_cs)
         eur = de_cs["extract_using_regex"]
         ex_eur = {'results': [
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
-             'context': {'start': 56, 'end': 73, 'source': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
+             'context': {'start': 56, 'end': 73, 'input': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
              'value': u'Helena'}]}
 
         self.assertEqual(eur, ex_eur)
@@ -132,22 +114,23 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eudr = de_cr["extract_using_dictionary"]
 
         ex_eudr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11, 'start': 10, 'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos',
-                         'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'], 'source': 'tokens',
-                         'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137, 'start': 136, 'text': u"\n\n hey i ' m luna 3234522013 let ' s explore",
-                         'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'], 'source': 'tokens',
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+                         'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos', 'start': 10,
+                         'input': 'tokens', 'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']},
+             'value': u'helena'},
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+                         'text': u"\n\n hey i ' m luna 3234522013 let ' s explore", 'start': 136, 'input': 'tokens',
                          'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
         self.assertEqual(eudr, ex_eudr)
 
         self.assertTrue("extract_using_regex" in de_cr)
         eurr = de_cr["extract_using_regex"]
-
-        ex_eurr = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_regex'},
-                                'context': {'start': 58, 'end': 75, 'source': 'text',
-                                            'text': u' 27 \n \n \n My name is Helena height 16'}, 'value': u'Helena'}]}
+        ex_eurr = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_regex'},
+             'context': {'start': 58, 'end': 75, 'input': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
+             'value': u'Helena'}]}
 
         self.assertEqual(eurr, ex_eurr)
 
@@ -225,12 +208,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
 
         ex_eud = {'results': [
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11, 'start': 10, 'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos',
-                         'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'], 'source': 'tokens',
-                         'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
+             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+                         'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos', 'start': 10,
+                         'input': 'tokens', 'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']},
+             'value': u'helena'},
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137, 'start': 136, 'text': u"\n\n hey i ' m luna 3234522013 let ' s explore",
-                         'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'], 'source': 'tokens',
+             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+                         'text': u"\n\n hey i ' m luna 3234522013 let ' s explore", 'start': 136, 'input': 'tokens',
                          'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
         self.assertEqual(eud, ex_eud)
 
@@ -239,7 +223,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
 
         ex_eur = {'results': [
             {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
-             'context': {'start': 56, 'end': 73, 'source': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
+             'context': {'start': 56, 'end': 73, 'input': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
              'value': u'Helena'}]}
 
         self.assertEqual(eur, ex_eur)
@@ -257,22 +241,24 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eudr = de_cr["extract_using_dictionary"]
 
         ex_eudr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11, 'start': 10, 'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos',
-                         'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'], 'source': 'tokens',
-                         'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137, 'start': 136, 'text': u"\n\n hey i ' m luna 3234522013 let ' s explore",
-                         'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'], 'source': 'tokens',
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+                         'text': u'27 \n\n\n my name is helena height 160cms weight 55 kilos', 'start': 10,
+                         'input': 'tokens', 'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']},
+             'value': u'helena'},
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+                         'text': u"\n\n hey i ' m luna 3234522013 let ' s explore", 'start': 136, 'input': 'tokens',
                          'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
         self.assertEqual(eudr, ex_eudr)
 
         self.assertTrue("extract_using_regex" in de_cr)
         eurr = de_cr["extract_using_regex"]
 
-        ex_eurr = {'results': [{'origin': {'score': 1.0, 'segment': 'other_segment', 'method': 'extract_using_regex'},
-                                'context': {'start': 58, 'end': 75, 'source': 'text',
-                                            'text': u' 27 \n \n \n My name is Helena height 16'}, 'value': u'Helena'}]}
+        ex_eurr = {'results': [
+            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_regex'},
+             'context': {'start': 58, 'end': 75, 'input': 'text', 'text': u' 27 \n \n \n My name is Helena height 16'},
+             'value': u'Helena'}]}
 
         self.assertEqual(eurr, ex_eurr)
 
@@ -316,8 +302,8 @@ class TestExtractionsInputPaths(unittest.TestCase):
 
         ie_desc_name = {'results': [
             {'origin': {'score': 1.0, 'segment': 'inferlink_description', 'method': 'extract_using_dictionary'},
-             'context': {'end': 5, 'start': 4, 'text': u"hey i ' m luna 3234522013 let ' s explore",
-                         'tokens_left': [u'hey', u'i', u"'", u'm'], 'source': 'tokens',
+             'context': {'end': 5, 'tokens_left': [u'hey', u'i', u"'", u'm'],
+                         'text': u"hey i ' m luna 3234522013 let ' s explore", 'start': 4, 'input': 'tokens',
                          'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
         self.assertEqual(ie_desc_ex, ie_desc_name)
 

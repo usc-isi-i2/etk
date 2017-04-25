@@ -89,6 +89,7 @@ _HTML = "html"
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
 _SEGMENT_READABILITY_STRICT = "readability_strict"
+_SEGMENT_READABILITY_RELAXED = "readability_relaxed"
 _SEGMENT_OTHER = "other_segment"
 
 _METHOD_GUROBI = "gurobi"
@@ -296,9 +297,51 @@ class Core(object):
             for key in values.keys():
                 o = dict()
                 o['key'] = key
-                o['provenance'] = values[key]
+                new_provenances, metadata, value = Core.rearrange_provenance(values[key])
+                o['provenance'] = new_provenances
+                if metadata:
+                    o['qualifiers'] = metadata
+                o['value'] = value
+                # default confidence value, to be updated by later analysis
+                o['confidence'] = 1000
                 new_kg[semantic_type].append(o)
         return new_kg
+
+    @staticmethod
+    def rearrange_provenance(old_provenances):
+        new_provenances = list()
+        metadata = None
+        value = None
+        for prov in old_provenances:
+            new_prov = dict()
+            method = None
+            confidence = None
+
+            if 'origin' in prov:
+                origin = prov['origin']
+                if 'obfuscation' in prov:
+                    origin['extraction_metadata'] = dict()
+                    origin['extraction_metadata']['obfuscation'] = prov['obfuscation']
+                method = origin['method']
+                confidence = origin['score']
+                origin.pop('score', None)
+                origin.pop('method', None)
+                new_prov['source'] = origin
+
+            if 'context' in prov:
+                new_prov['source']['context'] = prov['context']
+            if 'metadata' in prov and not metadata:
+                metadata = prov['metadata']
+            if method:
+                new_prov["method"] = method
+            if not value:
+                value = prov['value']
+            new_prov['extracted_value'] = value
+            if confidence:
+                new_prov['confidence'] = dict()
+                new_prov['confidence']['extraction'] = confidence
+            new_provenances.append(new_prov)
+        return new_provenances, metadata, value
 
     @staticmethod
     def add_data_extraction_results(d, field_name, method_name, results):
@@ -340,6 +383,8 @@ class Core(object):
             segment = _HTML
         elif _CONTENT_STRICT in json_path:
             segment = _SEGMENT_READABILITY_STRICT
+        elif _CONTENT_RELAXED in json_path:
+            segment = _SEGMENT_READABILITY_RELAXED
         elif _TITLE in json_path:
             segment = _TITLE
         elif _URL in json_path:
@@ -464,18 +509,6 @@ class Core(object):
         if ep and ep != _KEEP_EXISTING and ep != _REPLACE:
             raise ValueError('extraction_policy can either be {} or {}'.format(_KEEP_EXISTING, _REPLACE))
         return ep
-    #
-    # def update_json_at_path(self, doc, match, field_name, value, parent=False):
-    #     load_input_json = doc
-    #     datum_object = match
-    #     if not isinstance(datum_object, jsonpath.DatumInContext):
-    #         raise Exception("Nothing found by the given json-path")
-    #     path = datum_object.path
-    #     if isinstance(path, jsonpath.Index):
-    #         datum_object.context.value[datum_object.path.index][field_name] = value
-    #     elif isinstance(path, jsonpath.Fields):
-    #         datum_object.context.value[field_name] = value
-    #     return load_input_json
 
     @staticmethod
     def _relevant_text_from_context(text_or_tokens, results):
@@ -497,7 +530,7 @@ class Core(object):
                         else:
                             end += 10
                         result['context']['text'] = text_or_tokens[start:end]
-                        result['context']['source'] = _TEXT
+                        result['context']['input'] = _TEXT
                     else:
                         if start - 5 < 0:
                             new_start = 0
@@ -510,7 +543,7 @@ class Core(object):
                         result['context']['text'] = ' '.join(text_or_tokens[new_start:new_end])
                         result['context']['tokens_left'] = text_or_tokens[new_start:start]
                         result['context']['tokens_right'] =  text_or_tokens[end:new_end]
-                        result['context']['source'] = _TOKENS
+                        result['context']['input'] = _TOKENS
         return results
 
 
