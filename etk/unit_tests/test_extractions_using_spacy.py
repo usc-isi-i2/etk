@@ -78,8 +78,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             extracted_social_media_handles = spacy_social_media_extractor.extract(
                 nlp_doc, self.c.matchers['social_media'])
 
-            # for e, l, s, end in extracted_social_media_handles:
-            # print nlp_doc[s:end]
+            #print extracted_social_media_handles
 
 if __name__ == '__main__':
     unittest.main()

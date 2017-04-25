@@ -29,15 +29,44 @@ def load_social_media_matcher(nlp):
     matcher = Matcher(nlp.vocab)
     matcher.add_entity("social_media")
 
-    matcher.add_pattern("social_media", [{is_social_media: True}, {is_separator: True}, {is_separator: True, 'OP': '?'},
-                                         {IS_ASCII: True}])
     matcher.add_pattern("social_media",
-                        [{is_social_media: True}, {LOWER: "me"}, {IS_PUNCT: True, "OP": '?'}, {IS_ASCII: True}])
+                                        [
+                                         {is_social_media: True},
+                                         {is_separator: True},
+                                         {is_separator: True, 'OP': '?'},
+                                         {IS_ASCII: True}
+                                        ],
+                                         label = 1
+                                        )
+
     matcher.add_pattern("social_media",
-                        [{is_social_media: True}, {LOWER: "me"}, {IS_PUNCT: True, "OP": '?'}, {IS_ASCII: False}])
+                                        [
+                                         {is_social_media: True},
+                                         {LOWER: "me"},
+                                         {IS_PUNCT: True, "OP": '?'},
+                                         {IS_ASCII: True}
+                                        ],
+                                         label = 2
+                                        )
     matcher.add_pattern("social_media",
-                        [{is_social_media: True}, {LOWER: 'id'}, {LOWER: 'is', 'OP': '?'}, {is_separator: True, 'OP': '?'},
-                         {IS_ASCII: True}])
+                                        [
+                                         {is_social_media: True},
+                                         {LOWER: "me"}, 
+                                         {IS_PUNCT: True, "OP": '?'}, 
+                                         {IS_ASCII: False}
+                                        ],
+                                         label = 3
+                                        )
+    matcher.add_pattern("social_media",
+                                        [
+                                         {is_social_media: True}, 
+                                         {LOWER: 'id'}, 
+                                         {LOWER: 'is', 'OP': '?'}, 
+                                         {is_separator: True, 'OP': '?'},
+                                         {IS_ASCII: True}
+                                        ],
+                                         label = 4
+                                        )
 
     return matcher
 
@@ -46,11 +75,11 @@ def load_social_media_matcher(nlp):
 def post_process(matches, nlp_doc):
     handles = dict()
     for ent_id, label, start, end in matches:
-        handle = re.findall('\d\d', str(nlp_doc[start:end]))
+        if(label in [1,2,3,4]):
+            handle = nlp_doc[end-1]
+            social_media_network = nlp_doc[start]
+            handles[handle] = {"start":start,"end":end,"social_network":social_media_network}
 
-        for a in handle:
-            if a not in handles:
-                handles[a] = {'start': start, 'end': end}
     return handles
 
 
@@ -59,6 +88,7 @@ def wrap_value_with_context(handle):
         'value': handle[0],
         'context':
             {
+                "social_network": handle[1]['social_network'],
                 "start": handle[1]['start'],
                 "end": handle[1]['end']
         }
@@ -69,8 +99,8 @@ def extract(nlp_doc, matcher):
 
     social_media_matches = matcher(nlp_doc)
 
-    #processed_matches = post_process(age_matches, nlp_doc)
+    handles = post_process(social_media_matches, nlp_doc)
 
-    #extracts = [wrap_value_with_context(age) for age in processed_matches.items()]
+    social_media_extracts = [wrap_value_with_context(handle) for handle in handles.items()]
 
-    return social_media_matches
+    return social_media_extracts
