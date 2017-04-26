@@ -49,17 +49,18 @@ class TestExtractionsUsingRegex(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
+    '''
 
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
+            
+            extraction_config = {'field_name':'age'}
+            d = {'simple_tokens': crf_tokens}
 
-            nlp_doc = self.c.nlp(crf_tokens)
-
-            extracted_ages = spacy_age_extractor.extract(
-                nlp_doc, self.c.matchers['age'])
+            extracted_ages = self.c.extract_using_spacy(d,extraction_config)
 
             extracted_ages = [match['value'] for match in extracted_ages]
 
@@ -80,6 +81,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 nlp_doc, self.c.matchers['social_media'])
 
             #print extracted_social_media_handles
+    '''
 
 if __name__ == '__main__':
     unittest.main()

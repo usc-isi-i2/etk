@@ -654,24 +654,27 @@ class Core(object):
         if _SPACY_EXTRACTION not in d:
             d[_SPACY_EXTRACTION] = self.run_spacy_extraction(d)
         return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
+    
+    def get_nlp_doc(self, nlp, tokens):
+        old_tokenizer = nlp.tokenizer
+        nlp.tokenizer = lambda tokens: old_tokenizer.tokens_from_list(tokens)
+        doc = nlp(tokens)
+        nlp.tokenizer = old_tokenizer
+        return doc
 
     def run_spacy_extraction(self, d):
         if not self.nlp:
             self.load_matchers()
-
-        spacy_tokenizer = self.c.nlp.tokenizer
-        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
-            tokens)
-        nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
+        
+        #get_nlp_doc gets the nlp_doc from tokens
+        nlp_doc = self.get_nlp_doc(self.nlp, d[_SIMPLE_TOKENS])
 
         spacy_extractions = dict()
 
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
                                                                             extract(nlp_doc, self.matchers['date']))
-
         spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                                    spacy_age_extractor.extract(nlp_doc, self.matchers['age']))
-
         return spacy_extractions
 
     def extract_from_landmark(self, doc, config):
