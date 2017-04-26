@@ -10,6 +10,7 @@ from etk.core import Core
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
+from spacy_extractors import address_extractor as spacy_address_extractor
 
 
 class TestExtractionsUsingRegex(unittest.TestCase):
@@ -21,7 +22,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
         ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
                               "date": os.path.join(os.path.dirname(__file__), "ground_truth/date.jl"),
-                              "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl")
+                              "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl"),
+                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl")
                               }
 
         for extractor, file_name in ground_truth_files.items():
@@ -31,36 +33,36 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 for test_case in test_data:
                     self.ground_truth[extractor].append(json.loads(test_case))
 
-        spacy_tokenizer = self.c.nlp.tokenizer
-        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
-            tokens)
-
     def test_extraction_from_date_spacy(self):
         for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
-            nlp_doc = self.c.nlp(crf_tokens)
+            # nlp_doc = self.c.nlp(crf_tokens)
 
-            extracted_dates = spacy_date_extractor.extract(
-                nlp_doc, self.c.matchers['date'])
+            extraction_config = {'field_name': 'posting_date'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_dates = self.c.extract_using_spacy(d, extraction_config)
+
+            # extracted_dates = spacy_date_extractor.extract(
+            #     nlp_doc, self.c.matchers['date'])
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-    '''
 
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['content']))
-            
-            extraction_config = {'field_name':'age'}
+
+            extraction_config = {'field_name': 'age'}
             d = {'simple_tokens': crf_tokens}
 
-            extracted_ages = self.c.extract_using_spacy(d,extraction_config)
+            extracted_ages = self.c.extract_using_spacy(d, extraction_config)
 
             extracted_ages = [match['value'] for match in extracted_ages]
 
@@ -69,19 +71,33 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
-    def test_extraction_from_social_media(self):
-        for t in self.ground_truth['social_media']:
+    # def test_extraction_from_social_media(self):
+    #     for t in self.ground_truth['social_media']:
 
-            crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['content']))
+    #         crf_tokens = self.c.extract_tokens_from_crf(
+    #             self.c.extract_crftokens(t['content']))
 
-            nlp_doc = self.c.nlp(crf_tokens)
+    #         nlp_doc = self.c.nlp(crf_tokens)
 
-            extracted_social_media_handles = spacy_social_media_extractor.extract(
-                nlp_doc, self.c.matchers['social_media'])
+    #         extracted_social_media_handles = spacy_social_media_extractor.extract(
+    #             nlp_doc, self.c.matchers['social_media'])
 
-            #print extracted_social_media_handles
-    '''
+    #         # print extracted_social_media_handles
+
+    # def test_extraction_from_address_spacy(self):
+    #     for t in self.ground_truth['address']:
+
+    #         crf_tokens = self.c.extract_tokens_from_crf(
+    #             self.c.extract_crftokens(t['content']))
+    #         nlp_doc = self.c.nlp(crf_tokens)
+
+    #         extracted_addresses = spacy_address_extractor.extract(
+    #             nlp_doc, self.c.matchers['address'])
+
+    #         extracted_addresses = [address['value']
+    #                                for address in extracted_addresses]
+
+    #         # print extracted_addresses
 
 if __name__ == '__main__':
     unittest.main()
