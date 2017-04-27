@@ -3,7 +3,13 @@
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
-      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz"
+      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
+      "city": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/curated_cities.json.gz",
+      "ethinicity": "/Users/amandeep/Github/dig-dictionaries/ethnicities/ethnicities.json.gz",
+      "hair_color": "/Users/amandeep/Github/dig-dictionaries/haircolor/haircolors.json.gz",
+      "eye_color": "/Users/amandeep/Github/dig-dictionaries/eyecolor/eyecolors.json.gz",
+      "state": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/states_usa_canada.json.gz",
+      "service": "/Users/amandeep/Github/dig-dictionaries/escort-service-words/consolidated-services.json.gz"
     },
     "landmark": [
       "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
@@ -41,12 +47,72 @@
         "*.inferlink_extractions.*.text.`parent`"
       ],
       "fields": {
+        "review_id": {
+          "extractors": {
+            "extract_review_id": {
+              "config": {}
+            }
+          }
+        },
+        "service": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "service",
+                "ngrams": 3
+              }
+            }
+          }
+        },
+        "state": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "state"
+              }
+            }
+          }
+        },
+        "eye_color": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "eye_color"
+              }
+            }
+          }
+        },
+        "hair_color": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "hair_color"
+              }
+            }
+          }
+        },
+        "ethinicity": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "ethinicity"
+              }
+            }
+          }
+        },
+        "city": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "city"
+              }
+            }
+          }
+        },
         "posting_date": {
           "extractors": {
             "extract_using_spacy": {
-              "config": {
-
-              }
+              "config": {}
             }
           }
         },
@@ -108,23 +174,17 @@
               "extraction_policy": "replace"
             },
             "extract_age": {
-              "config": {
-                
-              }
+              "config": {}
             },
             "extract_using_spacy": {
-              "config": {
-
-              }
+              "config": {}
             }
           }
         },
-         "phone": {
+        "phone": {
           "extractors": {
             "extract_phone": {
-              "config": {
-
-              },
+              "config": {},
               "extraction_policy": "replace"
             },
             "extract_from_landmark": {
@@ -140,11 +200,10 @@
             }
           }
         },
-         "email": {
+        "email": {
           "extractors": {
             "extract_email": {
-              "config": {
-              },
+              "config": {},
               "extraction_policy": "replace"
             }
           }
@@ -152,8 +211,7 @@
         "price": {
           "extractors": {
             "extract_price": {
-              "config": {
-              },
+              "config": {},
               "extraction_policy": "replace"
             }
           }
@@ -161,8 +219,7 @@
         "height": {
           "extractors": {
             "extract_height": {
-              "config": {
-              },
+              "config": {},
               "extraction_policy": "replace"
             }
           }
@@ -170,17 +227,7 @@
         "weight": {
           "extractors": {
             "extract_weight": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "address": {
-          "extractors": {
-            "extract_address": {
-              "config": {
-              },
+              "config": {},
               "extraction_policy": "replace"
             }
           }

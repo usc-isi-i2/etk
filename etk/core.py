@@ -252,7 +252,7 @@ class Core(object):
                                                             if results:
                                                                 self.add_data_extraction_results(match.value, field,
                                                                                                  extractor,
-                                                                                            self.add_origin_info(
+                                                                                                 self.add_origin_info(
                                                                                                      results,
                                                                                                      method,
                                                                                                      segment,
@@ -656,6 +656,7 @@ class Core(object):
         return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
 
     def run_spacy_extraction(self, d):
+        return dict()
         if not self.nlp:
             self.load_matchers()
 
@@ -703,8 +704,9 @@ class Core(object):
                     post_result = None
                     if post_filters:
                         post_result = self.run_user_filters(d, post_filters)
-                    result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
-                        d[_TEXT])
+                    # result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
+                    #     d[_TEXT])
+                    result = self.handle_text_or_results(post_result) if post_result else None
                     if result:
                         results.extend(result)
         else:
@@ -719,11 +721,9 @@ class Core(object):
                     post_result = None
                     if post_filters:
                         post_result = self.run_user_filters(d, post_filters)
-                    result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
-                        d[_TEXT])
+                    result = self.handle_text_or_results(post_result) if post_result else None
                     if result:
                         results.extend(result)
-
         return results if len(results) > 0 else None
 
     def extract_phone(self, d, config):
@@ -846,7 +846,6 @@ class Core(object):
                         result = f(d, {})
                 except Exception as e:
                     result = None
-
                 if not result:
                     result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:

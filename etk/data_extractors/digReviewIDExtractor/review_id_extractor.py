@@ -81,6 +81,7 @@ re_sites = {
     RE_DICT_SITE_NAME_OTHERS: re_others
 }
 
+
 def create_output(review_id, site):
     out = dict()
     out["metadata"] = dict()
@@ -94,6 +95,9 @@ def extract(text):
     ans += [{RE_DICT_NAME_IDENTIFIER:_, RE_DICT_NAME_SITE: RE_DICT_SITE_NAME_OTHERS} for _ in re_simpleones.findall(text)]
     ans += [{RE_DICT_NAME_IDENTIFIER:_, RE_DICT_NAME_SITE: RE_DICT_SITE_NAME_411} for _ in re_411.findall(text)]
 
+    extractions = list()
+    for e in ans:
+        extractions.append(create_output(e['identifier'], e['site']))
     texts = re_seperator.split(text)
     potentials = []
     for text in texts:
@@ -108,11 +112,11 @@ def extract(text):
                     extraction = create_output(ext, site)
                     break
             if extraction:
-                ans.append(extraction)
+                extractions.append(extraction)
             else:
-                ans.append(create_output(ext, RE_DICT_SITE_NAME_OTHERS))
+                extractions.append(create_output(ext, RE_DICT_SITE_NAME_OTHERS))
 
-    return ans
+    return extractions
 
 #
 # text = 'Hey guys! I\'m Heidi!!! I am a bubbly, busty, blonde massage therapist and only provide the most sensual therapeutic experience! I love what I do and so will YOU!!! I am always learning new techniqes and helping other feel relaxed. Just send Me an email and lets meet!!!  I am reviewed! #263289 \nheidishandsheal@gmail.com'
