@@ -701,12 +701,13 @@ class Core(object):
                     if pre_filters:
                         # Assumption all pre_filters are lambdas
                         d[_TEXT] = self.run_user_filters(d, pre_filters)
-                    post_result = None
+                    result = None
                     if post_filters:
                         post_result = self.run_user_filters(d, post_filters)
-                    # result = self.handle_text_or_results(post_result) if post_result else self.handle_text_or_results(
-                    #     d[_TEXT])
-                    result = self.handle_text_or_results(post_result) if post_result else None
+                        if post_result:
+                            result = self.handle_text_or_results(post_result)
+                    else:
+                        result = self.handle_text_or_results(d[_TEXT])
                     if result:
                         results.extend(result)
         else:
@@ -718,10 +719,14 @@ class Core(object):
                     if pre_filters:
                         # Assumption all pre_filters are lambdas
                         d[_TEXT] = self.run_user_filters(d, pre_filters)
-                    post_result = None
+
+                    result = None
                     if post_filters:
                         post_result = self.run_user_filters(d, post_filters)
-                    result = self.handle_text_or_results(post_result) if post_result else None
+                        if post_result:
+                            result = self.handle_text_or_results(post_result)
+                    else:
+                        result = self.handle_text_or_results(d[_TEXT])
                     if result:
                         results.extend(result)
         return results if len(results) > 0 else None
