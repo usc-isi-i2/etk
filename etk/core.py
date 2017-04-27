@@ -512,7 +512,7 @@ class Core(object):
         return ep
 
     @staticmethod
-    def _relevant_text_from_context(text_or_tokens, results):
+    def _relevant_text_from_context(text_or_tokens, results, field_name):
         if results:
             tokens_len = len(text_or_tokens)
             if not isinstance(results, list):
@@ -523,14 +523,18 @@ class Core(object):
                     end = int(result['context']['end'])
                     if isinstance(text_or_tokens, basestring):
                         if start - 10 < 0:
-                            start = 0
+                            new_start = 0
                         else:
-                            start -= 10
+                            new_start = start - 10
                         if end + 10 > tokens_len:
-                            end = tokens_len
+                            new_end = tokens_len
                         else:
-                            end += 10
-                        result['context']['text'] = text_or_tokens[start:end]
+                            new_end = end + 10
+                        relevant_text = '<etk \'attribute\' = \'{}\'>{}</etk>'.format(field_name,
+                                                                                      text_or_tokens[start:end])
+                        result['context']['text'] = '{} {} {}'.format(text_or_tokens[new_start:start].encode('utf-8'),
+                                                                      relevant_text,
+                                                                      text_or_tokens[end:new_end].encode('utf-8'))
                         result['context']['input'] = _TEXT
                     else:
                         if start - 5 < 0:
@@ -541,9 +545,14 @@ class Core(object):
                             new_end = tokens_len
                         else:
                             new_end = end + 5
-                        result['context']['text'] = ' '.join(text_or_tokens[new_start:new_end])
+                        relevant_text = '<etk \'attribute\' = \'{}\'>{}</etk>'.format(field_name,
+                                                                                      ' '.join(text_or_tokens[start:end]))
+                        result['context']['text'] = '{} {} {} '.format(
+                            ' '.join(text_or_tokens[new_start:start]).encode('utf-8'),
+                            relevant_text,
+                            ' '.join(text_or_tokens[end:new_end]).encode('utf-8'))
                         result['context']['tokens_left'] = text_or_tokens[new_start:start]
-                        result['context']['tokens_right'] =  text_or_tokens[end:new_end]
+                        result['context']['tokens_right'] = text_or_tokens[end:new_end]
                         result['context']['input'] = _TOKENS
         return results
 
@@ -604,7 +613,8 @@ class Core(object):
                                                                                                       field_name],
                                                                                                   pre_filter,
                                                                                                   post_filter,
-                                                                                                  ngrams, joiner))
+                                                                                                  ngrams, joiner),
+                                                                                                        field_name)
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
@@ -633,12 +643,12 @@ class Core(object):
             for regex_option in regex_options:
                 flags = flags | eval("re." + regex_option)
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
 
         result = self._extract_using_regex(text, regex, include_context, flags)
         # TODO ADD code to handle post_filters
 
-        return self._relevant_text_from_context(d[_TEXT], result)
+        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
 
     @staticmethod
     def _extract_using_regex(text, regex, include_context, flags):
@@ -668,10 +678,13 @@ class Core(object):
         spacy_extractions = dict()
 
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
-                                                                            extract(nlp_doc, self.matchers['date']))
+                                                                            extract(nlp_doc, self.matchers['date']),
+                                                                            _POSTING_DATE)
 
         spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
-                                                                   spacy_age_extractor.extract(nlp_doc, self.matchers['age']))
+                                                                   spacy_age_extractor.extract(nlp_doc,
+                                                                                               self.matchers['age']),
+                                                                   _AGE)
 
         return spacy_extractions
 
@@ -700,10 +713,10 @@ class Core(object):
                     d = inferlink_extraction[field]
                     if pre_filters:
                         # Assumption all pre_filters are lambdas
-                        d[_TEXT] = self.run_user_filters(d, pre_filters)
+                        d[_TEXT] = self.run_user_filters(d, pre_filters, config[_FIELD_NAME])
                     result = None
                     if post_filters:
-                        post_result = self.run_user_filters(d, post_filters)
+                        post_result = self.run_user_filters(d, post_filters, config[_FIELD_NAME])
                         if post_result:
                             result = self.handle_text_or_results(post_result)
                     else:
@@ -718,11 +731,11 @@ class Core(object):
                     d = inferlink_extraction[field]
                     if pre_filters:
                         # Assumption all pre_filters are lambdas
-                        d[_TEXT] = self.run_user_filters(d, pre_filters)
+                        d[_TEXT] = self.run_user_filters(d, pre_filters, config[_FIELD_NAME])
 
                     result = None
                     if post_filters:
-                        post_result = self.run_user_filters(d, post_filters)
+                        post_result = self.run_user_filters(d, post_filters, config[_FIELD_NAME])
                         if post_result:
                             result = self.handle_text_or_results(post_result)
                     else:
@@ -738,10 +751,10 @@ class Core(object):
         include_context = True
         output_format= _OBFUSCATION
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
         return self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                 self._extract_phone(tokens, source_type, include_context,
-                                                                    output_format))
+                                                                    output_format), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_phone(tokens, source_type, include_context, output_format):
@@ -754,8 +767,9 @@ class Core(object):
         if _INCLUDE_CONTEXT in config:
             include_context = config[_INCLUDE_CONTEXT].upper() == 'TRUE'
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_email(text, include_context))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_email(text, include_context),
+                                                config[_FIELD_NAME])
 
     @staticmethod
     def _extract_email(text, include_context):
@@ -770,8 +784,8 @@ class Core(object):
     def extract_price(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_price(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_price(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_price(text):
@@ -780,8 +794,8 @@ class Core(object):
     def extract_height(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_height(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_height(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_height(text):
@@ -790,8 +804,8 @@ class Core(object):
     def extract_weight(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_weight(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_weight(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_weight(text):
@@ -800,8 +814,8 @@ class Core(object):
     def extract_address(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_address(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_address(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_address(text):
@@ -810,8 +824,8 @@ class Core(object):
     def extract_age(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT],self._extract_age(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT],self._extract_age(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_age(text):
@@ -820,8 +834,8 @@ class Core(object):
     def extract_review_id(self, d, config):
         text = d[_TEXT]
         if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_review_id(text))
+            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_review_id(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_review_id(text):
@@ -839,7 +853,7 @@ class Core(object):
             return x
         return None
 
-    def run_user_filters(self, d, filters):
+    def run_user_filters(self, d, filters, field_name):
         result = None
         if not isinstance(filters, list):
             filters = [filters]
@@ -848,7 +862,7 @@ class Core(object):
                 try:
                     f = getattr(self, text_filter)
                     if f:
-                        result = f(d, {})
+                        result = f(d, {_FIELD_NAME: field_name})
                 except Exception as e:
                     result = None
                 if not result:
