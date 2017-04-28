@@ -531,7 +531,8 @@ class Core(object):
                         else:
                             new_end = end + 10
                         relevant_text = '<etk \'attribute\' = \'{}\'>{}</etk>'.format(field_name,
-                                                                                      text_or_tokens[start:end])
+                                                                                      text_or_tokens[start:end].encode(
+                                                                                          'utf-8'))
                         result['context']['text'] = '{} {} {}'.format(text_or_tokens[new_start:start].encode('utf-8'),
                                                                       relevant_text,
                                                                       text_or_tokens[end:new_end].encode('utf-8'))
@@ -546,7 +547,9 @@ class Core(object):
                         else:
                             new_end = end + 5
                         relevant_text = '<etk \'attribute\' = \'{}\'>{}</etk>'.format(field_name,
-                                                                                      ' '.join(text_or_tokens[start:end]))
+                                                                                      ' '.join(text_or_tokens[
+                                                                                               start:end]).encode(
+                                                                                          'utf-8'))
                         result['context']['text'] = '{} {} {} '.format(
                             ' '.join(text_or_tokens[new_start:start]).encode('utf-8'),
                             relevant_text,
