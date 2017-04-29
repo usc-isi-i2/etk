@@ -88,7 +88,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.assertTrue("extract_using_regex" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_regex"]
 
-        ex = {'results': [{'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
+        ex = {'results': [{'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_regex'},
                            'context': {'start': 56, 'end': 73, 'input': 'text',
                                        'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk> "
                                                " height 16"},

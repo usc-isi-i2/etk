@@ -383,9 +383,9 @@ class Core(object):
         elif _INFERLINK in json_path and _SEGMENT_INFERLINK_DESC not in json_path:
             segment = _HTML
         elif _CONTENT_STRICT in json_path:
-            segment = _SEGMENT_READABILITY_STRICT
+            segment = _CONTENT_STRICT
         elif _CONTENT_RELAXED in json_path:
-            segment = _SEGMENT_READABILITY_RELAXED
+            segment = _CONTENT_RELAXED
         elif _TITLE in json_path:
             segment = _TITLE
         elif _URL in json_path:

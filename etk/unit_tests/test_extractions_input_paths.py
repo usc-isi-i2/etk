@@ -81,13 +81,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("extract_using_dictionary" in de_cs)
         eud = de_cs["extract_using_dictionary"]
         ex_eud = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
              'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
                                  "weight 55 kilos ",
                          'start': 10, 'input': 'tokens',
                          'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
              'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                          'start': 136, 'input': 'tokens',
@@ -99,7 +99,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eur = de_cs["extract_using_regex"]
 
         ex_eur = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_regex'},
              'context': {'start': 56, 'end': 73, 'input': 'text',
                          'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"},
              'value': u'Helena'}]}
@@ -119,13 +119,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eudr = de_cr["extract_using_dictionary"]
 
         ex_eudr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_dictionary'},
              'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height "
                                  "160cms weight 55 kilos ",
                          'start': 10, 'input': 'tokens',
                          'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_dictionary'},
              'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                          'start': 136, 'input': 'tokens',
@@ -136,7 +136,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eurr = de_cr["extract_using_regex"]
 
         ex_eurr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_regex'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_regex'},
              'context': {'start': 58, 'end': 75, 'input': 'text',
                          'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"},
              'value': u'Helena'}]}
@@ -216,13 +216,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eud = de_cs["extract_using_dictionary"]
 
         ex_eud = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
              'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
                                  "weight 55 kilos ",
                          'start': 10, 'input': 'tokens',
                          'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
              'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                          'start': 136, 'input': 'tokens',
@@ -233,7 +233,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eur = de_cs["extract_using_regex"]
 
         ex_eur = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_strict', 'method': 'extract_using_regex'},
+            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_regex'},
              'context': {'start': 56, 'end': 73, 'input': 'text',
                          'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"},
              'value': u'Helena'}]}
@@ -253,13 +253,13 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eudr = de_cr["extract_using_dictionary"]
 
         ex_eudr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_dictionary'},
              'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
                                  "weight 55 kilos ",
                          'start': 10, 'input': 'tokens',
                          'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_dictionary'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_dictionary'},
              'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                          'start': 136, 'input': 'tokens',
@@ -270,7 +270,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         eurr = de_cr["extract_using_regex"]
 
         ex_eurr = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'readability_relaxed', 'method': 'extract_using_regex'},
+            {'origin': {'score': 1.0, 'segment': 'content_relaxed', 'method': 'extract_using_regex'},
              'context': {'start': 58, 'end': 75, 'input': 'text',
                          'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"},
              'value': u'Helena'}]}
