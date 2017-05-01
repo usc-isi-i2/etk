@@ -35,6 +35,8 @@ _IGNORE_EXTRACTION = 'ignore_extraction'
 _IGNORE_DOCUMENT = 'ignore_document'
 _RAISE_ERROR = 'raise_error'
 _CITY = 'city'
+_STATE = 'state'
+_COUNTRY = 'country'
 _CONTENT_EXTRACTION = 'content_extraction'
 _SPACY_EXTRACTION = 'spacy_extraction'
 _RAW_CONTENT = 'raw_content'
@@ -70,6 +72,7 @@ _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _TABLE = "table"
+_STOP_WORDS = "stop_words"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -119,6 +122,7 @@ class Core(object):
             self.load_matchers()
         else:
             self.nlp = None
+        self.country_code_dict = None
 
     """ Define all API methods """
 
@@ -168,6 +172,11 @@ class Core(object):
                         elif extractor == _TABLE:
                             doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                         matches[index].value, extractors[extractor])
+                # Add the url as segment as well
+                if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
+                    doc[_CONTENT_EXTRACTION][_URL] = dict()
+                    doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
                 de_configs = self.extraction_config[_DATA_EXTRACTION]
@@ -263,6 +272,23 @@ class Core(object):
         if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
             doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
         return doc
+
+    # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
+    #     if self.check_if_run_extraction(match_value, field,
+    #                                     extractor,
+    #                                     ep):
+    #         results = foo(match_value,
+    #                       extractor_config)
+    #         if results:
+    #             self.add_data_extraction_results(match_value, field,
+    #                                              extractor,
+    #                                              self.add_origin_info(
+    #                                                  results,
+    #                                                  method,
+    #                                                  segment,
+    #                                                  score))
+    #             if create_knowledge_graph:
+    #                 self.create_knowledge_graph(doc, field, results)
 
     @staticmethod
     def create_knowledge_graph(doc, field_name, extractions):
@@ -935,3 +961,78 @@ class Core(object):
         # Load social_media_extractor matcher
         matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
         self.matchers = matchers
+
+    @staticmethod
+    def create_list_data_extraction(data_extraction, field_name, method=_EXTRACT_USING_DICTIONARY):
+        out = list()
+        if data_extraction:
+            if field_name in data_extraction:
+                extractions = data_extraction[field_name]
+                if method in extractions:
+                    out = Core.get_value_list_from_results(extractions[method]['results'])
+        return out
+
+    @staticmethod
+    def get_value_list_from_results(results):
+        out = list()
+        if results:
+            for result in results:
+                out.append(result['value'])
+        return out
+
+    # def extract_location_url(self, d, config):
+    #     if _DICTIONARY in config:
+    #         self.load_dictionary(config[_DICTIONARY], config[_DICTIONARY])
+    #     if not self.country_code_dict:
+    #         self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
+    #     dict_out = dict()
+    #     data_extraction = d[_DATA_EXTRACTION] if _DATA_EXTRACTION in d else None
+    #
+    #     dict_out[_CITY] = self.create_list_data_extraction(data_extraction, _CITY)
+    #     dict_out[_STATE] = self.create_list_data_extraction(data_extraction, _STATE)
+    #     dict_out[_COUNTRY] = self.create_list_data_extraction(data_extraction, _COUNTRY)
+    #     if not dict_out[_CITY]:
+    #         city_config = {_FIELD_NAME: _CITY, _DICTIONARY: _CITY}
+    #         dict_out[_CITY] = self.get_value_list_from_results(self.extract_using_dictionary(d, city_config))
+    #
+    #     if not dict_out[_STATE]:
+    #         state_config = {_FIELD_NAME: _STATE, _DICTIONARY: _STATE}
+    #         dict_out[_STATE] = self.get_value_list_from_results(self.extract_using_dictionary(d, state_config))
+    #
+    #     if not dict_out[_COUNTRY]:
+    #         country_config = {_FIELD_NAME: _COUNTRY, _DICTIONARY: _COUNTRY}
+    #         dict_out[_COUNTRY] = self.get_value_list_from_results(self.extract_using_dictionary(d, country_config))
+    #
+    #     tokens_url = d[_SIMPLE_TOKENS]
+    #     url = d[_TEXT]
+    #     # Get country codes from url
+    #     ann_countries = list()
+    #     for token in tokens_url:
+    #         if token in self.country_code_dict:
+    #             # Check if its actually a country code in the orig url
+    #             pos = url.find('.' + token)
+    #             if url[pos - 3:pos] in ['.co', '.ac'] or url[pos - 4:pos] in ['.org', '.com', '.edu', '.gov']:
+    #                 ann_countries.append(self.country_code_dict[token])
+    #     dict_out[_COUNTRY].extend(ann_countries)
+    #     for token in tokens_url:
+    #         for i in range(0, len(token)):
+    #             for j in range(i):
+    #                 # Cities
+    #                 value = token[j:i]
+    #                 city = self.tries[_CITY].get(value)
+    #                 if city is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
+    #                     dict_out[_CITY].append(value)
+    #                 # States
+    #                 state = self.tries[_STATE].get(value)
+    #                 if state is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
+    #                     dict_out[_STATE].append(value)
+    #
+    #                 # Countries
+    #                 country = self.tries[_COUNTRY].get(value)
+    #                 if country is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
+    #                     dict_out[_COUNTRY].append(value)
+    #     print dict_out
+    #     return dict_out
+
+
+
