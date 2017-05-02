@@ -10,7 +10,8 @@ from data_extractors import height_extractor
 from data_extractors import weight_extractor
 from data_extractors import address_extractor
 from data_extractors import age_extractor
-from data_extractors import table_extractor 
+from data_extractors import table_extractor
+from data_extractors import url_country_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -980,59 +981,12 @@ class Core(object):
                 out.append(result['value'])
         return out
 
-    # def extract_location_url(self, d, config):
-    #     if _DICTIONARY in config:
-    #         self.load_dictionary(config[_DICTIONARY], config[_DICTIONARY])
-    #     if not self.country_code_dict:
-    #         self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
-    #     dict_out = dict()
-    #     data_extraction = d[_DATA_EXTRACTION] if _DATA_EXTRACTION in d else None
-    #
-    #     dict_out[_CITY] = self.create_list_data_extraction(data_extraction, _CITY)
-    #     dict_out[_STATE] = self.create_list_data_extraction(data_extraction, _STATE)
-    #     dict_out[_COUNTRY] = self.create_list_data_extraction(data_extraction, _COUNTRY)
-    #     if not dict_out[_CITY]:
-    #         city_config = {_FIELD_NAME: _CITY, _DICTIONARY: _CITY}
-    #         dict_out[_CITY] = self.get_value_list_from_results(self.extract_using_dictionary(d, city_config))
-    #
-    #     if not dict_out[_STATE]:
-    #         state_config = {_FIELD_NAME: _STATE, _DICTIONARY: _STATE}
-    #         dict_out[_STATE] = self.get_value_list_from_results(self.extract_using_dictionary(d, state_config))
-    #
-    #     if not dict_out[_COUNTRY]:
-    #         country_config = {_FIELD_NAME: _COUNTRY, _DICTIONARY: _COUNTRY}
-    #         dict_out[_COUNTRY] = self.get_value_list_from_results(self.extract_using_dictionary(d, country_config))
-    #
-    #     tokens_url = d[_SIMPLE_TOKENS]
-    #     url = d[_TEXT]
-    #     # Get country codes from url
-    #     ann_countries = list()
-    #     for token in tokens_url:
-    #         if token in self.country_code_dict:
-    #             # Check if its actually a country code in the orig url
-    #             pos = url.find('.' + token)
-    #             if url[pos - 3:pos] in ['.co', '.ac'] or url[pos - 4:pos] in ['.org', '.com', '.edu', '.gov']:
-    #                 ann_countries.append(self.country_code_dict[token])
-    #     dict_out[_COUNTRY].extend(ann_countries)
-    #     for token in tokens_url:
-    #         for i in range(0, len(token)):
-    #             for j in range(i):
-    #                 # Cities
-    #                 value = token[j:i]
-    #                 city = self.tries[_CITY].get(value)
-    #                 if city is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_CITY].append(value)
-    #                 # States
-    #                 state = self.tries[_STATE].get(value)
-    #                 if state is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_STATE].append(value)
-    #
-    #                 # Countries
-    #                 country = self.tries[_COUNTRY].get(value)
-    #                 if country is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_COUNTRY].append(value)
-    #     print dict_out
-    #     return dict_out
+    def extract_country_url(self, d, config):
+        if not self.country_code_dict:
+            try:
+                self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format('country_code')
 
-
-
+        tokens_url = d[_SIMPLE_TOKENS]
+        return url_country_extractor.extract(tokens_url, self.country_code_dict)

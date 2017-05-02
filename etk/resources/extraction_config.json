@@ -262,18 +262,9 @@
             }
           }
         },
-         "country": {
+        "country": {
           "extractors": {
-            "extract_using_dictionary": {
-              "config": {
-                "dictionary": "country"
-              }
-            }
-          }
-        },
-        "location": {
-          "extractors": {
-            "extract_location_url": {
+            "extract_country_url": {
               "config":{
                 "dictionary": "stop_words"
               }
