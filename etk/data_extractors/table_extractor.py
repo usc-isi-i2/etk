@@ -240,11 +240,11 @@ def gen_html(row_list):
     table += "</table>"
     return table
 
-def table_decompose(html_doc):
+def remove_tables(html_doc, min_data_rows = 1):
     soup = BeautifulSoup(html_doc, 'html.parser')
     tables = soup.findAll('table')
     for table in tables:
-        rows = is_data_table(table, 2)
+        rows = is_data_table(table, min_data_rows)
         if(rows != False):
             table.decompose()
     
