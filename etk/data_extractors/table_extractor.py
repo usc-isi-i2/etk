@@ -102,7 +102,7 @@ def extract(html_doc, min_data_rows = 1):
                 row_len_list = list()
                 avg_cell_len = 0
                 avg_row_len_dev = 0
-                for row in rows:
+                for index_row, row in enumerate(rows):
                     row_dict = dict()
                     soup_row = BeautifulSoup(row, 'html.parser')
                     row_data = ''.join(soup_row.stripped_strings)
@@ -123,18 +123,20 @@ def extract(html_doc, min_data_rows = 1):
                         table_data += row
                         # row_dict["row"] = str(row)
                         cell_list = list()
-                        for td in soup_row.findAll('th'):
+                        for index_col, td in enumerate(soup_row.findAll('th')):
                             cell_dict = dict()
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ''.join(td.stripped_strings)
+                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
-                        for td in soup_row.findAll('td'):
+                        for index_col, td in enumerate(soup_row.findAll('td')):
                             cell_dict = dict()
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ''.join(td.stripped_strings)
+                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
                         avg_row_len_dev += pstdev([len(x["text"]) for x in cell_list])
