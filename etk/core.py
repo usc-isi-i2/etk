@@ -989,4 +989,6 @@ class Core(object):
                 raise '{} dictionary missing from resources'.format('country_code')
 
         tokens_url = d[_SIMPLE_TOKENS]
-        return url_country_extractor.extract(tokens_url, self.country_code_dict)
+        return self._relevant_text_from_context(tokens_url,
+                                                url_country_extractor.extract(tokens_url, self.country_code_dict),
+                                                config[_FIELD_NAME])
