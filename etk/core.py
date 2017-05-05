@@ -10,7 +10,8 @@ from data_extractors import height_extractor
 from data_extractors import weight_extractor
 from data_extractors import address_extractor
 from data_extractors import age_extractor
-from data_extractors import table_extractor 
+from data_extractors import table_extractor
+from data_extractors import url_country_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -35,6 +36,8 @@ _IGNORE_EXTRACTION = 'ignore_extraction'
 _IGNORE_DOCUMENT = 'ignore_document'
 _RAISE_ERROR = 'raise_error'
 _CITY = 'city'
+_STATE = 'state'
+_COUNTRY = 'country'
 _CONTENT_EXTRACTION = 'content_extraction'
 _SPACY_EXTRACTION = 'spacy_extraction'
 _RAW_CONTENT = 'raw_content'
@@ -70,6 +73,7 @@ _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _TABLE = "table"
+_STOP_WORDS = "stop_words"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -119,6 +123,7 @@ class Core(object):
             self.load_matchers()
         else:
             self.nlp = None
+        self.country_code_dict = None
 
     """ Define all API methods """
 
@@ -168,6 +173,11 @@ class Core(object):
                         elif extractor == _TABLE:
                             doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                         matches[index].value, extractors[extractor])
+                # Add the url as segment as well
+                if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
+                    doc[_CONTENT_EXTRACTION][_URL] = dict()
+                    doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
                 de_configs = self.extraction_config[_DATA_EXTRACTION]
@@ -264,6 +274,23 @@ class Core(object):
             doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
         return doc
 
+    # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
+    #     if self.check_if_run_extraction(match_value, field,
+    #                                     extractor,
+    #                                     ep):
+    #         results = foo(match_value,
+    #                       extractor_config)
+    #         if results:
+    #             self.add_data_extraction_results(match_value, field,
+    #                                              extractor,
+    #                                              self.add_origin_info(
+    #                                                  results,
+    #                                                  method,
+    #                                                  segment,
+    #                                                  score))
+    #             if create_knowledge_graph:
+    #                 self.create_knowledge_graph(doc, field, results)
+
     @staticmethod
     def create_knowledge_graph(doc, field_name, extractions):
         if _KNOWLEDGE_GRAPH not in doc:
@@ -274,9 +301,12 @@ class Core(object):
 
         for extraction in extractions:
             key = extraction['value']
-            if isinstance(key, str) or isinstance(key, numbers.Number):
-                key = str(key).strip().lower()
-
+            if isinstance(key, basestring) or isinstance(key, numbers.Number):
+                # try except block because unicode characters will not be lowered
+                try:
+                    key = str(key).strip().lower()
+                except:
+                    pass
             if 'metadata' in extraction:
                 sorted_metadata = Core.sort_dict(extraction['metadata'])
                 for k, v in sorted_metadata.iteritems():
@@ -650,7 +680,6 @@ class Core(object):
 
         result = self._extract_using_regex(text, regex, include_context, flags)
         # TODO ADD code to handle post_filters
-
         return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
 
     @staticmethod
@@ -935,3 +964,33 @@ class Core(object):
         # Load social_media_extractor matcher
         matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
         self.matchers = matchers
+
+    @staticmethod
+    def create_list_data_extraction(data_extraction, field_name, method=_EXTRACT_USING_DICTIONARY):
+        out = list()
+        if data_extraction:
+            if field_name in data_extraction:
+                extractions = data_extraction[field_name]
+                if method in extractions:
+                    out = Core.get_value_list_from_results(extractions[method]['results'])
+        return out
+
+    @staticmethod
+    def get_value_list_from_results(results):
+        out = list()
+        if results:
+            for result in results:
+                out.append(result['value'])
+        return out
+
+    def extract_country_url(self, d, config):
+        if not self.country_code_dict:
+            try:
+                self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format('country_code')
+
+        tokens_url = d[_SIMPLE_TOKENS]
+        return self._relevant_text_from_context(tokens_url,
+                                                url_country_extractor.extract(tokens_url, self.country_code_dict),
+                                                config[_FIELD_NAME])
