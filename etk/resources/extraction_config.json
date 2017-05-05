@@ -241,6 +241,23 @@
     },
     {
       "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.title.text.`parent`"
+      ],
+      "fields": {
+        "country": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "input_path": [
         "*.url.text.`parent`"
       ],
       "fields": {
@@ -267,6 +284,11 @@
             "extract_country_url": {
               "config":{
                 "dictionary": "stop_words"
+              }
+            },
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country"
               }
             }
           }

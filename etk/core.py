@@ -301,9 +301,12 @@ class Core(object):
 
         for extraction in extractions:
             key = extraction['value']
-            if isinstance(key, str) or isinstance(key, numbers.Number):
-                key = str(key).strip().lower()
-
+            if isinstance(key, basestring) or isinstance(key, numbers.Number):
+                # try except block because unicode characters will not be lowered
+                try:
+                    key = str(key).strip().lower()
+                except:
+                    pass
             if 'metadata' in extraction:
                 sorted_metadata = Core.sort_dict(extraction['metadata'])
                 for k, v in sorted_metadata.iteritems():
@@ -677,7 +680,6 @@ class Core(object):
 
         result = self._extract_using_regex(text, regex, include_context, flags)
         # TODO ADD code to handle post_filters
-
         return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
 
     @staticmethod
