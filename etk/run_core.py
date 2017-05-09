@@ -100,7 +100,7 @@ def run_serial(input, output, core):
 
 def process_one(x):
     # output = "output-%d.gz" % pathos.helpers.mp.current_process().getPid()
-    output = c_options.outputPath + "/output-%d.gz" % mp.current_process().pid
+    output = c_options.outputPath + "/output-%d.jl" % mp.current_process().pid
     with codecs.open(output, "a+") as out:
         out.write('%s\n' % json.dumps(c.process(x)))
 
