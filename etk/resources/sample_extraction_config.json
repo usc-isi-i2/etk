@@ -119,5 +119,16 @@
       }
     }
   ],
-  "kg_enhancement":
+  "kg_enhancement": {
+    "input_path": "knowledge_graph.`parent`",
+    "fields": {
+      "populated_place": {
+        "extractors": {
+          "geonames_lookup": {
+            "config" : {}
+          }
+        }
+      }
+    }
+  }
 }

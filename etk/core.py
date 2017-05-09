@@ -105,6 +105,7 @@ _SOURCE_TYPE = "source_type"
 _OBFUSCATION = "obfuscation"
 
 _INCLUDE_CONTEXT = "include_context"
+_KG_ENHANCEMENT = "kg_enhancement"
 
 
 class Core(object):
@@ -270,8 +271,48 @@ class Core(object):
                                                                 if create_knowledge_graph:
                                                                     self.create_knowledge_graph(doc, field, results)
 
-        if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
-            doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+            if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
+                doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+
+            """Optional Phase 3: Knowledge Graph Enhancement"""
+            if _KG_ENHANCEMENT in self.extraction_config:
+                kg_configs = self.extraction_config[_KG_ENHANCEMENT]
+                if isinstance(kg_configs, dict):
+                    kg_configs = [kg_configs]
+
+                for i in range(len(kg_configs)):
+                    kg_config = kg_configs[i]
+                    input_paths = kg_config[_INPUT_PATH] if _INPUT_PATH in kg_config else None
+                    if not input_paths:
+                        raise KeyError(
+                            '{} not found for knowledge graph enhancement in extraction_config'.format(_INPUT_PATH))
+
+                    if not isinstance(input_paths, list):
+                        input_paths = [input_paths]
+
+                    for input_path in input_paths:
+                        if _FIELDS in kg_config:
+                            if input_path not in self.data_extraction_path:
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
+                            for match in matches:
+                                fields = kg_config[_FIELDS]
+                                for field in fields.keys():
+                                    if _EXTRACTORS in fields[field]:
+                                        extractors = fields[field][_EXTRACTORS]
+                                        for extractor in extractors.keys():
+                                            try:
+                                                foo = getattr(self, extractor)
+                                            except Exception as e:
+                                                foo = None
+                                            if foo:
+                                                if _CONFIG not in extractors[extractor]:
+                                                    extractors[extractor][_CONFIG] = dict()
+                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                results = foo(match.value, extractors[extractor][_CONFIG])
+                                                if results:
+                                                    doc[_KNOWLEDGE_GRAPH][field] = results
+
         return doc
 
     # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
