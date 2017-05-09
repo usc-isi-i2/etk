@@ -5,6 +5,13 @@ import sys
 import multiprocessing as mp, os
 import core
 from optparse import OptionParser
+# from concurrent import futures
+from pathos.multiprocessing import ProcessingPool
+from pathos import multiprocessing as mpp
+import multiprocessing as mp
+import pathos
+# from pathos.helpers
+import gzip
 """ Process code begins here """
 
 
@@ -42,7 +49,7 @@ def process_wrapper(core, input, chunk_start, chunk_size, queue):
             except Exception as e:
                 print "Failed - ", e
 
-            queue.put(json.dumps(document))
+            # queue.put(json.dumps(document))
             # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
 
 
@@ -70,6 +77,7 @@ def run_parallel(input, output, core, processes=0):
     watcher = pool.apply_async(listener, (queue, output))
 
     jobs = []
+    
     for chunk_start, chunk_size in chunk_file(input):
         jobs.append(pool.apply_async(process_wrapper, (core, input, chunk_start, chunk_size, queue)))
     for job in jobs:
@@ -88,6 +96,29 @@ def run_serial(input, output, core):
         time_taken_doc = time.time() - start_time_doc
         print "Took", str(time_taken_doc), " seconds"
     output.close()
+
+
+def process_one(x):
+    # output = "output-%d.gz" % pathos.helpers.mp.current_process().getPid()
+    output = c_options.outputPath + "/output-%d.gz" % mp.current_process().pid
+    with codecs.open(output, "a+") as out:
+        out.write('%s\n' % json.dumps(c.process(x)))
+
+def run_parallel_2(input_path, output_path, core, processes=0):
+    lines = codecs.open(input_path, 'r').readlines()
+    inputs = list()
+    # pool = ProcessingPool(16)
+    pool = mpp.Pool(8)
+    for line in lines:
+        inputs.append(json.loads(line))
+    # pool = .ProcessPoolExecutor(max_workers=8)
+    # results = list(pool.map(process_one, inputs))
+    pool.map(process_one, inputs)
+
+    # output_f = codecs.open(output_path, 'w')
+    # for result in results:
+    #     output_f.write(json.dumps(result))
+    #     output_f.write('\n')
 
 
 def usage():
@@ -119,7 +150,8 @@ if __name__ == "__main__":
         start_time = time.time()
         if c_options.threadCount:
             print "Processing parallel with " + c_options.threadCount + " processes"
-            run_parallel(c_options.inputPath, c_options.outputPath, c,  int(c_options.threadCount))
+            # run_parallel(c_options.inputPath, c_options.outputPath, c,  int(c_options.threadCount))
+            run_parallel_2(c_options.inputPath, c_options.outputPath, c, int(c_options.threadCount))
         else:
             print "processing serially"
             run_serial(c_options.inputPath, c_options.outputPath, c)

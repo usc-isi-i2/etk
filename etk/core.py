@@ -166,7 +166,7 @@ class Core(object):
                                                                                 matches[index].value, re_extractor)
                         elif extractor == _TITLE:
                             doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
-                                                                      extractors[extractor])
+                                                                          extractors[extractor])
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
@@ -491,7 +491,9 @@ class Core(object):
         ep = self.determine_extraction_policy(title_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
-            content_extraction[field_name] = self.extract_title(html)
+            extracted_title = self.extract_title(html)
+            if extracted_title:
+                content_extraction[field_name] = extracted_title
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process title %s' % time_taken
@@ -917,16 +919,18 @@ class Core(object):
         return e.extract(document, options)
 
     def extract_title(self, html_content, options=None):
-        matches = re.search(self.html_title_regex, html_content, re.IGNORECASE | re.S)
-        title = None
-        if matches:
-            title = matches.group(1)
-            title = title.replace('\r', '')
-            title = title.replace('\n', '')
-            title = title.replace('\t', '')
-        if not title:
-            title = ''
-        return {'text': title}
+        if html_content:
+            matches = re.search(self.html_title_regex, html_content, re.IGNORECASE | re.S)
+            title = None
+            if matches:
+                title = matches.group(1)
+                title = title.replace('\r', '')
+                title = title.replace('\n', '')
+                title = title.replace('\t', '')
+            if not title:
+                title = ''
+            return {'text': title}
+        return None
 
     @staticmethod
     def extract_crftokens(text, options=None):

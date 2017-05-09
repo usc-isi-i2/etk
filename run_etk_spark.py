@@ -10,16 +10,16 @@ needed_fields = ['raw_content', 'content_extraction', 'knowledge_graph', 'url', 
 
 
 def remove_junk(x):
-    new_x = dict()
-    if 'doc_id' in x:
-        new_x['doc_id'] = x['doc_id']
-    elif '_id' in x:
-        new_x['doc_id'] = x['_id']
+    # new_x = dict()
+    # if 'doc_id' in x:
+    #     new_x['doc_id'] = x['doc_id']
+    if '_id' in x:
+        x['doc_id'] = x['_id']
 
-    for field in needed_fields:
-        if field in x:
-            new_x[field] = x[field]
-    return new_x
+    # for field in needed_fields:
+    #     if field in x:
+    #         new_x[field] = x[field]
+    return x
 
 if __name__ == '__main__':
     compression = "org.apache.hadoop.io.compress.GzipCodec"
@@ -34,8 +34,8 @@ if __name__ == '__main__':
     conf = SparkConf()
     extraction_config = json.load(codecs.open(extraction_config_path))
     c = Core(extraction_config=extraction_config)
-    input_rdd = sc.sequenceFile(input_path).partitionBy(100)
+    input_rdd = sc.sequenceFile(input_path).partitionBy(1000)
     input_rdd = input_rdd.mapValues(json.loads).mapValues(
-        lambda x: c.process(x, create_knowledge_graph=True)).mapvalues(remove_junk).mapValues(json.dumps)
+        lambda x: c.process(x, create_knowledge_graph=True)).mapValues(remove_junk).mapValues(json.dumps)
     input_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
 
