@@ -26,6 +26,7 @@ from jsonpath_rw import parse
 import time
 import collections
 import numbers
+from tldextract import tldextract
 
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
@@ -107,6 +108,7 @@ _OBFUSCATION = "obfuscation"
 _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
+_TLD = 'tld'
 
 
 class Core(object):
@@ -184,6 +186,7 @@ class Core(object):
                 if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                     doc[_CONTENT_EXTRACTION][_URL] = dict()
                     doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+                    doc[_TLD] = self.extract_tld(doc[_URL])
 
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
@@ -320,6 +323,10 @@ class Core(object):
                                                     doc[_KNOWLEDGE_GRAPH][field] = results
 
         return doc
+
+    @staticmethod
+    def extract_tld(url):
+        return tldextract.extract(url).domain + '.' + tldextract.extract(url).suffix
 
     # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
     #     if self.check_if_run_extraction(match_value, field,

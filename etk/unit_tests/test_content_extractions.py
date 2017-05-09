@@ -46,8 +46,9 @@ class TestExtractions(unittest.TestCase):
                     }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
+        self.assertTrue('tld' in r)
+        self.assertEqual('eroticmugshots.com', r['tld'])
         self.assertTrue("content_extraction" in r)
-
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("content_relaxed" in r["content_extraction"])
         self.assertTrue("title" not in r["content_extraction"])
