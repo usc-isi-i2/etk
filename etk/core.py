@@ -106,6 +106,7 @@ _OBFUSCATION = "obfuscation"
 
 _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
+_DOCUMENT_ID = "document_id"
 
 
 class Core(object):
@@ -130,6 +131,11 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         if self.extraction_config:
+            doc_id = None
+            if _DOCUMENT_ID in self.extraction_config:
+                doc_id_field = self.extraction_config[_DOCUMENT_ID]
+                if doc_id_field in doc:
+                    doc_id = doc[doc_id_field]
             if _EXTRACTION_POLICY in self.extraction_config:
                 self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
             if _ERROR_HANDLING in self.extraction_config:
@@ -251,7 +257,7 @@ class Core(object):
                                                                                                          results,
                                                                                                          method,
                                                                                                          segment,
-                                                                                                         score))
+                                                                                                         score, doc_id))
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(doc, field, results)
                                                     else:
@@ -267,7 +273,7 @@ class Core(object):
                                                                                                      results,
                                                                                                      method,
                                                                                                      segment,
-                                                                                                     score))
+                                                                                                     score, doc_id))
                                                                 if create_knowledge_graph:
                                                                     self.create_knowledge_graph(doc, field, results)
 
@@ -464,13 +470,15 @@ class Core(object):
         return segment
 
     @staticmethod
-    def add_origin_info(results, method, segment, score):
+    def add_origin_info(results, method, segment, score, doc_id=None):
         if results:
             for result in results:
                 o = dict()
                 o['segment'] = segment
                 o['method'] = method
                 o['score'] = score
+                if doc_id:
+                    o[_DOCUMENT_ID] = doc_id
                 result['origin'] = o
         return results
 

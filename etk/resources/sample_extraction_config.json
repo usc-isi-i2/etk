@@ -1,4 +1,5 @@
 {
+  "document_id": "doc_id",
   "extraction_policy": "keep_existing|replace",
   "error_handling": "ignore_extraction|ignore_document|raise_error",
   "resources": {
