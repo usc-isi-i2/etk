@@ -34,9 +34,9 @@
 {"text": "NORTH MAIN STREET SPA 1185 NORTH MAIN STREET PROVIDENCE, RI 02904 (401)-453-6677 9am-2am 7 DAYS A WEEK DRY & STEAM SAUNA ROOM FREE TABLE SHOWER (BODY SCRUB) RELAXING EROTIC & SENSUL FULL BODY RUBS $60/HOUR/CASH ONLY COME IN TO VISIT OUR SPA AND CHECK OUT OUR *** NEW *** AND *** FRIENDLY *** STAFF! ~~~~~~~~ COME TO RELAX ~~~~~~~~ ***** OPEN LATE UNTIL 2AM ***** 2 MINUTES AWAY FROM EXIT 25 OFF INTERSTATE 95 NORTH MAIN STREET SPA PROVIDE THE BEST RELAXING FULL BODY RUBS IN PROVIDENCE. THANKS! ALSO CHECK US OUT AT ***WWW.NORTHMAINSTREETSPA.NET*** FOR MORE INFO.", "extracted": [], "correct": ""}
 {"text": "1185 NORTH MAIN STREET PROVIDENCE, RHODE ISLAND 02904 401-453-6677 9am-1am 7 DAYS A WEEK DRY STEAM SAUNA TABLE SHOWER (BODY SCRUB) EROTIC SENSUL FULL BODY RUBS $60/hr COME IN TO VISIT OUR SPA AND CHECK OUT OUR ***NEW*** AND ***FRIENDLY*** SIX GIRLS STAFF! NORTH MAIN STREET SPA PROVIDE THE BEST ASIAN RELAXING FULL BODY MASSAGE IN PROVIDENCE. THANKS!", "extracted": [], "correct": ""}
 {"text": "We are looking for customers of High street banks to take part in some research for us. You will receive a fifty pounds incentive to Thank you for your time. The research will take an hour. If you are aged between 21 and 65 years old, and use a High Street bank then please email specifying the name of your Bank along with your contact number and we will call you straight back We are looking for people all over the UK so please feel free to pass this on to anyone else that might be interested I look forward to hearing from you", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
+{"text": "1 name street and 2 name blvd", "extracted": [], "correct": ""}
+{"text": "1 street / 2 blvd", "extracted": [], "correct": ""}
+{"text": "name street & name blvd", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}

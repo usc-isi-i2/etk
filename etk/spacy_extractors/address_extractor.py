@@ -66,12 +66,11 @@ def load_address_matcher(nlp):
                             ])
 
     # Add and filter out matches to return longest match
-    # matcher.add_pattern('ADDRESS',
-    #                         [
-    #                             {IS_ALPHA: True},
-    #                             {is_street: True}
-    #                         ])
-        
+    matcher.add_pattern('ADDRESS',
+                            [
+                                {IS_ALPHA: True},
+                                {is_street: True}
+                            ])
 
     # two street rules
     matcher.add_pattern('ADDRESS',
@@ -101,7 +100,6 @@ def load_address_matcher(nlp):
                             {is_street: True}
                         ])
 
-
     return matcher
 
 
@@ -117,18 +115,16 @@ def extract(doc, matcher):
     address_matches = matcher(doc)
 
     for ent_id, label, start, end in address_matches:
-        extractions.append([start, end])
-        # if label != 0:
-        #     if count != 0:
-        #         prev_start, prev_end = extractions[count - 1]
-        #         if (start == prev_start) and (end > prev_end):
-        #             extractions[count - 1][1] = end
-        #         elif (start > prev_start) and (end > prev_end):
-        #             extractions.append([start, end])
-        #             count += 1
-        #     else:
-        #         extractions.append([start, end])
-        #         count += 1
+        if count != 0:
+            prev_start, prev_end = extractions[count - 1]
+            if (start == prev_start) and (end > prev_end):
+                extractions[count - 1][1] = end
+            elif (start > prev_start) and (end > prev_end):
+                extractions.append([start, end])
+                count += 1
+        else:
+            extractions.append([start, end])
+            count += 1
 
     for extraction in extractions:
         start, end = extraction
