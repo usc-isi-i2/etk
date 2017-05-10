@@ -1,11 +1,12 @@
 {
+  "document_id": "doc_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
       "city": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/curated_cities.json.gz",
-      "ethinicity": "/Users/amandeep/Github/dig-dictionaries/ethnicities/ethnicities.json.gz",
+      "ethnicity": "/Users/amandeep/Github/dig-dictionaries/ethnicities/ethnicities.json.gz",
       "hair_color": "/Users/amandeep/Github/dig-dictionaries/haircolor/haircolors.json.gz",
       "eye_color": "/Users/amandeep/Github/dig-dictionaries/eyecolor/eyecolors.json.gz",
       "state": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/states_usa_canada.json.gz",
@@ -96,11 +97,11 @@
             }
           }
         },
-        "ethinicity": {
+        "ethnicity": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
-                "dictionary": "ethinicity"
+                "dictionary": "ethnicity"
               }
             }
           }
@@ -241,6 +242,23 @@
     },
     {
       "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.title.text.`parent`"
+      ],
+      "fields": {
+        "country": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "input_path": [
         "*.url.text.`parent`"
       ],
       "fields": {
@@ -262,20 +280,16 @@
             }
           }
         },
-         "country": {
+        "country": {
           "extractors": {
+            "extract_country_url": {
+              "config":{
+                "dictionary": "stop_words"
+              }
+            },
             "extract_using_dictionary": {
               "config": {
                 "dictionary": "country"
-              }
-            }
-          }
-        },
-        "location": {
-          "extractors": {
-            "extract_location_url": {
-              "config":{
-                "dictionary": "stop_words"
               }
             }
           }

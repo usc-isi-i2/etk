@@ -9,17 +9,21 @@ __author__ = 'amandeep'
 needed_fields = ['raw_content', 'content_extraction', 'knowledge_graph', 'url', 'timestamp', 'tld']
 
 
-def remove_junk(x):
-    new_x = dict()
-    if 'doc_id' in x:
-        new_x['doc_id'] = x['doc_id']
-    elif '_id' in x:
-        new_x['doc_id'] = x['_id']
+def add_doc_id(x):
+    if '_id' in x:
+        x['doc_id'] = x['_id']
+    return x
 
-    for field in needed_fields:
-        if field in x:
-            new_x[field] = x[field]
-    return new_x
+
+def remove_if_no_html(x):
+    if 'raw_content' not in x:
+        return False
+    rc = x['raw_content']
+    if not rc:
+        return False
+    if rc.strip() == '':
+        return False
+    return True
 
 if __name__ == '__main__':
     compression = "org.apache.hadoop.io.compress.GzipCodec"
@@ -34,8 +38,8 @@ if __name__ == '__main__':
     conf = SparkConf()
     extraction_config = json.load(codecs.open(extraction_config_path))
     c = Core(extraction_config=extraction_config)
-    input_rdd = sc.sequenceFile(input_path).partitionBy(100)
-    input_rdd = input_rdd.mapValues(json.loads).mapValues(
-        lambda x: c.process(x, create_knowledge_graph=True)).mapvalues(remove_junk).mapValues(json.dumps)
+    input_rdd = sc.sequenceFile(input_path).partitionBy(1000)
+    input_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
+        .mapValues(lambda x: c.process(x, create_knowledge_graph=True)).mapValues(json.dumps)
     input_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
 

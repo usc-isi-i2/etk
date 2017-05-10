@@ -50,8 +50,6 @@ re_ls_weight = re.compile(reg_ls_weight, re.IGNORECASE)
 ######################################################################
 
 
-
-
 def clean_extraction(extraction):
     extraction = extraction.replace(':', '')
     extraction = extraction.lower().strip()
