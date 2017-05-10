@@ -12,6 +12,7 @@ from data_extractors import weight_extractor
 from data_extractors import address_extractor
 from data_extractors import age_extractor
 from data_extractors import table_extractor
+from data_extractors import url_country_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -26,6 +27,7 @@ from jsonpath_rw import parse
 import time
 import collections
 import numbers
+from tldextract import tldextract
 
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
@@ -93,18 +95,17 @@ _HTML = "html"
 
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
-_SEGMENT_READABILITY_STRICT = "readability_strict"
-_SEGMENT_READABILITY_RELAXED = "readability_relaxed"
 _SEGMENT_OTHER = "other_segment"
 
-_METHOD_GUROBI = "gurobi"
 _METHOD_INFERLINK = "inferlink"
-_METHOD_OTHER = "other_method"
 
 _SOURCE_TYPE = "source_type"
 _OBFUSCATION = "obfuscation"
 
 _INCLUDE_CONTEXT = "include_context"
+_KG_ENHANCEMENT = "kg_enhancement"
+_DOCUMENT_ID = "document_id"
+_TLD = 'tld'
 
 
 class Core(object):
@@ -130,6 +131,11 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         if self.extraction_config:
+            doc_id = None
+            if _DOCUMENT_ID in self.extraction_config:
+                doc_id_field = self.extraction_config[_DOCUMENT_ID]
+                if doc_id_field in doc:
+                    doc_id = doc[doc_id_field]
             if _EXTRACTION_POLICY in self.extraction_config:
                 self.global_extraction_policy = self.extraction_config[
                     _EXTRACTION_POLICY]
@@ -171,7 +177,7 @@ class Core(object):
                                                                                 matches[index].value, re_extractor)
                         elif extractor == _TITLE:
                             doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
-                                                                      extractors[extractor])
+                                                                          extractors[extractor])
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
@@ -182,6 +188,7 @@ class Core(object):
                 if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                     doc[_CONTENT_EXTRACTION][_URL] = dict()
                     doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+                    doc[_TLD] = self.extract_tld(doc[_URL])
 
             """Phase 2: The Data Extraction"""
             if _DATA_EXTRACTION in self.extraction_config:
@@ -269,7 +276,7 @@ class Core(object):
                                                                                                          results,
                                                                                                          method,
                                                                                                          segment,
-                                                                                                         score))
+                                                                                                         score, doc_id))
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(
                                                                             doc, field, results)
@@ -286,15 +293,58 @@ class Core(object):
                                                                                                      results,
                                                                                                      method,
                                                                                                      segment,
-                                                                                                     score))
+                                                                                                     score, doc_id))
                                                                 if create_knowledge_graph:
                                                                     self.create_knowledge_graph(
                                                                         doc, field, results)
 
-        if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
-            doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(
-                doc[_KNOWLEDGE_GRAPH])
+            if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
+                doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+
+            """Optional Phase 3: Knowledge Graph Enhancement"""
+            if _KG_ENHANCEMENT in self.extraction_config:
+                kg_configs = self.extraction_config[_KG_ENHANCEMENT]
+                if isinstance(kg_configs, dict):
+                    kg_configs = [kg_configs]
+
+                for i in range(len(kg_configs)):
+                    kg_config = kg_configs[i]
+                    input_paths = kg_config[_INPUT_PATH] if _INPUT_PATH in kg_config else None
+                    if not input_paths:
+                        raise KeyError(
+                            '{} not found for knowledge graph enhancement in extraction_config'.format(_INPUT_PATH))
+
+                    if not isinstance(input_paths, list):
+                        input_paths = [input_paths]
+
+                    for input_path in input_paths:
+                        if _FIELDS in kg_config:
+                            if input_path not in self.data_extraction_path:
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
+                            for match in matches:
+                                fields = kg_config[_FIELDS]
+                                for field in fields.keys():
+                                    if _EXTRACTORS in fields[field]:
+                                        extractors = fields[field][_EXTRACTORS]
+                                        for extractor in extractors.keys():
+                                            try:
+                                                foo = getattr(self, extractor)
+                                            except Exception as e:
+                                                foo = None
+                                            if foo:
+                                                if _CONFIG not in extractors[extractor]:
+                                                    extractors[extractor][_CONFIG] = dict()
+                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                results = foo(match.value, extractors[extractor][_CONFIG])
+                                                if results:
+                                                    doc[_KNOWLEDGE_GRAPH][field] = results
+
         return doc
+
+    @staticmethod
+    def extract_tld(url):
+        return tldextract.extract(url).domain + '.' + tldextract.extract(url).suffix
 
     # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
     #     if self.check_if_run_extraction(match_value, field,
@@ -323,9 +373,12 @@ class Core(object):
 
         for extraction in extractions:
             key = extraction['value']
-            if isinstance(key, str) or isinstance(key, numbers.Number):
-                key = str(key).strip().lower()
-
+            if isinstance(key, basestring) or isinstance(key, numbers.Number):
+                # try except block because unicode characters will not be lowered
+                try:
+                    key = str(key).strip().lower()
+                except:
+                    pass
             if 'metadata' in extraction:
                 sorted_metadata = Core.sort_dict(extraction['metadata'])
                 for k, v in sorted_metadata.iteritems():
@@ -445,13 +498,15 @@ class Core(object):
         return segment
 
     @staticmethod
-    def add_origin_info(results, method, segment, score):
+    def add_origin_info(results, method, segment, score, doc_id=None):
         if results:
             for result in results:
                 o = dict()
                 o['segment'] = segment
                 o['method'] = method
                 o['score'] = score
+                if doc_id:
+                    o[_DOCUMENT_ID] = doc_id
                 result['origin'] = o
         return results
 
@@ -521,7 +576,9 @@ class Core(object):
         ep = self.determine_extraction_policy(title_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
-            content_extraction[field_name] = self.extract_title(html)
+            extracted_title = self.extract_title(html)
+            if extracted_title:
+                content_extraction[field_name] = extracted_title
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process title %s' % time_taken
@@ -717,7 +774,6 @@ class Core(object):
 
         result = self._extract_using_regex(text, regex, include_context, flags)
         # TODO ADD code to handle post_filters
-
         return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
 
     @staticmethod
@@ -951,17 +1007,18 @@ class Core(object):
         return e.extract(document, options)
 
     def extract_title(self, html_content, options=None):
-        matches = re.search(self.html_title_regex,
-                            html_content, re.IGNORECASE | re.S)
-        title = None
-        if matches:
-            title = matches.group(1)
-            title = title.replace('\r', '')
-            title = title.replace('\n', '')
-            title = title.replace('\t', '')
-        if not title:
-            title = ''
-        return {'text': title}
+        if html_content:
+            matches = re.search(self.html_title_regex, html_content, re.IGNORECASE | re.S)
+            title = None
+            if matches:
+                title = matches.group(1)
+                title = title.replace('\r', '')
+                title = title.replace('\n', '')
+                title = title.replace('\t', '')
+            if not title:
+                title = ''
+            return {'text': title}
+        return None
 
     @staticmethod
     def extract_crftokens(text, options=None):
@@ -1027,59 +1084,14 @@ class Core(object):
                 out.append(result['value'])
         return out
 
-    # def extract_location_url(self, d, config):
-    #     if _DICTIONARY in config:
-    #         self.load_dictionary(config[_DICTIONARY], config[_DICTIONARY])
-    #     if not self.country_code_dict:
-    #         self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
-    #     dict_out = dict()
-    #     data_extraction = d[_DATA_EXTRACTION] if _DATA_EXTRACTION in d else None
-    #
-    #     dict_out[_CITY] = self.create_list_data_extraction(data_extraction, _CITY)
-    #     dict_out[_STATE] = self.create_list_data_extraction(data_extraction, _STATE)
-    #     dict_out[_COUNTRY] = self.create_list_data_extraction(data_extraction, _COUNTRY)
-    #     if not dict_out[_CITY]:
-    #         city_config = {_FIELD_NAME: _CITY, _DICTIONARY: _CITY}
-    #         dict_out[_CITY] = self.get_value_list_from_results(self.extract_using_dictionary(d, city_config))
-    #
-    #     if not dict_out[_STATE]:
-    #         state_config = {_FIELD_NAME: _STATE, _DICTIONARY: _STATE}
-    #         dict_out[_STATE] = self.get_value_list_from_results(self.extract_using_dictionary(d, state_config))
-    #
-    #     if not dict_out[_COUNTRY]:
-    #         country_config = {_FIELD_NAME: _COUNTRY, _DICTIONARY: _COUNTRY}
-    #         dict_out[_COUNTRY] = self.get_value_list_from_results(self.extract_using_dictionary(d, country_config))
-    #
-    #     tokens_url = d[_SIMPLE_TOKENS]
-    #     url = d[_TEXT]
-    #     # Get country codes from url
-    #     ann_countries = list()
-    #     for token in tokens_url:
-    #         if token in self.country_code_dict:
-    #             # Check if its actually a country code in the orig url
-    #             pos = url.find('.' + token)
-    #             if url[pos - 3:pos] in ['.co', '.ac'] or url[pos - 4:pos] in ['.org', '.com', '.edu', '.gov']:
-    #                 ann_countries.append(self.country_code_dict[token])
-    #     dict_out[_COUNTRY].extend(ann_countries)
-    #     for token in tokens_url:
-    #         for i in range(0, len(token)):
-    #             for j in range(i):
-    #                 # Cities
-    #                 value = token[j:i]
-    #                 city = self.tries[_CITY].get(value)
-    #                 if city is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_CITY].append(value)
-    #                 # States
-    #                 state = self.tries[_STATE].get(value)
-    #                 if state is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_STATE].append(value)
-    #
-    #                 # Countries
-    #                 country = self.tries[_COUNTRY].get(value)
-    #                 if country is not None and len(value) > 4 and value not in self.tries[_STOP_WORDS]:
-    #                     dict_out[_COUNTRY].append(value)
-    #     print dict_out
-    #     return dict_out
+    def extract_country_url(self, d, config):
+        if not self.country_code_dict:
+            try:
+                self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format('country_code')
 
-
-
+        tokens_url = d[_SIMPLE_TOKENS]
+        return self._relevant_text_from_context(tokens_url,
+                                                url_country_extractor.extract(tokens_url, self.country_code_dict),
+                                                config[_FIELD_NAME])
