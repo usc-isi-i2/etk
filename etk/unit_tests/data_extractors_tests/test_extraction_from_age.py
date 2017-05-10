@@ -20,7 +20,7 @@ class TestExtractionFromAge(unittest.TestCase):
 
         c = Core()
         for t in self.doc:
-            extracted_ages = c._extract_age(t['content'])
+            extracted_ages = c._extract_age(t['text'])
             extracted_ages = [age['value'] for age in extracted_ages]
             for extracted_age in extracted_ages:
                 for correct_age in t['correct']:
