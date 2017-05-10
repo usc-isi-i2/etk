@@ -3,10 +3,12 @@
 import re
 import spacy
 from spacy.matcher import Matcher
-from spacy.attrs import FLAG58, POS, ORTH, LENGTH, LOWER, IS_DIGIT, IS_ASCII
+from spacy.attrs import FLAG58, FLAG57, POS, ORTH, LENGTH, LOWER, IS_DIGIT, IS_ASCII, LIKE_NUM, IS_ALPHA
 
 street = ["avenue", "blvd", "boulevard", "pkwy", "parkway", "way",
           "st", "street", "rd", "road", "drive", "lane", "alley", "ave"]
+
+separator = ["and", "/", "\\", "-", "&"]
 
 
 def add_to_vocab(nlp, lst):
@@ -27,31 +29,78 @@ def load_address_matcher(nlp):
     street_ids = {nlp.vocab.strings[
         s.lower()] for s in street}
 
+    is_separator = FLAG57
+    separator_ids = {nlp.vocab.strings[
+        s.lower()] for s in separator}
+
     # Add the flags
     for lexeme in nlp.vocab:
         if lexeme.lower in street_ids:
             lexeme.set_flag(is_street, True)
+        if lexeme.lower in separator_ids:
+            lexeme.set_flag(is_separator, True)
 
     # Add rules
+    for length in range(1, 6):
+        # direct address
+        matcher.add_pattern('ADDRESS',
+                            [
+                                {LIKE_NUM: True, LENGTH: length},
+                                {IS_ALPHA: True},
+                                {is_street: True}
+                            ])
+        matcher.add_pattern('ADDRESS',
+                            [
+                                {LIKE_NUM: True, LENGTH: length},
+                                {IS_ALPHA: True},
+                                {IS_ALPHA: True},
+                                {is_street: True}
+                            ])
+        matcher.add_pattern('ADDRESS',
+                            [
+                                {LIKE_NUM: True, LENGTH: length},
+                                {IS_ALPHA: True},
+                                {IS_ALPHA: True},
+                                {IS_ALPHA: True},
+                                {is_street: True}
+                            ])
 
+    # Add and filter out matches to return longest match
+    # matcher.add_pattern('ADDRESS',
+    #                         [
+    #                             {IS_ALPHA: True},
+    #                             {is_street: True}
+    #                         ])
+        
+
+    # two street rules
     matcher.add_pattern('ADDRESS',
                         [
-                            {IS_DIGIT: True},
-                            {IS_ASCII: True, 'OP' : '*'},
-                            {is_street: True}                         
+                            {LIKE_NUM: True},
+                            {IS_ALPHA: True, 'OP': '?'},
+                            {is_street: True},
+                            {is_separator: True},
+                            {LIKE_NUM: True},
+                            {IS_ALPHA: True, 'OP': '?'},
+                            {is_street: True}
                         ])
     matcher.add_pattern('ADDRESS',
                         [
-                            {IS_DIGIT: True},
-                            {IS_ASCII: True},
-                            {is_street: True}                         
+                            {IS_ALPHA: True},
+                            {is_street: True},
+                            {is_separator: True},
+                            {IS_ALPHA: True},
+                            {is_street: True}
                         ])
     matcher.add_pattern('ADDRESS',
                         [
-                            {IS_DIGIT: True},
-                            {IS_ASCII: False, 'OP' : '*'},
-                            {is_street: True}                         
+                            {LIKE_NUM: True},
+                            {is_street: True},
+                            {is_separator: True},
+                            {LIKE_NUM: True},
+                            {is_street: True}
                         ])
+
 
     return matcher
 
