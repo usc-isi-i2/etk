@@ -36,7 +36,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     def test_extraction_from_date_spacy(self):
         for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['content']))
+                self.c.extract_crftokens(t['text']))
 
             extraction_config = {'field_name': 'posting_date'}
             d = {'simple_tokens': crf_tokens}
@@ -49,11 +49,42 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(extracted_dates, correct_dates)
 
+    def test_extraction_from_date_spacy_using_config(self):
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "posting_date": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
+        c = Core(extraction_config=e_config, load_spacy=True)
+
+        for t in self.ground_truth['date']:
+            r = c.process(t)
+            if 'data_extraction' in r:
+                extracted_dates = [x['value'] for x in r['data_extraction'][
+                    'posting_date']['extract_using_spacy']['results']]
+            else:
+                extracted_dates = []
+
+            correct_dates = t['extracted']
+
+            self.assertEquals(extracted_dates, correct_dates)
+
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
             crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['content']))
+                self.c.extract_crftokens(t['text']))
 
             extraction_config = {'field_name': 'age'}
             d = {'simple_tokens': crf_tokens}
@@ -67,11 +98,40 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
+    def test_extraction_from_age_spacy_using_config(self):
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "age": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
+        c = Core(extraction_config=e_config, load_spacy=True)
+
+        for t in self.ground_truth['age']:
+            r = c.process(t)
+            if 'data_extraction' in r:
+                extracted_ages = [x['value'] for x in r['data_extraction'][
+                    'age']['extract_using_spacy']['results']]
+            else:
+                extracted_ages = []
+
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
     # def test_extraction_from_social_media(self):
     #     for t in self.ground_truth['social_media']:
 
     #         crf_tokens = self.c.extract_tokens_from_crf(
-    #             self.c.extract_crftokens(t['content']))
+    #             self.c.extract_crftokens(t['text']))
 
     #         nlp_doc = self.c.nlp(crf_tokens)
 
@@ -84,7 +144,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     #     for t in self.ground_truth['address']:
 
     #         crf_tokens = self.c.extract_tokens_from_crf(
-    #             self.c.extract_crftokens(t['content']))
+    #             self.c.extract_crftokens(t['text']))
     #         nlp_doc = self.c.nlp(crf_tokens)
 
     #         extracted_addresses = spacy_address_extractor.extract(
