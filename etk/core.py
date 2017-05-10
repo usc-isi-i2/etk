@@ -61,6 +61,8 @@ _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _AGE = 'age'
 _POSTING_DATE = 'posting_date'
+_SOCIAL_MEDIA = 'social_media'
+_ADDRESS = 'address'
 _RESOURCES = 'resources'
 _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
@@ -121,10 +123,11 @@ class Core(object):
         self.content_extraction_path = None
         self.data_extraction_path = dict()
         if load_spacy:
-            self.load_matchers()
+            self.prep_spacy()
         else:
             self.nlp = None
         self.country_code_dict = None
+        self.matchers = dict()
 
     """ Define all API methods """
 
@@ -747,23 +750,22 @@ class Core(object):
             return None
 
     def extract_using_spacy(self, d, config):
-        field = config[_FIELD_NAME]
-        if _SPACY_EXTRACTION not in d:
-            d[_SPACY_EXTRACTION] = self.run_spacy_extraction(d)
-        return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
-
-    def run_spacy_extraction(self, d):
+        field_name = config[_FIELD_NAME]
         if not self.nlp:
-            self.load_matchers()
+            self.prep_spacy()
 
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
-        spacy_extractions = dict()
-
-        spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
-                                                                            extract(nlp_doc, self.matchers['date']), _POSTING_DATE)
-        spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
-                                                                   spacy_age_extractor.extract(nlp_doc, self.matchers['age']), _AGE)
-        return spacy_extractions
+        self.load_matchers(field_name)
+        results = None
+        if field_name == _AGE:
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
+        elif field_name == _POSTING_DATE:
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.extract(nlp_doc, self.matchers[_POSTING_DATE]), _POSTING_DATE)
+        elif field_name == _SOCIAL_MEDIA:
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_social_media_extractor.extract(nlp_doc, self.matchers[_SOCIAL_MEDIA]), _SOCIAL_MEDIA)
+        elif field_name == _ADDRESS:
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_address_extractor.extract(nlp_doc, self.matchers[_ADDRESS]), _ADDRESS)
+        return results
 
     def extract_from_landmark(self, doc, config):
         field_name = config[_FIELD_NAME]
@@ -997,29 +999,26 @@ class Core(object):
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
 
-    def load_matchers(self):
+    def prep_spacy(self):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
-        self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(
-            tokens)
+        self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
 
-        matchers = dict()
+    def load_matchers(self, field_name=None):
+        if field_name:
+            if field_name == _AGE:
+                if _AGE not in self.matchers:
+                    self.matchers[_AGE] = spacy_age_extractor.load_age_matcher(self.nlp)
 
-        # Load date_extractor matcher
-        matchers['date'] = spacy_date_extractor.load_date_matcher(self.nlp)
-
-        # Load age_extractor matcher
-        matchers['age'] = spacy_age_extractor.load_age_matcher(self.nlp)
-
-        # Load social_media_extractor matcher
-        matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(
-            self.nlp)
-
-        # Load address matcher
-        matchers['address'] = spacy_address_extractor.load_address_matcher(
-            self.nlp)
-        
-        self.matchers = matchers
+            if field_name == _POSTING_DATE:
+                if _POSTING_DATE not in self.matchers:
+                    self.matchers[_POSTING_DATE] = spacy_date_extractor.load_date_matcher(self.nlp)
+            if field_name == _SOCIAL_MEDIA:
+                if _SOCIAL_MEDIA not in self.matchers:
+                    self.matchers[_SOCIAL_MEDIA] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
+            if field_name == _ADDRESS:
+                if _ADDRESS not in self.matchers:
+                    self.matchers[_ADDRESS] = spacy_address_extractor.load_address_matcher(self.nlp)
 
     @staticmethod
     def create_list_data_extraction(data_extraction, field_name, method=_EXTRACT_USING_DICTIONARY):
