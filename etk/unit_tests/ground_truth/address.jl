@@ -37,10 +37,10 @@
 {"text": "1 name street and 2 name blvd", "extracted": [], "correct": ""}
 {"text": "1 street / 2 blvd", "extracted": [], "correct": ""}
 {"text": "name street & name blvd", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
-{"text": "", "extracted": [], "correct": ""}
+{"text": "1422 28th Street Suite A", "extracted": [], "correct": ""}
+{"text": "6817 SOUTHPOINT PARKWAY", "extracted": [], "correct": ""}
+{"text": "6817 southpoint 12th PARKWAY", "extracted": [], "correct": ""}
+{"text": "6817 SOUTHPOINT 12TH PARKWAY", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}
 {"text": "", "extracted": [], "correct": ""}

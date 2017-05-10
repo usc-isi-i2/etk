@@ -141,6 +141,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     #         # print extracted_social_media_handles
 
     # def test_extraction_from_address_spacy(self):
+    #     count = 1
     #     for t in self.ground_truth['address']:
 
     #         crf_tokens = self.c.extract_tokens_from_crf(
@@ -153,7 +154,9 @@ class TestExtractionsUsingRegex(unittest.TestCase):
     #         extracted_addresses = [address['value']
     #                                for address in extracted_addresses]
 
-    #         # print extracted_addresses
+    #         print count, extracted_addresses
+    #         count += 1
+
 
 if __name__ == '__main__':
     unittest.main()
