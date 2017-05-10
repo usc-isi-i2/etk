@@ -94,13 +94,9 @@ _HTML = "html"
 
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
-_SEGMENT_READABILITY_STRICT = "readability_strict"
-_SEGMENT_READABILITY_RELAXED = "readability_relaxed"
 _SEGMENT_OTHER = "other_segment"
 
-_METHOD_GUROBI = "gurobi"
 _METHOD_INFERLINK = "inferlink"
-_METHOD_OTHER = "other_method"
 
 _SOURCE_TYPE = "source_type"
 _OBFUSCATION = "obfuscation"
