@@ -2,6 +2,7 @@
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
+from spacy_extractors import address_extractor as spacy_address_extractor
 from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -752,26 +753,16 @@ class Core(object):
         return d[_SPACY_EXTRACTION][field] if field in d[_SPACY_EXTRACTION] else None
 
     def run_spacy_extraction(self, d):
-        return dict()
         if not self.nlp:
             self.load_matchers()
 
-        spacy_tokenizer = self.c.nlp.tokenizer
-        self.c.nlp.tokenizer = lambda tokens: spacy_tokenizer.tokens_from_list(
-            tokens)
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
-
         spacy_extractions = dict()
 
         spacy_extractions[_POSTING_DATE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.
-                                                                            extract(nlp_doc, self.matchers['date']),
-                                                                            _POSTING_DATE)
-
+                                                                            extract(nlp_doc, self.matchers['date']), _POSTING_DATE)
         spacy_extractions[_AGE] = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
-                                                                   spacy_age_extractor.extract(nlp_doc,
-                                                                                               self.matchers['age']),
-                                                                   _AGE)
-
+                                                                   spacy_age_extractor.extract(nlp_doc, self.matchers['age']), _AGE)
         return spacy_extractions
 
     def extract_from_landmark(self, doc, config):
@@ -1008,7 +999,10 @@ class Core(object):
 
     def load_matchers(self):
         self.nlp = spacy.load('en')
-        self.spacy_tokenizer = self.nlp.tokenizer
+        self.old_tokenizer = self.nlp.tokenizer
+        self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(
+            tokens)
+
         matchers = dict()
 
         # Load date_extractor matcher
@@ -1018,7 +1012,13 @@ class Core(object):
         matchers['age'] = spacy_age_extractor.load_age_matcher(self.nlp)
 
         # Load social_media_extractor matcher
-        matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(self.nlp)
+        matchers['social_media'] = spacy_social_media_extractor.load_social_media_matcher(
+            self.nlp)
+
+        # Load address matcher
+        matchers['address'] = spacy_address_extractor.load_address_matcher(
+            self.nlp)
+        
         self.matchers = matchers
 
     @staticmethod
