@@ -88,13 +88,17 @@ def run_parallel(input, output, core, processes=0):
 
 def run_serial(input, output, core):
     output = codecs.open(output, 'w')
+    index = 1
     for line in codecs.open(input):
+        print 'processing line number:', index
         start_time_doc = time.time()
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
         output.write(json.dumps(result) + '\n')
         time_taken_doc = time.time() - start_time_doc
-        print "Took", str(time_taken_doc), " seconds"
+        if time_taken_doc > 5:
+            print "Took", str(time_taken_doc), " seconds"
+        index += 1
     output.close()
 
 

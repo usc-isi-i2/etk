@@ -1,5 +1,5 @@
 {
-  "document_id": "doc_id",
+  "document_id": "_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
   "resources": {
@@ -235,6 +235,13 @@
             "extract_weight": {
               "config": {},
               "extraction_policy": "replace"
+            }
+          }
+        },
+        "address": {
+          "extractors": {
+            "extract_using_spacy": {
+              "config": {}
             }
           }
         }
