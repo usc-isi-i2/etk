@@ -42,7 +42,6 @@ _COUNTRY = 'country'
 _CONTENT_EXTRACTION = 'content_extraction'
 _SPACY_EXTRACTION = 'spacy_extraction'
 _RAW_CONTENT = 'raw_content'
-_RAW_CONTENT_NO_TABLES = 'raw_content_no_tables'
 _INPUT_PATH = 'input_path'
 _READABILITY = 'readability'
 _LANDMARK = 'landmark'
@@ -179,7 +178,6 @@ class Core(object):
                         elif extractor == _TABLE:
                             doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                         matches[index].value, extractors[extractor])
-                            doc[_RAW_CONTENT_NO_TABLES] = str(table_extractor.remove_tables(matches[index].value))
                 # Add the url as segment as well
                 if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                     doc[_CONTENT_EXTRACTION][_URL] = dict()
