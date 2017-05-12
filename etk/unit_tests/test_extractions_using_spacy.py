@@ -50,6 +50,76 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(extracted_dates, correct_dates)
 
+    def test_extraction_from_age_spacy(self):
+        for t in self.ground_truth['age']:
+
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'age'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_ages = self.c.extract_using_spacy(d, extraction_config)
+
+            extracted_ages = [match['value'] for match in extracted_ages]
+
+            if len(extracted_ages) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_ages)
+
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
+    def test_extraction_from_social_media(self):
+        for t in self.ground_truth['social_media']:
+
+            for social_media in t['correct']:
+                t['correct'][social_media] = [h.lower()
+                                              for h in t['correct'][social_media]]
+
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'social_media'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_social_media_handles = self.c.extract_using_spacy(
+                d, extraction_config)
+
+            extracted_handles = dict()
+
+            for match in extracted_social_media_handles:
+                social_network = match['metadata']['social_network']
+                if social_network not in extracted_handles:
+                    extracted_handles[social_network] = [match['value']]
+                else:
+                    extracted_handles[social_network].append(match['value'])
+
+            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_social_media_handles)
+
+            self.assertEquals(extracted_handles, t['correct'])
+
+    def test_extraction_from_address_spacy(self):
+        count = 1
+        for t in self.ground_truth['address']:
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'address'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_addresses = self.c.extract_using_spacy(
+                d, extraction_config)
+
+            extracted_addresses = [address['value']
+                                   for address in extracted_addresses]
+
+            correct_addresses = t['extracted']
+
+            self.assertEquals(extracted_addresses, correct_addresses)
+
+        del self.c
+        gc.collect()
+
     def test_extraction_from_date_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -84,24 +154,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
         del c
         gc.collect()
 
-    def test_extraction_from_age_spacy(self):
-        for t in self.ground_truth['age']:
-
-            crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['text']))
-
-            extraction_config = {'field_name': 'age'}
-            d = {'simple_tokens': crf_tokens}
-
-            extracted_ages = self.c.extract_using_spacy(d, extraction_config)
-
-            extracted_ages = [match['value'] for match in extracted_ages]
-
-            if len(extracted_ages) == 0 and len(t['correct']) == 0:
-                self.assertFalse(extracted_ages)
-
-            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
-
     def test_extraction_from_age_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -133,36 +185,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
         del c
         gc.collect()
-
-    def test_extraction_from_social_media(self):
-        for t in self.ground_truth['social_media']:
-
-            for social_media in t['correct']:
-                t['correct'][social_media] = [h.lower()
-                                              for h in t['correct'][social_media]]
-
-            crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['text']))
-
-            extraction_config = {'field_name': 'social_media'}
-            d = {'simple_tokens': crf_tokens}
-
-            extracted_social_media_handles = self.c.extract_using_spacy(
-                d, extraction_config)
-
-            extracted_handles = dict()
-
-            for match in extracted_social_media_handles:
-                social_network = match['metadata']['social_network']
-                if social_network not in extracted_handles:
-                    extracted_handles[social_network] = [match['value']]
-                else:
-                    extracted_handles[social_network].append(match['value'])
-
-            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
-                self.assertFalse(extracted_social_media_handles)
-
-            self.assertEquals(extracted_handles, t['correct'])
 
     def test_extraction_from_social_media_spacy_using_config(self):
         e_config = {
@@ -212,25 +234,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
         del c
         gc.collect()
-
-    def test_extraction_from_address_spacy(self):
-        count = 1
-        for t in self.ground_truth['address']:
-            crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['text']))
-
-            extraction_config = {'field_name': 'address'}
-            d = {'simple_tokens': crf_tokens}
-
-            extracted_addresses = self.c.extract_using_spacy(
-                d, extraction_config)
-
-            extracted_addresses = [address['value']
-                                   for address in extracted_addresses]
-
-            correct_addresses = t['extracted']
-
-            self.assertEquals(extracted_addresses, correct_addresses)
 
     def test_extraction_from_address_spacy_using_config(self):
         e_config = {
