@@ -13,7 +13,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import address_extractor as spacy_address_extractor
 
 
-class TestExtractionsUsingRegex(unittest.TestCase):
+class TestExtractionsUsingSpacy(unittest.TestCase):
 
     def setUp(self):
 
@@ -80,6 +80,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(extracted_dates, correct_dates)
 
+        c = None
+
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
@@ -126,6 +128,8 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 extracted_ages = []
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
+        c = None
 
     def test_extraction_from_social_media(self):
         for t in self.ground_truth['social_media']:
@@ -199,7 +203,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
-
+        c = None
 
     # def test_extraction_from_address_spacy(self):
     #     count = 1
