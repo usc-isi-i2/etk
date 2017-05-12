@@ -10,9 +10,9 @@ def get_populated_places(cities, geonames_dict):
             geo_cities = geonames_dict[city]
             for geo_city in geo_cities:
                 place = dict()
-                place['value'] = city + '-' + geo_city['state'] + '-' + geo_city['country']
+                place['value'] = city
                 place['metadata'] = geo_city
-                place['context'] = dict()
+                # place['context'] = dict()
                 if place not in populated_places:
                     populated_places.append(place)
 
