@@ -3,7 +3,6 @@ from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
-from data_extractors import spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -17,6 +16,7 @@ from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
 from data_extractors.digReviewIDExtractor import review_id_extractor
+from data_extractors import date_parser
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor
 import json
 import gzip
@@ -238,7 +238,7 @@ class Core(object):
                                             for extractor in extractors.keys():
                                                 try:
                                                     foo = getattr(self, extractor)
-                                                except Exception as e:
+                                                except:
                                                     foo = None
                                                 if foo:
                                                     # score is 1.0 because every method thinks it is the best
@@ -315,7 +315,7 @@ class Core(object):
                                         for extractor in extractors.keys():
                                             try:
                                                 foo = getattr(self, extractor)
-                                            except Exception as e:
+                                            except:
                                                 foo = None
                                             if foo:
                                                 if _CONFIG not in extractors[extractor]:
@@ -331,23 +331,6 @@ class Core(object):
     def extract_tld(url):
         return tldextract.extract(url).domain + '.' + tldextract.extract(url).suffix
 
-    # def run_extraction(self, match_value, field, extractor, ep, foo, extractor_config, method, segment, score, create_knowledge_graph, doc):
-    #     if self.check_if_run_extraction(match_value, field,
-    #                                     extractor,
-    #                                     ep):
-    #         results = foo(match_value,
-    #                       extractor_config)
-    #         if results:
-    #             self.add_data_extraction_results(match_value, field,
-    #                                              extractor,
-    #                                              self.add_origin_info(
-    #                                                  results,
-    #                                                  method,
-    #                                                  segment,
-    #                                                  score))
-    #             if create_knowledge_graph:
-    #                 self.create_knowledge_graph(doc, field, results)
-
     @staticmethod
     def create_knowledge_graph(doc, field_name, extractions):
         if _KNOWLEDGE_GRAPH not in doc:
@@ -358,7 +341,7 @@ class Core(object):
 
         for extraction in extractions:
             key = extraction['value']
-            if isinstance(key, basestring) or isinstance(key, numbers.Number):
+            if (isinstance(key, basestring) or isinstance(key, numbers.Number)) and field_name != _POSTING_DATE:
                 # try except block because unicode characters will not be lowered
                 try:
                     key = str(key).strip().lower()
@@ -761,13 +744,24 @@ class Core(object):
         self.load_matchers(field_name)
         results = None
         if field_name == _AGE:
-            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
         elif field_name == _POSTING_DATE:
-            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_date_extractor.extract(nlp_doc, self.matchers[_POSTING_DATE]), _POSTING_DATE)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_date_extractor.extract(nlp_doc,
+                                                                        self.matchers[_POSTING_DATE]), _POSTING_DATE)
+            if _POST_FILTER in config:
+                post_filters = config[_POST_FILTER]
+                results = self.run_post_filters_results(results, post_filters)
+
         elif field_name == _SOCIAL_MEDIA:
-            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_social_media_extractor.extract(nlp_doc, self.matchers[_SOCIAL_MEDIA]), _SOCIAL_MEDIA)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_social_media_extractor.extract(nlp_doc,
+                                                                        self.matchers[_SOCIAL_MEDIA]), _SOCIAL_MEDIA)
         elif field_name == _ADDRESS:
-            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS], spacy_address_extractor.extract(nlp_doc, self.matchers[_ADDRESS]), _ADDRESS)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_address_extractor.extract(nlp_doc,
+                                                                                    self.matchers[_ADDRESS]), _ADDRESS)
         return results
 
     def extract_from_landmark(self, doc, config):
@@ -832,8 +826,8 @@ class Core(object):
         source_type = config[_SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
         include_context = True
         output_format= _OBFUSCATION
-        if _PRE_FILTER in config:
-            text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
+        # if _PRE_FILTER in config:
+        #     text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
         return self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                 self._extract_phone(tokens, source_type, include_context,
                                                                     output_format), config[_FIELD_NAME])
@@ -953,6 +947,26 @@ class Core(object):
             print 'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
+    def run_post_filters_results(self, results, post_filters):
+        if results:
+            if not isinstance(results, list):
+                results = [results]
+            if not isinstance(post_filters, list):
+                post_filters = [post_filters]
+            out_results = list()
+            for post_filter in post_filters:
+                try:
+                    f = getattr(self, post_filter)
+                except Exception as e:
+                    raise 'Exception: {}, no function {} defined in core.py'.format(e, post_filter)
+
+                for result in results:
+                    val = f(result['value'])
+                    if val:
+                        result['value'] = val
+                        out_results.append(result)
+            return out_results if len(out_results) > 0 else None
+
     @staticmethod
     def string_to_lambda(s):
         try:
@@ -992,11 +1006,11 @@ class Core(object):
     def extract_table(self, html_doc):
         return table_extractor.extract(html_doc)
 
-    def extract_stock_tickers(self, doc):
-        return extract_stock_tickers(doc)
+    # def extract_stock_tickers(self, doc):
+    #     return extract_stock_tickers(doc)
 
-    def extract_spacy(self, doc):
-        return spacy_extractor.spacy_extract(doc)
+    # def extract_spacy(self, doc):
+    #     return spacy_extractor.spacy_extract(doc)
 
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
@@ -1044,10 +1058,15 @@ class Core(object):
         if not self.country_code_dict:
             try:
                 self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
-            except Exception as e:
+            except:
                 raise '{} dictionary missing from resources'.format('country_code')
 
         tokens_url = d[_SIMPLE_TOKENS]
         return self._relevant_text_from_context(tokens_url,
                                                 url_country_extractor.extract(tokens_url, self.country_code_dict),
                                                 config[_FIELD_NAME])
+
+    @staticmethod
+    def parse_date(str_date):
+        return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+
