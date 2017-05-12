@@ -4,6 +4,7 @@ import unittest
 import sys
 import os
 import json
+import gc
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
@@ -32,7 +33,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.ground_truth[extractor] = list()
                 for test_case in test_data:
                     self.ground_truth[extractor].append(json.loads(test_case))
-    '''
+    
     def test_extraction_from_date_spacy(self):
         for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
@@ -48,7 +49,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-
+    
     def test_extraction_from_date_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -80,8 +81,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(extracted_dates, correct_dates)
 
-        c = None
-
+        del c
+        gc.collect()
+    
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
@@ -99,7 +101,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_ages)
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
-
+    
     def test_extraction_from_age_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -129,8 +131,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
-        c = None
-
+        del c
+        gc.collect()
+    
     def test_extraction_from_social_media(self):
         for t in self.ground_truth['social_media']:
 
@@ -159,7 +162,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(extracted_handles, t['correct'])
 
-    '''
+    
     def test_extraction_from_social_media_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -204,7 +207,8 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
-        c = None
+        del c
+        gc.collect()
 
     # def test_extraction_from_address_spacy(self):
     #     count = 1
