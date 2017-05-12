@@ -33,7 +33,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.ground_truth[extractor] = list()
                 for test_case in test_data:
                     self.ground_truth[extractor].append(json.loads(test_case))
-    
+
     def test_extraction_from_date_spacy(self):
         for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
@@ -49,7 +49,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-    
+
     def test_extraction_from_date_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -83,7 +83,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
         del c
         gc.collect()
-    
+
     def test_extraction_from_age_spacy(self):
         for t in self.ground_truth['age']:
 
@@ -101,7 +101,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_ages)
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
-    
+
     def test_extraction_from_age_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -133,20 +133,22 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
         del c
         gc.collect()
-    
+
     def test_extraction_from_social_media(self):
         for t in self.ground_truth['social_media']:
 
             for social_media in t['correct']:
-                t['correct'][social_media] = [h.lower() for h in t['correct'][social_media]]
+                t['correct'][social_media] = [h.lower()
+                                              for h in t['correct'][social_media]]
 
             crf_tokens = self.c.extract_tokens_from_crf(
-                 self.c.extract_crftokens(t['text']))
+                self.c.extract_crftokens(t['text']))
 
             extraction_config = {'field_name': 'social_media'}
             d = {'simple_tokens': crf_tokens}
 
-            extracted_social_media_handles = self.c.extract_using_spacy(d, extraction_config)
+            extracted_social_media_handles = self.c.extract_using_spacy(
+                d, extraction_config)
 
             extracted_handles = dict()
 
@@ -162,7 +164,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(extracted_handles, t['correct'])
 
-    
     def test_extraction_from_social_media_spacy_using_config(self):
         e_config = {
             'data_extraction': [
@@ -184,13 +185,14 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
         for t in self.ground_truth['social_media']:
             for social_media in t['correct']:
-                t['correct'][social_media] = [h.lower() for h in t['correct'][social_media]]
+                t['correct'][social_media] = [h.lower()
+                                              for h in t['correct'][social_media]]
 
             extracted_social_media_handles = c.process(t)
 
             if 'data_extraction' in extracted_social_media_handles:
                 extracted_social_media_handles = [x for x in extracted_social_media_handles['data_extraction'][
-                        'social_media']['extract_using_spacy']['results']]
+                    'social_media']['extract_using_spacy']['results']]
             else:
                 extracted_social_media_handles = []
 
@@ -207,26 +209,62 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
+
         del c
         gc.collect()
 
-    # def test_extraction_from_address_spacy(self):
-    #     count = 1
-    #     for t in self.ground_truth['address']:
+    def test_extraction_from_address_spacy(self):
+        count = 1
+        for t in self.ground_truth['address']:
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
 
-    #         crf_tokens = self.c.extract_tokens_from_crf(
-    #             self.c.extract_crftokens(t['text']))
-    #         nlp_doc = self.c.nlp(crf_tokens)
+            extraction_config = {'field_name': 'address'}
+            d = {'simple_tokens': crf_tokens}
 
-    #         extracted_addresses = spacy_address_extractor.extract(
-    #             nlp_doc, self.c.matchers['address'])
+            extracted_addresses = self.c.extract_using_spacy(
+                d, extraction_config)
 
-    #         extracted_addresses = [address['value']
-    #                                for address in extracted_addresses]
+            extracted_addresses = [address['value']
+                                   for address in extracted_addresses]
 
-    #         print count, extracted_addresses
-    #         count += 1
+            correct_addresses = t['extracted']
 
+            self.assertEquals(extracted_addresses, correct_addresses)
+
+    def test_extraction_from_address_spacy_using_config(self):
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "address": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
+        c = Core(extraction_config=e_config, load_spacy=True)
+
+        for t in self.ground_truth['address']:
+            r = c.process(t)
+            if 'data_extraction' in r:
+                extracted_addresses = [x['value'] for x in r['data_extraction'][
+                    'address']['extract_using_spacy']['results']]
+            else:
+                extracted_addresses = []
+
+            correct_addresses = t['extracted']
+
+            self.assertEquals(extracted_addresses, correct_addresses)
+
+        del c
+        gc.collect()
 
 if __name__ == '__main__':
     unittest.main()
