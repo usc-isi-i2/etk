@@ -118,7 +118,11 @@
         "posting_date": {
           "extractors": {
             "extract_using_spacy": {
-              "config": {}
+              "config": {
+                "post_filter": [
+                  "parse_date"
+                ]
+              }
             }
           }
         },
