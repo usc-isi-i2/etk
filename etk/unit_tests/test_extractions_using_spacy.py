@@ -127,18 +127,79 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
-    # def test_extraction_from_social_media(self):
-    #     for t in self.ground_truth['social_media']:
+    def test_extraction_from_social_media(self):
+        for t in self.ground_truth['social_media']:
 
-    #         crf_tokens = self.c.extract_tokens_from_crf(
-    #             self.c.extract_crftokens(t['text']))
+            for social_media in t['correct']:
+                t['correct'][social_media] = [h.lower() for h in t['correct'][social_media]]
 
-    #         nlp_doc = self.c.nlp(crf_tokens)
+            crf_tokens = self.c.extract_tokens_from_crf(
+                 self.c.extract_crftokens(t['text']))
 
-    #         extracted_social_media_handles = spacy_social_media_extractor.extract(
-    #             nlp_doc, self.c.matchers['social_media'])
+            extraction_config = {'field_name': 'social_media'}
+            d = {'simple_tokens': crf_tokens}
 
-    #         # print extracted_social_media_handles
+            extracted_social_media_handles = self.c.extract_using_spacy(d, extraction_config)
+
+            extracted_handles = dict()
+
+            for match in extracted_social_media_handles:
+                social_network = match['metadata']['social_network']
+                if social_network not in extracted_handles:
+                    extracted_handles[social_network] = [match['value']]
+                else:
+                    extracted_handles[social_network].append(match['value'])
+
+            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_social_media_handles)
+
+            self.assertEquals(extracted_handles, t['correct'])
+
+    def test_extraction_from_social_media_spacy_using_config(self):
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "social_media": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
+        c = Core(extraction_config=e_config, load_spacy=True)
+
+        for t in self.ground_truth['social_media']:
+            for social_media in t['correct']:
+                t['correct'][social_media] = [h.lower() for h in t['correct'][social_media]]
+
+            extracted_social_media_handles = c.process(t)
+
+            if 'data_extraction' in extracted_social_media_handles:
+                extracted_social_media_handles = [x for x in extracted_social_media_handles['data_extraction'][
+                        'social_media']['extract_using_spacy']['results']]
+            else:
+                extracted_social_media_handles = []
+
+            extracted_handles = dict()
+
+            for match in extracted_social_media_handles:
+                social_network = match['metadata']['social_network']
+                if social_network not in extracted_handles:
+                    extracted_handles[social_network] = [match['value']]
+                else:
+                    extracted_handles[social_network].append(match['value'])
+
+            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_social_media_handles)
+
+            self.assertEquals(extracted_handles, t['correct'])
+
 
     # def test_extraction_from_address_spacy(self):
     #     count = 1
