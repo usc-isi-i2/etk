@@ -138,6 +138,9 @@ class Core(object):
                 doc_id_field = self.extraction_config[_DOCUMENT_ID]
                 if doc_id_field in doc:
                     doc_id = doc[doc_id_field]
+                    doc[_DOCUMENT_ID] = doc_id
+                else:
+                    raise KeyError('{} not found in the input document'.format(doc_id_field))
             if _EXTRACTION_POLICY in self.extraction_config:
                 self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
             if _ERROR_HANDLING in self.extraction_config:
@@ -1009,7 +1012,6 @@ class Core(object):
             if field_name == _AGE:
                 if _AGE not in self.matchers:
                     self.matchers[_AGE] = spacy_age_extractor.load_age_matcher(self.nlp)
-
             if field_name == _POSTING_DATE:
                 if _POSTING_DATE not in self.matchers:
                     self.matchers[_POSTING_DATE] = spacy_date_extractor.load_date_matcher(self.nlp)

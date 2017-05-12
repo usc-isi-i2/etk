@@ -228,5 +228,23 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("title" in r["content_extraction"])
         self.assertTrue("inferlink_extractions" in r["content_extraction"])
 
+    def test_document_id_not_present(self):
+        e_config = {
+            'document_id': 'blah'
+        }
+        c = Core(extraction_config=e_config)
+        with self.assertRaises(KeyError):
+            r = c.process(self.doc)
+
+    def test_document_id(self):
+        e_config = {
+            'document_id': 'doc_id'
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(self.doc)
+        self.assertTrue('document_id' in r)
+        doc_id = '1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21'
+        self.assertEqual(r['document_id'], doc_id)
+
 if __name__ == '__main__':
     unittest.main()
