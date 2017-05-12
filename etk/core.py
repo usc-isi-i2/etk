@@ -13,6 +13,7 @@ from data_extractors import address_extractor
 from data_extractors import age_extractor
 from data_extractors import table_extractor
 from data_extractors import url_country_extractor
+from data_extractors import geonames_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
@@ -128,6 +129,7 @@ class Core(object):
             self.nlp = None
         self.country_code_dict = None
         self.matchers = dict()
+        self.geonames_dict = None
 
     """ Define all API methods """
 
@@ -1051,3 +1053,20 @@ class Core(object):
         return self._relevant_text_from_context(tokens_url,
                                                 url_country_extractor.extract(tokens_url, self.country_code_dict),
                                                 config[_FIELD_NAME])
+
+    def geonames_lookup(self, d, config):
+        field_name = config[_FIELD_NAME]
+
+        if not self.geonames_dict:
+            try:
+                self.geonames_dict = self.load_json_file(self.get_dict_file_name_from_config('geonames'))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format('geonames')
+
+        if _CITY in d[_KNOWLEDGE_GRAPH]:
+            cities = [x['value'] for x in d[_KNOWLEDGE_GRAPH][_CITY]]
+        else:
+            return None
+
+        return geonames_extractor.get_populated_places(cities, self.geonames_dict)
+
