@@ -283,9 +283,6 @@ class Core(object):
                                                                 if create_knowledge_graph:
                                                                     self.create_knowledge_graph(doc, field, results)
 
-            if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
-                doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
-
             """Optional Phase 3: Knowledge Graph Enhancement"""
             if _KG_ENHANCEMENT in self.extraction_config:
                 kg_configs = self.extraction_config[_KG_ENHANCEMENT]
@@ -323,7 +320,11 @@ class Core(object):
                                                 extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                 results = foo(match.value, extractors[extractor][_CONFIG])
                                                 if results:
-                                                    doc[_KNOWLEDGE_GRAPH][field] = results
+                                                    # doc[_KNOWLEDGE_GRAPH][field] = results
+                                                    self.create_knowledge_graph(doc, field, results)
+
+            if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
+                doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
 
         return doc
 
