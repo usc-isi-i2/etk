@@ -1069,5 +1069,8 @@ class Core(object):
 
     @staticmethod
     def parse_date(str_date):
-        return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+        try:
+            return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+        except:
+            return None
 
