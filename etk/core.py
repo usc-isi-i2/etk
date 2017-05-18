@@ -487,13 +487,13 @@ class Core(object):
         else:
             pct = 0.5
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
-            content_extraction[field_name] = dict()
             start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process landmark %s' % time_taken
-            if ifl_extractions:
+            if ifl_extractions and len(ifl_extractions.keys()) > 0:
+                content_extraction[field_name] = dict()
                 for key in ifl_extractions:
                     o = dict()
                     o[key] = dict()
