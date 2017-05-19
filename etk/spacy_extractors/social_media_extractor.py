@@ -12,7 +12,7 @@ def add_to_vocab(nlp, lst):
 
 def load_social_media_matcher(nlp):
 
-    social_media = ['twitter', 'facebook', 'instagram', 'wechat', 'viber', 'line', 'whatsapp', 'snapchat']
+    social_media = ['twitter', 'facebook', 'instagram', 'wechat', 'line', 'snapchat']
     separators = [':', '-', '@']
     add_to_vocab(nlp, social_media)
     add_to_vocab(nlp, separators)
