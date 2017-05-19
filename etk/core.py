@@ -489,16 +489,21 @@ class Core(object):
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
-            time_taken = time.time() - start_time
-            if self.debug:
-                print 'time taken to process landmark %s' % time_taken
-            if ifl_extractions and len(ifl_extractions.keys()) > 0:
+            if isinstance(ifl_extractions, list):
+                # we have a rogue post type page, put it in its place
                 content_extraction[field_name] = dict()
-                for key in ifl_extractions:
-                    o = dict()
-                    o[key] = dict()
-                    o[key]['text'] = ifl_extractions[key]
-                    content_extraction[field_name].update(o)
+                content_extraction[field_name]['inferlink_posts'] = ifl_extractions
+            else:
+                time_taken = time.time() - start_time
+                if self.debug:
+                    print 'time taken to process landmark %s' % time_taken
+                if ifl_extractions and len(ifl_extractions.keys()) > 0:
+                    content_extraction[field_name] = dict()
+                    for key in ifl_extractions:
+                        o = dict()
+                        o[key] = dict()
+                        o[key]['text'] = ifl_extractions[key]
+                        content_extraction[field_name].update(o)
         return content_extraction
 
     def consolidate_landmark_rules(self):
