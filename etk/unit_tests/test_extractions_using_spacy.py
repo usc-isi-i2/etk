@@ -18,7 +18,48 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
     def setUp(self):
 
-        self.c = Core(load_spacy=True)
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "posting_date": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "age": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "social_media": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "address": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
+
+        self.c = Core(extraction_config=e_config, load_spacy=True)
         self.ground_truth = dict()
 
         ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
@@ -34,7 +75,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 for test_case in test_data:
                     self.ground_truth[extractor].append(json.loads(test_case))
 
-    def test_extraction_from_date_spacy(self):
+    def test_spacy_extractions(self):
+
+        # Date extractor
         for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['text']))
@@ -49,8 +92,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
+        
 
-    def test_extraction_from_age_spacy(self):
+        # Age extractor
         for t in self.ground_truth['age']:
 
             crf_tokens = self.c.extract_tokens_from_crf(
@@ -67,8 +111,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_ages)
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+        
 
-    def test_extraction_from_social_media(self):
+        # Social media extractor
         for t in self.ground_truth['social_media']:
 
             for social_media in t['correct']:
@@ -97,9 +142,9 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
+        
 
-    def test_extraction_from_address_spacy(self):
-        count = 1
+        # Address extractor
         for t in self.ground_truth['address']:
             crf_tokens = self.c.extract_tokens_from_crf(
                 self.c.extract_crftokens(t['text']))
@@ -116,31 +161,13 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_addresses = t['extracted']
 
             self.assertEquals(extracted_addresses, correct_addresses)
+        
 
-        del self.c
-        gc.collect()
+        # Extract using config
 
-    def test_extraction_from_date_spacy_using_config(self):
-        e_config = {
-            'data_extraction': [
-                {
-                    'input_path': 'text.`parent`',
-                    'fields': {
-                        "posting_date": {
-                            "extractors": {
-                                "extract_using_spacy": {
-                                    "config": {
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]}
-        c = Core(extraction_config=e_config, load_spacy=True)
-
+        # Date extractor
         for t in self.ground_truth['date']:
-            r = c.process(t)
+            r = self.c.process(t)
             if 'data_extraction' in r:
                 extracted_dates = [x['value'] for x in r['data_extraction'][
                     'posting_date']['extract_using_spacy']['results']]
@@ -150,31 +177,11 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
+        
 
-        del c
-        gc.collect()
-
-    def test_extraction_from_age_spacy_using_config(self):
-        e_config = {
-            'data_extraction': [
-                {
-                    'input_path': 'text.`parent`',
-                    'fields': {
-                        "age": {
-                            "extractors": {
-                                "extract_using_spacy": {
-                                    "config": {
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]}
-        c = Core(extraction_config=e_config, load_spacy=True)
-
+        # Age extractor
         for t in self.ground_truth['age']:
-            r = c.process(t)
+            r = self.c.process(t)
             if 'data_extraction' in r:
                 extracted_ages = [x['value'] for x in r['data_extraction'][
                     'age']['extract_using_spacy']['results']]
@@ -182,35 +189,15 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 extracted_ages = []
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+        
 
-        del c
-        gc.collect()
-
-    def test_extraction_from_social_media_spacy_using_config(self):
-        e_config = {
-            'data_extraction': [
-                {
-                    'input_path': 'text.`parent`',
-                    'fields': {
-                        "social_media": {
-                            "extractors": {
-                                "extract_using_spacy": {
-                                    "config": {
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]}
-        c = Core(extraction_config=e_config, load_spacy=True)
-
+        # Social media extractor
         for t in self.ground_truth['social_media']:
             for social_media in t['correct']:
                 t['correct'][social_media] = [h.lower()
                                               for h in t['correct'][social_media]]
 
-            extracted_social_media_handles = c.process(t)
+            extracted_social_media_handles = self.c.process(t)
 
             if 'data_extraction' in extracted_social_media_handles:
                 extracted_social_media_handles = [x for x in extracted_social_media_handles['data_extraction'][
@@ -231,31 +218,11 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
+        
 
-        del c
-        gc.collect()
-
-    def test_extraction_from_address_spacy_using_config(self):
-        e_config = {
-            'data_extraction': [
-                {
-                    'input_path': 'text.`parent`',
-                    'fields': {
-                        "address": {
-                            "extractors": {
-                                "extract_using_spacy": {
-                                    "config": {
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]}
-        c = Core(extraction_config=e_config, load_spacy=True)
-
+        # Address extractor
         for t in self.ground_truth['address']:
-            r = c.process(t)
+            r = self.c.process(t)
             if 'data_extraction' in r:
                 extracted_addresses = [x['value'] for x in r['data_extraction'][
                     'address']['extract_using_spacy']['results']]
@@ -265,9 +232,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_addresses = t['extracted']
 
             self.assertEquals(extracted_addresses, correct_addresses)
-
-        del c
-        gc.collect()
+        
 
 if __name__ == '__main__':
     unittest.main()
