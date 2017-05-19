@@ -4,14 +4,9 @@ import unittest
 import sys
 import os
 import json
-import gc
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
-from spacy_extractors import age_extractor as spacy_age_extractor
-from spacy_extractors import date_extractor as spacy_date_extractor
-from spacy_extractors import social_media_extractor as spacy_social_media_extractor
-from spacy_extractors import address_extractor as spacy_address_extractor
 
 
 class TestExtractionsUsingSpacy(unittest.TestCase):
@@ -92,7 +87,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-        
 
         # Age extractor
         for t in self.ground_truth['age']:
@@ -111,7 +105,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_ages)
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
-        
 
         # Social media extractor
         for t in self.ground_truth['social_media']:
@@ -142,7 +135,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
-        
 
         # Address extractor
         for t in self.ground_truth['address']:
@@ -161,7 +153,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_addresses = t['extracted']
 
             self.assertEquals(extracted_addresses, correct_addresses)
-        
 
         # Extract using config
 
@@ -177,7 +168,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
-        
 
         # Age extractor
         for t in self.ground_truth['age']:
@@ -189,7 +179,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 extracted_ages = []
 
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
-        
 
         # Social media extractor
         for t in self.ground_truth['social_media']:
@@ -218,7 +207,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 self.assertFalse(extracted_social_media_handles)
 
             self.assertEquals(extracted_handles, t['correct'])
-        
 
         # Address extractor
         for t in self.ground_truth['address']:
