@@ -57,6 +57,13 @@
           "extractors": {
             "extract_review_id": {
               "config": {}
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_review-id"
+                ]
+              }
             }
           }
         },
@@ -67,6 +74,13 @@
                 "dictionary": "service",
                 "ngrams": 3
               }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_service"
+                ]
+              }
             }
           }
         },
@@ -75,6 +89,13 @@
             "extract_using_dictionary": {
               "config": {
                 "dictionary": "state"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_state"
+                ]
               }
             }
           }
@@ -85,6 +106,13 @@
               "config": {
                 "dictionary": "eye_color"
               }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_eye-color"
+                ]
+              }
             }
           }
         },
@@ -93,6 +121,13 @@
             "extract_using_dictionary": {
               "config": {
                 "dictionary": "hair_color"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_hair-color"
+                ]
               }
             }
           }
@@ -103,6 +138,13 @@
               "config": {
                 "dictionary": "ethnicity"
               }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_ethnicity"
+                ]
+              }
             }
           }
         },
@@ -112,6 +154,13 @@
               "config": {
                 "dictionary": "city"
               }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_city"
+                ]
+              }
             }
           }
         },
@@ -119,6 +168,18 @@
           "extractors": {
             "extract_using_spacy": {
               "config": {
+                "post_filter": [
+                  "parse_date"
+                ]
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_posting-date",
+                  "inferlink_posting-date-2",
+                  "inferlink_posting-date-1"
+                ],
                 "post_filter": [
                   "parse_date"
                 ]
@@ -178,7 +239,9 @@
             "extract_from_landmark": {
               "config": {
                 "fields": [
-                  "inferlink_age"
+                  "inferlink_age",
+                  "inferlink_age-1",
+                  "inferlink_age-2"
                 ]
               },
               "extraction_policy": "replace"
@@ -200,7 +263,9 @@
             "extract_from_landmark": {
               "config": {
                 "fields": [
-                  "inferlink_phone"
+                  "inferlink_phone",
+                  "inferlink_local-phone",
+                  "inferlink_phone-1"
                 ],
                 "post_filter": [
                   "extract_phone"
@@ -231,6 +296,16 @@
             "extract_height": {
               "config": {},
               "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_height"
+                ],
+                "post_filter": [
+                  "extract_height"
+                ]
+              }
             }
           }
         },
@@ -239,6 +314,16 @@
             "extract_weight": {
               "config": {},
               "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_weight"
+                ],
+                "post_filter": [
+                  "extract_weight"
+                ]
+              }
             }
           }
         },
@@ -246,6 +331,17 @@
           "extractors": {
             "extract_using_spacy": {
               "config": {}
+            }
+          }
+        },
+        "gender": {
+          "extractors": {
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_gender"
+                ]
+              }
             }
           }
         }
@@ -273,7 +369,7 @@
         "*.url.text.`parent`"
       ],
       "fields": {
-         "state": {
+        "state": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
@@ -294,7 +390,7 @@
         "country": {
           "extractors": {
             "extract_country_url": {
-              "config":{
+              "config": {
                 "dictionary": "stop_words"
               }
             },
@@ -305,7 +401,6 @@
             }
           }
         }
-
       }
     }
   ]

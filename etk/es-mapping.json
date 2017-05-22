@@ -6,2369 +6,48 @@
           "properties": {
             "content_relaxed": {
               "properties": {
-                "data_extraction": {
-                  "properties": {
-                    "age": {
-                      "properties": {
-                        "extract_age": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "height": {
-                      "properties": {
-                        "extract_height": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "metadata": {
-                                  "properties": {
-                                    "unit": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "name": {
-                      "properties": {
-                        "extract_using_dictionary": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_left": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_right": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_left": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_right": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "extract_using_regex": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "phone": {
-                      "properties": {
-                        "extract_phone": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "obfuscation": {
-                                  "type": "string",
-                                  "index": "no"
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "extraction_metadata": {
-                                      "properties": {
-                                        "obfuscation": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "price": {
-                      "properties": {
-                        "extract_price": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "metadata": {
-                                  "properties": {
-                                    "currency": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    },
-                                    "time_unit": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "long"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "weight": {
-                      "properties": {
-                        "extract_weight": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "metadata": {
-                                  "properties": {
-                                    "unit": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
                 "simple_tokens": {
                   "type": "string",
                   "index": "no"
                 },
-                "spacy_extraction": {
-                  "type": "object"
-                },
                 "text": {
-                  "type": "string", "index": "no"
-                },
-                "tokens": {
-                  "properties": {
-                    "char_end": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "char_start": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "type": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "value": {
-                      "type": "string",
-                      "index": "no"
-                    }
-                  }
+                  "type": "string"
                 }
               }
             },
             "content_strict": {
               "properties": {
-                "data_extraction": {
-                  "properties": {
-                    "age": {
-                      "properties": {
-                        "extract_age": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "height": {
-                      "properties": {
-                        "extract_height": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "metadata": {
-                                  "properties": {
-                                    "unit": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "name": {
-                      "properties": {
-                        "extract_using_dictionary": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_left": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_right": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_left": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_right": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "extract_using_regex": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "phone": {
-                      "properties": {
-                        "extract_phone": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "obfuscation": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "extraction_metadata": {
-                                      "properties": {
-                                        "obfuscation": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "price": {
-                      "properties": {
-                        "extract_price": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "metadata": {
-                                  "properties": {
-                                    "currency": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    },
-                                    "time_unit": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "long"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "weight": {
-                      "properties": {
-                        "extract_weight": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "metadata": {
-                                  "properties": {
-                                    "unit": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
                 "simple_tokens": {
                   "type": "string",
                   "index": "no"
                 },
-                "spacy_extraction": {
-                  "type": "object"
-                },
                 "text": {
-                  "type": "string",
-                  "index": "no"
-                },
-                "tokens": {
-                  "properties": {
-                    "char_end": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "char_start": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "type": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "value": {
-                      "type": "string",
-                      "index": "no"
-                    }
-                  }
+                  "type": "string"
                 }
               }
             },
             "inferlink_extractions": {
-              "properties": {
-                "inferlink_age": {
-                  "properties": {
-                    "data_extraction": {
-                      "properties": {
-                        "age": {
-                          "properties": {
-                            "extract_age": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "extract_from_landmark": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "origin": {
-                                      "properties": {
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "spacy_extraction": {
-                      "type": "object"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_age-1": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "spacy_extraction": {
-                      "type": "object"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_city": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_description": {
-                  "properties": {
-                    "data_extraction": {
-                      "properties": {
-                        "height": {
-                          "properties": {
-                            "extract_height": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "metadata": {
-                                      "properties": {
-                                        "unit": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "name": {
-                          "properties": {
-                            "extract_using_dictionary": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_left": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_right": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "tokens_left": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "tokens_right": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "extract_using_regex": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "phone": {
-                          "properties": {
-                            "extract_phone": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "obfuscation": {
-                                      "type": "string"
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "extraction_metadata": {
-                                          "properties": {
-                                            "obfuscation": {
-                                              "type": "string",
-                                              "index": "not_analyzed"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "weight": {
-                          "properties": {
-                            "extract_weight": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "metadata": {
-                                      "properties": {
-                                        "unit": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "spacy_extraction": {
-                      "type": "object"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_ethnicity": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_eye-color": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_hair-color": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_junk": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_junk-1": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_location": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_location-1": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_name": {
-                  "properties": {
-                    "data_extraction": {
-                      "properties": {
-                        "name": {
-                          "properties": {
-                            "extract_from_landmark": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "origin": {
-                                      "properties": {
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "extract_using_dictionary": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "context": {
-                                          "properties": {
-                                            "end": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "input": {
-                                              "type": "string",
-                                              "index": "no"
-                                            },
-                                            "start": {
-                                              "type": "long",
-                                              "index": "no"
-                                            },
-                                            "text": {
-                                              "type": "string",
-                                              "index": "no"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_phone": {
-                  "properties": {
-                    "data_extraction": {
-                      "properties": {
-                        "phone": {
-                          "properties": {
-                            "extract_from_landmark": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "obfuscation": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "extraction_metadata": {
-                                          "properties": {
-                                            "obfuscation": {
-                                              "type": "string",
-                                              "index": "not_analyzed"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "extract_phone": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "obfuscation": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "extraction_metadata": {
-                                          "properties": {
-                                            "obfuscation": {
-                                              "type": "string",
-                                              "index": "not_analyzed"
-                                            }
-                                          }
-                                        },
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "string",
-                                      "index": "not_analyzed"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_posting-date": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_price": {
-                  "properties": {
-                    "data_extraction": {
-                      "properties": {
-                        "price": {
-                          "properties": {
-                            "extract_price": {
-                              "properties": {
-                                "results": {
-                                  "properties": {
-                                    "metadata": {
-                                      "properties": {
-                                        "currency": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        },
-                                        "time_unit": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        }
-                                      }
-                                    },
-                                    "origin": {
-                                      "properties": {
-                                        "segment": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "value": {
-                                      "type": "long"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_review-id": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_service": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_title": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "spacy_extraction": {
-                      "type": "object"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "inferlink_weight": {
-                  "properties": {
-                    "simple_tokens": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "text": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "tokens": {
-                      "properties": {
-                        "char_end": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "char_start": {
-                          "type": "long",
-                          "index": "no"
-                        },
-                        "type": {
-                          "type": "string",
-                          "index": "no"
-                        },
-                        "value": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+              "type": "object"
             },
             "title": {
               "properties": {
-                "data_extraction": {
-                  "properties": {
-                    "age": {
-                      "properties": {
-                        "extract_age": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "name": {
-                      "properties": {
-                        "extract_using_dictionary": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "context": {
-                                  "properties": {
-                                    "end": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "input": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "start": {
-                                      "type": "long",
-                                      "index": "no"
-                                    },
-                                    "text": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_left": {
-                                      "type": "string",
-                                      "index": "no"
-                                    },
-                                    "tokens_right": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "context": {
-                                      "properties": {
-                                        "end": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "input": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "start": {
-                                          "type": "long",
-                                          "index": "no"
-                                        },
-                                        "text": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_left": {
-                                          "type": "string",
-                                          "index": "no"
-                                        },
-                                        "tokens_right": {
-                                          "type": "string",
-                                          "index": "no"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "phone": {
-                      "properties": {
-                        "extract_phone": {
-                          "properties": {
-                            "results": {
-                              "properties": {
-                                "obfuscation": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                },
-                                "origin": {
-                                  "properties": {
-                                    "extraction_metadata": {
-                                      "properties": {
-                                        "obfuscation": {
-                                          "type": "string",
-                                          "index": "not_analyzed"
-                                        }
-                                      }
-                                    },
-                                    "segment": {
-                                      "type": "string",
-                                      "index": "no"
-                                    }
-                                  }
-                                },
-                                "value": {
-                                  "type": "string",
-                                  "index": "not_analyzed"
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
                 "simple_tokens": {
                   "type": "string",
                   "index": "no"
                 },
-                "spacy_extraction": {
-                  "type": "object"
-                },
                 "text": {
+                  "type": "string"
+                }
+              }
+            },
+            "url": {
+              "properties": {
+                "simple_tokens": {
                   "type": "string",
                   "index": "no"
                 },
-                "tokens": {
-                  "properties": {
-                    "char_end": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "char_start": {
-                      "type": "long",
-                      "index": "no"
-                    },
-                    "type": {
-                      "type": "string",
-                      "index": "no"
-                    },
-                    "value": {
-                      "type": "string",
-                      "index": "no"
-                    }
-                  }
+                "text": {
+                  "type": "string"
                 }
               }
             }
@@ -2378,13 +57,16 @@
           "type": "string",
           "index": "not_analyzed"
         },
+        "document_id": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
         "knowledge_graph": {
           "properties": {
-            "age": {
+            "address": {
               "properties": {
                 "confidence": {
-                  "type": "long",
-                  "index": "no"
+                  "type": "long"
                 },
                 "key": {
                   "type": "string",
@@ -2395,210 +77,18 @@
                     "confidence": {
                       "properties": {
                         "extraction": {
-                          "type": "double"
-                        }
-                      }
-                    },
-                    "extracted_value": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "source": {
-                      "properties": {
-                        "context": {
-                          "properties": {
-                            "end": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "input": {
-                              "type": "string",
-                              "index": "no"
-                            },
-                            "start": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "text": {
-                              "type": "string",
-                              "index": "no"
-                            }
-                          }
-                        },
-                        "segment": {
-                          "type": "string",
+                          "type": "double",
                           "index": "no"
                         }
                       }
-                    }
-                  }
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            },
-            "email": {
-              "properties": {
-                "confidence": {
-                  "type": "long",
-                  "index": "no"
-                },
-                "key": {
-                  "type": "string",
-                  "index": "not_analyzed"
-                },
-                "provenance": {
-                  "properties": {
-                    "confidence": {
-                      "properties": {
-                        "extraction": {
-                          "type": "double"
-                        }
-                      }
                     },
                     "extracted_value": {
-                      "type": "string"
+                      "type": "string",
+                      "index": "no"
                     },
                     "method": {
                       "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "source": {
-                      "properties": {
-                        "context": {
-                          "properties": {
-                            "end": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "input": {
-                              "type": "string",
-                              "index": "no"
-                            },
-                            "obfuscation": {
-                              "type": "boolean"
-                            },
-                            "start": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "text": {
-                              "type": "string",
-                              "index": "no"
-                            }
-                          }
-                        },
-                        "segment": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            },
-            "height": {
-              "properties": {
-                "confidence": {
-                  "type": "long",
-                  "index": "no"
-                },
-                "key": {
-                  "type": "string",
-                  "index": "not_analyzed"
-                },
-                "provenance": {
-                  "properties": {
-                    "confidence": {
-                      "properties": {
-                        "extraction": {
-                          "type": "double"
-                        }
-                      }
-                    },
-                    "extracted_value": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    },
-                    "source": {
-                      "properties": {
-                        "context": {
-                          "properties": {
-                            "end": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "input": {
-                              "type": "string",
-                              "index": "no"
-                            },
-                            "start": {
-                              "type": "long",
-                              "index": "no"
-                            },
-                            "text": {
-                              "type": "string",
-                              "index": "no"
-                            }
-                          }
-                        },
-                        "segment": {
-                          "type": "string",
-                          "index": "no"
-                        }
-                      }
-                    }
-                  }
-                },
-                "qualifiers": {
-                  "properties": {
-                    "unit": {
-                      "type": "string",
-                      "index": "not_analyzed"
-                    }
-                  }
-                },
-                "value": {
-                  "type": "string"
-                }
-              }
-            },
-            "name": {
-              "properties": {
-                "confidence": {
-                  "type": "long",
-                  "index": "no"
-                },
-                "key": {
-                  "type": "string",
-                  "index": "not_analyzed"
-                },
-                "provenance": {
-                  "properties": {
-                    "confidence": {
-                      "properties": {
-                        "extraction": {
-                          "type": "double"
-                        }
-                      }
-                    },
-                    "extracted_value": {
-                      "type": "string"
-                    },
-                    "method": {
-                      "type": "string",
-                      "index": "not_analyzed"
+                      "index": "no"
                     },
                     "source": {
                       "properties": {
@@ -2630,6 +120,679 @@
                             }
                           }
                         },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "age": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "city": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "country": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "email": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "obfuscation": {
+                              "type": "boolean",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "ethnicity": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "eye_color": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "hair_color": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "height": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "qualifiers": {
+                  "properties": {
+                    "unit": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "name": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
                         "segment": {
                           "type": "string",
                           "index": "no"
@@ -2658,19 +821,25 @@
                     "confidence": {
                       "properties": {
                         "extraction": {
-                          "type": "double"
+                          "type": "double",
+                          "index": "no"
                         }
                       }
                     },
                     "extracted_value": {
-                      "type": "string"
+                      "type": "string",
+                      "index": "no"
                     },
                     "method": {
                       "type": "string",
-                      "index": "not_analyzed"
+                      "index": "no"
                     },
                     "source": {
                       "properties": {
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
                         "extraction_metadata": {
                           "properties": {
                             "obfuscation": {
@@ -2692,6 +861,83 @@
                 }
               }
             },
+            "posting_date": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "date",
+                  "format": "strict_date_optional_time||epoch_millis"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "date",
+                      "format": "strict_date_optional_time||epoch_millis",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "date",
+                  "format": "strict_date_optional_time||epoch_millis"
+                }
+              }
+            },
             "price": {
               "properties": {
                 "confidence": {
@@ -2707,19 +953,25 @@
                     "confidence": {
                       "properties": {
                         "extraction": {
-                          "type": "double"
+                          "type": "double",
+                          "index": "no"
                         }
                       }
                     },
                     "extracted_value": {
-                      "type": "long"
+                      "type": "long",
+                      "index": "no"
                     },
                     "method": {
                       "type": "string",
-                      "index": "not_analyzed"
+                      "index": "no"
                     },
                     "source": {
                       "properties": {
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
                         "segment": {
                           "type": "string",
                           "index": "no"
@@ -2731,17 +983,219 @@
                 "qualifiers": {
                   "properties": {
                     "currency": {
-                      "type": "string",
-                      "index": "not_analyzed"
+                      "type": "string"
                     },
                     "time_unit": {
-                      "type": "string",
-                      "index": "not_analyzed"
+                      "type": "string"
                     }
                   }
                 },
                 "value": {
                   "type": "long"
+                }
+              }
+            },
+            "review_id": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "qualifiers": {
+                  "properties": {
+                    "site": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "service": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "state": {
+              "properties": {
+                "confidence": {
+                  "type": "long",
+                  "index": "no"
+                },
+                "key": {
+                  "type": "string",
+                  "index": "not_analyzed"
+                },
+                "provenance": {
+                  "properties": {
+                    "confidence": {
+                      "properties": {
+                        "extraction": {
+                          "type": "double",
+                          "index": "no"
+                        }
+                      }
+                    },
+                    "extracted_value": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "method": {
+                      "type": "string",
+                      "index": "no"
+                    },
+                    "source": {
+                      "properties": {
+                        "context": {
+                          "properties": {
+                            "end": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "input": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "start": {
+                              "type": "long",
+                              "index": "no"
+                            },
+                            "text": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_left": {
+                              "type": "string",
+                              "index": "no"
+                            },
+                            "tokens_right": {
+                              "type": "string",
+                              "index": "no"
+                            }
+                          }
+                        },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
+                        "segment": {
+                          "type": "string",
+                          "index": "no"
+                        }
+                      }
+                    }
+                  }
+                },
+                "value": {
+                  "type": "string"
                 }
               }
             },
@@ -2760,16 +1214,18 @@
                     "confidence": {
                       "properties": {
                         "extraction": {
-                          "type": "double"
+                          "type": "double",
+                          "index": "no"
                         }
                       }
                     },
                     "extracted_value": {
-                      "type": "string"
+                      "type": "string",
+                      "index": "no"
                     },
                     "method": {
                       "type": "string",
-                      "index": "not_analyzed"
+                      "index": "no"
                     },
                     "source": {
                       "properties": {
@@ -2793,6 +1249,10 @@
                             }
                           }
                         },
+                        "document_id": {
+                          "type": "string",
+                          "index": "no"
+                        },
                         "segment": {
                           "type": "string",
                           "index": "no"
@@ -2804,8 +1264,7 @@
                 "qualifiers": {
                   "properties": {
                     "unit": {
-                      "type": "string",
-                      "index": "not_analyzed"
+                      "type": "string"
                     }
                   }
                 },
@@ -2816,9 +1275,12 @@
             }
           }
         },
+        "raw_content": {
+          "type": "string"
+        },
         "timestamp": {
-          "type": "date",
-          "format": "strict_date_optional_time||epoch_millis"
+          "type": "string",
+          "index": "not_analyzed"
         },
         "tld": {
           "type": "string",

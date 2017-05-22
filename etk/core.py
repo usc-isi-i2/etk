@@ -544,18 +544,23 @@ class Core(object):
         else:
             pct = 0.5
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
-            content_extraction[field_name] = dict()
             start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
-            time_taken = time.time() - start_time
-            if self.debug:
-                print 'time taken to process landmark %s' % time_taken
-            if ifl_extractions:
-                for key in ifl_extractions:
-                    o = dict()
-                    o[key] = dict()
-                    o[key]['text'] = ifl_extractions[key]
-                    content_extraction[field_name].update(o)
+            if isinstance(ifl_extractions, list):
+                # we have a rogue post type page, put it in its place
+                content_extraction[field_name] = dict()
+                content_extraction[field_name]['inferlink_posts'] = ifl_extractions
+            else:
+                time_taken = time.time() - start_time
+                if self.debug:
+                    print 'time taken to process landmark %s' % time_taken
+                if ifl_extractions and len(ifl_extractions.keys()) > 0:
+                    content_extraction[field_name] = dict()
+                    for key in ifl_extractions:
+                        o = dict()
+                        o[key] = dict()
+                        o[key]['text'] = ifl_extractions[key]
+                        content_extraction[field_name].update(o)
         return content_extraction
 
     def consolidate_landmark_rules(self):
@@ -1147,7 +1152,10 @@ class Core(object):
 
     @staticmethod
     def parse_date(str_date):
-        return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+        try:
+            return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+        except:
+            return None
 
     def country_from_states(self, d, config):
         if not self.state_to_country_dict:
