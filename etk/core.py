@@ -1018,6 +1018,16 @@ class Core(object):
     def extract_tokens_from_faithful(faithful_tokens):
         return [tk['value'] for tk in faithful_tokens]
 
+    @staticmethod
+    def filter_tokens(original_tokens, config):
+        # config contains a list of types of tokens to be removed
+        # [alphabet, digit, emoji, punctuation, html, html_entity, break]
+        ft = FaithfulTokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+        ft.faithful_tokens = original_tokens
+        # Return Tokens object which contains - tokens, reverse_map attributes
+        # The object also has a method get_original_index() to retrieve index in faithful tokens
+        return ft.filter_tokens(config)
+
     def extract_table(self, html_doc):
         return table_extractor.extract(html_doc)
 
