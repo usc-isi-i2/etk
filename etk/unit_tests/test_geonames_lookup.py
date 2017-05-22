@@ -69,31 +69,71 @@ class TestGeonamesLookup(unittest.TestCase):
         ex_populated_places = [
           {
             "value": "los angeles",
-            "metadata": {
-              "country": "chile",
-              "longitude": -72.35365999999999,
-              "geoname_id": 3882428,
-              "state": "biobío",
-              "latitude": -37.46973,
-              "population": 125430
-            }
-          },
-          {
-            "value": "los angeles",
-            "metadata": {
+            "confidence": 1000,
+            "provenance": [
+              {
+                "extracted_value": "los angeles"
+              }
+            ],
+            "qualifiers": {
               "country": "united states",
               "longitude": -118.24368,
               "geoname_id": 5368361,
               "state": "california",
               "latitude": 34.05223,
               "population": 3792621
-            }
+            },
+            "key": "los angeles-country:united states-geoname_id:5368361-latitude:34.05223-longitude:-118.24368-population:3792621-state:california"
+          },
+          {
+            "value": "los angeles",
+            "confidence": 1000,
+            "provenance": [
+              {
+                "extracted_value": "los angeles"
+              }
+            ],
+            "qualifiers": {
+              "country": "chile",
+              "longitude": -72.35365999999999,
+              "geoname_id": 3882428,
+              "state": "biobío",
+              "latitude": -37.46973,
+              "population": 125430
+            },
+            "key": "los angeles-country:chile-geoname_id:3882428-latitude:-37.46973-longitude:-72.35366-population:125430-state:biobío"
           }
         ]
 
         pop_places = json.loads(json.JSONEncoder().encode(r['knowledge_graph']['populated_places']))
         ex_pop_places = json.loads(json.JSONEncoder().encode(ex_populated_places))
         self.assertEqual(pop_places, ex_pop_places)
+
+        self.assertTrue('country' in r['knowledge_graph'])
+
+        ex_country = [
+          {
+            "confidence": 1000,
+            "provenance": [
+              {
+                "extracted_value": "united states"
+              }
+            ],
+            "value": "united states",
+            "key": "united states"
+          },
+          {
+            "confidence": 1000,
+            "provenance": [
+              {
+                "extracted_value": "chile"
+              }
+            ],
+            "value": "chile",
+            "key": "chile"
+          }
+        ]
+        self.assertEqual(r['knowledge_graph']['country'], ex_country)
 
 
 if __name__ == '__main__':
