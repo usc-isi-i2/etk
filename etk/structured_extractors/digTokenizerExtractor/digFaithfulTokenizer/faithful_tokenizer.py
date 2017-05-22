@@ -4,7 +4,7 @@ import string
 import sys
 
 
-class CrfTokenizer:
+class FaithfulTokenizer:
     """The tokenization rules take into account embedded HTML tags and
 entities. HTML tags begin with "<" and end with ">". The contents of a
 tag are treated as a single token, although internal spaces, tabs, and
@@ -34,13 +34,13 @@ which will return the tokens in an array.
 To tokenize, breaking on punctuation without recognizing HTML tags and
 entities, try:
 
-t = CrfTokenizer()
+t = FaithfulTokenizer()
 tokens = t.tokenize(value)
 
 To tokenize, breaking on punctuation and recognizing both HTML tags and
 entites as special tokens, try:
 
-t = CrfTokenizer()
+t = FaithfulTokenizer()
 t.setRecognizeHtmlEntities(True)
 t.setRecognizeHtmlTags(True)
 tokens = t.tokenize(value)
@@ -48,7 +48,7 @@ tokens = t.tokenize(value)
 To tokenize, breaking on punctuation, recognizing and HTML tags and
 entities, and skipping the tags, try:
 
-t = CrfTokenizer()
+t = FaithfulTokenizer()
 t.setRecognizeHtmlEntities(True)
 t.setRecognizeHtmlTags(True)
 t.setSkipHtmlTags(True)
@@ -59,7 +59,7 @@ into a string.  The final result will be the input string with HTML entities
 treated as single tokens, HTML tags stripped out, punctuation separated from
 adjacent words, and excess white space removed.
 
-t = CrfTokenizer()
+t = FaithfulTokenizer()
 t.setRecognizeHtmlEntities(True)
 t.setRecognizeHtmlTags(True)
 t.setSkipHtmlTags(True)
@@ -67,7 +67,7 @@ result = t.tokenize(value).join(" ")
 
 The same as above, but with punctuation remaining glued to adjacent words:
 
-t = CrfTokenizer()
+t = FaithfulTokenizer()
 t.setRecognizePunctuation(False)
 t.setRecognizeHtmlTags(True)
 t.setSkipHtmlTags(True)
@@ -219,7 +219,6 @@ result = t.tokenize(value).join(" ")
                 char_start, char_end = index, index + len(token[0])
                 if self.create_structured_tokens:
                     if state[0] != STATE.NORMAL:
-                        print token[0]
                         new_token = {'value': token[0], 'type': state_names[
                             state[0]], 'char_start': char_start, 'char_end': char_end}
                     else:
@@ -248,7 +247,7 @@ result = t.tokenize(value).join(" ")
                 # enter STATE.GROUP_PUNCTUATION insted of STATE.NORMAL.
                 sawOnlyPunctuation = True
                 for c in token[0]:
-                    if c not in CrfTokenizer.punctuationSet:
+                    if c not in FaithfulTokenizer.punctuationSet:
                         sawOnlyPunctuation = False
                         break
                 if sawOnlyPunctuation:
@@ -267,9 +266,9 @@ result = t.tokenize(value).join(" ")
 
 
         def getNormalState(c):
-            if c in CrfTokenizer.digits_set:
+            if c in FaithfulTokenizer.digits_set:
                 return NORMAL.DIGIT
-            elif ord(c) in CrfTokenizer.emojis_set:
+            elif ord(c) in FaithfulTokenizer.emojis_set:
                 return NORMAL.EMOJI
             else:
                 return NORMAL.ALPHA
@@ -279,12 +278,12 @@ result = t.tokenize(value).join(" ")
         for c in value:
             index += 1
             if state[0] == STATE.PROCESS_HTML_TAG:
-                if c in CrfTokenizer.whitespaceSet:
+                if c in FaithfulTokenizer.whitespaceSet:
                     # Suppress for safety. CRF++ doesn't like spaces in tokens,
                     # for example.
                     continue
                 token[0] += c
-                if c == CrfTokenizer.END_HTML_TAG_CHAR:
+                if c == FaithfulTokenizer.END_HTML_TAG_CHAR:
                     if self.skipHtmlTags:
                         clearToken()
                     else:
@@ -295,7 +294,7 @@ result = t.tokenize(value).join(" ")
                 # Parse an HTML entity name. TODO: embedded "#"
                 # characters imply more extensive parsing rules should
                 # be performed here.
-                if c == CrfTokenizer.END_HTML_ENTITY_CHAR:
+                if c == FaithfulTokenizer.END_HTML_ENTITY_CHAR:
                     if len(token[0]) == 1:
                         # This is the special case of "&;", which is not a
                         # valid HTML entity.  If self.groupPunctuation is
@@ -322,7 +321,7 @@ result = t.tokenize(value).join(" ")
                     else:
                         emitToken(normal_state)
                     continue
-                elif c in CrfTokenizer.htmlEntityNameCharacterSet:
+                elif c in FaithfulTokenizer.htmlEntityNameCharacterSet:
                     token[0] = token[0] + c
                     continue
                 else:
@@ -332,14 +331,14 @@ result = t.tokenize(value).join(" ")
 
             if state[0] == STATE.GROUP_LINEBREAKS:
                 # we will look for \n\r and ignore spaces
-                if c in CrfTokenizer.whitespaceSet:
+                if c in FaithfulTokenizer.whitespaceSet:
                     token[0] += c
                     continue
                 else:
                     emitToken(normal_state)
                     state[0] = STATE.NORMAL
 
-            if c in CrfTokenizer.whitespaceSet:
+            if c in FaithfulTokenizer.whitespaceSet:
                 # White space terminates the current token, then is dropped.
                 emitToken(normal_state)
                 # Check to see whether we should look for line breaks
@@ -347,17 +346,17 @@ result = t.tokenize(value).join(" ")
                     state[0] = STATE.GROUP_LINEBREAKS
                     token[0] = c
 
-            elif c == CrfTokenizer.START_HTML_TAG_CHAR and self.recognizeHtmlTags:
+            elif c == FaithfulTokenizer.START_HTML_TAG_CHAR and self.recognizeHtmlTags:
                 emitToken(normal_state)
                 state[0] = STATE.PROCESS_HTML_TAG
                 token[0] = c
 
-            elif c == CrfTokenizer.START_HTML_ENTITY_CHAR and self.recognizeHtmlEntities:
+            elif c == FaithfulTokenizer.START_HTML_ENTITY_CHAR and self.recognizeHtmlEntities:
                 emitToken(normal_state)
                 state[0] = STATE.PROCESS_HTML_ENTITY
                 token[0] = c
 
-            elif c in CrfTokenizer.punctuationSet and self.recognizePunctuation:
+            elif c in FaithfulTokenizer.punctuationSet and self.recognizePunctuation:
                 if self.groupPunctuation:
                     # Finish any current token.  Concatenate
                     # contiguous punctuation into a single token:
@@ -408,63 +407,18 @@ result = t.tokenize(value).join(" ")
 def main(argv=None):
     '''this is called if run from command line'''
 
-    # t = CrfTokenizer()
-    # print t.tokenize("This is a sentence.")
-    # print t.tokenize("Buy???This...Now!!!")
-    # print t.tokenize("The <bold>only</bold> source.")
-    # print t.tokenize("The<bold>only</bold>source.")
-    # print t.tokenize("Big&gt;little.")
-    # print t.tokenize("Big & little.")
-    # print t.tokenize("blond&curly.")
-    # print t.tokenize("&brokenHtml")
-    # t.setGroupPunctuation(True)
-    # t.setRecognizeHtmlTags(True)
-    # t.setRecognizeHtmlEntities(True)
-    # print t.tokenize("Buy???This...Now!!!")
-    # print t.tokenize("The <bold>only</bold> source.")
-    # print t.tokenize("The<bold>only</bold>source.")
-    # print t.tokenize("Big&gt;little.")
-    # print t.tokenize("Big & little.")
-    # print t.tokenize("blond&curly.")
-    # print t.tokenize("&brokenHtml")
-    # t.setSkipHtmlTags(True)
-    # t.setSkipHtmlEntities(True)
-    # print t.tokenize("Buy???This...Now!!!")
-    # print t.tokenize("The <bold>only</bold> source.")
-    # print t.tokenize("The<bold>only</bold>source.")
-    # print t.tokenize("Big&gt;little.")
-    # print t.tokenize("Big & little.")
-    # print t.tokenize("blond&curly.")
-    # print t.tokenize("&fbrokenHtml")
-    # t.setTokenPrefix("X:")
-    # print t.tokenize("Tokenize with prefixes.")
-    # t.setTokenPrefix(None)
-    # print t.tokenize("No more  prefixes.")
-    # t.setRecognizePunctuation(False)
-    # print t.tokenize("This is a sentence.")
-    # print t.tokenize("Buy???This...Now!!!")
-    # print t.tokenize("The <bold>only</bold> source.")
-    # print t.tokenize("The<bold>only</bold>source.")
-    # print t.tokenize("Big&gt;little.")
-    # print t.tokenize("Big & little.")
-    # print t.tokenize("blond&curly.")
-    # print t.tokenize("&brokenHtml")
-    # print t.tokenize("A line break goes here\n\t \rand a new line starts")
-    # t.setRecognizeLinebreaks(True)
-    # print t.tokenize("A line break goes here\n\r \rand a new line starts")
-
-    # print '---\n\n'
-    t = CrfTokenizer(recognizePunctuation=True, recognizeHtmlTags=True, skipHtmlEntities=True,
+    t = FaithfulTokenizer(recognizePunctuation=True, recognizeHtmlTags=True, skipHtmlEntities=True,
                      recognizeHtmlEntities=True, skipHtmlTags=True, recognize_linebreaks=True,
                      create_structured_tokens=True)
     string = 'Call meorčpžsíáýd at \n\r  \t   ♥❤⚘sdj,,,?? ?123 fd123-123(123))),345 fdkjf☺☻✌☹♡♥❤⚘❀❃❁✼☀â€™ŰűŲųŴŵŶŷŸŹźŻżŽžſ0180ƀƁƂƃƄƅƆƇƈƉƊƋƌƍƎƏ0190ƐƑƒƓƔƕƖƗƘƙƚƛƜƝƞƟdsfkjhsdf'
-    output = t.tokenize(string)
+    output = t.tokenize(string.lower())
 
     count = 1
     for token in output:
         print count, token['type'], token['value']
         count += 1
-    print string
+
     # call main() if this is run as standalone
+
 if __name__ == "__main__":
     sys.exit(main())

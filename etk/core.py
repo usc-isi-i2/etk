@@ -17,7 +17,7 @@ from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
 from data_extractors.digReviewIDExtractor import review_id_extractor
 from data_extractors import date_parser
-from structured_extractors import ReadabilityExtractor, TokenizerExtractor
+from structured_extractors import ReadabilityExtractor, TokenizerExtractor, FaithfulTokenizerExtractor
 import json
 import gzip
 import re
@@ -1003,6 +1003,15 @@ class Core(object):
     @staticmethod
     def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
+
+    @staticmethod
+    def extract_tokens_faithful(text, options=None):
+        ft = FaithfulTokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+        return ft.extract(text)
+
+    @staticmethod
+    def extract_tokens_from_faithful(faithful_tokens):
+        return [tk['value'] for tk in faithful_tokens]
 
     def extract_table(self, html_doc):
         return table_extractor.extract(html_doc)
