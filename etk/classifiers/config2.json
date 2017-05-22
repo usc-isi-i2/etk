@@ -1,0 +1,99 @@
+{
+  "resources": {
+    "dictionaries": {
+      "geonames": "/home/vinay/Documents/Study/ISI/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json",
+      "city": "/home/vinay/Documents/Study/ISI/dig-dictionaries/geonames-populated-places/curated_cities.json.gz",
+      "state": "/home/vinay/Documents/Study/ISI/dig-dictionaries/geonames-populated-places/states_usa_canada.json.gz",
+      "country": "/home/vinay/Documents/Study/ISI/dig-dictionaries/geonames-populated-places/countries.json.gz",
+      "state_to_country": "/home/vinay/Documents/Study/ISI/dig-dictionaries/geonames-populated-places/state_country_dict.json"
+    }
+  },
+  "content_extraction": {
+    "input_path": "raw_content",
+    "extractors": {
+      "readability": [
+        {
+          "strict": "yes",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_strict"
+        },
+        {
+          "strict": "no",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_relaxed"
+        }
+      ]
+    }
+  },
+  "data_extraction": [
+    {
+      "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.content_relaxed.text.`parent`"
+      ],
+      "fields": {
+        "city": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "city",
+                "ngrams": 3
+              }
+            }
+          }
+        },
+        "state": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "state",
+                "ngrams": 2
+              }
+            }
+          }
+        },
+        "country": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country",
+                "ngrams": 2
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "kg_enhancement": {
+    "input_path": "knowledge_graph.`parent`",
+    "fields": {
+      "populated_places": {
+        "extractors": {
+          "geonames_lookup": {
+            "config": {}
+          }
+        }
+      },
+      "country": {
+        "extractors": {
+          "country_from_states": {
+            "config": {}
+          }
+        }
+      }
+    }
+  },
+  "feature_computation": {
+    "input_path": "knowledge_graph.`parent`",
+    "fields": {
+      "country_classifier": {
+        "extractors": {
+          "country_feature": {
+            "config": {}
+          }
+        }
+      }
+    }
+  }
+}
