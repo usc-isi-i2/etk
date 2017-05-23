@@ -24,18 +24,25 @@ def test_features():
 def gen_feature_vectors(input_file_path, country):
 	print "Processing country: {}".format(country)
 	in_file = codecs.open(input_file_path)
-
+	out_file = codecs.open("processed_{}.jl".format(country), 'w')
+	vectors_file = codecs.open("vectors_{}.jl".format(country), 'w')
 	for index, line in enumerate(in_file):
 		print index
 		try:
 			doc = json.loads(line)
 			r = c.process(doc, create_knowledge_graph=True)
-			
+			out_file.write(json.dumps(r) + '\n')
+
 			for fv in r["knowledge_graph"]["country_classifier"]:
 				X_vector.append(json.loads(fv["value"]))
 				Y_vector.append(1 if fv["qualifiers"]["country"] == country else 0)
+				vectors_file.write('jline: ' + str(index+1) + ', index: ' +  str(len(X_vector)-1) + ' ' + str(X_vector[-1]) + ' ' + str(Y_vector[-1]) + '\n')
 		except Exception:
 			pass
+
+	in_file.close()
+	out_file.close()
+	vectors_file.close()
 
 
 def gen_train_data(files, countries):
@@ -50,20 +57,29 @@ def train_classifier():
 
 	X = np.asarray(X_vector)
 	y = np.asarray(Y_vector)
+	f = codecs.open('vectors.jl', 'w')
 
 	skf = StratifiedKFold(n_splits=3)
 
 	for train_index, test_index in skf.split(X, y):
+		# print (train_index, test_index)
 		X_train, X_test = X[train_index], X[test_index]
 		y_train, y_test = y[train_index], y[test_index]
 
 		clf = LogisticRegression()
+		# clf = RandomForestClassifier()
 		clf.fit(X_train, y_train)
 		y_pred = clf.predict(X_test)
+
+		f.write("Trial starts----------------------\n")
+		f.write("Index\tExpected\tPredicted\n")
+		for (i, a, b) in zip(test_index, y_test, y_pred):
+			f.write(str(i) + ' ' + str(a) + ' ' + str(b) + '\n')
 
 		print "Classification Report:"
 		print classification_report(y_test, y_pred)
 
+	f.close()
 
 if __name__ == '__main__':
 	e_config = json.load(codecs.open('config2.json'))

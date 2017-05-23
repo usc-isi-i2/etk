@@ -40,7 +40,7 @@ def country_next_to_city(knowledge_graph, given_country):
 							dist.append(math.fabs(city_end))
 	if dist:
 		result = min(dist)
-	return result
+	return 1 if result != 0 else 0
 
 
 def country_next_to_state(knowledge_graph, given_country, state_to_country_dict):
@@ -74,7 +74,7 @@ def country_next_to_state(knowledge_graph, given_country, state_to_country_dict)
 
 	if dist:
 		result = min(dist)
-	return result
+	return 1 if result != 0 else 0
 
 
 def number_of_explicit_mentions(knowledge_graph, given_country):
