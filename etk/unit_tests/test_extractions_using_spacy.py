@@ -1,49 +1,86 @@
 # coding: utf-8
 
 import unittest
-import sys, os
+import sys
+import os
 import json
-import re
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
-from spacy_extractors import age_extractor as spacy_age_extractor
-from spacy_extractors import date_extractor as spacy_date_extractor
 
 
-class TestExtractionsUsingRegex(unittest.TestCase):
+class TestExtractionsUsingSpacy(unittest.TestCase):
 
     def setUp(self):
 
-        self.c = Core(load_spacy=True)
-        file_path_age = os.path.join(os.path.dirname(__file__), "ground_truth/age.jl")
-        f = open(file_path_age, 'r')
+        e_config = {
+            'data_extraction': [
+                {
+                    'input_path': 'text.`parent`',
+                    'fields': {
+                        "posting_date": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "age": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "social_media": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        },
+                        "address": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]}
 
-        data = f.read().split('\n')
-        self.doc = dict()
-        self.doc['age'] = []
+        self.c = Core(extraction_config=e_config, load_spacy=True)
+        self.ground_truth = dict()
 
-        for t in data:
-            self.doc['age'].append(json.loads(t))
+        ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
+                              "date": os.path.join(os.path.dirname(__file__), "ground_truth/date.jl"),
+                              "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl"),
+                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl")
+                              }
 
-        f.close()
-        file_path_date = os.path.join(os.path.dirname(__file__), "ground_truth/date.jl")
-        f = open(file_path_date, 'r')
+        for extractor, file_name in ground_truth_files.items():
+            with open(file_name, 'r') as f:
+                test_data = f.read().split('\n')
+                self.ground_truth[extractor] = list()
+                for test_case in test_data:
+                    self.ground_truth[extractor].append(json.loads(test_case))
 
-        # data = f.read().split('\n')
-        self.doc['date'] = []
+    def test_spacy_extractions(self):
 
-        for t in f:
-            self.doc['date'].append(json.loads(t))
-
-        f.close()
-
-    def test_extraction_from_date_spacy(self):
-        for t in self.doc['date']:
+        # Date extractor
+        for t in self.ground_truth['date']:
             crf_tokens = self.c.extract_tokens_from_crf(
-                self.c.extract_crftokens(t['content']))
-            extracted_dates = spacy_date_extractor.extract(
-                self.c.nlp, self.c.matchers['date'], crf_tokens)
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'posting_date'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_dates = self.c.extract_using_spacy(d, extraction_config)
 
             extracted_dates = [date['value'] for date in extracted_dates]
 
@@ -51,15 +88,139 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
             self.assertEquals(extracted_dates, correct_dates)
 
-    def test_extraction_from_age_spacy(self):
-        for t in self.doc['age']:
-            extracted_ages = spacy_age_extractor.extract(
-                t['content'], self.c.nlp, self.c.matchers['age'])
-            extracted_ages = [age['value'] for age in extracted_ages]
-            for extracted_age in extracted_ages:
-                for correct_age in t['correct']:
-                    if extracted_age == correct_age:
-                        self.assertTrue(extracted_age, correct_age)
+        # Age extractor
+        for t in self.ground_truth['age']:
+
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'age'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_ages = self.c.extract_using_spacy(d, extraction_config)
+
+            extracted_ages = [match['value'] for match in extracted_ages]
+
+            if len(extracted_ages) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_ages)
+
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
+        # Social media extractor
+        for t in self.ground_truth['social_media']:
+
+            for social_media in t['correct']:
+                t['correct'][social_media] = [h.lower()
+                                              for h in t['correct'][social_media]]
+
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'social_media'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_social_media_handles = self.c.extract_using_spacy(
+                d, extraction_config)
+
+            extracted_handles = dict()
+
+            for match in extracted_social_media_handles:
+                social_network = match['metadata']['social_network']
+                if social_network not in extracted_handles:
+                    extracted_handles[social_network] = [match['value']]
+                else:
+                    extracted_handles[social_network].append(match['value'])
+
+            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_social_media_handles)
+
+            self.assertEquals(extracted_handles, t['correct'])
+
+        # Address extractor
+        for t in self.ground_truth['address']:
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'address'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_addresses = self.c.extract_using_spacy(
+                d, extraction_config)
+
+            extracted_addresses = [address['value']
+                                   for address in extracted_addresses]
+
+            correct_addresses = t['extracted']
+
+            self.assertEquals(extracted_addresses, correct_addresses)
+
+        # Extract using config
+
+        # Date extractor
+        for t in self.ground_truth['date']:
+            r = self.c.process(t)
+            if 'data_extraction' in r:
+                extracted_dates = [x['value'] for x in r['data_extraction'][
+                    'posting_date']['extract_using_spacy']['results']]
+            else:
+                extracted_dates = []
+
+            correct_dates = t['extracted']
+
+            self.assertEquals(extracted_dates, correct_dates)
+
+        # Age extractor
+        for t in self.ground_truth['age']:
+            r = self.c.process(t)
+            if 'data_extraction' in r:
+                extracted_ages = [x['value'] for x in r['data_extraction'][
+                    'age']['extract_using_spacy']['results']]
+            else:
+                extracted_ages = []
+
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
+        # Social media extractor
+        for t in self.ground_truth['social_media']:
+            for social_media in t['correct']:
+                t['correct'][social_media] = [h.lower()
+                                              for h in t['correct'][social_media]]
+
+            extracted_social_media_handles = self.c.process(t)
+
+            if 'data_extraction' in extracted_social_media_handles:
+                extracted_social_media_handles = [x for x in extracted_social_media_handles['data_extraction'][
+                    'social_media']['extract_using_spacy']['results']]
+            else:
+                extracted_social_media_handles = []
+
+            extracted_handles = dict()
+
+            for match in extracted_social_media_handles:
+                social_network = match['metadata']['social_network']
+                if social_network not in extracted_handles:
+                    extracted_handles[social_network] = [match['value']]
+                else:
+                    extracted_handles[social_network].append(match['value'])
+
+            if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
+                self.assertFalse(extracted_social_media_handles)
+
+            self.assertEquals(extracted_handles, t['correct'])
+
+        # Address extractor
+        for t in self.ground_truth['address']:
+            r = self.c.process(t)
+            if 'data_extraction' in r:
+                extracted_addresses = [x['value'] for x in r['data_extraction'][
+                    'address']['extract_using_spacy']['results']]
+            else:
+                extracted_addresses = []
+
+            correct_addresses = t['extracted']
+
+            self.assertEquals(extracted_addresses, correct_addresses)
+        
 
 if __name__ == '__main__':
     unittest.main()

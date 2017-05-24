@@ -59,6 +59,7 @@ def extract(text):
             if tunit.split()[0].isdigit() is True:
                 num = int(tunit.split()[0])
                 time_unit = tunit.split()[1]
+                multiplier = 1
                 if time_unit in UNIT_TIME_HOUR:
                     multiplier = 60
                 elif time_unit in UNIT_TIME_MINUTE:

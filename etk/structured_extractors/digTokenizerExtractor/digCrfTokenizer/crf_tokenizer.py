@@ -384,7 +384,7 @@ def main(argv=None):
     print t.tokenize("Big&gt;little.")
     print t.tokenize("Big & little.")
     print t.tokenize("blond&curly.")
-    print t.tokenize("&brokenHtml")
+    print t.tokenize("&fbrokenHtml")
     t.setTokenPrefix("X:")
     print t.tokenize("Tokenize with prefixes.")
     t.setTokenPrefix(None)
@@ -401,6 +401,11 @@ def main(argv=None):
     print t.tokenize("A line break goes here\n\t \rand a new line starts")
     t.setRecognizeLinebreaks(True)
     print t.tokenize("A line break goes here\n\r \rand a new line starts")
+    
+    print '---\n\n'
+    t = CrfTokenizer()
+    print t.tokenize('What happens now?? ??')
+
 
     # call main() if this is run as standalone
 if __name__ == "__main__":
