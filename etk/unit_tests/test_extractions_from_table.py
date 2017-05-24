@@ -30,8 +30,6 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        with open("table_out.jl", "w") as f:
-            f.write(json.dumps(r["content_extraction"]["table"]))
 
         self.assertTrue("content_extraction" in r)
         self.assertTrue("table" in r["content_extraction"])
@@ -86,10 +84,61 @@ class TestTableExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.no_table)
-        # print r
+
         self.assertTrue("content_extraction" in r)
-        self.assertTrue("table" in r["content_extraction"])
-        self.assertEqual(r["content_extraction"]["table"], None)
+        self.assertTrue("table" not in r["content_extraction"])
+
+    def test_data_extraction_no_table(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
+        e_config = {
+           "resources":{
+              "dictionaries":{
+                 "women_name":"women_name_file_path"
+              }
+           },
+           "content_extraction":{
+              "input_path":"raw_content",
+              "extractors":{
+                 "table":{
+                    "field_name":"table",
+                    "extraction_policy":"keep_existing"
+                 }
+              }
+           },
+           "data_extraction":[
+              {
+                 "input_path":"*.table[*].rows[*].cells[*].text.`parent`",
+                 "fields":{
+                    "name":{
+                       "extractors":{
+                          "extract_using_dictionary":{
+                             "config":{
+                                "dictionary":"women_name",
+                                "ngrams":1,
+                                "joiner":" ",
+                                "pre_process":[
+                                   "x.lower()"
+                                ],
+                                "pre_filter":[
+                                   "x"
+                                ],
+                                "post_filter":[
+                                   "isinstance(x, basestring)"
+                                ]
+                             },
+                             "extraction_policy":"keep_existing"
+                          }
+                       }
+                    }
+                 }
+              }
+           ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(self.no_table)
+
+        self.assertTrue("content_extraction" in r)
+        self.assertFalse("table" in r["content_extraction"])
 
 
 if __name__ == '__main__':

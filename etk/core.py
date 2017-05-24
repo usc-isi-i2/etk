@@ -552,7 +552,9 @@ class Core(object):
         ep = self.determine_extraction_policy(table_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
-            content_extraction[field_name] = self.extract_table(html)
+            table_out = self.extract_table(html)
+            if table_out is not None:
+                content_extraction[field_name] = table_out
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process table %s' % time_taken
