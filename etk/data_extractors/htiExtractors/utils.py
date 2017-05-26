@@ -300,7 +300,8 @@ def formal_cities(reverse=False):
     dictionary of Backpage city names mapped to formal city names
   """
   output = {}
-  with open('dataFiles/formal_city_name_pairs.csv', 'rU') as csvfile:
+  fname = pkg_resources.resource_filename(__name__, 'resources/Formal_City_Name_Pairs.csv')
+  with open(fname, 'rU') as csvfile:
     reader = csv.reader(csvfile, delimiter = ',')
     for row in reader:
       if not reverse:

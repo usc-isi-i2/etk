@@ -15,7 +15,6 @@ import utils
 phone_num_sets = misc.phone_num_lists()
 countries = utils.countries()
 post_id_bp_groups = utils.post_id_backpage_groups()
-formal_city_names = utils.formal_cities()
 
 # read ethnicities into memory for parser to use
 with open('dataFiles/ethnicities.json', 'rU') as df:
