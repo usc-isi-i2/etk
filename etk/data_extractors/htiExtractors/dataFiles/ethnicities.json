@@ -1,0 +1,283 @@
+{
+  "african_american": {
+    "data": [
+      "black", 
+      "african american"
+    ]
+  }, 
+  "american_indian": {
+    "data": [
+      "nativeamerican", 
+      "canadian", 
+      "alaskan", 
+      "apache", 
+      "aztec", 
+      "cherokee", 
+      "chinook", 
+      "comanche", 
+      "eskimo", 
+      "incan", 
+      "iroquois", 
+      "kickapoo", 
+      "mayan", 
+      "mohave", 
+      "mojave", 
+      "navaho", 
+      "navajo", 
+      "seminole"
+    ]
+  }, 
+  "asian": {
+    "data": [
+      "asian", 
+      "oriental"
+    ], 
+    "east_asian": {
+      "data": [
+        "thai", 
+        "vietnamese", 
+        "cambodian", 
+        "malaysian", 
+        "filipino", 
+        "singaporean", 
+        "indonesian", 
+        "japanese", 
+        "chinese", 
+        "taiwanese", 
+        "northkorean", 
+        "southkorean", 
+        "korean"
+      ], 
+      "korean": [
+        "northkorean", 
+        "southkorean", 
+        "korean"
+      ]
+    }, 
+    "hawaiian_pacific_islanders": [
+      "hawaiian", 
+      "guamanian", 
+      "newguinea", 
+      "fiji", 
+      "marianaislands", 
+      "solomonislands", 
+      "micronesia", 
+      "tuvalu", 
+      "samoan", 
+      "vanuata", 
+      "polynesia", 
+      "cookislands", 
+      "pitcaimislands", 
+      "marshallese"
+    ], 
+    "south_asian": [
+      "nepalese", 
+      "bangladeshi", 
+      "bhutanese", 
+      "indian"
+    ]
+  }, 
+  "hispanic_latino": {
+    "caribbean": [
+      "bahamian", 
+      "haitian", 
+      "dominican", 
+      "puertorican", 
+      "jamaican", 
+      "cuban", 
+      "caymanislands", 
+      "trinidad", 
+      "caribbean", 
+      "guadeloupe", 
+      "martinique", 
+      "barbados", 
+      "saintlucia", 
+      "stlucia", 
+      "curacao", 
+      "aruban", 
+      "saintvincent", 
+      "stvincent", 
+      "creole", 
+      "grenadines", 
+      "grenada", 
+      "barbuda", 
+      "saintkitts", 
+      "saintmartin", 
+      "anguilla", 
+      "virginislands", 
+      "montserrat", 
+      "saintbarthelemy"
+    ], 
+    "data": [
+      "hispanic", 
+      "latina"
+    ], 
+    "mexican": [
+      "mexican"
+    ], 
+    "south_central_american": [
+      "guatemalan", 
+      "belizean", 
+      "honduras", 
+      "nicaraguan", 
+      "elsalvador", 
+      "panamanian", 
+      "costarican", 
+      "colombian", 
+      "columbian", 
+      "venezuelan", 
+      "ecuadorian", 
+      "peruvian", 
+      "bolivian", 
+      "chilean", 
+      "argentine", 
+      "uruguayan", 
+      "paraguayan", 
+      "brazilian", 
+      "guyana", 
+      "suriname"
+    ], 
+    "spanish": [
+      "spanish"
+    ]
+  }, 
+  "midEast_nAfrican": {
+    "data": [
+      "arabian", 
+      "muslim"
+    ], 
+    "middle_eastern": [
+      "iraqi", 
+      "iranian", 
+      "pakistani", 
+      "afghan", 
+      "kazakhstan", 
+      "uzbekistan", 
+      "tajikistan", 
+      "turkmenistan", 
+      "azerbaijan", 
+      "kyrgyzstan", 
+      "syrian", 
+      "lebanese", 
+      "jordanian", 
+      "saudiarabian", 
+      "unitedarabemirates", 
+      "bahrain", 
+      "kuwait", 
+      "persian", 
+      "kurdish", 
+      "middleeastern"
+    ], 
+    "north_african": [
+      "egyptian", 
+      "libyan", 
+      "algerian", 
+      "tunisian", 
+      "moroccan", 
+      "westernsaharan", 
+      "mauritanian", 
+      "senegal", 
+      "djibouti"
+    ]
+  }, 
+  "subsaharan_african": {
+    "data": [
+      "gambia", 
+      "bissau", 
+      "guinea", 
+      "sierraleone", 
+      "liberian", 
+      "ghana", 
+      "malian", 
+      "burkinafaso", 
+      "beninese", 
+      "nigerian", 
+      "sudanese", 
+      "eritrea", 
+      "ethiopian", 
+      "cameroon", 
+      "centralafricanrepublic", 
+      "somalian", 
+      "gabon", 
+      "congo", 
+      "ugandan", 
+      "kenyan", 
+      "tanzanian", 
+      "rwandan", 
+      "burundi", 
+      "angola", 
+      "zambian", 
+      "mozambique", 
+      "malawi", 
+      "zimbabwe", 
+      "namibia", 
+      "botswana", 
+      "lesotho", 
+      "southafrican", 
+      "swaziland", 
+      "madagascar", 
+      "comoros", 
+      "mauritius", 
+      "saintdenis", 
+      "seychelles", 
+      "saotome"
+    ]
+  }, 
+  "white_non_hispanic": {
+    "data": [
+      "white", 
+      "european"
+    ], 
+    "eastern_european": [
+      "russian", 
+      "ukrainian", 
+      "moldova", 
+      "bulgarian", 
+      "slovakian", 
+      "hungarian", 
+      "romanian", 
+      "polish", 
+      "latvian", 
+      "lithuanian", 
+      "estonia", 
+      "czech", 
+      "croatian", 
+      "bosnian", 
+      "montenegro", 
+      "macedonian", 
+      "albanian", 
+      "slovenian", 
+      "serbian", 
+      "kosovo", 
+      "armenian", 
+      "siberian", 
+      "belarusian"
+    ], 
+    "western_european": [
+      "british", 
+      "german", 
+      "france", 
+      "greek", 
+      "italian", 
+      "belgian", 
+      "netherlands", 
+      "swiss", 
+      "irish", 
+      "danish", 
+      "sweden", 
+      "finnish", 
+      "norwegian", 
+      "portugese", 
+      "austrian", 
+      "sanmarino", 
+      "turkish", 
+      "liechtenstein", 
+      "australian", 
+      "newzealand", 
+      "andorra", 
+      "luxembourg", 
+      "israeli", 
+      "jewish"
+    ]
+  }
+}
