@@ -49,6 +49,14 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                                     }
                                 }
                             }
+                        },
+                        "movement": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -60,7 +68,8 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
         ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
                               "date": os.path.join(os.path.dirname(__file__), "ground_truth/date.jl"),
                               "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl"),
-                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl")
+                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl"),
+                              "movement": os.path.join(os.path.dirname(__file__), "ground_truth/movement.jl")
                               }
 
         for extractor, file_name in ground_truth_files.items():
@@ -154,6 +163,25 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             self.assertEquals(extracted_addresses, correct_addresses)
 
+        # Movement extractor
+        for t in self.ground_truth['movement']:
+            crf_tokens = self.c.extract_tokens_from_crf(
+                self.c.extract_crftokens(t['text']))
+
+            extraction_config = {'field_name': 'movement'}
+            d = {'simple_tokens': crf_tokens}
+
+            extracted_movement = self.c.extract_using_spacy(d, extraction_config)
+
+            extracted_movement = [movement['value'] for movement in extracted_movement]
+            correct_movement = t['extracted']
+
+            if len(extracted_movement) == 0 and len(correct_movement) == 0:
+               self.assertFalse(extracted_movement)
+
+            self.assertEquals(sorted(extracted_movement), sorted(correct_movement))
+
+
         # Extract using config
 
         # Date extractor
@@ -218,6 +246,21 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 extracted_addresses = []
 
             correct_addresses = t['extracted']
+
+            self.assertEquals(extracted_addresses, correct_addresses)
+
+        # Movement extractor
+        for t in self.ground_truth['movement']:
+            r = self.c.process(t)
+            if 'data_extraction' in r:
+                extracted_movement = [x['value'] for x in r['data_extraction'][
+                    'movement']['extract_using_spacy']['results']]
+            else:
+                extracted_movement = []
+
+            correct_movement = t['extracted']
+            if len(extracted_movement) == 0 and len(correct_movement) == 0:
+                self.assertFalse(extracted_movement)
 
             self.assertEquals(extracted_addresses, correct_addresses)
         
