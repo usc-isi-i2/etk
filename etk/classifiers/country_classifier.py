@@ -36,11 +36,13 @@ def country_next_to_city(knowledge_graph, given_country):
 				for cp in kg_cities[city]:
 					if "origin" in cp:
 						if cp["origin"]["segment"] in country_start:
-							city_end = country_start[cp["origin"]["segment"]] - cp["context"]["end"]
-							dist.append(math.fabs(city_end))
+							city_end = math.fabs(country_start[cp["origin"]["segment"]] - cp["context"]["end"])
+							if city_end <= 3:
+								dist.append(math.fabs(city_end))
 	if dist:
-		result = min(dist)
-	return 1 if result != 0 else 0
+		result = len(dist)
+	# return 1 if result != 0 else 0  ---- do this if you want a binary feature
+	return result
 
 
 def country_next_to_state(knowledge_graph, given_country, state_to_country_dict):
@@ -69,12 +71,14 @@ def country_next_to_state(knowledge_graph, given_country, state_to_country_dict)
 				for sp in kg_states[state]:
 					if "origin" in sp:
 						if sp["origin"]["segment"] in country_start:
-							state_end = country_start[sp["origin"]["segment"]] - sp["context"]["end"]
-							dist.append(math.fabs(state_end))
+							state_end = math.fabs(country_start[sp["origin"]["segment"]] - sp["context"]["end"])
+							if state_end <= 3:
+								dist.append(math.fabs(state_end))
 
 	if dist:
-		result = min(dist)
-	return 1 if result != 0 else 0
+		result = len(dist)
+	# return 1 if result != 0 else 0 ---- do this if you want a binary feature
+	return result
 
 
 def number_of_explicit_mentions(knowledge_graph, given_country):
@@ -86,6 +90,61 @@ def number_of_explicit_mentions(knowledge_graph, given_country):
 
 	return count
 
+
+def num_of_explicit_mentions_in_content_strict(knowledge_graph, given_country):
+	count = 0
+	country_prov = knowledge_graph["country"][given_country]
+	for prov in country_prov:
+		if "origin" in prov:
+			if prov["origin"]["segment"] == "content_strict":
+				count += 1
+
+	return count
+
+
+def num_of_explicit_mentions_in_url(knowledge_graph, given_country):
+	count = 0
+	country_prov = knowledge_graph["country"][given_country]
+	for prov in country_prov:
+		if "origin" in prov:
+			if prov["origin"]["segment"] == "url":
+				count += 1
+
+	return count
+
+def number_of_implicit_mentions(knowledge_graph, given_country):
+	count = 0
+	country_prov = knowledge_graph["country"][given_country]
+	for prov in country_prov:
+		if "origin" not in prov:
+			count += 1
+
+	return count
+
+
+def bool_if_colon_next_to_any_city(knowledge_graph, given_country):
+	colon = ":"
+	count = 0
+	# Set of all cities from populated places which are in given_country
+	cities = set() 
+	if "populated_places" in knowledge_graph:
+		pop_places = knowledge_graph["populated_places"]
+		for place in pop_places:
+			if pop_places[place][0]["metadata"]["country"] == given_country:
+				cities.add(pop_places[place][0]["value"])
+
+	dist = list() # all distances between cities and country
+	if "city" in knowledge_graph:
+		kg_cities = knowledge_graph["city"]
+		for city in kg_cities:
+			if city in cities:
+				for cp in kg_cities[city]:
+					if "context" in cp:
+						if "tokens_left" in cp["context"]:
+							if colon in cp["context"]["tokens_left"][-2:]:
+								count += 1
+
+	return count
 
 def calc_country_feature(knowledge_graph, state_to_country_dict):
 	""" Returns a list of dicts which has val: coutry and feature_vector: vector"""
@@ -101,6 +160,10 @@ def calc_country_feature(knowledge_graph, state_to_country_dict):
 			feature_vector.append(country_next_to_city(knowledge_graph, country))
 			feature_vector.append(number_of_explicit_mentions(knowledge_graph, country))
 			feature_vector.append(country_next_to_state(knowledge_graph, country, state_to_country_dict))
+			feature_vector.append(num_of_explicit_mentions_in_content_strict(knowledge_graph, country))
+			feature_vector.append(num_of_explicit_mentions_in_url(knowledge_graph, country))
+			feature_vector.append(number_of_implicit_mentions(knowledge_graph, country))
+			feature_vector.append(bool_if_colon_next_to_any_city(knowledge_graph, country))
 			### Add features here
 			vector["value"] = json.dumps(feature_vector)
 			vectors.append(vector)

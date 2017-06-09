@@ -19,7 +19,7 @@ from data_extractors.digPriceExtractor import price_extractor
 from data_extractors.digReviewIDExtractor import review_id_extractor
 from data_extractors import date_parser
 from classifiers import country_classifier
-from structured_extractors import ReadabilityExtractor, TokenizerExtractor
+from structured_extractors import ReadabilityExtractor, TokenizerExtractor, FaithfulTokenizerExtractor
 import json
 import gzip
 import re
@@ -1065,6 +1065,25 @@ class Core(object):
     @staticmethod
     def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
+
+    @staticmethod
+    def extract_tokens_faithful(text, options=None):
+        ft = FaithfulTokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+        return ft.extract(text)
+
+    @staticmethod
+    def extract_tokens_from_faithful(faithful_tokens):
+        return [tk['value'] for tk in faithful_tokens]
+
+    @staticmethod
+    def filter_tokens(original_tokens, config):
+        # config contains a list of types of tokens to be removed
+        # [alphabet, digit, emoji, punctuation, html, html_entity, break]
+        ft = FaithfulTokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+        ft.faithful_tokens = original_tokens
+        # Return Tokens object which contains - tokens, reverse_map attributes
+        # The object also has a method get_original_index() to retrieve index in faithful tokens
+        return ft.filter_tokens(config)
 
     def extract_table(self, html_doc):
         return table_extractor.extract(html_doc)
