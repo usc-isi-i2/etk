@@ -3,24 +3,14 @@
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
-      "city": "/Users/majid/DIG/dig-dictionaries/geonames-populated-places/curated_cities.json.gz",
-      "ethinicity": "/Users/majid/DIG/dig-dictionaries/ethnicities/ethnicities.json.gz",
-      "hair_color": "/Users/majid/DIG/dig-dictionaries/haircolor/haircolors.json.gz",
-      "eye_color": "/Users/majid/DIG/dig-dictionaries/eyecolor/eyecolors.json.gz",
-      "state": "/Users/majid/DIG/dig-dictionaries/geonames-populated-places/states_usa_canada.json.gz",
-      "service": "/Users/majid/DIG/dig-dictionaries/escort-service-words/consolidated-services.json.gz",
-      "country_code": "/Users/majid/DIG/dig-dictionaries/geonames-populated-places/country_codes_dict.json",
-      "country": "/Users/majid/DIG/dig-dictionaries/geonames-populated-places/countries.json.gz",
-      "stop_words": "/Users/majid/DIG/dig-dictionaries/geonames-populated-places/stop_words.json.gz",
-      "women_name": "/Users/majid/DIG/dig-dictionaries/person-names/female-names-trimmed.json.gz"
+
     },
     "landmark": [
-      "/Users/majid/DIG/dig3/dig3-extractions/resources/consolidated_rules.json"
     ],
     "pickle": {
-      "table_classifier": "/Users/majid/DIG/dig-table-extractor/experiments/data/table_cl_model.bin",
-      "sem_labels": "/Users/majid/DIG/dig-table-extractor/experiments/data/HT-attribute-labels.json",
-      "sem_labels_mapping": "/Users/majid/DIG/dig-table-extractor/experiments/ui/temp.jl"
+      "table_classifier": "./etk/unit_tests/table_data_extraction/table_cl_model.bin",
+      "sem_labels": "./etk/unit_tests/table_data_extraction/HT-attribute-labels.json",
+      "sem_labels_mapping": "./etk/unit_tests/table_data_extraction/temp.jl"
     }
   },
   "content_extraction": {
@@ -33,143 +23,6 @@
     }
   },
   "data_extraction": [
-    {
-      "input_path": [
-        "*.table[*].rows[*].cells[*].text.`parent`"
-      ],
-      "fields": {
-        "name": {
-          "extractors": {
-            "extract_using_dictionary": {
-              "config": {
-                "dictionary": "women_name",
-                "ngrams": 1,
-                "joiner": " ",
-                "pre_process": [
-                  "x.lower()"
-                ],
-                "pre_filter": [
-                  "x"
-                ],
-                "post_filter": [
-                  "isinstance(x, basestring)"
-                ]
-              },
-              "extraction_policy": "keep_existing"
-            },
-            "extract_using_regex": {
-              "config": {
-                "include_context": "true",
-                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
-                "regex_options": [
-                  "IGNORECASE"
-                ],
-                "pre_filter": [
-                  "x.replace('\\n', '')",
-                  "x.replace('\\r', '')"
-                ]
-              },
-              "extraction_policy": "replace"
-            },
-            "extract_from_landmark": {
-              "config": {
-                "fields": [
-                  "inferlink_name",
-                  "inferlink_name-1"
-                ],
-                "post_filter": [
-                  "x.replace('\t', '')"
-                ]
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "age": {
-          "extractors": {
-            "extract_from_landmark": {
-              "config": {
-                "fields": [
-                  "inferlink_age"
-                ]
-              },
-              "extraction_policy": "replace"
-            },
-            "extract_age": {
-              "config": {
-                
-              }
-            }
-          }
-        },
-         "phone": {
-          "extractors": {
-            "extract_phone": {
-              "config": {
-
-              },
-              "extraction_policy": "replace"
-            },
-            "extract_from_landmark": {
-              "config": {
-                "fields": [
-                  "inferlink_phone"
-                ],
-                "post_filter": [
-                  "extract_phone"
-                ]
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-         "email": {
-          "extractors": {
-            "extract_email": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "price": {
-          "extractors": {
-            "extract_price": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "height": {
-          "extractors": {
-            "extract_height": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "weight": {
-          "extractors": {
-            "extract_weight": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        },
-        "address": {
-          "extractors": {
-            "extract_address": {
-              "config": {
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        }
-      }
-    },
     {
       "input_path": [
         "*.table[*]"
