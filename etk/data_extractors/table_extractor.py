@@ -348,7 +348,7 @@ def extract(html_doc, min_data_rows = 1):
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ''.join(td.stripped_strings)
-                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
                         for index_col, td in enumerate(soup_row.findAll('td')):
@@ -356,7 +356,7 @@ def extract(html_doc, min_data_rows = 1):
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ''.join(td.stripped_strings)
-                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
                         avg_row_len_dev += pstdev([len(x["text"]) for x in cell_list])
