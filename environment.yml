@@ -52,3 +52,6 @@ dependencies:
   - nose2==0.6.4
   - ply==3.9
   - requests-file==1.4
+  - scikit-learn==0.18.1
+  - scipy
+  - numpy
