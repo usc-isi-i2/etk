@@ -383,7 +383,72 @@ class Core(object):
 
             if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                 doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+                """ Add title and description as fields in the knowledge graph as well"""
+                doc = Core.rearrange_description(doc)
+                doc = Core.rearrange_title(doc)
+        return doc
 
+    @staticmethod
+    def rearrange_description(doc):
+        method = 'rearrange_description'
+        description = None
+        segment = ''
+        if _CONTENT_EXTRACTION in doc:
+            ce = doc[_CONTENT_EXTRACTION]
+            if _INFERLINK_EXTRACTIONS in ce:
+                if _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
+                    description = ce[_INFERLINK_EXTRACTIONS][_DESCRIPTION][_TEXT]
+                    segment = _INFERLINK
+            if not description or description.strip() == '':
+                if _CONTENT_STRICT in ce:
+                    description = ce[_CONTENT_STRICT][_TEXT]
+                    segment = _CONTENT_STRICT
+
+            if description and description != '':
+                if _KNOWLEDGE_GRAPH not in doc:
+                    doc[_KNOWLEDGE_GRAPH] = dict()
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
+                o = dict()
+                o['value'] = description
+                o['confidence'] = 1000
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
+        return doc
+
+    @staticmethod
+    def custom_provenance_object(method, segment, document_id):
+        prov = dict()
+        prov['method'] = method
+        prov['source'] = dict()
+        prov['source']['segment'] = segment
+        prov['source'][_DOCUMENT_ID] = document_id
+        return prov
+
+    @staticmethod
+    def rearrange_title(doc):
+        method = 'rearrange_title'
+        title = None
+        segment = ''
+        if _CONTENT_EXTRACTION in doc:
+            ce = doc[_CONTENT_EXTRACTION]
+            if _INFERLINK_EXTRACTIONS in ce:
+                if _TITLE in ce[_INFERLINK_EXTRACTIONS]:
+                    title = ce[_INFERLINK_EXTRACTIONS][_TITLE][_TEXT]
+                    segment = _INFERLINK
+            if not title or title.strip() == '':
+                if _TITLE in ce:
+                    title = ce[_TITLE][_TEXT]
+                    segment = _HTML
+
+            if title and title != '':
+                if _KNOWLEDGE_GRAPH not in doc:
+                    doc[_KNOWLEDGE_GRAPH] = dict()
+                doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
+                o = dict()
+                o['value'] = title
+                o['confidence'] = 1000
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
         return doc
 
     @staticmethod
