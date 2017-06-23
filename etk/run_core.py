@@ -5,12 +5,12 @@ import sys
 import multiprocessing as mp, os
 import core
 from optparse import OptionParser
-# from concurrent import futures
-from pathos.multiprocessing import ProcessingPool
-from pathos import multiprocessing as mpp
-import multiprocessing as mp
-import pathos
-# from pathos.helpers
+# # from concurrent import futures
+# from pathos.multiprocessing import ProcessingPool
+# from pathos import multiprocessing as mpp
+# import multiprocessing as mp
+# import pathos
+# # from pathos.helpers
 import gzip
 """ Process code begins here """
 
