@@ -930,6 +930,20 @@ class Core(object):
             print e
             return None
 
+
+    def extract_using_custom_spacy(self, d, config):
+        field_name = config[_FIELD_NAME]
+        field_rules = config['field_rules']
+        results = None
+        if not self.nlp:
+            self.prep_spacy()
+
+        nlp_doc = self.nlp(d[_TOKENS])
+
+        # call the custom spacy extractor
+        # results = custom_spacy(field_rules, nlp_doc, self.nlp)
+        return results
+
     def extract_using_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         if not self.nlp:
