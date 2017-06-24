@@ -416,6 +416,7 @@ class Core(object):
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
                 o = dict()
                 o['value'] = description
+                o['key'] = 'description'
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
@@ -452,6 +453,7 @@ class Core(object):
                 doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
                 o = dict()
                 o['value'] = title
+                o['key'] = 'title'
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
