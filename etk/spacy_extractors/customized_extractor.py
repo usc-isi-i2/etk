@@ -571,11 +571,8 @@ def extract(field_rule, doc, nlp):
                         "value": value,
                         "context": {
                             "start": start,
-                            "end": end
-                        },
-                        "metadata":{
-                            "rule_id": label,
-                            "is_in_output": output_inf
+                            "end": end,
+                            "rule_id": label
                         }
                     }
                     extracted_lst.append(result)
