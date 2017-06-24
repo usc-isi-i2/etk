@@ -30,6 +30,7 @@ import collections
 import numbers
 from tldextract import tldextract
 import pickle
+import copy
 import os
 import sys
 
@@ -73,7 +74,9 @@ _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
 _EXTRACTORS = 'extractors'
 _TOKENS = 'tokens'
+_TOKENS_ORIGINAL_CASE = "tokens_original_case"
 _SIMPLE_TOKENS = 'simple_tokens'
+_SIMPLE_TOKENS_ORIGINAL_CASE = 'simple_tokens_original_case'
 _TEXT = 'text'
 _DICTIONARY = 'dictionary'
 _PICKLES = 'pickle'
@@ -134,6 +137,7 @@ class Core(object):
             self.prep_spacy()
         else:
             self.nlp = None
+        self.custom_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
 
@@ -949,13 +953,14 @@ class Core(object):
     def extract_using_custom_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(field_name))
-        if not self.nlp:
-            self.prep_spacy()
+        if not self.custom_nlp:
+            self.prep_custom_spacy()
 
-        nlp_doc = self.nlp(d[_TEXT])
+        # nlp_doc = self.nlp(d[_TEXT])
 
         # call the custom spacy extractor
-        results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
+        results = custom_spacy_extractor.extract(field_rules, d[_TEXT], self.custom_nlp)
+        print json.dumps(results, indent=2)
         return results
 
     def extract_using_spacy(self, d, config):
@@ -1218,9 +1223,16 @@ class Core(object):
         return None
 
     @staticmethod
-    def extract_crftokens(text, options=None):
+    def extract_crftokens(text, options=None, lowercase=True):
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-        return t.extract(text)
+        return t.extract(text, lowercase)
+
+    @staticmethod
+    def crftokens_to_lower(crf_tokens):
+        lower_crf = copy.deepcopy(crf_tokens)
+        for tk in lower_crf:
+            tk['value'] = tk['value'].lower()
+        return lower_crf
 
     @staticmethod
     def extract_tokens_from_crf(crf_tokens):
@@ -1262,6 +1274,9 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_custom_spacy(self):
+        self.custom_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
