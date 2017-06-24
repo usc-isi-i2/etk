@@ -499,21 +499,22 @@ def get_value(doc, start, end, output_inf):
     for i in range(len(output_inf)):
         if output_inf[i]:
             result_str += str(doc[start+i])
-    return result_str            
+            result_str += " "
+    return result_str.strip()            
 
 
-def extract(field_rule, doc, nlp):
+def extract(field_rules, doc, nlp):
 
     #output_file = 'output.txt'
-    #pattern_description = json.load(codecs.open(field_rule, 'r', 'utf-8'))
+    #pattern_description = json.load(codecs.open(field_rules, 'r', 'utf-8'))
 
-    pattern_description = field_rule
+    pattern_description = field_rules
     #output_f = open(output_file, 'w')
-    #doc = pattern_description["test_text"]
+    #doc = doc.decode('utf-8')
 
     rule = Rule(nlp)
 
-#    rule_num = 0
+    #rule_num = 0
     extracted_lst = []
     for index, line in enumerate(pattern_description["rules"]):
         rule.init_matcher()
@@ -547,12 +548,12 @@ def extract(field_rule, doc, nlp):
             if token_d["type"] == "symbol":
                 new_pattern.add_symbol_token(token_d)
 
-        nlp_doc = rule.nlp(doc.decode('utf-8'))
+        nlp_doc = rule.nlp(doc)
         tl = new_pattern.token_lst[0]
         ps_inf = new_pattern.token_lst[1]
-        
+        value_lst = []
         for i in range(len(tl)):
-#            rule_num += 1
+            #rule_num += 1
             if tl[i]:
                 rule_to_print = create_print(tl[i])
                 
@@ -567,19 +568,23 @@ def extract(field_rule, doc, nlp):
                 
                 for (ent_id, label, start, end) in matches:
                     value = get_value(nlp_doc, start, end, output_inf)
-                    result = {
-                        "value": value,
-                        "context": {
-                            "start": start,
-                            "end": end,
-                            "rule_id": label
+                    if value not in value_lst:
+                        result = {
+                            "value": value,
+                            "context": {
+                                "start": start,
+                                "end": end,
+                                "rule_id": label
+                            }
                         }
-                    }
-                    extracted_lst.append(result)
+                        extracted_lst.append(result)
+                        value_lst.append(value)
 #                   output_f.write(str(nlp_doc[start:end]))
 #                   output_f.write("\n")
                 rule.init_matcher()
+    
     return extracted_lst
+    #print json.dump(extracted_lst, indent=2)
     
 #    print "total rule num:"
 #    print rule_num
