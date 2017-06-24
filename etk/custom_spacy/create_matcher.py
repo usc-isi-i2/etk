@@ -3,11 +3,11 @@ import json
 import process_function
 
 
-def costom_using_spacy(field_rule, doc, nlp):
+def custom_using_spacy(field_rule, doc, nlp):
 
 	input_file = field_rule
-	output_file = 'output.txt'
-	pattern_description = json.load(codecs.open(input_file, 'r', 'utf-8'))
+	#output_file = 'output.txt'
+	pattern_description = field_rule
 
 	output_f = open(output_file, 'w')
 	#doc = pattern_description["test_text"]
