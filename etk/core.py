@@ -3,6 +3,7 @@ from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
+from spacy_extractors import customized_extractor as custom_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -948,14 +949,13 @@ class Core(object):
     def extract_using_custom_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(field_name))
-        results = None
         if not self.nlp:
             self.prep_spacy()
 
-        nlp_doc = self.nlp(d[_TOKENS])
+        nlp_doc = self.nlp(d[_TEXT])
 
         # call the custom spacy extractor
-        # results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
+        results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
         return results
 
     def extract_using_spacy(self, d, config):
