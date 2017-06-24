@@ -67,6 +67,7 @@ _POSTING_DATE = 'posting_date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
 _RESOURCES = 'resources'
+_SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
 _EXTRACTORS = 'extractors'
@@ -671,6 +672,20 @@ class Core(object):
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
+    def get_spacy_field_rules_from_config(self, field_name):
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _SPACY_FIELD_RULES in resources:
+                if field_name in resources[_SPACY_FIELD_RULES]:
+                    return resources[_SPACY_FIELD_RULES][field_name]
+                else:
+                    raise KeyError(
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES, field_name))
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES))
+        else:
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
     def run_title(self, content_extraction, html, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
@@ -930,10 +945,9 @@ class Core(object):
             print e
             return None
 
-
     def extract_using_custom_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
-        field_rules = config['field_rules']
+        field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(field_name))
         results = None
         if not self.nlp:
             self.prep_spacy()
@@ -941,7 +955,7 @@ class Core(object):
         nlp_doc = self.nlp(d[_TOKENS])
 
         # call the custom spacy extractor
-        # results = custom_spacy(field_rules, nlp_doc, self.nlp)
+        # results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
         return results
 
     def extract_using_spacy(self, d, config):
