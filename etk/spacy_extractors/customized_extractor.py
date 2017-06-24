@@ -1,7 +1,8 @@
+import codecs
+import json
 import spacy
 import copy
 import itertools
-
 
 FLAG_DICT = {
     "18": spacy.attrs.FLAG18, "19": spacy.attrs.FLAG19, 
@@ -129,7 +130,6 @@ name_dict = {
                 81: u'PROB'
 }
 
-
 '''
 Class Rule
 '''
@@ -187,7 +187,8 @@ class Pattern(object):
             token_to_rule = add_pos_totoken(d["part_of_speech"], 
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
-        token_inf = create_inf(d["prefix"], d["suffix"], not d["token"])
+        token_inf = create_inf(d["prefix"], d["suffix"], 
+                                not d["token"], d["is_in_output"])
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule, 
                             d["is_required"], token_inf)
 
@@ -197,7 +198,8 @@ class Pattern(object):
         for this_token in create_shape_token(d["shapes"]):
             token_to_rule = add_pos_totoken(d["part_of_speech"], 
                                             this_token, token_to_rule)
-        token_inf = create_inf(d["prefix"], d["suffix"], True)
+        token_inf = create_inf(d["prefix"], d["suffix"], 
+                                True, d["is_in_output"])
         # add shape information to token inf for future filter
         if d["shapes"]:
             token_inf["shapes"] = d["shapes"]
@@ -210,14 +212,7 @@ class Pattern(object):
     # add a number token
     def add_number_token(self, token_d, flag):
         pass
-        # if not token_d["token"]:
-        #     this_token = {spacy.attrs.LIKE_NUM: True}
-        # elif len(token_d["token"]) == 1:
-        #     this_token = {spacy.attrs.ORTH: token_d["token"][0]}
-        # else:
-        #     this_token = {FLAG_DICT[str(flag)]: True}
-        # self.token_lst = add_token_tolist(self.token_lst, [this_token], 
-        #                 token_d["is_required"], dict())
+
     # add a punctuation token
     def add_punctuation_token(self, token_d, flag):
         if not token_d["token"]:
@@ -226,14 +221,14 @@ class Pattern(object):
             this_token = {spacy.attrs.ORTH: token_d["token"][0]}
         else:
             this_token = {FLAG_DICT[str(flag)]: True}
+        token_inf = create_inf("", "", 
+                                False, token_d["is_in_output"])
         self.token_lst = add_token_tolist(self.token_lst, [this_token], 
-                        token_d["is_required"], dict())
+                        token_d["is_required"], token_inf)
     
     # add a symbol token
     def add_symbol_token(self, token_d):
         pass
-
-
 
 
 # Check if prefix matches
@@ -257,13 +252,18 @@ def check_suffix(s, suffix):
     else:
         return True
 
-def create_inf(p, s, a):
+def create_inf(p, s, a, is_in_output):
     label = {}
     if a:
         if p:
             label["prefix"] = p
         if s:
             label["suffix"] = s
+    if is_in_output == "true":
+        label["is_in_output"] = True
+    else:
+        label["is_in_output"] = False
+    
     return label
 
 
@@ -493,3 +493,87 @@ def generate_shape(word, count):
         p = p + c
     
     return shape
+
+
+def extract(field_rule, doc, nlp):
+
+    #output_file = 'output.txt'
+    #pattern_description = json.load(codecs.open(field_rule, 'r', 'utf-8'))
+
+    pattern_description = field_rule
+    #output_f = open(output_file, 'w')
+    #doc = pattern_description["test_text"]
+
+    rule = Rule(nlp)
+
+#    rule_num = 0
+    for index, line in enumerate(pattern_description["rules"]):
+        rule.init_matcher()
+        rule.init_flag()
+        new_pattern = Pattern(index)
+
+        for token_d in line["pattern"]:
+            if token_d["type"] == "word":
+                if len(token_d["token"]) >= 2:
+                    # set flag for multiply words
+                    rule.set_flag(token_d["token"])
+                
+                new_pattern.add_word_token(token_d, rule.flagnum)
+
+            if token_d["type"] == "shape":
+                new_pattern.add_shape_token(token_d)
+
+            if token_d["type"] == "number":
+                new_pattern.add_number_token(token_d, rule.flagnum)
+
+            if token_d["type"] == "punctuation":
+                if len(token_d["token"]) >= 2:
+                    # set flag for multiply punctuation
+                    rule.set_flag(token_d["token"])
+                
+                new_pattern.add_punctuation_token(token_d, rule.flagnum)
+
+            if token_d["type"] == "glossary":
+                new_pattern.add_glossary_token(token_d)
+
+            if token_d["type"] == "symbol":
+                new_pattern.add_symbol_token(token_d)
+
+        nlp_doc = rule.nlp(doc.decode('utf-8'))
+        tl = new_pattern.token_lst[0]
+        ps_inf = new_pattern.token_lst[1]
+        
+        for i in range(len(tl)):
+#            rule_num += 1
+            if tl[i]:
+                rule_to_print = create_print(tl[i])
+                
+                rule.matcher.add_pattern(new_pattern.entity, tl[i], label = index)
+                m = rule.matcher(nlp_doc)
+                matches = filter(nlp_doc, m, ps_inf[i])
+
+                output_inf = []
+                for e in ps_inf[i]:
+                    output_inf.append(ps_inf[i][e]["is_in_output"])
+                
+                for (ent_id, label, start, end) in matches:
+                    result = {
+                        "value": nlp_doc[start:end],
+                        "context": {
+                            "start": start,
+                            "end": end
+                        },
+                        "metadata":{
+                            "rule_id": label,
+                            "is_in_output": output_inf
+                        }
+                    }
+                    print result
+#                   output_f.write(str(nlp_doc[start:end]))
+#                   output_f.write("\n")
+                rule.init_matcher()
+    
+#    print "total rule num:"
+#    print rule_num
+
+#   output_f.close()
