@@ -1223,9 +1223,9 @@ class Core(object):
         return None
 
     @staticmethod
-    def extract_crftokens(text, options=None, lowercase=True):
+    def extract_crftokens(text, options=None):
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-        return t.extract(text, lowercase)
+        return t.extract(text)
 
     @staticmethod
     def crftokens_to_lower(crf_tokens):
