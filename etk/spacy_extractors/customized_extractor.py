@@ -494,6 +494,13 @@ def generate_shape(word, count):
     
     return shape
 
+def get_value(doc, start, end, output_inf):
+    result_str = ""
+    for i in range(len(output_inf)):
+        if output_inf[i]:
+            result_str += str(doc[start+i])
+    return result_str            
+
 
 def extract(field_rule, doc, nlp):
 
@@ -507,6 +514,7 @@ def extract(field_rule, doc, nlp):
     rule = Rule(nlp)
 
 #    rule_num = 0
+    extracted_lst = []
     for index, line in enumerate(pattern_description["rules"]):
         rule.init_matcher()
         rule.init_flag()
@@ -555,10 +563,12 @@ def extract(field_rule, doc, nlp):
                 output_inf = []
                 for e in ps_inf[i]:
                     output_inf.append(ps_inf[i][e]["is_in_output"])
+
                 
                 for (ent_id, label, start, end) in matches:
+                    value = get_value(nlp_doc, start, end, output_inf)
                     result = {
-                        "value": nlp_doc[start:end],
+                        "value": value,
                         "context": {
                             "start": start,
                             "end": end
@@ -568,10 +578,11 @@ def extract(field_rule, doc, nlp):
                             "is_in_output": output_inf
                         }
                     }
-                    print result
+                    extracted_lst.append(result)
 #                   output_f.write(str(nlp_doc[start:end]))
 #                   output_f.write("\n")
                 rule.init_matcher()
+    return extracted_lst
     
 #    print "total rule num:"
 #    print rule_num
