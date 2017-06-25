@@ -227,7 +227,7 @@ class Core(object):
                                 # First rule of DATA Extraction club: Get tokens
                                 # Get the crf tokens
                                 if _TEXT in match.value:
-                                    if _TOKENS_ORIGINAL_CASE not in match.value:
+                                    if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
                                         match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT], lowercase=False)
                                     if _TOKENS not in match.value:
                                         match.value[_TOKENS] = self.crftokens_to_lower(match.value[_TOKENS_ORIGINAL_CASE])
@@ -963,12 +963,8 @@ class Core(object):
     def extract_using_custom_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
-        #if not self.custom_nlp:
-        #    self.prep_custom_spacy()
         if not self.nlp:
             self.prep_spacy()
-
-        # nlp_doc = self.nlp(d[_TEXT])
 
         # call the custom spacy extractor
         results = custom_spacy_extractor.extract(field_rules, d[_SIMPLE_TOKENS_ORIGINAL_CASE], self.nlp)
@@ -1247,6 +1243,13 @@ class Core(object):
         return lower_crf
 
     @staticmethod
+    def crftokens_to_lower(crf_tokens):
+        lower_crf = copy.deepcopy(crf_tokens)
+        for tk in lower_crf:
+            tk['value'] = tk['value'].lower()
+        return lower_crf
+
+    @staticmethod
     def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
 
@@ -1284,11 +1287,6 @@ class Core(object):
 
     def prep_spacy(self):
         self.nlp = spacy.load('en')
-        self.old_tokenizer = self.nlp.tokenizer
-        self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
-
-    def prep_custom_spacy(self):
-        self.custom_nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
 
