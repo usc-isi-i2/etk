@@ -181,8 +181,8 @@ class Pattern(object):
     def add_word_token(self, d, flag):
         token_to_rule = []
         
-        for this_token in create_word_token(d["token"], d["capitalization"], 
-                                            d["length"], flag):
+        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], 
+                    flag, d["contain_digit"], d["is_out_of_vocabulary"], d["is_in_vocabulary"]):
             token_to_rule = add_pos_totoken(d["part_of_speech"], 
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
@@ -361,14 +361,22 @@ def add_pos_totoken(pos_l, this_token, token_to_rule):
     return token_to_rule
 
 # create word token according to user input
-def create_word_token(word_l, capi_l, length_l, flag):
+def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab):
     # if user enter one word
     if len(word_l) == 1:
         token = {spacy.attrs.LOWER: word_l[0].lower()}
         token_l = speci_capi(token, capi_l, word_l)
     # if user does not enter any word
     elif not word_l:
-        token = {spacy.attrs.IS_ALPHA: True}
+        if contain_num == "true":
+            token = {spacy.attrs.IS_ASCII: True, spacy.attrs.IS_PUNCT: False}
+        else:
+            token = {spacy.attrs.IS_ALPHA: True}
+        if out_vocab == "true" and in_vocab != "true":
+            token[spacy.attrs.IS_OOV] = True
+        elif out_vocab != "true" and in_vocab == "true":
+            token[spacy.attrs.IS_OOV] = False
+
         token_l = speci_capi(token, capi_l, word_l)
         if length_l:
             while spacy.attrs.LENGTH not in token_l[0]:
@@ -493,28 +501,36 @@ def generate_shape(word, count):
     
     return shape
 
-def get_value(doc, start, end, output_inf, label):
+def get_value(doc, start, end, output_inf, label, ent_id):
     result_str = ""
     for i in range(len(output_inf)):
         if output_inf[i]:
             result_str += str(doc[start+i])
             result_str += " "
-    return (start, end, result_str.strip(), label)           
+    return (start, end, result_str.strip(), label, ent_id)           
 
 def get_longest(value_lst):
     value_lst.sort()
-    start = value_lst[0][0]
-    end = value_lst[-1][0]
-    pivot = start
     result = []
-    for idx, (s, e, v, l) in enumerate(value_lst):
-        if pivot < s:
-            last = value_lst[idx-1]
-            last_e = last[1]
-            if last_e > pivot:
-                result.append(last)
-                pivot = last_e
-    return result
+    if len(value_lst) == 1:
+        return value_lst
+    else:
+        start = value_lst[0][0]
+        end = value_lst[0][1]
+        pivot = value_lst[0]
+        pivot_e = end
+        pivot_s = start
+        for idx, (s, e, v, l, ent_id) in enumerate(value_lst):
+            if s == pivot_s and pivot_e < e:
+                pivot_e = e
+                pivot = value_lst[idx]
+            elif s != pivot_s and pivot_e < e:
+                result.append(pivot)
+                pivot = value_lst[idx]
+                pivot_e = e
+                pivot_s = s
+        result.append(pivot)
+        return result
 
 def extract(field_rules, nlp_doc, nlp):
 
@@ -527,93 +543,98 @@ def extract(field_rules, nlp_doc, nlp):
     #rule_num = 0
     extracted_lst = []
     for index, line in enumerate(pattern_description["rules"]):
-        rule.init_matcher()
-        rule.init_flag()
-        new_pattern = Pattern(index)
+        if line["is_active"] == "true":
+            rule.init_matcher()
+            rule.init_flag()
+            new_pattern = Pattern(line["identifier"])
 
-        for token_d in line["pattern"]:
-            if token_d["type"] == "word":
-                if len(token_d["token"]) >= 2:
-                    # set flag for multiply words
-                    rule.set_flag(token_d["token"])
+            for token_d in line["pattern"]:
+                if token_d["type"] == "word":
+                    if len(token_d["token"]) >= 2:
+                        # set flag for multiply words
+                        rule.set_flag(token_d["token"])
+                    
+                    new_pattern.add_word_token(token_d, rule.flagnum)
+
+                if token_d["type"] == "shape":
+                    new_pattern.add_shape_token(token_d)
+
+                if token_d["type"] == "number":
+                    new_pattern.add_number_token(token_d, rule.flagnum)
+
+                if token_d["type"] == "punctuation":
+                    if len(token_d["token"]) >= 2:
+                        # set flag for multiply punctuation
+                        rule.set_flag(token_d["token"])
+                    
+                    new_pattern.add_punctuation_token(token_d, rule.flagnum)
+
+                if token_d["type"] == "glossary":
+                    new_pattern.add_glossary_token(token_d)
+
+                if token_d["type"] == "symbol":
+                    new_pattern.add_symbol_token(token_d)
+
+                    
+            # print nlp_doc[1].lemma_
+            # print nlp_doc[1].pos_
+            # print nlp_doc[1].tag_
+            # print nlp_doc[1].orth_
+            # print nlp_doc[1].lower_
+            # print nlp_doc[1].is_title
+            # print nlp_doc[1].check_flag(spacy.attrs.FLAG18)
+            # print nlp_doc[1].dep_
+
+            tl = new_pattern.token_lst[0]
+            ps_inf = new_pattern.token_lst[1]
+            value_lst = []
+            for i in range(len(tl)):
+                #rule_num += 1
+                if tl[i]:
+                    # rule_to_print = create_print(tl[i])
+                    # print rule_to_print
+                    rule.matcher.add_pattern(new_pattern.entity, tl[i], label = index)
+                    m = rule.matcher(nlp_doc)
+                    matches = filter(nlp_doc, m, ps_inf[i])
+
+                    output_inf = []
+                    for e in ps_inf[i]:
+                        output_inf.append(ps_inf[i][e]["is_in_output"])
+                    
+                    for (ent_id, label, start, end) in matches:
+                        value = get_value(nlp_doc, start, end, output_inf, label, ent_id)
+                        value_lst.append(value)
                 
-                new_pattern.add_word_token(token_d, rule.flagnum)
 
-            if token_d["type"] == "shape":
-                new_pattern.add_shape_token(token_d)
+                        # if value[2] not in value_lst:
+                        # result = {
+                        #     "value": value[2],
+                        #     "context": {
+                        #         "start": start,
+                        #         "end": end,
+                        #         "rule_id": label
+                        #     }
+                        # }
+                        # extracted_lst.append(result)
+                        # value_lst.append(value)
+                    rule.init_matcher()
 
-            if token_d["type"] == "number":
-                new_pattern.add_number_token(token_d, rule.flagnum)
+            if value_lst:
+                longest_lst = get_longest(value_lst)
+                #print longest_lst
+                for (start, end, value, label, ent_id) in longest_lst:
+                    result = {
+                        "value": value,
+                        "context": {
+                            "start": start,
+                            "end": end,
+                            "rule_id": label,
+                            "identifier": pattern_description["rules"][label]["identifier"]
+                        }
+                    }
+                    extracted_lst.append(result)
 
-            if token_d["type"] == "punctuation":
-                if len(token_d["token"]) >= 2:
-                    # set flag for multiply punctuation
-                    rule.set_flag(token_d["token"])
-                
-                new_pattern.add_punctuation_token(token_d, rule.flagnum)
-
-            if token_d["type"] == "glossary":
-                new_pattern.add_glossary_token(token_d)
-
-            if token_d["type"] == "symbol":
-                new_pattern.add_symbol_token(token_d)
-
-                
-        # print nlp_doc[1].lemma_
-        # print nlp_doc[1].pos_
-        # print nlp_doc[1].tag_
-        # print nlp_doc[1].orth_
-        # print nlp_doc[1].lower_
-        # print nlp_doc[1].is_title
-        # print nlp_doc[1].check_flag(spacy.attrs.FLAG18)
-        # print nlp_doc[1].dep_
-
-        tl = new_pattern.token_lst[0]
-        ps_inf = new_pattern.token_lst[1]
-        value_lst = []
-        for i in range(len(tl)):
-            #rule_num += 1
-            if tl[i]:
-                # rule_to_print = create_print(tl[i])
-                # print rule_to_print
-                rule.matcher.add_pattern(new_pattern.entity, tl[i], label = index)
-                m = rule.matcher(nlp_doc)
-                matches = filter(nlp_doc, m, ps_inf[i])
-
-                output_inf = []
-                for e in ps_inf[i]:
-                    output_inf.append(ps_inf[i][e]["is_in_output"])
-                
-                for (ent_id, label, start, end) in matches:
-                    value = get_value(nlp_doc, start, end, output_inf, label)
-                    value_lst.append(value)
-            
-
-                    # if value[2] not in value_lst:
-                    # result = {
-                    #     "value": value[2],
-                    #     "context": {
-                    #         "start": start,
-                    #         "end": end,
-                    #         "rule_id": label
-                    #     }
-                    # }
-                    # extracted_lst.append(result)
-                    # value_lst.append(value)
-                rule.init_matcher()
-
-        longest_lst = get_longest(value_lst)
-        for (start, end, value, label) in longest_lst:
-            result = {
-                "value": value,
-                "context": {
-                    "start": start,
-                    "end": end,
-                    "rule_id": label
-                }
-            }
-            extracted_lst.append(result)
-    print json.dumps(extracted_lst, indent=2)
+    #print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
