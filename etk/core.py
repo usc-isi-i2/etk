@@ -963,7 +963,6 @@ class Core(object):
 
         # call the custom spacy extractor
         results = custom_spacy_extractor.extract(field_rules, d[_TEXT], self.custom_nlp)
-        print json.dumps(results, indent=2)
         return results
 
     def extract_using_spacy(self, d, config):
