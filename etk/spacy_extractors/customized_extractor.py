@@ -162,7 +162,8 @@ class Rule(object):
                 self.nlp.vocab[lexeme.decode('utf8')].set_flag(FLAG_DICT[str(self.flagnum)], True)
                 self.flag_reset_lst[self.flagnum].append(lexeme.decode('utf8'))
 
-
+    def prep(self):
+        self.new_nlp = lambda tokens: self.nlp.tokenizer.tokens_from_list(tokens)
 
 '''
 Class Pattern
@@ -503,7 +504,7 @@ def get_value(doc, start, end, output_inf):
     return result_str.strip()            
 
 
-def extract(field_rules, doc, nlp):
+def extract(field_rules, nlp_doc, nlp):
 
     #output_file = 'output.txt'
     #pattern_description = json.load(codecs.open(field_rules, 'r', 'utf-8'))
@@ -513,7 +514,6 @@ def extract(field_rules, doc, nlp):
     #doc = doc.decode('utf-8')
 
     rule = Rule(nlp)
-
     #rule_num = 0
     extracted_lst = []
     for index, line in enumerate(pattern_description["rules"]):
@@ -548,15 +548,27 @@ def extract(field_rules, doc, nlp):
             if token_d["type"] == "symbol":
                 new_pattern.add_symbol_token(token_d)
 
-        nlp_doc = rule.nlp(doc)
+        #rule.prep()
+        
+        nlp_doc = rule.nlp(nlp_doc)
+        
+        # print nlp_doc[1].lemma_
+        # print nlp_doc[1].pos_
+        # print nlp_doc[1].tag_
+        # print nlp_doc[1].orth_
+        # print nlp_doc[1].lower_
+        # print nlp_doc[1].is_title
+        # print nlp_doc[1].check_flag(spacy.attrs.FLAG18)
+        # print nlp_doc[1].dep_
+
         tl = new_pattern.token_lst[0]
         ps_inf = new_pattern.token_lst[1]
         value_lst = []
         for i in range(len(tl)):
             #rule_num += 1
             if tl[i]:
-                rule_to_print = create_print(tl[i])
-                
+                # rule_to_print = create_print(tl[i])
+                # print rule_to_print
                 rule.matcher.add_pattern(new_pattern.entity, tl[i], label = index)
                 m = rule.matcher(nlp_doc)
                 matches = filter(nlp_doc, m, ps_inf[i])
