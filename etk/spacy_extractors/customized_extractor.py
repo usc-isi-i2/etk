@@ -162,9 +162,7 @@ class Rule(object):
                 self.nlp.vocab[lexeme.decode('utf8')].set_flag(FLAG_DICT[str(self.flagnum)], True)
                 self.flag_reset_lst[self.flagnum].append(lexeme.decode('utf8'))
 
-    def prep(self):
-        self.new_nlp = lambda tokens: self.nlp.tokenizer.tokens_from_list(tokens)
-
+    
 '''
 Class Pattern
 '''
@@ -506,11 +504,9 @@ def get_value(doc, start, end, output_inf):
 
 def extract(field_rules, nlp_doc, nlp):
 
-    #output_file = 'output.txt'
     #pattern_description = json.load(codecs.open(field_rules, 'r', 'utf-8'))
 
     pattern_description = field_rules
-    #output_f = open(output_file, 'w')
     #doc = doc.decode('utf-8')
 
     rule = Rule(nlp)
@@ -548,8 +544,8 @@ def extract(field_rules, nlp_doc, nlp):
             if token_d["type"] == "symbol":
                 new_pattern.add_symbol_token(token_d)
 
-        #rule.prep()
         
+        #
         nlp_doc = rule.nlp(nlp_doc)
         
         # print nlp_doc[1].lemma_
@@ -565,7 +561,7 @@ def extract(field_rules, nlp_doc, nlp):
         ps_inf = new_pattern.token_lst[1]
         value_lst = []
         for i in range(len(tl)):
-            #rule_num += 1
+            rule_num += 1
             if tl[i]:
                 # rule_to_print = create_print(tl[i])
                 # print rule_to_print
@@ -576,7 +572,6 @@ def extract(field_rules, nlp_doc, nlp):
                 output_inf = []
                 for e in ps_inf[i]:
                     output_inf.append(ps_inf[i][e]["is_in_output"])
-
                 
                 for (ent_id, label, start, end) in matches:
                     value = get_value(nlp_doc, start, end, output_inf)
@@ -591,14 +586,11 @@ def extract(field_rules, nlp_doc, nlp):
                         }
                         extracted_lst.append(result)
                         value_lst.append(value)
-#                   output_f.write(str(nlp_doc[start:end]))
-#                   output_f.write("\n")
                 rule.init_matcher()
     
-    return extracted_lst
-    #print json.dump(extracted_lst, indent=2)
+    #print json.dumps(extracted_lst, indent=2)
     
-#    print "total rule num:"
-#    print rule_num
+    #print "total rule num:"
+    #print rule_num
+    return extracted_lst
 
-#   output_f.close()

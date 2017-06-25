@@ -137,7 +137,6 @@ class Core(object):
             self.prep_spacy()
         else:
             self.nlp = None
-        self.custom_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
 
@@ -967,7 +966,8 @@ class Core(object):
             self.prep_spacy()
 
         # call the custom spacy extractor
-        results = custom_spacy_extractor.extract(field_rules, d[_SIMPLE_TOKENS_ORIGINAL_CASE], self.nlp)
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
+        results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
         return results
 
     def extract_using_spacy(self, d, config):
@@ -1295,9 +1295,6 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
-
-    def prep_custom_spacy(self):
-        self.custom_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
