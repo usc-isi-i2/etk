@@ -120,7 +120,6 @@ _TLD = 'tld'
 
 
 class Core(object):
-
     def __init__(self, extraction_config=None, debug=False, load_spacy=False):
         self.extraction_config = extraction_config
         self.debug = debug
@@ -189,13 +188,14 @@ class Core(object):
                                                                                 matches[index].value, re_extractor)
                         elif extractor == _TITLE:
                             doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
-                                                                          extractors[extractor])
+                                                                      extractors[extractor])
                         elif extractor == _LANDMARK:
                             doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                          extractors[extractor], doc[_URL])
                         elif extractor == _TABLE:
                             doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
-                                                                        matches[index].value, extractors[extractor])
+                                                                                matches[index].value,
+                                                                                extractors[extractor])
                 # Add the url as segment as well
                 if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                     doc[_CONTENT_EXTRACTION][_URL] = dict()
@@ -227,17 +227,20 @@ class Core(object):
                                 # Get the crf tokens
                                 if _TEXT in match.value:
                                     if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
-                                        match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT], lowercase=False)
+                                        match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT],
+                                                                                                    lowercase=False)
                                     if _TOKENS not in match.value:
-                                        match.value[_TOKENS] = self.crftokens_to_lower(match.value[_TOKENS_ORIGINAL_CASE])
+                                        match.value[_TOKENS] = self.crftokens_to_lower(
+                                            match.value[_TOKENS_ORIGINAL_CASE])
                                     if _SIMPLE_TOKENS not in match.value:
                                         match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                     if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
-                                        match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(match.value[_TOKENS_ORIGINAL_CASE])
-                                    # if _TOKENS not in match.value:
-                                    #     match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
-                                    # if _SIMPLE_TOKENS not in match.value:
-                                    #     match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                                        match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(
+                                            match.value[_TOKENS_ORIGINAL_CASE])
+                                        # if _TOKENS not in match.value:
+                                        #     match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                                        # if _SIMPLE_TOKENS not in match.value:
+                                        #     match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                 fields = de_config[_FIELDS]
                                 for field in fields.keys():
                                     if field != '*':
@@ -278,15 +281,18 @@ class Core(object):
 
                                                                     results = foo(doc, extractors[extractor][_CONFIG])
                                                                     if results:
-                                                                        self.add_data_extraction_results(match.value, field,
+                                                                        self.add_data_extraction_results(match.value,
+                                                                                                         field,
                                                                                                          extractor,
-                                                                                                    self.add_origin_info(
+                                                                                                         self.add_origin_info(
                                                                                                              results,
                                                                                                              method,
                                                                                                              segment,
-                                                                                                             score, doc_id))
+                                                                                                             score,
+                                                                                                             doc_id))
                                                                         if create_knowledge_graph:
-                                                                            self.create_knowledge_graph(doc, field, results)
+                                                                            self.create_knowledge_graph(doc, field,
+                                                                                                        results)
                                                         else:
                                                             if self.check_if_run_extraction(match.value, field,
                                                                                             extractor,
@@ -329,7 +335,7 @@ class Core(object):
                                                                 if results:
                                                                     self.add_data_extraction_results(match.value, field,
                                                                                                      extractor,
-                                                                                                self.add_origin_info(
+                                                                                                     self.add_origin_info(
                                                                                                          results,
                                                                                                          method,
                                                                                                          segment,
@@ -694,7 +700,8 @@ class Core(object):
                     return resources[_SPACY_FIELD_RULES][field_name]
                 else:
                     raise KeyError(
-                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES, field_name))
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES,
+                                                                                  field_name))
             else:
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES))
         else:
@@ -837,7 +844,7 @@ class Core(object):
         return self.pickles[pickle_name]
 
     def classify_table(self, d, config):
-        result = self.classify_table_(d,config)
+        result = self.classify_table_(d, config)
         # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
         return result
 
@@ -858,7 +865,7 @@ class Core(object):
         return [res]
 
     def table_data_extractor(self, d, config):
-        result = self.table_data_extractor_(d,config)
+        result = self.table_data_extractor_(d, config)
         # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
         return result
 
@@ -915,7 +922,7 @@ class Core(object):
                                                                                                   pre_filter,
                                                                                                   post_filter,
                                                                                                   ngrams, joiner),
-                                                                                                        field_name)
+                                                field_name)
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
@@ -959,9 +966,9 @@ class Core(object):
             print e
             return None
 
-    def extract_using_custom_spacy(self, d, config):
-        field_name = config[_FIELD_NAME]
-        field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
+    def extract_using_custom_spacy(self, d, config, field_rules=None):
+        if not field_rules:
+            field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
         if not self.nlp:
             self.prep_spacy()
 
@@ -984,7 +991,8 @@ class Core(object):
         elif field_name == _POSTING_DATE:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_date_extractor.extract(nlp_doc,
-                                                                        self.matchers[_POSTING_DATE]), _POSTING_DATE)
+                                                                                    self.matchers[_POSTING_DATE]),
+                                                       _POSTING_DATE)
             if _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
                 results = self.run_post_filters_results(results, post_filters)
@@ -992,11 +1000,14 @@ class Core(object):
         elif field_name == _SOCIAL_MEDIA:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_social_media_extractor.extract(nlp_doc,
-                                                                        self.matchers[_SOCIAL_MEDIA]), _SOCIAL_MEDIA)
+                                                                                            self.matchers[
+                                                                                                _SOCIAL_MEDIA]),
+                                                       _SOCIAL_MEDIA)
         elif field_name == _ADDRESS:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_address_extractor.extract(nlp_doc,
-                                                                                    self.matchers[_ADDRESS]), _ADDRESS)
+                                                                                       self.matchers[_ADDRESS]),
+                                                       _ADDRESS)
         return results
 
     def extract_from_landmark(self, doc, config):
@@ -1060,7 +1071,7 @@ class Core(object):
         # source type as in text vs url #SHRUG
         source_type = config[_SOURCE_TYPE] if _SOURCE_TYPE in config else 'text'
         include_context = True
-        output_format= _OBFUSCATION
+        output_format = _OBFUSCATION
         # if _PRE_FILTER in config:
         #     text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
         return self._relevant_text_from_context(d[_SIMPLE_TOKENS],
@@ -1136,7 +1147,7 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
-        return self._relevant_text_from_context(d[_TEXT],self._extract_age(text), config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], self._extract_age(text), config[_FIELD_NAME])
 
     @staticmethod
     def _extract_age(text):
@@ -1230,23 +1241,9 @@ class Core(object):
         return None
 
     @staticmethod
-    def extract_crftokens(text, options=None, lowercase = True):
+    def extract_crftokens(text, options=None, lowercase=True):
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
         return t.extract(text, lowercase)
-
-    @staticmethod
-    def crftokens_to_lower(crf_tokens):
-        lower_crf = copy.deepcopy(crf_tokens)
-        for tk in lower_crf:
-            tk['value'] = tk['value'].lower()
-        return lower_crf
-
-    @staticmethod
-    def crftokens_to_lower(crf_tokens):
-        lower_crf = copy.deepcopy(crf_tokens)
-        for tk in lower_crf:
-            tk['value'] = tk['value'].lower()
-        return lower_crf
 
     @staticmethod
     def crftokens_to_lower(crf_tokens):
