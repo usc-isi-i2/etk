@@ -968,7 +968,6 @@ class Core(object):
 
         # call the custom spacy extractor
         results = custom_spacy_extractor.extract(field_rules, d[_SIMPLE_TOKENS_ORIGINAL_CASE], self.nlp)
-        print json.dumps(results, indent=2)
         return results
 
     def extract_using_spacy(self, d, config):
@@ -1250,6 +1249,13 @@ class Core(object):
         return lower_crf
 
     @staticmethod
+    def crftokens_to_lower(crf_tokens):
+        lower_crf = copy.deepcopy(crf_tokens)
+        for tk in lower_crf:
+            tk['value'] = tk['value'].lower()
+        return lower_crf
+
+    @staticmethod
     def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
 
@@ -1289,6 +1295,9 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_custom_spacy(self):
+        self.custom_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
