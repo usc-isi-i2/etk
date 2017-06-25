@@ -516,14 +516,19 @@ def get_longest(value_lst):
         return value_lst
     else:
         start = value_lst[0][0]
-        end = value_lst[-1][0]
+        end = value_lst[0][1]
         pivot = value_lst[0]
         pivot_e = end
+        pivot_s = start
         for idx, (s, e, v, l) in enumerate(value_lst):
-            if pivot_e < e:
+            if s == pivot_s and pivot_e < e:
+                pivot_e = e
+                pivot = value_lst[idx]
+            elif s != pivot_s and pivot_e < e:
                 result.append(pivot)
                 pivot = value_lst[idx]
                 pivot_e = e
+                pivot_s = s
         result.append(pivot)
         return result
 
@@ -615,6 +620,7 @@ def extract(field_rules, nlp_doc, nlp):
 
         if value_lst:
             longest_lst = get_longest(value_lst)
+            #print longest_lst
             for (start, end, value, label) in longest_lst:
                 result = {
                     "value": value,
@@ -626,7 +632,7 @@ def extract(field_rules, nlp_doc, nlp):
                 }
                 extracted_lst.append(result)
 
-    #print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
