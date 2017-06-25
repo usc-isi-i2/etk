@@ -181,8 +181,8 @@ class Pattern(object):
     def add_word_token(self, d, flag):
         token_to_rule = []
         
-        for this_token in create_word_token(d["token"], d["capitalization"], 
-                                            d["length"], flag):
+        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], 
+                    flag, d["contain_digit"], d["is_out_of_vocabulary"], d["is_in_vocabulary"]):
             token_to_rule = add_pos_totoken(d["part_of_speech"], 
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
@@ -361,14 +361,22 @@ def add_pos_totoken(pos_l, this_token, token_to_rule):
     return token_to_rule
 
 # create word token according to user input
-def create_word_token(word_l, capi_l, length_l, flag):
+def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab):
     # if user enter one word
     if len(word_l) == 1:
         token = {spacy.attrs.LOWER: word_l[0].lower()}
         token_l = speci_capi(token, capi_l, word_l)
     # if user does not enter any word
     elif not word_l:
-        token = {spacy.attrs.IS_ALPHA: True}
+        if contain_num == "true":
+            token = {spacy.attrs.IS_ASCII: True, spacy.attrs.IS_PUNCT: False}
+        else:
+            token = {spacy.attrs.IS_ALPHA: True}
+        if out_vocab == "true" and in_vocab != "true":
+            token[spacy.attrs.IS_OOV] = True
+        elif out_vocab != "true" and in_vocab == "true":
+            token[spacy.attrs.IS_OOV] = False
+
         token_l = speci_capi(token, capi_l, word_l)
         if length_l:
             while spacy.attrs.LENGTH not in token_l[0]:
@@ -503,18 +511,21 @@ def get_value(doc, start, end, output_inf, label):
 
 def get_longest(value_lst):
     value_lst.sort()
-    start = value_lst[0][0]
-    end = value_lst[-1][0]
-    pivot = start
     result = []
-    for idx, (s, e, v, l) in enumerate(value_lst):
-        if pivot < s:
-            last = value_lst[idx-1]
-            last_e = last[1]
-            if last_e > pivot:
-                result.append(last)
-                pivot = last_e
-    return result
+    if len(value_lst) == 1:
+        return value_lst
+    else:
+        start = value_lst[0][0]
+        end = value_lst[-1][0]
+        pivot = value_lst[0]
+        pivot_e = end
+        for idx, (s, e, v, l) in enumerate(value_lst):
+            if pivot_e < e:
+                result.append(pivot)
+                pivot = value_lst[idx]
+                pivot_e = e
+        result.append(pivot)
+        return result
 
 def extract(field_rules, nlp_doc, nlp):
 
@@ -602,18 +613,20 @@ def extract(field_rules, nlp_doc, nlp):
                     # value_lst.append(value)
                 rule.init_matcher()
 
-        longest_lst = get_longest(value_lst)
-        for (start, end, value, label) in longest_lst:
-            result = {
-                "value": value,
-                "context": {
-                    "start": start,
-                    "end": end,
-                    "rule_id": label
+        if value_lst:
+            longest_lst = get_longest(value_lst)
+            for (start, end, value, label) in longest_lst:
+                result = {
+                    "value": value,
+                    "context": {
+                        "start": start,
+                        "end": end,
+                        "rule_id": label
+                    }
                 }
-            }
-            extracted_lst.append(result)
-    print json.dumps(extracted_lst, indent=2)
+                extracted_lst.append(result)
+
+    #print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
