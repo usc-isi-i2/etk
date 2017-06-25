@@ -3,6 +3,7 @@ from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
+from spacy_extractors import customized_extractor as custom_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -29,6 +30,7 @@ import collections
 import numbers
 from tldextract import tldextract
 import pickle
+import copy
 import os
 import sys
 
@@ -67,11 +69,14 @@ _POSTING_DATE = 'posting_date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
 _RESOURCES = 'resources'
+_SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
 _EXTRACTORS = 'extractors'
 _TOKENS = 'tokens'
+_TOKENS_ORIGINAL_CASE = "tokens_original_case"
 _SIMPLE_TOKENS = 'simple_tokens'
+_SIMPLE_TOKENS_ORIGINAL_CASE = 'simple_tokens_original_case'
 _TEXT = 'text'
 _DICTIONARY = 'dictionary'
 _PICKLES = 'pickle'
@@ -132,6 +137,7 @@ class Core(object):
             self.prep_spacy()
         else:
             self.nlp = None
+        self.custom_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
 
@@ -221,10 +227,18 @@ class Core(object):
                                 # First rule of DATA Extraction club: Get tokens
                                 # Get the crf tokens
                                 if _TEXT in match.value:
+                                    if _TOKENS_ORIGINAL_CASE not in match.value:
+                                        match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT], lowercase=False)
                                     if _TOKENS not in match.value:
-                                        match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                                        match.value[_TOKENS] = self.crftokens_to_lower(match.value[_TOKENS_ORIGINAL_CASE])
                                     if _SIMPLE_TOKENS not in match.value:
                                         match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                                    if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
+                                        match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(match.value[_TOKENS_ORIGINAL_CASE])
+                                    # if _TOKENS not in match.value:
+                                    #     match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                                    # if _SIMPLE_TOKENS not in match.value:
+                                    #     match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                 fields = de_config[_FIELDS]
                                 for field in fields.keys():
                                     if field != '*':
@@ -410,6 +424,7 @@ class Core(object):
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
                 o = dict()
                 o['value'] = description
+                o['key'] = 'description'
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
@@ -446,6 +461,7 @@ class Core(object):
                 doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
                 o = dict()
                 o['value'] = title
+                o['key'] = 'title'
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
@@ -668,6 +684,20 @@ class Core(object):
                         '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _PICKLES, pickle_name))
             else:
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _PICKLES))
+        else:
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
+    def get_spacy_field_rules_from_config(self, field_name):
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _SPACY_FIELD_RULES in resources:
+                if field_name in resources[_SPACY_FIELD_RULES]:
+                    return resources[_SPACY_FIELD_RULES][field_name]
+                else:
+                    raise KeyError(
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES, field_name))
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES))
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
@@ -930,6 +960,21 @@ class Core(object):
             print e
             return None
 
+    def extract_using_custom_spacy(self, d, config):
+        field_name = config[_FIELD_NAME]
+        field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
+        #if not self.custom_nlp:
+        #    self.prep_custom_spacy()
+        if not self.nlp:
+            self.prep_spacy()
+
+        # nlp_doc = self.nlp(d[_TEXT])
+
+        # call the custom spacy extractor
+        results = custom_spacy_extractor.extract(field_rules, d[_SIMPLE_TOKENS_ORIGINAL_CASE], self.nlp)
+        print json.dumps(results, indent=2)
+        return results
+
     def extract_using_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         if not self.nlp:
@@ -1190,9 +1235,16 @@ class Core(object):
         return None
 
     @staticmethod
-    def extract_crftokens(text, options=None):
+    def extract_crftokens(text, options=None, lowercase = True):
         t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-        return t.extract(text)
+        return t.extract(text, lowercase)
+
+    @staticmethod
+    def crftokens_to_lower(crf_tokens):
+        lower_crf = copy.deepcopy(crf_tokens)
+        for tk in lower_crf:
+            tk['value'] = tk['value'].lower()
+        return lower_crf
 
     @staticmethod
     def extract_tokens_from_crf(crf_tokens):
@@ -1232,6 +1284,11 @@ class Core(object):
 
     def prep_spacy(self):
         self.nlp = spacy.load('en')
+        self.old_tokenizer = self.nlp.tokenizer
+        self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_custom_spacy(self):
+        self.custom_nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
 
@@ -1286,4 +1343,3 @@ class Core(object):
             return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
         except:
             return None
-
