@@ -546,7 +546,6 @@ def extract(field_rules, nlp_doc, nlp):
 
         
         #
-        nlp_doc = rule.nlp(nlp_doc)
         
         # print nlp_doc[1].lemma_
         # print nlp_doc[1].pos_
@@ -561,7 +560,7 @@ def extract(field_rules, nlp_doc, nlp):
         ps_inf = new_pattern.token_lst[1]
         value_lst = []
         for i in range(len(tl)):
-            rule_num += 1
+            #rule_num += 1
             if tl[i]:
                 # rule_to_print = create_print(tl[i])
                 # print rule_to_print
