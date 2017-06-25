@@ -952,9 +952,10 @@ class Core(object):
             print e
             return None
 
-    def extract_using_custom_spacy(self, d, config):
+    def extract_using_custom_spacy(self, d, config, field_rules=None):
         field_name = config[_FIELD_NAME]
-        field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
+        if not field_rules:
+            field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
         if not self.custom_nlp:
             self.prep_custom_spacy()
 
