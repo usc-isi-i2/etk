@@ -226,7 +226,7 @@ class Core(object):
                                 # First rule of DATA Extraction club: Get tokens
                                 # Get the crf tokens
                                 if _TEXT in match.value:
-                                    if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
+                                    if _TOKENS_ORIGINAL_CASE not in match.value:
                                         match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT],
                                                                                                     lowercase=False)
                                     if _TOKENS not in match.value:
