@@ -1339,7 +1339,17 @@ class Core(object):
                                                 config[_FIELD_NAME])
 
     @staticmethod
-    def parse_date(str_date):
+    def parse_date(d, config={}):
+        if isinstance(d, basestring):
+            return Core.spacy_parse_date()
+        else:
+            try:
+                return date_parser.convert_to_iso_format(date_parser.parse_date(d[_TEXT]))
+            except:
+                return None
+
+    @staticmethod
+    def spacy_parse_date(str_date):
         try:
             return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
         except:
