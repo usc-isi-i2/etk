@@ -493,14 +493,28 @@ def generate_shape(word, count):
     
     return shape
 
-def get_value(doc, start, end, output_inf):
+def get_value(doc, start, end, output_inf, label):
     result_str = ""
     for i in range(len(output_inf)):
         if output_inf[i]:
             result_str += str(doc[start+i])
             result_str += " "
-    return result_str.strip()            
+    return (start, end, result_str.strip(), label)           
 
+def get_longest(value_lst):
+    value_lst.sort()
+    start = value_lst[0][0]
+    end = value_lst[-1][0]
+    pivot = start
+    result = []
+    for idx, (s, e, v, l) in enumerate(value_lst):
+        if pivot < s:
+            last = value_lst[idx-1]
+            last_e = last[1]
+            if last_e > pivot:
+                result.append(last)
+                pivot = last_e
+    return result
 
 def extract(field_rules, nlp_doc, nlp):
 
@@ -544,9 +558,7 @@ def extract(field_rules, nlp_doc, nlp):
             if token_d["type"] == "symbol":
                 new_pattern.add_symbol_token(token_d)
 
-        
-        #
-        
+                
         # print nlp_doc[1].lemma_
         # print nlp_doc[1].pos_
         # print nlp_doc[1].tag_
@@ -573,21 +585,35 @@ def extract(field_rules, nlp_doc, nlp):
                     output_inf.append(ps_inf[i][e]["is_in_output"])
                 
                 for (ent_id, label, start, end) in matches:
-                    value = get_value(nlp_doc, start, end, output_inf)
-                    if value not in value_lst:
-                        result = {
-                            "value": value,
-                            "context": {
-                                "start": start,
-                                "end": end,
-                                "rule_id": label
-                            }
-                        }
-                        extracted_lst.append(result)
-                        value_lst.append(value)
+                    value = get_value(nlp_doc, start, end, output_inf, label)
+                    value_lst.append(value)
+            
+
+                    # if value[2] not in value_lst:
+                    # result = {
+                    #     "value": value[2],
+                    #     "context": {
+                    #         "start": start,
+                    #         "end": end,
+                    #         "rule_id": label
+                    #     }
+                    # }
+                    # extracted_lst.append(result)
+                    # value_lst.append(value)
                 rule.init_matcher()
-    
-    #print json.dumps(extracted_lst, indent=2)
+
+        longest_lst = get_longest(value_lst)
+        for (start, end, value, label) in longest_lst:
+            result = {
+                "value": value,
+                "context": {
+                    "start": start,
+                    "end": end,
+                    "rule_id": label
+                }
+            }
+            extracted_lst.append(result)
+    print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
