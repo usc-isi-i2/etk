@@ -30,8 +30,11 @@ class TokenizerExtractor(object):
         self.tokenizer = tokenizer
         return self
 
-    def extract(self, text):
-        return self.tokenizer.tokenize(text.lower())
-
+    def extract(self, text, lowercase=True):
+        if lowercase:
+            return self.tokenizer.tokenize(text.lower())
+        else:
+            return self.tokenizer.tokenize(text)
+            
     def get_renamed_input_fields(self):
         return self.renamed_input_fields
