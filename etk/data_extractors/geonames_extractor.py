@@ -12,7 +12,6 @@ def get_populated_places(cities, geonames_dict):
                 place = dict()
                 place['value'] = city
                 place['metadata'] = geo_city
-                # place['context'] = dict()
                 if place not in populated_places:
                     populated_places.append(place)
 
@@ -25,7 +24,7 @@ def get_country_from_states(states, state_to_country_dict):
         if state in state_to_country_dict:
             country = state_to_country_dict[state]
             for cty in country:
-	            countries.append({"value": cty})
+                countries.append({"value": cty})
 
     return countries
 

@@ -13,10 +13,12 @@
       "service": "/Users/amandeep/Github/dig-dictionaries/escort-service-words/consolidated-services.json.gz",
       "country_code": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/country_codes_dict.json",
       "country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/countries.json.gz",
-      "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz"
+      "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz",
+      "state_to_country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/state_country_dict.json",
+      "geonames": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json"
     },
     "landmark": [
-      "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
+      "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
     ]
   },
   "content_extraction": {
@@ -403,5 +405,36 @@
         }
       }
     }
-  ]
+  ],
+  "kg_enhancement": {
+    "input_path": "knowledge_graph.`parent`",
+    "fields": {
+      "populated_places": {
+        "extractors": {
+          "geonames_lookup": {
+            "config": {}
+          }
+        }
+      },
+      "country": {
+        "extractors": {
+          "country_from_states": {
+            "config": {}
+          }
+        }
+      }
+    }
+  },
+  "feature_computation": {
+    "input_path": "knowledge_graph.`parent`",
+    "fields": {
+      "country_classifier": {
+        "extractors": {
+          "country_feature": {
+            "config": {}
+          }
+        }
+      }
+    }
+  }
 }
