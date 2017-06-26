@@ -934,6 +934,13 @@ class Core(object):
                                                                joiner=joiner)
         return result if result and len(result) > 0 else None
 
+    def extract_website_domain(self, d, config):
+        text = d[_TEXT]
+        field_name = config[_FIELD_NAME]
+        tld = self.extract_tld(text)
+        results = {"value": tld}
+        return self._relevant_text_from_context(d[_TEXT], results, field_name)
+
     def extract_using_regex(self, d, config):
         # this method is self aware that it needs the text, so look for text in the input d
         text = d[_TEXT]
