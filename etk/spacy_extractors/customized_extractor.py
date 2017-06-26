@@ -5,29 +5,52 @@ import copy
 import itertools
 
 FLAG_DICT = {
-    "18": spacy.attrs.FLAG18, "19": spacy.attrs.FLAG19, 
-    "20": spacy.attrs.FLAG20, "21": spacy.attrs.FLAG21,
-    "22": spacy.attrs.FLAG22, "23": spacy.attrs.FLAG23,
-    "24": spacy.attrs.FLAG24, "25": spacy.attrs.FLAG25,
-    "26": spacy.attrs.FLAG26, "27": spacy.attrs.FLAG27,
-    "28": spacy.attrs.FLAG28, "29": spacy.attrs.FLAG29,
-    "30": spacy.attrs.FLAG30, "31": spacy.attrs.FLAG31,
-    "32": spacy.attrs.FLAG32, "33": spacy.attrs.FLAG33,
-    "34": spacy.attrs.FLAG34, "35": spacy.attrs.FLAG35,
-    "36": spacy.attrs.FLAG36, "37": spacy.attrs.FLAG37,
-    "38": spacy.attrs.FLAG38, "39": spacy.attrs.FLAG39,
-    "40": spacy.attrs.FLAG40, "41": spacy.attrs.FLAG41,
-    "42": spacy.attrs.FLAG42, "43": spacy.attrs.FLAG43,
-    "44": spacy.attrs.FLAG44, "45": spacy.attrs.FLAG45,
-    "46": spacy.attrs.FLAG46, "47": spacy.attrs.FLAG47,
-    "48": spacy.attrs.FLAG48, "49": spacy.attrs.FLAG49,
-    "50": spacy.attrs.FLAG50, "51": spacy.attrs.FLAG51,
-    "52": spacy.attrs.FLAG52, "53": spacy.attrs.FLAG53,
-    "54": spacy.attrs.FLAG54, "55": spacy.attrs.FLAG55,
-    "56": spacy.attrs.FLAG56, "57": spacy.attrs.FLAG57,
-    "58": spacy.attrs.FLAG58, "59": spacy.attrs.FLAG59,
-    "60": spacy.attrs.FLAG60, "61": spacy.attrs.FLAG61,
-    "62": spacy.attrs.FLAG62, "63": spacy.attrs.FLAG63,
+    "18": spacy.attrs.FLAG18, 
+    "19": spacy.attrs.FLAG19, 
+    "20": spacy.attrs.FLAG20, 
+    "21": spacy.attrs.FLAG21,
+    "22": spacy.attrs.FLAG22, 
+    "23": spacy.attrs.FLAG23,
+    "24": spacy.attrs.FLAG24, 
+    "25": spacy.attrs.FLAG25,
+    "26": spacy.attrs.FLAG26, 
+    "27": spacy.attrs.FLAG27,
+    "28": spacy.attrs.FLAG28, 
+    "29": spacy.attrs.FLAG29,
+    "30": spacy.attrs.FLAG30, 
+    "31": spacy.attrs.FLAG31,
+    "32": spacy.attrs.FLAG32, 
+    "33": spacy.attrs.FLAG33,
+    "34": spacy.attrs.FLAG34, 
+    "35": spacy.attrs.FLAG35,
+    "36": spacy.attrs.FLAG36, 
+    "37": spacy.attrs.FLAG37,
+    "38": spacy.attrs.FLAG38, 
+    "39": spacy.attrs.FLAG39,
+    "40": spacy.attrs.FLAG40, 
+    "41": spacy.attrs.FLAG41,
+    "42": spacy.attrs.FLAG42, 
+    "43": spacy.attrs.FLAG43,
+    "44": spacy.attrs.FLAG44, 
+    "45": spacy.attrs.FLAG45,
+    "46": spacy.attrs.FLAG46, 
+    "47": spacy.attrs.FLAG47,
+    "48": spacy.attrs.FLAG48, 
+    "49": spacy.attrs.FLAG49,
+    "50": spacy.attrs.FLAG50, 
+    "51": spacy.attrs.FLAG51,
+    "52": spacy.attrs.FLAG52, 
+    "53": spacy.attrs.FLAG53,
+    "54": spacy.attrs.FLAG54, 
+    "55": spacy.attrs.FLAG55,
+    "56": spacy.attrs.FLAG56, 
+    "57": spacy.attrs.FLAG57,
+    "58": spacy.attrs.FLAG58, 
+    "59": spacy.attrs.FLAG59,
+    "60": spacy.attrs.FLAG60, 
+    "61": spacy.attrs.FLAG61,
+    "62": spacy.attrs.FLAG62, 
+    "63": spacy.attrs.FLAG63
 }
 
 POS_MAP = {
@@ -43,7 +66,7 @@ POS_MAP = {
     "pre/post-position": "ADP",
     "adverb": "ADV",
     "particle": "PART",
-    "interjection": "INTJ",
+    "interjection": "INTJ"
 }
 
 name_dict = {
@@ -145,32 +168,35 @@ class Rule(object):
 
     # initial flag for each user specified pattern
     def init_flag(self):
-        self.flagnum = 17
         if self.flag_reset_lst:
             for flag in self.flag_reset_lst:
                 for lexeme in self.flag_reset_lst[flag]:
-                    self.nlp.vocab[lexeme].set_flag(FLAG_DICT[str(flag)], False)
+                    self.nlp.vocab[lexeme].set_flag(FLAG_DICT[str(flag)], False)                    
         self.flag_reset_lst = dict()
 
     # set a flag, add all cases of a word to vocab and set flag to true
-    def set_flag(self, token_l):
-        self.flagnum += 1
-        self.flag_reset_lst[self.flagnum] = []
+    def set_flag(self, token_l, flagnum):
+        self.flag_reset_lst[flagnum] = []
         for t in token_l:
             elst = map(''.join, itertools.product(*((c.upper(), c.lower()) for c in t)))
             for lexeme in elst:
-                self.nlp.vocab[lexeme.decode('utf8')].set_flag(FLAG_DICT[str(self.flagnum)], True)
-                self.flag_reset_lst[self.flagnum].append(lexeme.decode('utf8'))
+                self.nlp.vocab[lexeme.decode('utf8')].set_flag(FLAG_DICT[str(flagnum)], True)
+                self.flag_reset_lst[flagnum].append(lexeme.decode('utf8'))
 
-    
+    def set_num_flag(self, num_l, flagnum):
+        self.flag_reset_lst[flagnum] = []
+        for lexeme in num_l:
+            slexeme = str(lexeme)
+            self.nlp.vocab[slexeme.decode('utf8')].set_flag(FLAG_DICT[str(flagnum)], True)
+            self.flag_reset_lst[flagnum].append(slexeme.decode('utf8'))
+
 '''
 Class Pattern
 '''
 class Pattern(object):
 
     # initial a Pattern
-    def __init__(self, entity):
-        self.entity = entity
+    def __init__(self):
         '''
         First list contains pattern to be matched.
         Second dict contains information about prefix, suffix, shape
@@ -210,7 +236,22 @@ class Pattern(object):
     
     # add a number token
     def add_number_token(self, token_d, flag):
-        pass
+        token_to_rule = []
+        token_inf = create_inf("", "", 
+                                False, token_d["is_in_output"])
+        if not token_d["numbers"]:
+            this_token = {spacy.attrs.IS_DIGIT: True}
+            for length in token_d["length"]:
+                this_token[spacy.attrs.LENGTH] = length
+                token_to_rule.append(copy.deepcopy(this_token))
+            token_inf["minimum"] = token_d["minimum"]
+            token_inf["maximum"] = token_d["maximum"]
+        elif len(token_d["numbers"]) == 1:
+            token_to_rule = [{spacy.attrs.ORTH: str(token_d["numbers"][0])}]
+        else:
+            token_to_rule = [{FLAG_DICT[str(flag)]: True}]
+        self.token_lst = add_token_tolist(self.token_lst, token_to_rule, 
+                        token_d["is_required"], token_inf)
 
     # add a punctuation token
     def add_punctuation_token(self, token_d, flag):
@@ -413,7 +454,7 @@ def speci_capi(t, capi_lst, word_l):
     if not capi_lst:
         result.append(copy.deepcopy(t))
     else:
-        if "exactly" in capi_lst and word_l != []:
+        if "exact" in capi_lst and word_l != []:
             for word in word_l:
                 token = copy.deepcopy(t)
                 token[spacy.attrs.ORTH] = word
@@ -463,6 +504,23 @@ def filter(doc, matches, inf_inf):
             if not check_prefix(str(pattern[i]), prefix) or not check_suffix(str(pattern[i]), suffix):
                 flag = False
                 break
+            if "minimum" in inf or "maximum" in inf:
+                if inf["minimum"] != "":
+                    minimum = float(inf["minimum"])
+                else:
+                    minimum = -float("inf")
+                if inf["maximum"] != "":
+                    maximum = float(inf["maximum"])
+                else:
+                    maximum = float("inf")
+                if minimum or maximum:
+                    match_number = float(str(pattern))
+                    if match_number < minimum:
+                        flag = False
+                        break
+                    if match_number > maximum:
+                        flag = False
+                        break
         if flag:
             result.append(match)
     
@@ -501,43 +559,40 @@ def generate_shape(word, count):
     
     return shape
 
-def get_value(doc, start, end, output_inf, label, ent_id):
+def get_value(doc, start, end, output_inf, label):
     result_str = ""
     for i in range(len(output_inf)):
         if output_inf[i]:
             result_str += str(doc[start+i])
             result_str += " "
-    return (start, end, result_str.strip(), label, ent_id)           
+    return (start, end, result_str.strip(), label)           
 
 def get_longest(value_lst):
     value_lst.sort()
     result = []
-    if len(value_lst) == 1:
-        return value_lst
-    else:
-        start = value_lst[0][0]
-        end = value_lst[0][1]
-        pivot = value_lst[0]
-        pivot_e = end
-        pivot_s = start
-        for idx, (s, e, v, l, ent_id) in enumerate(value_lst):
-            if s == pivot_s and pivot_e < e:
-                pivot_e = e
-                pivot = value_lst[idx]
-            elif s != pivot_s and pivot_e < e:
-                result.append(pivot)
-                pivot = value_lst[idx]
-                pivot_e = e
-                pivot_s = s
-        result.append(pivot)
-        return result
+    # if len(value_lst) == 1:
+    #     return value_lst
+    # else:
+    start = value_lst[0][0]
+    end = value_lst[0][1]
+    pivot = value_lst[0]
+    pivot_e = end
+    pivot_s = start
+    for idx, (s, e, v, l) in enumerate(value_lst):
+        if s == pivot_s and pivot_e < e:
+            pivot_e = e
+            pivot = value_lst[idx]
+        elif s != pivot_s and pivot_e < e:
+            result.append(pivot)
+            pivot = value_lst[idx]
+            pivot_e = e
+            pivot_s = s
+    result.append(pivot)
+    return result
 
 def extract(field_rules, nlp_doc, nlp):
 
-    #pattern_description = json.load(codecs.open(field_rules, 'r', 'utf-8'))
-
     pattern_description = field_rules
-    #doc = doc.decode('utf-8')
 
     rule = Rule(nlp)
     #rule_num = 0
@@ -546,28 +601,33 @@ def extract(field_rules, nlp_doc, nlp):
         if line["is_active"] == "true":
             rule.init_matcher()
             rule.init_flag()
-            new_pattern = Pattern(line["identifier"])
+            new_pattern = Pattern()
+            flagnum = 17
 
             for token_d in line["pattern"]:
                 if token_d["type"] == "word":
                     if len(token_d["token"]) >= 2:
                         # set flag for multiply words
-                        rule.set_flag(token_d["token"])
-                    
-                    new_pattern.add_word_token(token_d, rule.flagnum)
+                        flagnum += 1
+                        rule.set_flag(token_d["token"], flagnum)                   
+                    new_pattern.add_word_token(token_d, flagnum)
 
                 if token_d["type"] == "shape":
                     new_pattern.add_shape_token(token_d)
 
                 if token_d["type"] == "number":
-                    new_pattern.add_number_token(token_d, rule.flagnum)
+                    if len(token_d["numbers"]) >= 2:
+                        flagnum += 1
+                        rule.set_num_flag(token_d["numbers"], flagnum)
+                    new_pattern.add_number_token(token_d, flagnum)
 
                 if token_d["type"] == "punctuation":
                     if len(token_d["token"]) >= 2:
-                        # set flag for multiply punctuation
-                        rule.set_flag(token_d["token"])
+                        # set flag for multiply punctuations
+                        flagnum += 1
+                        rule.set_flag(token_d["token"], flagnum)
                     
-                    new_pattern.add_punctuation_token(token_d, rule.flagnum)
+                    new_pattern.add_punctuation_token(token_d, flagnum)
 
                 if token_d["type"] == "glossary":
                     new_pattern.add_glossary_token(token_d)
@@ -591,9 +651,8 @@ def extract(field_rules, nlp_doc, nlp):
             for i in range(len(tl)):
                 #rule_num += 1
                 if tl[i]:
-                    # rule_to_print = create_print(tl[i])
-                    # print rule_to_print
-                    rule.matcher.add_pattern(new_pattern.entity, tl[i], label = index)
+                    rule_to_print = create_print(tl[i])
+                    rule.matcher.add_pattern(str(rule_to_print), tl[i], label = index)
                     m = rule.matcher(nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
 
@@ -602,37 +661,28 @@ def extract(field_rules, nlp_doc, nlp):
                         output_inf.append(ps_inf[i][e]["is_in_output"])
                     
                     for (ent_id, label, start, end) in matches:
-                        value = get_value(nlp_doc, start, end, output_inf, label, ent_id)
+                        value = get_value(nlp_doc, start, end, output_inf, label)
                         value_lst.append(value)
                 
-
-                        # if value[2] not in value_lst:
-                        # result = {
-                        #     "value": value[2],
-                        #     "context": {
-                        #         "start": start,
-                        #         "end": end,
-                        #         "rule_id": label
-                        #     }
-                        # }
-                        # extracted_lst.append(result)
-                        # value_lst.append(value)
                     rule.init_matcher()
+
 
             if value_lst:
                 longest_lst = get_longest(value_lst)
                 #print longest_lst
-                for (start, end, value, label, ent_id) in longest_lst:
+                for (start, end, value, label) in longest_lst:
                     result = {
                         "value": value,
                         "context": {
                             "start": start,
                             "end": end,
                             "rule_id": label,
-                            "identifier": pattern_description["rules"][label]["identifier"]
+                            "identifier": line["identifier"]
                         }
                     }
                     extracted_lst.append(result)
+
+            rule.init_flag()
 
     #print json.dumps(extracted_lst, indent=2)
     
