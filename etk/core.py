@@ -13,11 +13,13 @@ from data_extractors import address_extractor
 from data_extractors import age_extractor
 from data_extractors import table_extractor
 from data_extractors import url_country_extractor
+from data_extractors import geonames_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
 from data_extractors.digReviewIDExtractor import review_id_extractor
 from data_extractors import date_parser
+from classifiers import country_classifier
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor, FaithfulTokenizerExtractor
 import json
 import gzip
@@ -87,6 +89,9 @@ _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _TABLE = "table"
 _STOP_WORDS = "stop_words"
+_GEONAMES = "geonames"
+_STATE_TO_COUNTRY = "state_to_country"
+_POPULATED_PLACES = "populated_places"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -117,6 +122,7 @@ _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
 _TLD = 'tld'
+_FEATURE_COMPUTATION = "feature_computation"
 
 
 class Core(object):
@@ -138,6 +144,8 @@ class Core(object):
             self.nlp = None
         self.country_code_dict = None
         self.matchers = dict()
+        self.geonames_dict = None
+        self.state_to_country_dict = None
 
     """ Define all API methods """
 
@@ -360,6 +368,7 @@ class Core(object):
                                                 else:
                                                     print('method {} not found!'.format(extractor))
 
+
             """Optional Phase 3: Knowledge Graph Enhancement"""
             if _KG_ENHANCEMENT in self.extraction_config:
                 kg_configs = self.extraction_config[_KG_ENHANCEMENT]
@@ -399,6 +408,48 @@ class Core(object):
                                                 if results:
                                                     # doc[_KNOWLEDGE_GRAPH][field] = results
                                                     self.create_knowledge_graph(doc, field, results)
+
+
+            """Optional Phase 4: feature computation"""
+            if _FEATURE_COMPUTATION in self.extraction_config:
+                kg_configs = self.extraction_config[_FEATURE_COMPUTATION]
+                if isinstance(kg_configs, dict):
+                    kg_configs = [kg_configs]
+
+                for i in range(len(kg_configs)):
+                    kg_config = kg_configs[i]
+                    input_paths = kg_config[_INPUT_PATH] if _INPUT_PATH in kg_config else None
+                    if not input_paths:
+                        raise KeyError(
+                            '{} not found for feature computation in extraction_config'.format(_INPUT_PATH))
+
+                    if not isinstance(input_paths, list):
+                        input_paths = [input_paths]
+
+                    for input_path in input_paths:
+                        if _FIELDS in kg_config:
+                            if input_path not in self.data_extraction_path:
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
+                            for match in matches:
+                                fields = kg_config[_FIELDS]
+                                for field in fields.keys():
+                                    if _EXTRACTORS in fields[field]:
+                                        extractors = fields[field][_EXTRACTORS]
+                                        for extractor in extractors.keys():
+                                            try:
+                                                foo = getattr(self, extractor)
+                                            except:
+                                                foo = None
+                                            if foo:
+                                                if _CONFIG not in extractors[extractor]:
+                                                    extractors[extractor][_CONFIG] = dict()
+                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                results = foo(match.value, extractors[extractor][_CONFIG])
+                                                if results:
+                                                    # doc[_KNOWLEDGE_GRAPH][field] = results
+                                                    self.create_knowledge_graph(doc, field, results)
+
 
             if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                 doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
@@ -470,6 +521,7 @@ class Core(object):
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
+
         return doc
 
     @staticmethod
@@ -495,8 +547,13 @@ class Core(object):
             if 'metadata' in extraction:
                 sorted_metadata = Core.sort_dict(extraction['metadata'])
                 for k, v in sorted_metadata.iteritems():
+                    if isinstance(v, numbers.Number):
+                        v = str(v)
+                    if v:
+                        v = v.encode('utf8')
                     if v and v.strip() != '':
-                        key += '-' + str(k) + ':' + str(v)
+                        # key += '-' + str(k) + ':' + str(v)
+                        key = '{}-{}:{}'.format(key, k, v)
 
             if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
                 doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
@@ -934,6 +991,13 @@ class Core(object):
                                                                joiner=joiner)
         return result if result and len(result) > 0 else None
 
+    def extract_website_domain(self, d, config):
+        text = d[_TEXT]
+        field_name = config[_FIELD_NAME]
+        tld = self.extract_tld(text)
+        results = {"value": tld}
+        return self._relevant_text_from_context(d[_TEXT], results, field_name)
+
     def extract_using_regex(self, d, config):
         # this method is self aware that it needs the text, so look for text in the input d
         text = d[_TEXT]
@@ -1338,9 +1402,57 @@ class Core(object):
                                                 url_country_extractor.extract(tokens_url, self.country_code_dict),
                                                 config[_FIELD_NAME])
 
+    def geonames_lookup(self, d, config):
+        field_name = config[_FIELD_NAME]
+
+        if not self.geonames_dict:
+            try:
+                self.geonames_dict = self.load_json_file(self.get_dict_file_name_from_config(_GEONAMES))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format(_GEONAMES)
+
+        if _CITY in d[_KNOWLEDGE_GRAPH]:
+            cities = d[_KNOWLEDGE_GRAPH][_CITY].keys()
+        else:
+            return None
+
+        populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
+        results = geonames_extractor.get_country_from_populated_places(populated_places)
+        if results:
+            self.create_knowledge_graph(d, _COUNTRY, results)
+
+        return populated_places
+
     @staticmethod
-    def parse_date(str_date):
+    def parse_date(d, config={}):
+        if isinstance(d, basestring):
+            return Core.spacy_parse_date()
+        else:
+            try:
+                return date_parser.convert_to_iso_format(date_parser.parse_date(d[_TEXT]))
+            except:
+                return None
+
+    @staticmethod
+    def spacy_parse_date(str_date):
         try:
             return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
         except:
             return None
+
+    def country_from_states(self, d, config):
+        if not self.state_to_country_dict:
+            try:
+                self.state_to_country_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_COUNTRY))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format(_STATE_TO_COUNTRY)
+
+        if _STATE in d[_KNOWLEDGE_GRAPH]:
+            states = d[_KNOWLEDGE_GRAPH][_STATE].keys()
+        else:
+            return None
+
+        return geonames_extractor.get_country_from_states(states, self.state_to_country_dict)
+
+    def country_feature(self, d, config):
+        return country_classifier.calc_country_feature(d[_KNOWLEDGE_GRAPH], self.state_to_country_dict)
