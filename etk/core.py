@@ -3,6 +3,7 @@ from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
+from spacy_extractors import customized_extractor as custom_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -28,6 +29,10 @@ import time
 import collections
 import numbers
 from tldextract import tldextract
+import pickle
+import copy
+import os
+import sys
 
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
@@ -64,13 +69,17 @@ _POSTING_DATE = 'posting_date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
 _RESOURCES = 'resources'
+_SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
 _FIELDS = 'fields'
 _EXTRACTORS = 'extractors'
 _TOKENS = 'tokens'
+_TOKENS_ORIGINAL_CASE = "tokens_original_case"
 _SIMPLE_TOKENS = 'simple_tokens'
+_SIMPLE_TOKENS_ORIGINAL_CASE = 'simple_tokens_original_case'
 _TEXT = 'text'
 _DICTIONARY = 'dictionary'
+_PICKLES = 'pickle'
 _NGRAMS = 'ngrams'
 _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
@@ -117,6 +126,8 @@ class Core(object):
         self.debug = debug
         self.html_title_regex = r'<title>(.*)?</title>'
         self.tries = dict()
+        self.pickles = dict()
+        self.jobjs = dict()
         self.global_extraction_policy = None
         self.global_error_handling = None
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
@@ -126,6 +137,7 @@ class Core(object):
             self.prep_spacy()
         else:
             self.nlp = None
+        self.custom_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
 
@@ -214,31 +226,83 @@ class Core(object):
                             for match in matches:
                                 # First rule of DATA Extraction club: Get tokens
                                 # Get the crf tokens
-                                if _TOKENS not in match.value:
-                                    match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
-                                if _SIMPLE_TOKENS not in match.value:
-                                    match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                                if _TEXT in match.value:
+                                    if _TOKENS not in match.value:
+                                        match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
+                                    if _SIMPLE_TOKENS not in match.value:
+                                        match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                 fields = de_config[_FIELDS]
                                 for field in fields.keys():
-                                    """
-                                        Special case for inferlink extractions:
-                                        For eg, We do not want to extract name from inferlink_posting-date #DUH
-                                    """
-                                    run_extractor = True
-                                    full_path = str(match.full_path)
-                                    segment = self.determine_segment(full_path)
-                                    if _INFERLINK in full_path:
-                                        if field not in full_path:
-                                            run_extractor = False
-                                        if _DESCRIPTION in full_path or _TITLE in full_path:
-                                            run_extractor = True
-                                    if run_extractor:
+                                    if field != '*':
+                                        """
+                                            Special case for inferlink extractions:
+                                            For eg, We do not want to extract name from inferlink_posting-date #DUH
+                                        """
+                                        run_extractor = True
+                                        full_path = str(match.full_path)
+                                        segment = self.determine_segment(full_path)
+                                        if _INFERLINK in full_path:
+                                            if field not in full_path:
+                                                run_extractor = False
+                                            if _DESCRIPTION in full_path or _TITLE in full_path:
+                                                run_extractor = True
+                                        if run_extractor:
+                                            if _EXTRACTORS in fields[field]:
+                                                extractors = fields[field][_EXTRACTORS]
+                                                for extractor in extractors.keys():
+                                                    try:
+                                                        foo = getattr(self, extractor)
+                                                    except:
+                                                        foo = None
+                                                    if foo:
+                                                        # score is 1.0 because every method thinks it is the best
+                                                        score = 1.0
+                                                        method = extractor
+                                                        if _CONFIG not in extractors[extractor]:
+                                                            extractors[extractor][_CONFIG] = dict()
+                                                        extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                        ep = self.determine_extraction_policy(extractors[extractor])
+                                                        if extractor == _EXTRACT_FROM_LANDMARK:
+                                                            if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
+                                                                method = _METHOD_INFERLINK
+                                                                if self.check_if_run_extraction(match.value, field,
+                                                                                                extractor,
+                                                                                                ep):
+
+                                                                    results = foo(doc, extractors[extractor][_CONFIG])
+                                                                    if results:
+                                                                        self.add_data_extraction_results(match.value, field,
+                                                                                                         extractor,
+                                                                                                    self.add_origin_info(
+                                                                                                             results,
+                                                                                                             method,
+                                                                                                             segment,
+                                                                                                             score, doc_id))
+                                                                        if create_knowledge_graph:
+                                                                            self.create_knowledge_graph(doc, field, results)
+                                                        else:
+                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                            extractor,
+                                                                                            ep):
+                                                                results = foo(match.value,
+                                                                              extractors[extractor][_CONFIG])
+                                                                if results:
+                                                                    self.add_data_extraction_results(match.value, field,
+                                                                                                     extractor,
+                                                                                                     self.add_origin_info(
+                                                                                                         results,
+                                                                                                         method,
+                                                                                                         segment,
+                                                                                                         score, doc_id))
+                                                                    if create_knowledge_graph:
+                                                                        self.create_knowledge_graph(doc, field, results)
+                                    else:  # extract whatever you can!
                                         if _EXTRACTORS in fields[field]:
                                             extractors = fields[field][_EXTRACTORS]
                                             for extractor in extractors.keys():
                                                 try:
                                                     foo = getattr(self, extractor)
-                                                except:
+                                                except Exception as e:
                                                     foo = None
                                                 if foo:
                                                     # score is 1.0 because every method thinks it is the best
@@ -246,7 +310,6 @@ class Core(object):
                                                     method = extractor
                                                     if _CONFIG not in extractors[extractor]:
                                                         extractors[extractor][_CONFIG] = dict()
-                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     ep = self.determine_extraction_policy(extractors[extractor])
                                                     if extractor == _EXTRACT_FROM_LANDMARK:
                                                         if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
@@ -267,21 +330,22 @@ class Core(object):
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(doc, field, results)
                                                     else:
-                                                        if self.check_if_run_extraction(match.value, field,
-                                                                                        extractor,
-                                                                                        ep):
-                                                            results = foo(match.value,
-                                                                          extractors[extractor][_CONFIG])
-                                                            if results:
-                                                                self.add_data_extraction_results(match.value, field,
+                                                        results = foo(match.value,
+                                                                      extractors[extractor][_CONFIG])
+                                                        if results:
+                                                            for f, res in results.items():
+                                                                # extractors[extractor][_CONFIG][_FIELD_NAME] = f
+                                                                self.add_data_extraction_results(match.value, f,
                                                                                                  extractor,
                                                                                                  self.add_origin_info(
-                                                                                                     results,
+                                                                                                     res,
                                                                                                      method,
                                                                                                      segment,
                                                                                                      score, doc_id))
                                                                 if create_knowledge_graph:
-                                                                    self.create_knowledge_graph(doc, field, results)
+                                                                    self.create_knowledge_graph(doc, f, res)
+                                                else:
+                                                    print('method {} not found!'.format(extractor))
 
             """Optional Phase 3: Knowledge Graph Enhancement"""
             if _KG_ENHANCEMENT in self.extraction_config:
@@ -325,7 +389,74 @@ class Core(object):
 
             if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                 doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+                """ Add title and description as fields in the knowledge graph as well"""
+                doc = Core.rearrange_description(doc)
+                doc = Core.rearrange_title(doc)
+        return doc
 
+    @staticmethod
+    def rearrange_description(doc):
+        method = 'rearrange_description'
+        description = None
+        segment = ''
+        if _CONTENT_EXTRACTION in doc:
+            ce = doc[_CONTENT_EXTRACTION]
+            if _INFERLINK_EXTRACTIONS in ce:
+                if _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
+                    description = ce[_INFERLINK_EXTRACTIONS][_DESCRIPTION][_TEXT]
+                    segment = _INFERLINK
+            if not description or description.strip() == '':
+                if _CONTENT_STRICT in ce:
+                    description = ce[_CONTENT_STRICT][_TEXT]
+                    segment = _CONTENT_STRICT
+
+            if description and description != '':
+                if _KNOWLEDGE_GRAPH not in doc:
+                    doc[_KNOWLEDGE_GRAPH] = dict()
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
+                o = dict()
+                o['value'] = description
+                o['key'] = 'description'
+                o['confidence'] = 1000
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
+        return doc
+
+    @staticmethod
+    def custom_provenance_object(method, segment, document_id):
+        prov = dict()
+        prov['method'] = method
+        prov['source'] = dict()
+        prov['source']['segment'] = segment
+        prov['source'][_DOCUMENT_ID] = document_id
+        return prov
+
+    @staticmethod
+    def rearrange_title(doc):
+        method = 'rearrange_title'
+        title = None
+        segment = ''
+        if _CONTENT_EXTRACTION in doc:
+            ce = doc[_CONTENT_EXTRACTION]
+            if _INFERLINK_EXTRACTIONS in ce:
+                if _TITLE in ce[_INFERLINK_EXTRACTIONS]:
+                    title = ce[_INFERLINK_EXTRACTIONS][_TITLE][_TEXT]
+                    segment = _INFERLINK
+            if not title or title.strip() == '':
+                if _TITLE in ce:
+                    title = ce[_TITLE][_TEXT]
+                    segment = _HTML
+
+            if title and title != '':
+                if _KNOWLEDGE_GRAPH not in doc:
+                    doc[_KNOWLEDGE_GRAPH] = dict()
+                doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
+                o = dict()
+                o['value'] = title
+                o['key'] = 'title'
+                o['confidence'] = 1000
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
         return doc
 
     @staticmethod
@@ -534,6 +665,34 @@ class Core(object):
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
+    def get_pickle_file_name_from_config(self, pickle_name):
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _PICKLES in resources:
+                if pickle_name in resources[_PICKLES]:
+                    return resources[_PICKLES][pickle_name]
+                else:
+                    raise KeyError(
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _PICKLES, pickle_name))
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _PICKLES))
+        else:
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
+    def get_spacy_field_rules_from_config(self, field_name):
+        if _RESOURCES in self.extraction_config:
+            resources = self.extraction_config[_RESOURCES]
+            if _SPACY_FIELD_RULES in resources:
+                if field_name in resources[_SPACY_FIELD_RULES]:
+                    return resources[_SPACY_FIELD_RULES][field_name]
+                else:
+                    raise KeyError(
+                        '{}.{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES, field_name))
+            else:
+                raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _SPACY_FIELD_RULES))
+        else:
+            raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
     def run_title(self, content_extraction, html, title_config):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
@@ -648,6 +807,11 @@ class Core(object):
         json_x = json.load(codecs.open(file_name, 'r'))
         return json_x
 
+    def load_json(self, json_name):
+        if json_name not in self.jobjs:
+            self.jobjs[json_name] = self.load_json_file(self.get_pickle_file_name_from_config(json_name))
+        return self.jobjs[json_name]
+
     def load_trie(self, file_name):
         values = json.load(gzip.open(file_name), 'utf-8')
         trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
@@ -656,6 +820,53 @@ class Core(object):
     def load_dictionary(self, field_name, dict_name):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
+
+    def load_pickle_file(self, pickle_path):
+        return pickle.load(open(pickle_path, 'rb'))
+
+    def load_pickle(self, pickle_name):
+        if pickle_name not in self.pickles:
+            self.pickles[pickle_name] = self.load_pickle_file(self.get_pickle_file_name_from_config(pickle_name))
+        return self.pickles[pickle_name]
+
+    def classify_table(self, d, config):
+        result = self.classify_table_(d,config)
+        # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
+        return result
+
+    def classify_table_(self, d, config):
+        model = config['model']
+        sem_types = config['sem_types']
+        cl_model = self.load_pickle(model)
+        sem_types = self.load_json(sem_types)
+        tc = table_extractor.TableClassification(sem_types, cl_model)
+        l = tc.predict_label(d)
+        tarr = table_extractor.Toolkit.create_table_array(d)
+        table_extractor.Toolkit.clean_cells(tarr)
+        res = dict()
+        res['value'] = l[2]
+        res['all_labels'] = l
+        res['context'] = dict(start=0, end=0, input=d['fingerprint'], text=str(tarr))
+        res['tarr'] = tarr
+        return [res]
+
+    def table_data_extractor(self, d, config):
+        result = self.table_data_extractor_(d,config)
+        # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
+        return result
+
+    def table_data_extractor_(self, d, config):
+        sem_types = config['sem_types']
+        sem_types = self.load_json(sem_types)
+        method = config['method']
+        model = config['model']
+        if method == 'rule_based':
+            model = self.load_json(model)
+        else:
+            model = self.load_pickle(model)
+        tie = table_extractor.InformationExtraction(sem_types, method, model)
+        results = tie.extract(d)
+        return results
 
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
@@ -740,6 +951,19 @@ class Core(object):
         except Exception as e:
             print e
             return None
+
+    def extract_using_custom_spacy(self, d, config, field_rules=None):
+        field_name = config[_FIELD_NAME]
+        if not field_rules:
+            field_rules = self.load_json_file(self.get_spacy_field_rules_from_config(config[_SPACY_FIELD_RULES]))
+        if not self.custom_nlp:
+            self.prep_custom_spacy()
+
+        # nlp_doc = self.nlp(d[_TEXT])
+
+        # call the custom spacy extractor
+        results = custom_spacy_extractor.extract(field_rules, d[_TEXT], self.custom_nlp)
+        return results
 
     def extract_using_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
@@ -1006,6 +1230,13 @@ class Core(object):
         return t.extract(text)
 
     @staticmethod
+    def crftokens_to_lower(crf_tokens):
+        lower_crf = copy.deepcopy(crf_tokens)
+        for tk in lower_crf:
+            tk['value'] = tk['value'].lower()
+        return lower_crf
+
+    @staticmethod
     def extract_tokens_from_crf(crf_tokens):
         return [tk['value'] for tk in crf_tokens]
 
@@ -1045,6 +1276,9 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_custom_spacy(self):
+        self.custom_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
