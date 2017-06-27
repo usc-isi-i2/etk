@@ -5,7 +5,7 @@ import sys
 import os
 import json
 
-
+sys.path.append('../../../')
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
@@ -89,7 +89,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 {
                     "identifier": "name_rule_01",
                     "description": "a description",
-                    "is_active": "false",
+                    "is_active": "true",
                     "polarity": [],
                     "pattern": [
                         self.word_token(token=["my"]),
