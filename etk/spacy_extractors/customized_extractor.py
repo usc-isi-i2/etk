@@ -559,22 +559,32 @@ def generate_shape(word, count):
     
     return shape
 
-def get_value(doc, start, end, output_inf, label, output_format):
+def get_value(doc, start, end, output_inf, label):
     result_str = ""
-    s = list(output_format.encode("utf-8"))
-    if len(s) < 3:
-        for i in range(len(output_inf)):
-            if output_inf[i]:
-                result_str += str(doc[start+i])
-                result_str += " "
-        return (start, end, result_str.strip(), label)
-    else:    
+#    s = list(output_format.encode("utf-8"))
+    for i in range(len(output_inf)):
+        if output_inf[i]:
+            result_str += str(doc[start+i])
+            result_str += " "
+    return (start, end, result_str.strip(), label)
+
+def filter_value(value, output_format):
+    if not output_format:
+        return value
+    else:
+        result_str = ""
+        s = list(output_format.encode("utf-8"))
+        (start, end, v, label) = value
+        v = v.split()
         t1 = s.pop(0)
         t2 = s.pop(0)
         while 1:
             t3 = s.pop(0)
             if t1 == '{' and t2.isdigit() and t3 == '}':
-                result_str += str(doc[start:end][int(t2)-1])
+                if int(t2) > len(v):
+                    result_str = value[2]
+                    break
+                result_str += v[int(t2)-1]
                 if not s:
                     break
                 t1 = s.pop(0)
@@ -598,9 +608,6 @@ def get_value(doc, start, end, output_inf, label, output_format):
 def get_longest(value_lst):
     value_lst.sort()
     result = []
-    # if len(value_lst) == 1:
-    #     return value_lst
-    # else:
     start = value_lst[0][0]
     end = value_lst[0][1]
     pivot = value_lst[0]
@@ -689,9 +696,9 @@ def extract(field_rules, nlp_doc, nlp):
                         output_inf.append(ps_inf[i][e]["is_in_output"])
                     
                     for (ent_id, label, start, end) in matches:
-                        value = get_value(nlp_doc, start, end, output_inf, 
-                                        label, line["output_format"])
-                        value_lst.append(value)
+                        value = get_value(nlp_doc, start, end, output_inf, label)
+                        filtered_value = filter_value(value, line["output_format"])
+                        value_lst.append(filtered_value)
                 
                     rule.init_matcher()
 
@@ -713,7 +720,7 @@ def extract(field_rules, nlp_doc, nlp):
 
             rule.init_flag()
 
-    #print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
