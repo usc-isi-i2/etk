@@ -1,6 +1,8 @@
 import sys
+stdout = sys.stdout
 reload(sys)
 sys.setdefaultencoding('utf-8')
+sys.stdout = stdout
 # import all extractors
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
