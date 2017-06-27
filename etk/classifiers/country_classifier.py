@@ -67,13 +67,14 @@ def country_next_to_state(knowledge_graph, given_country, state_to_country_dict)
     if "state" in knowledge_graph:
         kg_states = knowledge_graph["state"]
         for state in kg_states:
-            if given_country in state_to_country_dict[state]:
-                for sp in kg_states[state]:
-                    if "origin" in sp:
-                        if sp["origin"]["segment"] in country_start:
-                            state_end = math.fabs(country_start[sp["origin"]["segment"]] - sp["context"]["end"])
-                            if state_end <= 3:
-                                dist.append(math.fabs(state_end))
+            if state in state_to_country_dict:
+                if given_country in state_to_country_dict[state]:
+                    for sp in kg_states[state]:
+                        if "origin" in sp:
+                            if sp["origin"]["segment"] in country_start:
+                                state_end = math.fabs(country_start[sp["origin"]["segment"]] - sp["context"]["end"])
+                                if state_end <= 3:
+                                    dist.append(math.fabs(state_end))
 
     if dist:
         result = len(dist)
