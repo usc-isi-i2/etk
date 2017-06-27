@@ -718,7 +718,7 @@ def extract(field_rules, nlp_doc, nlp):
 
             rule.init_flag()
 
-    print json.dumps(extracted_lst, indent=2)
+    #print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
