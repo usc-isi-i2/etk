@@ -240,7 +240,7 @@ class Pattern(object):
         token_inf = create_inf("", "", 
                                 False, token_d["is_in_output"])
         if not token_d["numbers"]:
-            this_token = {spacy.attrs.IS_DIGIT: True}
+            token_to_rule = [{spacy.attrs.IS_DIGIT: True}]
             for length in token_d["length"]:
                 this_token[spacy.attrs.LENGTH] = length
                 token_to_rule.append(copy.deepcopy(this_token))
@@ -664,9 +664,6 @@ def extract(field_rules, nlp_doc, nlp):
                     
                     new_pattern.add_punctuation_token(token_d, flagnum)
 
-                if token_d["type"] == "glossary":
-                    new_pattern.add_glossary_token(token_d)
-
                 if token_d["type"] == "symbol":
                     new_pattern.add_symbol_token(token_d)
 
@@ -687,6 +684,7 @@ def extract(field_rules, nlp_doc, nlp):
                 #rule_num += 1
                 if tl[i]:
                     rule_to_print = create_print(tl[i])
+                    #print str(rule_to_print)
                     rule.matcher.add_pattern(str(rule_to_print), tl[i], label = index)
                     m = rule.matcher(nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
