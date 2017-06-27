@@ -240,10 +240,13 @@ class Pattern(object):
         token_inf = create_inf("", "", 
                                 False, token_d["is_in_output"])
         if not token_d["numbers"]:
-            token_to_rule = [{spacy.attrs.IS_DIGIT: True}]
-            for length in token_d["length"]:
-                this_token[spacy.attrs.LENGTH] = length
-                token_to_rule.append(copy.deepcopy(this_token))
+            this_token = {spacy.attrs.IS_DIGIT: True}
+            if token_d["length"]:
+                for length in token_d["length"]:
+                    this_token[spacy.attrs.LENGTH] = length
+                    token_to_rule.append(copy.deepcopy(this_token))
+            else:
+                token_to_rule[this_token]
             token_inf["minimum"] = token_d["minimum"]
             token_inf["maximum"] = token_d["maximum"]
         elif len(token_d["numbers"]) == 1:
@@ -514,7 +517,7 @@ def filter(doc, matches, inf_inf):
                 else:
                     maximum = float("inf")
                 if minimum or maximum:
-                    match_number = float(str(pattern))
+                    match_number = float(str(pattern[i]))
                     if match_number < minimum:
                         flag = False
                         break
@@ -684,15 +687,12 @@ def extract(field_rules, nlp_doc, nlp):
                 #rule_num += 1
                 if tl[i]:
                     rule_to_print = create_print(tl[i])
-                    #print str(rule_to_print)
                     rule.matcher.add_pattern(str(rule_to_print), tl[i], label = index)
                     m = rule.matcher(nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
-
                     output_inf = []
                     for e in ps_inf[i]:
                         output_inf.append(ps_inf[i][e]["is_in_output"])
-                    
                     for (ent_id, label, start, end) in matches:
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
@@ -718,7 +718,7 @@ def extract(field_rules, nlp_doc, nlp):
 
             rule.init_flag()
 
-    #print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
