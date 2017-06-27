@@ -559,13 +559,41 @@ def generate_shape(word, count):
     
     return shape
 
-def get_value(doc, start, end, output_inf, label):
+def get_value(doc, start, end, output_inf, label, output_format):
     result_str = ""
-    for i in range(len(output_inf)):
-        if output_inf[i]:
-            result_str += str(doc[start+i])
-            result_str += " "
-    return (start, end, result_str.strip(), label)           
+    s = list(output_format.encode("utf-8"))
+    if len(s) < 3:
+        for i in range(len(output_inf)):
+            if output_inf[i]:
+                result_str += str(doc[start+i])
+                result_str += " "
+        return (start, end, result_str.strip(), label)
+    else:    
+        t1 = s.pop(0)
+        t2 = s.pop(0)
+        while 1:
+            t3 = s.pop(0)
+            if t1 == '{' and t2.isdigit() and t3 == '}':
+                result_str += str(doc[start:end][int(t2)-1])
+                if not s:
+                    break
+                t1 = s.pop(0)
+                if not s:
+                    result_str += t1
+                    break
+                t2 = s.pop(0)
+                if not s:
+                    result_str += t2
+                    break
+            else:
+                result_str += t1
+                t1 = t2
+                t2 = t3
+                if not s:
+                    result_str += t1
+                    result_str += t2
+                    break
+        return (start, end, result_str, label)
 
 def get_longest(value_lst):
     value_lst.sort()
@@ -661,7 +689,8 @@ def extract(field_rules, nlp_doc, nlp):
                         output_inf.append(ps_inf[i][e]["is_in_output"])
                     
                     for (ent_id, label, start, end) in matches:
-                        value = get_value(nlp_doc, start, end, output_inf, label)
+                        value = get_value(nlp_doc, start, end, output_inf, 
+                                        label, line["output_format"])
                         value_lst.append(value)
                 
                     rule.init_matcher()
