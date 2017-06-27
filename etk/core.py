@@ -1,3 +1,6 @@
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 # import all extractors
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
@@ -33,6 +36,7 @@ import numbers
 from tldextract import tldextract
 import pickle
 import copy
+import unicodedata
 import os
 import sys
 
@@ -368,7 +372,6 @@ class Core(object):
                                                 else:
                                                     print('method {} not found!'.format(extractor))
 
-
             """Optional Phase 3: Knowledge Graph Enhancement"""
             if _KG_ENHANCEMENT in self.extraction_config:
                 kg_configs = self.extraction_config[_KG_ENHANCEMENT]
@@ -408,7 +411,6 @@ class Core(object):
                                                 if results:
                                                     # doc[_KNOWLEDGE_GRAPH][field] = results
                                                     self.create_knowledge_graph(doc, field, results)
-
 
             """Optional Phase 4: feature computation"""
             if _FEATURE_COMPUTATION in self.extraction_config:
@@ -549,8 +551,8 @@ class Core(object):
                 for k, v in sorted_metadata.iteritems():
                     if isinstance(v, numbers.Number):
                         v = str(v)
-                    if v:
-                        v = v.encode('utf8')
+                    # if v:
+                    #     v = v.encode('utf-8')
                     if v and v.strip() != '':
                         # key += '-' + str(k) + ':' + str(v)
                         key = '{}-{}:{}'.format(key, k, v)
@@ -1415,9 +1417,10 @@ class Core(object):
             cities = d[_KNOWLEDGE_GRAPH][_CITY].keys()
         else:
             return None
-
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
+
         results = geonames_extractor.get_country_from_populated_places(populated_places)
+
         if results:
             self.create_knowledge_graph(d, _COUNTRY, results)
 
@@ -1426,7 +1429,7 @@ class Core(object):
     @staticmethod
     def parse_date(d, config={}):
         if isinstance(d, basestring):
-            return Core.spacy_parse_date()
+            return Core.spacy_parse_date(d)
         else:
             try:
                 return date_parser.convert_to_iso_format(date_parser.parse_date(d[_TEXT]))

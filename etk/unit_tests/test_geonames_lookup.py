@@ -18,6 +18,7 @@ class TestGeonamesLookup(unittest.TestCase):
         cities_file_path = os.path.join(os.path.dirname(__file__), "resources/cities.json.gz")
         geonames_file_path = os.path.join(os.path.dirname(__file__), "resources/geonames.json")
         e_config = {
+            "document_id": "doc_id",
             "resources": {
                 "dictionaries": {
                     "geonames": geonames_file_path,
