@@ -1,5 +1,5 @@
 {
-  "document_id": "_id",
+  "document_id": "doc_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
   "resources": {
