@@ -246,9 +246,12 @@ class Pattern(object):
                                False, token_d["is_in_output"])
         if not token_d["numbers"]:
             this_token = {spacy.attrs.IS_DIGIT: True}
-            for length in token_d["length"]:
-                this_token[spacy.attrs.LENGTH] = length
-                token_to_rule.append(copy.deepcopy(this_token))
+            if token_d["length"]:
+                for length in token_d["length"]:
+                    this_token[spacy.attrs.LENGTH] = length
+                    token_to_rule.append(copy.deepcopy(this_token))
+            else:
+                token_to_rule = [this_token]
             token_inf["minimum"] = token_d["minimum"]
             token_inf["maximum"] = token_d["maximum"]
         elif len(token_d["numbers"]) == 1:
@@ -320,7 +323,6 @@ def add_token_tolist(t_lst, token_l, flag, inf):
     result_lst = []
     result_dict = t_lst[1]
     lst = t_lst[0]
-
     # If this token is not optional
     if flag == "true":
         if lst:
@@ -526,7 +528,7 @@ def filter(doc, matches, inf_inf):
                 else:
                     maximum = float("inf")
                 if minimum or maximum:
-                    match_number = float(str(pattern))
+                    match_number = float(str(pattern[i]))
                     if match_number < minimum:
                         flag = False
                         break
@@ -682,9 +684,6 @@ def extract(field_rules, nlp_doc, nlp):
 
                     new_pattern.add_punctuation_token(token_d, flagnum)
 
-                if token_d["type"] == "glossary":
-                    new_pattern.add_glossary_token(token_d)
-
                 if token_d["type"] == "symbol":
                     new_pattern.add_symbol_token(token_d)
 
@@ -707,7 +706,6 @@ def extract(field_rules, nlp_doc, nlp):
                     rule.matcher.add_pattern(str(rule_to_print), tl[i], label=index)
                     m = rule.matcher(nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
-
                     output_inf = []
                     for e in ps_inf[i]:
                         output_inf.append(ps_inf[i][e]["is_in_output"])
@@ -736,4 +734,8 @@ def extract(field_rules, nlp_doc, nlp):
 
             rule.init_flag()
 
+    #print json.dumps(extracted_lst, indent=2)
+    
+    #print "total rule num:"
+    #print rule_num
     return extracted_lst
