@@ -710,10 +710,7 @@ def extract(field_rules, nlp_doc, nlp):
                     output_inf = []
                     for e in ps_inf[i]:
                         output_inf.append(ps_inf[i][e]["is_in_output"])
-<<<<<<< HEAD
-=======
 
->>>>>>> 7b3a08d9dbb1459e2dde707f4f1df75e438227f2
                     for (ent_id, label, start, end) in matches:
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
@@ -738,11 +735,8 @@ def extract(field_rules, nlp_doc, nlp):
 
             rule.init_flag()
 
-<<<<<<< HEAD
-    #print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
     
     #print "total rule num:"
     #print rule_num
-=======
->>>>>>> 7b3a08d9dbb1459e2dde707f4f1df75e438227f2
     return extracted_lst
