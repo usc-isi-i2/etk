@@ -19,7 +19,10 @@
     },
     "landmark": [
       "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
-    ]
+    ],
+    "spacy_field_rules": {
+      "name": "/Users/amandeep/Github/etk/etk/resources/spacy_field_rules.json"
+    }
   },
   "content_extraction": {
     "input_path": "raw_content",
@@ -233,7 +236,8 @@
                 ]
               },
               "extraction_policy": "replace"
-            }
+            },
+            "extract_using_custom_spacy": {"config": {"spacy_field_rules": "name"}}
           }
         },
         "age": {
