@@ -148,10 +148,25 @@ def bool_if_colon_next_to_any_city(knowledge_graph, given_country):
 
     return count
 
+def bool_highest_population_city_is_in_country(knowledge_graph, given_country):
+    count = 0
+    high_pop = 0
+    high_pop_country = ""
+    if "populated_places" in knowledge_graph:
+        pop_places = knowledge_graph["populated_places"]
+        for place in pop_places:
+            if "population" in pop_places[place][0]["metadata"]:
+                if pop_places[place][0]["metadata"]["population"] >= high_pop:
+                    high_pop_country = pop_places[place][0]["metadata"]["country"]
+    if given_country == high_pop_country:
+        count = 1
+    return count
 
-def calc_country_feature(knowledge_graph, state_to_country_dict):
+
+def calc_country_feature(d, state_to_country_dict):
     """ Returns a list of dicts which has val: coutry and feature_vector: vector"""
     vectors = list()
+    knowledge_graph = d["knowledge_graph"]
     if "country" in knowledge_graph:
         countries = knowledge_graph["country"]
         for country in countries:
@@ -167,6 +182,7 @@ def calc_country_feature(knowledge_graph, state_to_country_dict):
             feature_vector.append(num_of_explicit_mentions_in_url(knowledge_graph, country))
             feature_vector.append(number_of_implicit_mentions(knowledge_graph, country))
             feature_vector.append(bool_if_colon_next_to_any_city(knowledge_graph, country))
+            feature_vector.append(bool_highest_population_city_is_in_country(knowledge_graph, country))
             ### Add features here
             vector["value"] = json.dumps(feature_vector)
             vectors.append(vector)
