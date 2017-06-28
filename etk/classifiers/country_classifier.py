@@ -148,6 +148,7 @@ def bool_if_colon_next_to_any_city(knowledge_graph, given_country):
 
     return count
 
+
 def calc_country_feature(knowledge_graph, state_to_country_dict):
     """ Returns a list of dicts which has val: coutry and feature_vector: vector"""
     vectors = list()
