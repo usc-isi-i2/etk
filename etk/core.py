@@ -574,6 +574,9 @@ class Core(object):
                         # key += '-' + str(k) + ':' + str(v)
                         key = '{}-{}:{}'.format(key, k, v)
 
+            if 'key' in extraction:
+                key = extraction['key']
+
             if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
                 doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
             doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
