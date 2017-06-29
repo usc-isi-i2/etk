@@ -432,6 +432,13 @@
             "config": {}
           }
         }
+      },
+      "city_state_pair": {
+        "extractors": {
+          "create_city_state_pair": {
+            "config": {}
+          }
+        }
       }
     }
   },
