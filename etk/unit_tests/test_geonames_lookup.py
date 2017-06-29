@@ -49,6 +49,7 @@ class TestGeonamesLookup(unittest.TestCase):
                 "input_path": "knowledge_graph.`parent`",
                 "fields": {
                     "populated_places": {
+                        "priority" : 0,
                         "extractors": {
                             "geonames_lookup": {
                                 "config": {}
