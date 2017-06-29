@@ -398,7 +398,11 @@ class Core(object):
                             matches = self.data_extraction_path[input_path].find(doc)
                             for match in matches:
                                 fields = kg_config[_FIELDS]
-                                sorted_fields = self.sort_dictionary_by_fields(fields)
+                                try:
+                                    sorted_fields = self.sort_dictionary_by_fields(fields)
+                                except:
+                                    raise ValueError('Please ensure there is a priority added to every field in '
+                                                     'knowledge_graph  enhancement and the priority is an int')
                                 for i in range(0, len(sorted_fields)):
                                     field = sorted_fields[i][0]
                                     print field
