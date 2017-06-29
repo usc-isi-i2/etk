@@ -237,7 +237,11 @@
               },
               "extraction_policy": "replace"
             },
-            "extract_using_custom_spacy": {"config": {"spacy_field_rules": "name"}}
+            "extract_using_custom_spacy": {
+              "config": {
+                "spacy_field_rules": "name"
+              }
+            }
           }
         },
         "age": {
@@ -414,7 +418,7 @@
     "input_path": "knowledge_graph.`parent`",
     "fields": {
       "populated_places": {
-        "priority" : 0,
+        "priority": 0,
         "extractors": {
           "geonames_lookup": {
             "config": {}
@@ -422,7 +426,7 @@
         }
       },
       "country": {
-        "priority" : 1,
+        "priority": 1,
         "extractors": {
           "country_from_states": {
             "config": {}

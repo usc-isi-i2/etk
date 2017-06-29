@@ -22,31 +22,6 @@
       "name": "spacy_field_rules.json"
     }
   },
-  "content_extraction": {
-    "input_path": "raw_content",
-    "extractors": {
-      "readability": [
-        {
-          "strict": "yes",
-          "extraction_policy": "keep_existing",
-          "field_name": "content_strict"
-        },
-        {
-          "strict": "no",
-          "extraction_policy": "keep_existing",
-          "field_name": "content_relaxed"
-        }
-      ],
-      "title": {
-        "extraction_policy": "keep_existing"
-      },
-      "landmark": {
-        "field_name": "inferlink_extractions",
-        "extraction_policy": "keep_existing",
-        "landmark_threshold": 0.5
-      }
-    }
-  },
   "data_extraction": [
     {
       "input_path": [
