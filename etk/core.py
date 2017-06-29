@@ -1461,3 +1461,50 @@ class Core(object):
 
     def country_feature(self, d, config):
         return country_classifier.calc_country_feature(d[_KNOWLEDGE_GRAPH], self.state_to_country_dict)
+
+    def create_city_state_pair(self, d, config):
+        results = list()
+        try:
+            knowledge_graph = d[_KNOWLEDGE_GRAPH]
+            if "populated_places" in knowledge_graph:
+                pop_places = knowledge_graph["populated_places"]
+                for place in pop_places:
+                    together_count = 0
+                    seperate_count = 0
+                    city = pop_places[place][0]["value"]
+                    state = pop_places[place][0]["metadata"]["state"]
+                    cities = []
+                    if "city" in knowledge_graph:
+                        if city in knowledge_graph["city"]:
+                            city_lst = knowledge_graph["city"][city]
+                            for each_city in city_lst:
+                                if "context" in each_city:
+                                    cities.append((each_city["origin"]["segment"], 
+                                        each_city["context"]["start"], each_city["context"]["end"]))
+                    states = []
+                    if "state" in knowledge_graph:
+                        if state in knowledge_graph["state"]:
+                            state_lst = knowledge_graph["state"][state]
+                            for each_state in state_lst:
+                                if "context" in each_state:
+                                    states.append((each_state["origin"]["segment"], 
+                                        each_state["context"]["start"], each_state["context"]["end"]))
+
+                    if cities and states:
+                        for a_city in cities:
+                            for a_state in states:
+                                if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
+                                    together_count += 1
+                                else:
+                                    seperate_count += 1 
+
+                        result = pop_places[place][0]
+                        result['metadata']['together_count'] = together_count
+                        result['metadata']['seperate_count'] = seperate_count
+                        results.append(result)
+            
+            if len(results) > 0:
+                return results
+        except Exception as e:
+            print e
+            return None
