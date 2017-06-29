@@ -38,6 +38,7 @@ import numbers
 from tldextract import tldextract
 import pickle
 import copy
+from collections import OrderedDict
 import unicodedata
 import os
 import sys
@@ -399,7 +400,14 @@ class Core(object):
                             matches = self.data_extraction_path[input_path].find(doc)
                             for match in matches:
                                 fields = kg_config[_FIELDS]
-                                for field in fields.keys():
+                                try:
+                                    sorted_fields = self.sort_dictionary_by_fields(fields)
+                                except:
+                                    raise ValueError('Please ensure there is a priority added to every field in '
+                                                     'knowledge_graph  enhancement and the priority is an int')
+                                for i in range(0, len(sorted_fields)):
+                                    field = sorted_fields[i][0]
+                                    print field
                                     if _EXTRACTORS in fields[field]:
                                         extractors = fields[field][_EXTRACTORS]
                                         for extractor in extractors.keys():
@@ -491,6 +499,11 @@ class Core(object):
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
         return doc
+
+    @staticmethod
+    def sort_dictionary_by_fields(dictionary):
+        sorted_d = OrderedDict(sorted(dictionary.iteritems(), key=lambda x: x[1]['priority']))
+        return sorted_d.items()
 
     @staticmethod
     def custom_provenance_object(method, segment, document_id):
