@@ -1477,13 +1477,13 @@ class Core(object):
     def country_feature(self, d, config):
         return country_classifier.calc_country_feature(d[_KNOWLEDGE_GRAPH], self.state_to_country_dict)
 
-    def create_city_state_pair(self, d, config):
+    def create_city_state_country_triple(self, d, config):
         if not self.state_to_codes_lower_dict:
             try:
                 self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
             except Exception as e:
                 raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
-        
+
         results = list()
         try:
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
@@ -1494,8 +1494,11 @@ class Core(object):
                     city_state_seperate_count = 0
                     city_state_code_together_count = 0
                     city_state_code_seperate_count = 0
+                    city_country_together_count = 0
+                    city_country_seperate_count = 0
                     city = pop_places[place][0]["value"]
                     state = pop_places[place][0]["metadata"]["state"]
+                    country = pop_places[place][0]["metadata"]["country"]
                     if state in self.state_to_codes_lower_dict:
                         state_code = self.state_to_codes_lower_dict[state]
                     else:
@@ -1518,6 +1521,15 @@ class Core(object):
                                     states.append((each_state["origin"]["segment"], 
                                         each_state["context"]["start"], each_state["context"]["end"]))
 
+                    countries = []
+                    if "country" in knowledge_graph:
+                        if country in knowledge_graph["country"]:
+                            country_lst = knowledge_graph["country"][country]
+                            for each_country in country_lst:
+                                if "context" in each_country:
+                                    countries.append((each_country["origin"]["segment"],
+                                        each_country["context"]["start"], each_country["context"]["end"]))
+
                     state_codes = []
                     if not state_code:
                         if "states_usa_codes" in knowledge_graph:
@@ -1528,7 +1540,7 @@ class Core(object):
                                         state_codes.append((each_state_code["origin"]["segment"], 
                                             each_state_code["context"]["start"], each_state_code["context"]["end"]))
 
-                    if cities and (states or state_codes):
+                    if cities and (states or state_codes) or countries:
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
@@ -1539,13 +1551,20 @@ class Core(object):
                                 if a_city[0] == a_state_code[0] and (abs(a_city[2] - a_state_code[1])<3 or abs(a_city[1] - a_state_code[2])<3):
                                     city_state_code_together_count += 1
                                 else:
-                                    city_state_code_seperate_count += 1 
+                                    city_state_code_seperate_count += 1
+                            for a_country in countries:
+                                if a_city[0] == a_country[0] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
+                                    city_country_together_count += 1
+                                else:
+                                    city_country_seperate_count += 1
 
-                        result = pop_places[place][0]
+                        result = copy.deepcopy(pop_places[place][0])
                         result['metadata']['city_state_together_count'] = city_state_together_count
                         result['metadata']['city_state_seperate_count'] = city_state_seperate_count
                         result['metadata']['city_state_code_together_count'] = city_state_code_together_count
                         result['metadata']['city_state_code_seperate_count'] = city_state_code_seperate_count
+                        result['metadata']['city_country_together_count'] = city_country_together_count
+                        result['metadata']['city_country_seperate_count'] = city_country_seperate_count
                         results.append(result)
 
             if len(results) > 0:
