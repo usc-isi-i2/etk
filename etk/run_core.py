@@ -86,18 +86,18 @@ def run_parallel(input, output, core, processes=0):
     pool.close()
 
 
-def run_serial(input, output, core):
+def run_serial(input, output, core, prefix=''):
     output = codecs.open(output, 'w')
     index = 1
     for line in codecs.open(input):
-        print 'processing line number:', index
+        print prefix, 'processing line number:', index
         start_time_doc = time.time()
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
         output.write(json.dumps(result) + '\n')
         time_taken_doc = time.time() - start_time_doc
         if time_taken_doc > 5:
-            print "Took", str(time_taken_doc), " seconds"
+            print prefix, "Took", str(time_taken_doc), " seconds"
         index += 1
     output.close()
 
@@ -124,6 +124,56 @@ def run_parallel_2(input_path, output_path, core, processes=0):
     #     output_f.write(json.dumps(result))
     #     output_f.write('\n')
 
+def run_parallel_3(input_path, output_path, config_path, processes):
+    if not os.path.exists(output_path) or not os.path.isdir(output_path) :
+        raise Exception('temp path is invalid')
+    # if len(os.listdir(temp_path)) != 0:
+    #     raise Exception('temp path is not empty')
+    if processes < 1:
+        raise Exception('invalid process number')
+
+    # split input file into chunks
+    print 'spliting input file...'
+    with codecs.open(input_path, 'r') as input:
+        input_chunk_file_handlers = [
+            codecs.open(os.path.join(output_path, 'input_chunk_{}.json'.format(i)), 'w') for i in xrange(processes)]
+        idx = 0
+        for line in input:
+            if line == '\n':
+                continue
+            input_chunk_file_handlers[idx].write(line)
+            idx = (idx + 1) % processes
+        for f in input_chunk_file_handlers:
+            f.close()
+
+
+    # create processes
+    print 'creating workers...'
+    print '-------------------'
+    process_handlers = []
+    for i in xrange(processes):
+        input_chunk_path = os.path.join(output_path, 'input_chunk_{}.json'.format(i))
+        output_chunk_path = os.path.join(output_path, 'output_chunk_{}.json'.format(i))
+        p = mp.Process(target=run_parellel_worker,
+                   args=(i, input_chunk_path, output_chunk_path, config_path))
+        process_handlers.append(p)
+
+    # start processes
+    for p in process_handlers:
+        p.start()
+
+    # wait till finish
+    for p in process_handlers:
+        p.join()
+
+    print '-------------------'
+
+def run_parellel_worker(worker_id, input_chunk_path, output_chunk_path, config_path):
+    print 'start worker #{}'.format(worker_id)
+    c = core.Core(json.load(codecs.open(config_path, 'r')))
+    run_serial(input_chunk_path, output_chunk_path, c, prefix='worker #{}:'.format(worker_id))
+    print 'worker #{} finished'.format(worker_id)
+
 
 def usage():
     return """\
@@ -133,6 +183,7 @@ Usage: python run_core.py [args]
 -c, --config <config>                     Config file
 
 Optional
+-m, --enable-multiprocessing
 -t, --thread <processes_count>            Serial(default=0)
                                           Run Parallel(>0)
     """
@@ -142,7 +193,9 @@ if __name__ == "__main__":
     parser.add_option("-i", "--input", action="store", type="string", dest="inputPath")
     parser.add_option("-o", "--output", action="store", type="string", dest="outputPath")
     parser.add_option("-c", "--config", action="store", type="string", dest="configPath")
-    parser.add_option("-t", "--thread", action="store", type="string", dest="threadCount", default=0)
+    parser.add_option("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
+    parser.add_option("-t", "--thread", action="store",
+                      type="int", dest="threadCount", default=mp.cpu_count() * 2)
 
     (c_options, args) = parser.parse_args()
 
@@ -150,16 +203,20 @@ if __name__ == "__main__":
         print usage()
         sys.exit()
     try:
-        c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
         start_time = time.time()
-        if c_options.threadCount:
-            print "Processing parallel with " + c_options.threadCount + " processes"
-            # run_parallel(c_options.inputPath, c_options.outputPath, c,  int(c_options.threadCount))
-            run_parallel_2(c_options.inputPath, c_options.outputPath, c, int(c_options.threadCount))
+        if c_options.enableMP and c_options.threadCount > 1:
+            print "processing parallelly"
+            run_parallel_3(
+                input_path=c_options.inputPath,
+                output_path=c_options.outputPath,
+                config_path=c_options.configPath,
+                processes=c_options.threadCount)
         else:
             print "processing serially"
+            c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
             run_serial(c_options.inputPath, c_options.outputPath, c)
         print('The script took {0} second !'.format(time.time() - start_time))
+
     except Exception as e:
         print e
 
