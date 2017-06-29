@@ -4,24 +4,22 @@
   "error_handling": "raise_error",
   "resources": {
     "dictionaries": {
-      "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
-      "city": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/curated_cities.json.gz",
-      "ethnicity": "/Users/amandeep/Github/dig-dictionaries/ethnicities/ethnicities.json.gz",
-      "hair_color": "/Users/amandeep/Github/dig-dictionaries/haircolor/haircolors.json.gz",
-      "eye_color": "/Users/amandeep/Github/dig-dictionaries/eyecolor/eyecolors.json.gz",
-      "state": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/states_usa_canada.json.gz",
-      "service": "/Users/amandeep/Github/dig-dictionaries/escort-service-words/consolidated-services.json.gz",
-      "country_code": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/country_codes_dict.json",
-      "country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/countries.json.gz",
-      "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz",
-      "state_to_country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/state_country_dict.json",
-      "geonames": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json"
+      "women_name": "female-names-trimmed.json.gz",
+      "city": "world_cities_with_population_25k.json.gz",
+      "ethnicity": "ethnicities.json.gz",
+      "hair_color": "haircolors.json.gz",
+      "eye_color": "eyecolors.json.gz",
+      "state": "states_usa_canada.json.gz",
+      "service": "consolidated-services.json.gz",
+      "country_code": "country_codes_dict.json",
+      "country": "countries.json.gz",
+      "stop_words": "stop_words.json.gz"
     },
     "landmark": [
-      "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
+      "consolidated_rules.json"
     ],
     "spacy_field_rules": {
-      "name": "/Users/amandeep/Github/etk/etk/resources/spacy_field_rules.json"
+      "name": "spacy_field_rules.json"
     }
   },
   "content_extraction": {
@@ -409,38 +407,5 @@
         }
       }
     }
-  ],
-  "kg_enhancement": {
-    "input_path": "knowledge_graph.`parent`",
-    "fields": {
-      "populated_places": {
-        "priority" : 0,
-        "extractors": {
-          "geonames_lookup": {
-            "config": {}
-          }
-        }
-      },
-      "country": {
-        "priority" : 1,
-        "extractors": {
-          "country_from_states": {
-            "config": {}
-          }
-        }
-      }
-    }
-  },
-  "feature_computation": {
-    "input_path": "knowledge_graph.`parent`",
-    "fields": {
-      "country_classifier": {
-        "extractors": {
-          "country_feature": {
-            "config": {}
-          }
-        }
-      }
-    }
-  }
+  ]
 }
