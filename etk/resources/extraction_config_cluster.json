@@ -1,0 +1,386 @@
+{
+  "document_id": "doc_id",
+  "extraction_policy": "replace",
+  "error_handling": "raise_error",
+  "resources": {
+    "dictionaries": {
+      "women_name": "female-names-trimmed.json.gz",
+      "city": "world_cities_with_population_25k.json.gz",
+      "ethnicity": "ethnicities.json.gz",
+      "hair_color": "haircolors.json.gz",
+      "eye_color": "eyecolors.json.gz",
+      "state": "states_usa_canada.json.gz",
+      "service": "consolidated-services.json.gz",
+      "country_code": "country_codes_dict.json",
+      "country": "countries.json.gz",
+      "stop_words": "stop_words.json.gz"
+    },
+    "landmark": [
+      "consolidated_rules.json"
+    ],
+    "spacy_field_rules": {
+      "name": "spacy_field_rules.json"
+    }
+  },
+  "data_extraction": [
+    {
+      "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.content_relaxed.text.`parent`",
+        "*.title.text.`parent`",
+        "*.inferlink_extractions.*.text.`parent`"
+      ],
+      "fields": {
+        "review_id": {
+          "extractors": {
+            "extract_review_id": {
+              "config": {}
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_review-id"
+                ]
+              }
+            }
+          }
+        },
+        "service": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "service",
+                "ngrams": 3
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_service"
+                ]
+              }
+            }
+          }
+        },
+        "state": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "state"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_state"
+                ]
+              }
+            }
+          }
+        },
+        "eye_color": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "eye_color"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_eye-color"
+                ]
+              }
+            }
+          }
+        },
+        "hair_color": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "hair_color"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_hair-color"
+                ]
+              }
+            }
+          }
+        },
+        "ethnicity": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "ethnicity"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_ethnicity"
+                ]
+              }
+            }
+          }
+        },
+        "city": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "city"
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_city"
+                ]
+              }
+            }
+          }
+        },
+        "posting_date": {
+          "extractors": {
+            "extract_using_spacy": {
+              "config": {
+                "post_filter": [
+                  "parse_date"
+                ]
+              }
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_posting-date",
+                  "inferlink_posting-date-2",
+                  "inferlink_posting-date-1"
+                ],
+                "post_filter": [
+                  "parse_date"
+                ]
+              }
+            }
+          }
+        },
+        "name": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "women_name",
+                "ngrams": 1,
+                "joiner": " ",
+                "pre_process": [
+                  "x.lower()"
+                ],
+                "pre_filter": [
+                  "x"
+                ],
+                "post_filter": [
+                  "isinstance(x, basestring)"
+                ]
+              },
+              "extraction_policy": "keep_existing"
+            },
+            "extract_using_regex": {
+              "config": {
+                "include_context": "true",
+                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
+                "regex_options": [
+                  "IGNORECASE"
+                ],
+                "pre_filter": [
+                  "x.replace('\\n', '')",
+                  "x.replace('\\r', '')"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_name",
+                  "inferlink_name-1"
+                ],
+                "post_filter": [
+                  "x.replace('\t', '')"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_using_custom_spacy": {"config": {"spacy_field_rules": "name"}}
+          }
+        },
+        "age": {
+          "extractors": {
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_age",
+                  "inferlink_age-1",
+                  "inferlink_age-2"
+                ]
+              },
+              "extraction_policy": "replace"
+            },
+            "extract_age": {
+              "config": {}
+            },
+            "extract_using_spacy": {
+              "config": {}
+            }
+          }
+        },
+        "phone": {
+          "extractors": {
+            "extract_phone": {
+              "config": {},
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_phone",
+                  "inferlink_local-phone",
+                  "inferlink_phone-1"
+                ],
+                "post_filter": [
+                  "extract_phone"
+                ]
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "email": {
+          "extractors": {
+            "extract_email": {
+              "config": {},
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "price": {
+          "extractors": {
+            "extract_price": {
+              "config": {},
+              "extraction_policy": "replace"
+            }
+          }
+        },
+        "height": {
+          "extractors": {
+            "extract_height": {
+              "config": {},
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_height"
+                ],
+                "post_filter": [
+                  "extract_height"
+                ]
+              }
+            }
+          }
+        },
+        "weight": {
+          "extractors": {
+            "extract_weight": {
+              "config": {},
+              "extraction_policy": "replace"
+            },
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_weight"
+                ],
+                "post_filter": [
+                  "extract_weight"
+                ]
+              }
+            }
+          }
+        },
+        "address": {
+          "extractors": {
+            "extract_using_spacy": {
+              "config": {}
+            }
+          }
+        },
+        "gender": {
+          "extractors": {
+            "extract_from_landmark": {
+              "config": {
+                "fields": [
+                  "inferlink_gender"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.title.text.`parent`"
+      ],
+      "fields": {
+        "country": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "input_path": [
+        "*.url.text.`parent`"
+      ],
+      "fields": {
+        "state": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "state"
+              }
+            }
+          }
+        },
+        "city": {
+          "extractors": {
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "city"
+              }
+            }
+          }
+        },
+        "country": {
+          "extractors": {
+            "extract_country_url": {
+              "config": {
+                "dictionary": "stop_words"
+              }
+            },
+            "extract_using_dictionary": {
+              "config": {
+                "dictionary": "country"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

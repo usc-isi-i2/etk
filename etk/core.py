@@ -1,3 +1,8 @@
+import sys
+stdout = sys.stdout
+reload(sys)
+sys.setdefaultencoding('utf-8')
+sys.stdout = stdout
 # import all extractors
 from spacy_extractors import age_extractor as spacy_age_extractor
 from spacy_extractors import social_media_extractor as spacy_social_media_extractor
@@ -13,11 +18,13 @@ from data_extractors import address_extractor
 from data_extractors import age_extractor
 from data_extractors import table_extractor
 from data_extractors import url_country_extractor
+from data_extractors import geonames_extractor
 from data_extractors.digPhoneExtractor import phone_extractor
 from data_extractors.digEmailExtractor import email_extractor
 from data_extractors.digPriceExtractor import price_extractor
 from data_extractors.digReviewIDExtractor import review_id_extractor
 from data_extractors import date_parser
+from classifiers import country_classifier
 from structured_extractors import ReadabilityExtractor, TokenizerExtractor, FaithfulTokenizerExtractor
 import json
 import gzip
@@ -31,6 +38,8 @@ import numbers
 from tldextract import tldextract
 import pickle
 import copy
+from collections import OrderedDict
+import unicodedata
 import os
 import sys
 
@@ -87,6 +96,10 @@ _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
 _TABLE = "table"
 _STOP_WORDS = "stop_words"
+_GEONAMES = "geonames"
+_STATE_TO_COUNTRY = "state_to_country"
+_STATE_TO_CODES_LOWER = "state_to_codes_lower"
+_POPULATED_PLACES = "populated_places"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -117,6 +130,7 @@ _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
 _TLD = 'tld'
+_FEATURE_COMPUTATION = "feature_computation"
 
 
 class Core(object):
@@ -138,6 +152,9 @@ class Core(object):
             self.nlp = None
         self.country_code_dict = None
         self.matchers = dict()
+        self.geonames_dict = None
+        self.state_to_country_dict = None
+        self.state_to_codes_lower_dict = None
 
     """ Define all API methods """
 
@@ -383,6 +400,53 @@ class Core(object):
                             matches = self.data_extraction_path[input_path].find(doc)
                             for match in matches:
                                 fields = kg_config[_FIELDS]
+                                try:
+                                    sorted_fields = self.sort_dictionary_by_fields(fields)
+                                except:
+                                    raise ValueError('Please ensure there is a priority added to every field in '
+                                                     'knowledge_graph  enhancement and the priority is an int')
+                                for i in range(0, len(sorted_fields)):
+                                    field = sorted_fields[i][0]
+                                    print field
+                                    if _EXTRACTORS in fields[field]:
+                                        extractors = fields[field][_EXTRACTORS]
+                                        for extractor in extractors.keys():
+                                            try:
+                                                foo = getattr(self, extractor)
+                                            except:
+                                                foo = None
+                                            if foo:
+                                                if _CONFIG not in extractors[extractor]:
+                                                    extractors[extractor][_CONFIG] = dict()
+                                                extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                results = foo(match.value, extractors[extractor][_CONFIG])
+                                                if results:
+                                                    # doc[_KNOWLEDGE_GRAPH][field] = results
+                                                    self.create_knowledge_graph(doc, field, results)
+
+            """Optional Phase 4: feature computation"""
+            if _FEATURE_COMPUTATION in self.extraction_config:
+                kg_configs = self.extraction_config[_FEATURE_COMPUTATION]
+                if isinstance(kg_configs, dict):
+                    kg_configs = [kg_configs]
+
+                for i in range(len(kg_configs)):
+                    kg_config = kg_configs[i]
+                    input_paths = kg_config[_INPUT_PATH] if _INPUT_PATH in kg_config else None
+                    if not input_paths:
+                        raise KeyError(
+                            '{} not found for feature computation in extraction_config'.format(_INPUT_PATH))
+
+                    if not isinstance(input_paths, list):
+                        input_paths = [input_paths]
+
+                    for input_path in input_paths:
+                        if _FIELDS in kg_config:
+                            if input_path not in self.data_extraction_path:
+                                self.data_extraction_path[input_path] = parse(input_path)
+                            matches = self.data_extraction_path[input_path].find(doc)
+                            for match in matches:
+                                fields = kg_config[_FIELDS]
                                 for field in fields.keys():
                                     if _EXTRACTORS in fields[field]:
                                         extractors = fields[field][_EXTRACTORS]
@@ -399,6 +463,7 @@ class Core(object):
                                                 if results:
                                                     # doc[_KNOWLEDGE_GRAPH][field] = results
                                                     self.create_knowledge_graph(doc, field, results)
+
 
             if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                 doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
@@ -436,6 +501,11 @@ class Core(object):
         return doc
 
     @staticmethod
+    def sort_dictionary_by_fields(dictionary):
+        sorted_d = OrderedDict(sorted(dictionary.iteritems(), key=lambda x: x[1]['priority']))
+        return sorted_d.items()
+
+    @staticmethod
     def custom_provenance_object(method, segment, document_id):
         prov = dict()
         prov['method'] = method
@@ -470,6 +540,7 @@ class Core(object):
                 o['confidence'] = 1000
                 o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
                 doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
+
         return doc
 
     @staticmethod
@@ -495,8 +566,16 @@ class Core(object):
             if 'metadata' in extraction:
                 sorted_metadata = Core.sort_dict(extraction['metadata'])
                 for k, v in sorted_metadata.iteritems():
+                    if isinstance(v, numbers.Number):
+                        v = str(v)
+                    # if v:
+                    #     v = v.encode('utf-8')
                     if v and v.strip() != '':
-                        key += '-' + str(k) + ':' + str(v)
+                        # key += '-' + str(k) + ':' + str(v)
+                        key = '{}-{}:{}'.format(key, k, v)
+
+            if 'key' in extraction:
+                key = extraction['key']
 
             if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
                 doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
@@ -934,6 +1013,13 @@ class Core(object):
                                                                joiner=joiner)
         return result if result and len(result) > 0 else None
 
+    def extract_website_domain(self, d, config):
+        text = d[_TEXT]
+        field_name = config[_FIELD_NAME]
+        tld = self.extract_tld(text)
+        results = {"value": tld}
+        return self._relevant_text_from_context(d[_TEXT], results, field_name)
+
     def extract_using_regex(self, d, config):
         # this method is self aware that it needs the text, so look for text in the input d
         text = d[_TEXT]
@@ -974,7 +1060,7 @@ class Core(object):
 
         # call the custom spacy extractor
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
-        results = custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp)
+        results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE], custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp), config[_FIELD_NAME])
         return results
 
     def extract_using_spacy(self, d, config):
@@ -1338,9 +1424,154 @@ class Core(object):
                                                 url_country_extractor.extract(tokens_url, self.country_code_dict),
                                                 config[_FIELD_NAME])
 
+    def geonames_lookup(self, d, config):
+        field_name = config[_FIELD_NAME]
+
+        if not self.geonames_dict:
+            try:
+                self.geonames_dict = self.load_json_file(self.get_dict_file_name_from_config(_GEONAMES))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format(_GEONAMES)
+
+        if _CITY in d[_KNOWLEDGE_GRAPH]:
+            cities = d[_KNOWLEDGE_GRAPH][_CITY].keys()
+        else:
+            return None
+        populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
+
+        results = geonames_extractor.get_country_from_populated_places(populated_places)
+
+        if results:
+            self.create_knowledge_graph(d, _COUNTRY, results)
+
+        return populated_places
+
     @staticmethod
-    def parse_date(str_date):
+    def parse_date(d, config={}):
+        if isinstance(d, basestring):
+            return Core.spacy_parse_date(d)
+        else:
+            try:
+                return date_parser.convert_to_iso_format(date_parser.parse_date(d[_TEXT]))
+            except:
+                return None
+
+    @staticmethod
+    def spacy_parse_date(str_date):
         try:
             return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
         except:
+            return None
+
+    def country_from_states(self, d, config):
+        if not self.state_to_country_dict:
+            try:
+                self.state_to_country_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_COUNTRY))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format(_STATE_TO_COUNTRY)
+
+        if _STATE in d[_KNOWLEDGE_GRAPH]:
+            states = d[_KNOWLEDGE_GRAPH][_STATE].keys()
+        else:
+            return None
+
+        return geonames_extractor.get_country_from_states(states, self.state_to_country_dict)
+
+    def country_feature(self, d, config):
+        return country_classifier.calc_country_feature(d[_KNOWLEDGE_GRAPH], self.state_to_country_dict)
+
+    def create_city_state_country_triple(self, d, config):
+        if not self.state_to_codes_lower_dict:
+            try:
+                self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
+            except Exception as e:
+                raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
+
+        results = list()
+        try:
+            knowledge_graph = d[_KNOWLEDGE_GRAPH]
+            if "populated_places" in knowledge_graph:
+                pop_places = knowledge_graph["populated_places"]
+                for place in pop_places:
+                    city_state_together_count = 0
+                    city_state_seperate_count = 0
+                    city_state_code_together_count = 0
+                    city_state_code_seperate_count = 0
+                    city_country_together_count = 0
+                    city_country_seperate_count = 0
+                    city = pop_places[place][0]["value"]
+                    state = pop_places[place][0]["metadata"]["state"]
+                    country = pop_places[place][0]["metadata"]["country"]
+                    if state in self.state_to_codes_lower_dict:
+                        state_code = self.state_to_codes_lower_dict[state]
+                    else:
+                        state_code = None
+
+                    cities = []
+                    if "city" in knowledge_graph:
+                        if city in knowledge_graph["city"]:
+                            city_lst = knowledge_graph["city"][city]
+                            for each_city in city_lst:
+                                if "context" in each_city:
+                                    cities.append((each_city["origin"]["segment"], 
+                                        each_city["context"]["start"], each_city["context"]["end"]))
+                    states = []
+                    if "state" in knowledge_graph:
+                        if state in knowledge_graph["state"]:
+                            state_lst = knowledge_graph["state"][state]
+                            for each_state in state_lst:
+                                if "context" in each_state:
+                                    states.append((each_state["origin"]["segment"], 
+                                        each_state["context"]["start"], each_state["context"]["end"]))
+
+                    countries = []
+                    if "country" in knowledge_graph:
+                        if country in knowledge_graph["country"]:
+                            country_lst = knowledge_graph["country"][country]
+                            for each_country in country_lst:
+                                if "context" in each_country:
+                                    countries.append((each_country["origin"]["segment"],
+                                        each_country["context"]["start"], each_country["context"]["end"]))
+
+                    state_codes = []
+                    if not state_code:
+                        if "states_usa_codes" in knowledge_graph:
+                            if state_code in knowledge_graph["states_usa_codes"]:
+                                state_code_lst = knowledge_graph["states_usa_codes"][state_code]
+                                for each_state_code in state_code_lst:
+                                    if "context" in each_state:
+                                        state_codes.append((each_state_code["origin"]["segment"], 
+                                            each_state_code["context"]["start"], each_state_code["context"]["end"]))
+
+                    if cities and (states or state_codes) or countries:
+                        for a_city in cities:
+                            for a_state in states:
+                                if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
+                                    city_state_together_count += 1
+                                else:
+                                    city_state_seperate_count += 1
+                            for a_state_code in state_codes:
+                                if a_city[0] == a_state_code[0] and (abs(a_city[2] - a_state_code[1])<3 or abs(a_city[1] - a_state_code[2])<3):
+                                    city_state_code_together_count += 1
+                                else:
+                                    city_state_code_seperate_count += 1
+                            for a_country in countries:
+                                if a_city[0] == a_country[0] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
+                                    city_country_together_count += 1
+                                else:
+                                    city_country_seperate_count += 1
+
+                        result = copy.deepcopy(pop_places[place][0])
+                        result['metadata']['city_state_together_count'] = city_state_together_count
+                        result['metadata']['city_state_seperate_count'] = city_state_seperate_count
+                        result['metadata']['city_state_code_together_count'] = city_state_code_together_count
+                        result['metadata']['city_state_code_seperate_count'] = city_state_code_seperate_count
+                        result['metadata']['city_country_together_count'] = city_country_together_count
+                        result['metadata']['city_country_seperate_count'] = city_country_seperate_count
+                        results.append(result)
+
+            if len(results) > 0:
+                return results
+        except Exception as e:
+            print e
             return None
