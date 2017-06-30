@@ -1438,7 +1438,7 @@ class Core(object):
             return None
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
 
-        results = geonames_extractor.get_country_from_populated_places(populated_places)
+        # results = geonames_extractor.get_country_from_populated_places(populated_places)
 
         # if results:
         #     self.create_knowledge_graph(d, _COUNTRY , results)
