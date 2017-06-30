@@ -51,7 +51,7 @@ _ERROR_HANDLING = 'error_handling'
 _IGNORE_EXTRACTION = 'ignore_extraction'
 _IGNORE_DOCUMENT = 'ignore_document'
 _RAISE_ERROR = 'raise_error'
-_CITY = 'city'
+_CITY_NAME = 'city_name'
 _STATE = 'state'
 _COUNTRY = 'country'
 _CONTENT_EXTRACTION = 'content_extraction'
@@ -1433,8 +1433,8 @@ class Core(object):
             except Exception as e:
                 raise '{} dictionary missing from resources'.format(_GEONAMES)
 
-        if _CITY in d[_KNOWLEDGE_GRAPH]:
-            cities = d[_KNOWLEDGE_GRAPH][_CITY].keys()
+        if _CITY_NAME in d[_KNOWLEDGE_GRAPH]:
+            cities = d[_KNOWLEDGE_GRAPH][_CITY_NAME].keys()
         else:
             return None
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
@@ -1487,8 +1487,11 @@ class Core(object):
             except Exception as e:
                 raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
 
-        results = [[],[],[],[],[],[]]
         try:
+            priori_lst = ['city_state_together_count', 'city_state_code_together_count',
+                          'city_country_together_count', 'city_state_separate_count',
+                          'city_country_separate_count', 'city_state_code_separate_count']
+            results = [[] for i in range(len(priori_lst))]
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
                 pop_places = knowledge_graph["populated_places"]
@@ -1508,9 +1511,9 @@ class Core(object):
                         state_code = None
 
                     cities = []
-                    if "city" in knowledge_graph:
-                        if city in knowledge_graph["city"]:
-                            city_lst = knowledge_graph["city"][city]
+                    if "city_name" in knowledge_graph:
+                        if city in knowledge_graph["city_name"]:
+                            city_lst = knowledge_graph["city_name"][city]
                             for each_city in city_lst:
                                 if "context" in each_city:
                                     cities.append((each_city["origin"]["segment"], 
@@ -1534,16 +1537,16 @@ class Core(object):
                                         each_country["context"]["start"], each_country["context"]["end"]))
 
                     state_codes = []
-                    if not state_code:
+                    if state_code:
                         if "states_usa_codes" in knowledge_graph:
                             if state_code in knowledge_graph["states_usa_codes"]:
                                 state_code_lst = knowledge_graph["states_usa_codes"][state_code]
                                 for each_state_code in state_code_lst:
-                                    if "context" in each_state:
+                                    if "context" in each_state_code:
                                         state_codes.append((each_state_code["origin"]["segment"], 
                                             each_state_code["context"]["start"], each_state_code["context"]["end"]))
 
-                    if cities and (states or state_codes) or countries:
+                    if cities and (states or state_codes or countries):
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
@@ -1568,28 +1571,20 @@ class Core(object):
                         result['metadata']['city_state_code_separate_count'] = city_state_code_separate_count
                         result['metadata']['city_country_together_count'] = city_country_together_count
                         result['metadata']['city_country_separate_count'] = city_country_separate_count
-                        if city_state_together_count > 0:
-                            result['value'] = result['value']+"-1.0"
-                            results[0].append(result)
-                        elif city_state_code_together_count > 0:
-                            result['value'] = result['value']+"-1.0"
-                            results[1].append(result)
-                        elif city_country_together_count > 0:
-                            result['value'] = result['value'] + "-1.0"
-                            results[2].append(result)
-                        elif city_state_separate_count > 0:
-                            result['value'] = result['value'] + "-0.8"
-                            results[3].append(result)
-                        elif city_country_separate_count > 0:
-                            result['value'] = result['value'] + "-0.8"
-                            results[4].append(result)
-                        else:
-                            result['value'] = result['value'] + "-0.1"
-                            results[5].append(result)
+                        for priori_idx, counter in enumerate(priori_lst):
+                            if result['metadata'][counter] > 0:
+                                if priori_idx < 3:
+                                    result['value'] = result['value']+"-1.0"
+                                elif priori_idx < 5:
+                                    result['value'] = result['value'] + "-0.8"
+                                else:
+                                    result['value'] = result['value'] + "-0.1"
+                                results[priori_idx].append(result)
+                                break
 
-            return_result = list()
-            for priori in range(6):
-                if len(results[priori]) > 0:
+            return_result = None
+            for priori in range(len(priori_lst)):
+                if results[priori]:
                     if priori < 3:
                         return_result = results[priori]
                         break
@@ -1603,8 +1598,7 @@ class Core(object):
                         return_result = [results[priori][high_idx]]
                         break
 
-            if len(return_result) > 0:
-                return return_result
+            return return_result
 
         except Exception as e:
             print e
