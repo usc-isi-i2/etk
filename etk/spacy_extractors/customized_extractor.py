@@ -652,6 +652,7 @@ def extract(field_rules, nlp_doc, nlp):
     rule = Rule(nlp)
     # rule_num = 0
     extracted_lst = []
+    value_lst = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
             rule.init_matcher()
@@ -687,18 +688,8 @@ def extract(field_rules, nlp_doc, nlp):
                 if token_d["type"] == "symbol":
                     new_pattern.add_symbol_token(token_d)
 
-            # print nlp_doc[1].lemma_
-            # print nlp_doc[1].pos_
-            # print nlp_doc[1].tag_
-            # print nlp_doc[1].orth_
-            # print nlp_doc[1].lower_
-            # print nlp_doc[1].is_title
-            # print nlp_doc[1].check_flag(spacy.attrs.FLAG18)
-            # print nlp_doc[1].dep_
-
             tl = new_pattern.token_lst[0]
             ps_inf = new_pattern.token_lst[1]
-            value_lst = []
             for i in range(len(tl)):
                 # rule_num += 1
                 if tl[i]:
@@ -716,23 +707,21 @@ def extract(field_rules, nlp_doc, nlp):
                         value_lst.append(filtered_value)
 
                     rule.init_matcher()
-
-            if value_lst:
-                longest_lst = get_longest(value_lst)
-                # print longest_lst
-                for (start, end, value, label) in longest_lst:
-                    result = {
-                        "value": value,
-                        "context": {
-                            "start": start,
-                            "end": end,
-                            "rule_id": label,
-                            "identifier": line["identifier"]
-                        }
-                    }
-                    extracted_lst.append(result)
-
             rule.init_flag()
+
+    if value_lst:
+        longest_lst = get_longest(value_lst)
+        for (start, end, value, label) in longest_lst:
+            result = {
+                "value": value,
+                "context": {
+                    "start": start,
+                    "end": end,
+                    "rule_id": label,
+                    "identifier": line["identifier"]
+                }
+            }
+            extracted_lst.append(result)
 
     #print json.dumps(extracted_lst, indent=2)
     
