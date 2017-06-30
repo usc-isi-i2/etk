@@ -1441,7 +1441,7 @@ class Core(object):
         results = geonames_extractor.get_country_from_populated_places(populated_places)
 
         if results:
-            self.create_knowledge_graph(d, _COUNTRY, results)
+            self.create_knowledge_graph(d, 'geonames_country', results)
 
         return populated_places
 
