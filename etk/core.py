@@ -1487,18 +1487,18 @@ class Core(object):
             except Exception as e:
                 raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
 
-        results = list()
+        results = [[],[],[],[],[],[]]
         try:
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
                 pop_places = knowledge_graph["populated_places"]
                 for place in pop_places:
                     city_state_together_count = 0
-                    city_state_seperate_count = 0
+                    city_state_separate_count = 0
                     city_state_code_together_count = 0
-                    city_state_code_seperate_count = 0
+                    city_state_code_separate_count = 0
                     city_country_together_count = 0
-                    city_country_seperate_count = 0
+                    city_country_separate_count = 0
                     city = pop_places[place][0]["value"]
                     state = pop_places[place][0]["metadata"]["state"]
                     country = pop_places[place][0]["metadata"]["country"]
@@ -1549,29 +1549,63 @@ class Core(object):
                                 if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
                                     city_state_together_count += 1
                                 else:
-                                    city_state_seperate_count += 1
+                                    city_state_separate_count += 1
                             for a_state_code in state_codes:
                                 if a_city[0] == a_state_code[0] and (abs(a_city[2] - a_state_code[1])<3 or abs(a_city[1] - a_state_code[2])<3):
                                     city_state_code_together_count += 1
                                 else:
-                                    city_state_code_seperate_count += 1
+                                    city_state_code_separate_count += 1
                             for a_country in countries:
                                 if a_city[0] == a_country[0] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
                                     city_country_together_count += 1
                                 else:
-                                    city_country_seperate_count += 1
+                                    city_country_separate_count += 1
 
                         result = copy.deepcopy(pop_places[place][0])
                         result['metadata']['city_state_together_count'] = city_state_together_count
-                        result['metadata']['city_state_seperate_count'] = city_state_seperate_count
+                        result['metadata']['city_state_separate_count'] = city_state_separate_count
                         result['metadata']['city_state_code_together_count'] = city_state_code_together_count
-                        result['metadata']['city_state_code_seperate_count'] = city_state_code_seperate_count
+                        result['metadata']['city_state_code_separate_count'] = city_state_code_separate_count
                         result['metadata']['city_country_together_count'] = city_country_together_count
-                        result['metadata']['city_country_seperate_count'] = city_country_seperate_count
-                        results.append(result)
+                        result['metadata']['city_country_separate_count'] = city_country_separate_count
+                        if city_state_together_count > 0:
+                            result['value'] = result['value']+"-1.0"
+                            results[0].append(result)
+                        elif city_state_code_together_count > 0:
+                            result['value'] = result['value']+"-1.0"
+                            results[1].append(result)
+                        elif city_country_together_count > 0:
+                            result['value'] = result['value'] + "-1.0"
+                            results[2].append(result)
+                        elif city_state_separate_count > 0:
+                            result['value'] = result['value'] + "-0.8"
+                            results[3].append(result)
+                        elif city_country_separate_count > 0:
+                            result['value'] = result['value'] + "-0.8"
+                            results[4].append(result)
+                        else:
+                            result['value'] = result['value'] + "-0.1"
+                            results[5].append(result)
 
-            if len(results) > 0:
-                return results
+            return_result = list()
+            for priori in range(6):
+                if len(results[priori]) > 0:
+                    if priori < 3:
+                        return_result = results[priori]
+                        break
+                    else:
+                        high_pop = 0
+                        high_idx = 0
+                        for idx, a_result in enumerate(results[priori]):
+                            if a_result['metadata']['population'] >= high_pop:
+                                high_pop = a_result['metadata']['population']
+                                high_idx = idx
+                        return_result = [results[priori][high_idx]]
+                        break
+
+            if len(return_result) > 0:
+                return return_result
+
         except Exception as e:
             print e
             return None
