@@ -1484,7 +1484,7 @@ class Core(object):
             try:
                 self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
             except Exception as e:
-                raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
+                raise ValueError('{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER))
 
         try:
             priori_lst = ['city_state_together_count', 'city_state_code_together_count',
