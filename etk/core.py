@@ -420,7 +420,7 @@ class Core(object):
                                                 extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                 results = foo(match.value, extractors[extractor][_CONFIG])
                                                 if results:
-                                                    # doc[_KNOWLEDGE_GRA 'PH][field] = results
+                                                    # doc[_KNOWLEDGE_GRA][field] = results
                                                     self.create_knowledge_graph(doc, field, results)
 
             """Optional Phase 4: feature computation"""
