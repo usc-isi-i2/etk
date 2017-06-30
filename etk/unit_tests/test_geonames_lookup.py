@@ -32,7 +32,7 @@ class TestGeonamesLookup(unittest.TestCase):
                         "*.content_relaxed.text.`parent`",
                     ],
                     "fields": {
-                        "city": {
+                        "city_name": {
                             "extractors": {
                                 "extract_using_dictionary": {
                                     "config": {
