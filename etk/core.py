@@ -1534,7 +1534,7 @@ class Core(object):
                                         each_country["context"]["start"], each_country["context"]["end"]))
 
                     state_codes = []
-                    if not state_code:
+                    if state_code:
                         if "states_usa_codes" in knowledge_graph:
                             if state_code in knowledge_graph["states_usa_codes"]:
                                 state_code_lst = knowledge_graph["states_usa_codes"][state_code]
