@@ -420,7 +420,7 @@ class Core(object):
                                                 extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                 results = foo(match.value, extractors[extractor][_CONFIG])
                                                 if results:
-                                                    # doc[_KNOWLEDGE_GRAPH][field] = results
+                                                    # doc[_KNOWLEDGE_GRA 'PH][field] = results
                                                     self.create_knowledge_graph(doc, field, results)
 
             """Optional Phase 4: feature computation"""
@@ -1571,13 +1571,18 @@ class Core(object):
                         result['metadata']['city_country_together_count'] = city_country_together_count
                         result['metadata']['city_country_separate_count'] = city_country_separate_count
                         for priori_idx, counter in enumerate(priori_lst):
+                            if country == "united states":
+                                result_value = city + ',' + state
+                            else:
+                                result_value = city + ',' + country
+                            result['key'] = city+':'+state+':'+country+':'+str(result['metadata']['longitude'])+':'+str(result['metadata']['latitude'])
                             if result['metadata'][counter] > 0:
                                 if priori_idx < 3:
-                                    result['value'] = result['value']+"-1.0"
+                                    result['value'] = result_value + "-1.0"
                                 elif priori_idx < 5:
-                                    result['value'] = result['value'] + "-0.8"
+                                    result['value'] = result_value + "-0.8"
                                 else:
-                                    result['value'] = result['value'] + "-0.1"
+                                    result['value'] = result_value + "-0.1"
                                 results[priori_idx].append(result)
                                 break
 
