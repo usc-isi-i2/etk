@@ -51,7 +51,7 @@ _ERROR_HANDLING = 'error_handling'
 _IGNORE_EXTRACTION = 'ignore_extraction'
 _IGNORE_DOCUMENT = 'ignore_document'
 _RAISE_ERROR = 'raise_error'
-_CITY = 'city'
+_CITY_NAME = 'city_name'
 _STATE = 'state'
 _COUNTRY = 'country'
 _CONTENT_EXTRACTION = 'content_extraction'
@@ -1433,8 +1433,8 @@ class Core(object):
             except Exception as e:
                 raise '{} dictionary missing from resources'.format(_GEONAMES)
 
-        if _CITY in d[_KNOWLEDGE_GRAPH]:
-            cities = d[_KNOWLEDGE_GRAPH][_CITY].keys()
+        if _CITY_NAME in d[_KNOWLEDGE_GRAPH]:
+            cities = d[_KNOWLEDGE_GRAPH][_CITY_NAME].keys()
         else:
             return None
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
@@ -1511,9 +1511,9 @@ class Core(object):
                         state_code = None
 
                     cities = []
-                    if "city" in knowledge_graph:
-                        if city in knowledge_graph["city"]:
-                            city_lst = knowledge_graph["city"][city]
+                    if "city_name" in knowledge_graph:
+                        if city in knowledge_graph["city_name"]:
+                            city_lst = knowledge_graph["city_name"][city]
                             for each_city in city_lst:
                                 if "context" in each_city:
                                     cities.append((each_city["origin"]["segment"], 
