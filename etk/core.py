@@ -407,7 +407,6 @@ class Core(object):
                                                      'knowledge_graph  enhancement and the priority is an int')
                                 for i in range(0, len(sorted_fields)):
                                     field = sorted_fields[i][0]
-                                    print field
                                     if _EXTRACTORS in fields[field]:
                                         extractors = fields[field][_EXTRACTORS]
                                         for extractor in extractors.keys():
