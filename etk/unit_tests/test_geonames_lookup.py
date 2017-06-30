@@ -111,7 +111,7 @@ class TestGeonamesLookup(unittest.TestCase):
         ex_pop_places = json.loads(json.JSONEncoder().encode(ex_populated_places))
         self.assertEqual(pop_places, ex_pop_places)
 
-        self.assertTrue('country' in r['knowledge_graph'])
+        self.assertTrue('geonames_country' in r['knowledge_graph'])
 
         ex_country = [
           {
@@ -135,7 +135,7 @@ class TestGeonamesLookup(unittest.TestCase):
             "key": "chile"
           }
         ]
-        self.assertEqual(r['knowledge_graph']['country'], ex_country)
+        self.assertEqual(r['knowledge_graph']['geonames_country'], ex_country)
 
 
 if __name__ == '__main__':
