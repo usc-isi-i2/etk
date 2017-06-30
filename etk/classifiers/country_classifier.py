@@ -29,8 +29,8 @@ def country_next_to_city(knowledge_graph, given_country):
                 cities.add(pop_places[place][0]["value"])
 
     dist = list()  # all distances between cities and country
-    if "city" in knowledge_graph:
-        kg_cities = knowledge_graph["city"]
+    if "city_name" in knowledge_graph:
+        kg_cities = knowledge_graph["city_name"]
         for city in kg_cities:
             if city in cities:
                 for cp in kg_cities[city]:
@@ -136,8 +136,8 @@ def bool_if_colon_next_to_any_city(knowledge_graph, given_country):
                 cities.add(pop_places[place][0]["value"])
 
     dist = list()  # all distances between cities and country
-    if "city" in knowledge_graph:
-        kg_cities = knowledge_graph["city"]
+    if "city_name" in knowledge_graph:
+        kg_cities = knowledge_graph["city_name"]
         for city in kg_cities:
             if city in cities:
                 for cp in kg_cities[city]:
