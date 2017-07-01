@@ -1553,7 +1553,7 @@ class Core(object):
                                 else:
                                     city_state_separate_count += 1
                             for a_state_code in state_codes:
-                                if a_city[0] == a_state_code[0] and (abs(a_city[2] - a_state_code[1])<3 or abs(a_city[1] - a_state_code[2])<3):
+                                if a_city[0] == a_state_code[0] and a_state_code[1] - a_city[2]<3:
                                     city_state_code_together_count += 1
                                 else:
                                     city_state_code_separate_count += 1
