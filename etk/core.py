@@ -1438,7 +1438,7 @@ class Core(object):
             return None
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
 
-        results = geonames_extractor.get_country_from_populated_places(populated_places)
+        # results = geonames_extractor.get_country_from_populated_places(populated_places)
 
         # if results:
         #     self.create_knowledge_graph(d, _COUNTRY , results)
@@ -1484,7 +1484,7 @@ class Core(object):
             try:
                 self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
             except Exception as e:
-                raise '{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER)
+                raise ValueError('{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER))
 
         try:
             priori_lst = ['city_state_together_count', 'city_state_code_together_count',
