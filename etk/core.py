@@ -1517,14 +1517,16 @@ class Core(object):
                                 if "context" in each_city:
                                     cities.append((each_city["origin"]["segment"], 
                                         each_city["context"]["start"], each_city["context"]["end"]))
+
                     states = []
-                    if "state" in knowledge_graph:
-                        if state in knowledge_graph["state"]:
-                            state_lst = knowledge_graph["state"][state]
-                            for each_state in state_lst:
-                                if "context" in each_state:
-                                    states.append((each_state["origin"]["segment"], 
-                                        each_state["context"]["start"], each_state["context"]["end"]))
+                    if country == "united states":
+                        if "state" in knowledge_graph:
+                            if state in knowledge_graph["state"]:
+                                state_lst = knowledge_graph["state"][state]
+                                for each_state in state_lst:
+                                    if "context" in each_state:
+                                        states.append((each_state["origin"]["segment"],
+                                            each_state["context"]["start"], each_state["context"]["end"]))
 
                     countries = []
                     if "country" in knowledge_graph:
@@ -1536,29 +1538,30 @@ class Core(object):
                                         each_country["context"]["start"], each_country["context"]["end"]))
 
                     state_codes = []
-                    if state_code:
-                        if "states_usa_codes" in knowledge_graph:
-                            if state_code in knowledge_graph["states_usa_codes"]:
-                                state_code_lst = knowledge_graph["states_usa_codes"][state_code]
-                                for each_state_code in state_code_lst:
-                                    if "context" in each_state_code:
-                                        state_codes.append((each_state_code["origin"]["segment"], 
-                                            each_state_code["context"]["start"], each_state_code["context"]["end"]))
+                    if country == "united states":
+                        if state_code:
+                            if "states_usa_codes" in knowledge_graph:
+                                if state_code in knowledge_graph["states_usa_codes"]:
+                                    state_code_lst = knowledge_graph["states_usa_codes"][state_code]
+                                    for each_state_code in state_code_lst:
+                                        if "context" in each_state_code:
+                                            state_codes.append((each_state_code["origin"]["segment"],
+                                                each_state_code["context"]["start"], each_state_code["context"]["end"]))
 
                     if cities and (states or state_codes or countries):
                         for a_city in cities:
                             for a_state in states:
-                                if a_city[0] == a_state[0] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
+                                if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
                                     city_state_together_count += 1
                                 else:
                                     city_state_separate_count += 1
                             for a_state_code in state_codes:
-                                if a_city[0] == a_state_code[0] and a_state_code[1] - a_city[2]<3 and a_state_code[1] - a_city[2]>0:
+                                if a_city[0] == a_state_code[0] and a_city[1] != a_state_code[1] and a_state_code[1] - a_city[2]<3 and a_state_code[1] - a_city[2]>0:
                                     city_state_code_together_count += 1
                                 else:
                                     city_state_code_separate_count += 1
                             for a_country in countries:
-                                if a_city[0] == a_country[0] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
+                                if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
                                     city_country_together_count += 1
                                 else:
                                     city_country_separate_count += 1
