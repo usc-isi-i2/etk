@@ -100,6 +100,7 @@ _GEONAMES = "geonames"
 _STATE_TO_COUNTRY = "state_to_country"
 _STATE_TO_CODES_LOWER = "state_to_codes_lower"
 _POPULATED_PLACES = "populated_places"
+_POPULATED_CITIES = "populated_cities"
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -155,6 +156,7 @@ class Core(object):
         self.geonames_dict = None
         self.state_to_country_dict = None
         self.state_to_codes_lower_dict = None
+        self.populated_cities = None
 
     """ Define all API methods """
 
@@ -1485,12 +1487,17 @@ class Core(object):
                 self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
             except Exception as e:
                 raise ValueError('{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER))
+        if not self.populated_cities:
+            try:
+                self.populated_cities = self.load_json_file(self.get_dict_file_name_from_config(_POPULATED_CITIES))
+            except Exception as e:
+                raise ValueError('{} dictionary missing from resources'.format(_POPULATED_CITIES))
 
         try:
             priori_lst = ['city_state_together_count', 'city_state_code_together_count',
                           'city_country_together_count', 'city_state_separate_count',
                           'city_country_separate_count', 'city_state_code_separate_count']
-            results = [[] for i in range(len(priori_lst))]
+            results = [[] for i in range(len(priori_lst)+1)]
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
                 pop_places = knowledge_graph["populated_places"]
@@ -1548,7 +1555,7 @@ class Core(object):
                                             state_codes.append((each_state_code["origin"]["segment"],
                                                 each_state_code["context"]["start"], each_state_code["context"]["end"]))
 
-                    if cities and (states or state_codes or countries):
+                    if cities:
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
@@ -1588,9 +1595,14 @@ class Core(object):
                                     result['value'] = result_value + "-0.1"
                                 results[priori_idx].append(result)
                                 break
+                            else:
+                                if priori_idx == 5 and city in self.populated_cities:
+                                    result['value'] = result_value + "-0.1"
+                                    results[priori_idx+1].append(result)
+
 
             return_result = None
-            for priori in range(len(priori_lst)):
+            for priori in range(len(priori_lst)+1):
                 if results[priori]:
                     if priori < 3:
                         return_result = results[priori]
