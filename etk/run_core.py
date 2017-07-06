@@ -4,7 +4,7 @@ import codecs
 import sys
 import multiprocessing as mp, os
 import core
-from optparse import OptionParser
+from argparse import ArgumentParser
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -190,15 +190,15 @@ Optional
     """
 
 if __name__ == "__main__":
-    parser = OptionParser()
-    parser.add_option("-i", "--input", action="store", type="string", dest="inputPath")
-    parser.add_option("-o", "--output", action="store", type="string", dest="outputPath")
-    parser.add_option("-c", "--config", action="store", type="string", dest="configPath")
-    parser.add_option("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
-    parser.add_option("-t", "--thread", action="store",
-                      type="int", dest="threadCount", default=mp.cpu_count() * 2)
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", action="store", type=str, dest="inputPath")
+    parser.add_argument("-o", "--output", action="store", type=str, dest="outputPath")
+    parser.add_argument("-c", "--config", action="store", type=str, dest="configPath")
+    parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
+    parser.add_argument("-t", "--thread", action="store",
+                      type=int, dest="threadCount", default=mp.cpu_count())
 
-    (c_options, args) = parser.parse_args()
+    c_options, args = parser.parse_known_args()
 
     if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
         print usage()
