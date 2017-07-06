@@ -633,7 +633,7 @@ def get_longest(value_lst):
     pivot = value_lst[0]
     pivot_e = end
     pivot_s = start
-    for idx, (s, e, v, l) in enumerate(value_lst):
+    for idx, (s, e, v, l, identi) in enumerate(value_lst):
         if s == pivot_s and pivot_e < e:
             pivot_e = e
             pivot = value_lst[idx]
@@ -704,6 +704,7 @@ def extract(field_rules, nlp_doc, nlp):
                     for (ent_id, label, start, end) in matches:
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
+                        filtered_value = filtered_value + (line["identifier"],)
                         value_lst.append(filtered_value)
 
                     rule.init_matcher()
@@ -711,14 +712,14 @@ def extract(field_rules, nlp_doc, nlp):
 
     if value_lst:
         longest_lst = get_longest(value_lst)
-        for (start, end, value, label) in longest_lst:
+        for (start, end, value, label, identifier) in longest_lst:
             result = {
                 "value": value,
                 "context": {
                     "start": start,
                     "end": end,
                     "rule_id": label,
-                    "identifier": line["identifier"]
+                    "identifier": identifier
                 }
             }
             extracted_lst.append(result)
