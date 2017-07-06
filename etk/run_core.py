@@ -4,7 +4,7 @@ import codecs
 import sys
 import multiprocessing as mp, os
 import core
-from optparse import OptionParser
+from argparse import ArgumentParser
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -124,6 +124,7 @@ def run_parallel_2(input_path, output_path, core, processes=0):
     #     output_f.write(json.dumps(result))
     #     output_f.write('\n')
 
+
 def run_parallel_3(input_path, output_path, config_path, processes):
     if not os.path.exists(output_path) or not os.path.isdir(output_path) :
         raise Exception('temp path is invalid')
@@ -133,7 +134,7 @@ def run_parallel_3(input_path, output_path, config_path, processes):
         raise Exception('invalid process number')
 
     # split input file into chunks
-    print 'spliting input file...'
+    print 'splitting input file...'
     with codecs.open(input_path, 'r') as input:
         input_chunk_file_handlers = [
             codecs.open(os.path.join(output_path, 'input_chunk_{}.json'.format(i)), 'w') for i in xrange(processes)]
@@ -146,7 +147,6 @@ def run_parallel_3(input_path, output_path, config_path, processes):
         for f in input_chunk_file_handlers:
             f.close()
 
-
     # create processes
     print 'creating workers...'
     print '-------------------'
@@ -154,7 +154,7 @@ def run_parallel_3(input_path, output_path, config_path, processes):
     for i in xrange(processes):
         input_chunk_path = os.path.join(output_path, 'input_chunk_{}.json'.format(i))
         output_chunk_path = os.path.join(output_path, 'output_chunk_{}.json'.format(i))
-        p = mp.Process(target=run_parellel_worker,
+        p = mp.Process(target=run_parallel_worker,
                    args=(i, input_chunk_path, output_chunk_path, config_path))
         process_handlers.append(p)
 
@@ -168,7 +168,8 @@ def run_parallel_3(input_path, output_path, config_path, processes):
 
     print '-------------------'
 
-def run_parellel_worker(worker_id, input_chunk_path, output_chunk_path, config_path):
+
+def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_path):
     print 'start worker #{}'.format(worker_id)
     c = core.Core(json.load(codecs.open(config_path, 'r')))
     run_serial(input_chunk_path, output_chunk_path, c, prefix='worker #{}:'.format(worker_id))
@@ -189,15 +190,15 @@ Optional
     """
 
 if __name__ == "__main__":
-    parser = OptionParser()
-    parser.add_option("-i", "--input", action="store", type="string", dest="inputPath")
-    parser.add_option("-o", "--output", action="store", type="string", dest="outputPath")
-    parser.add_option("-c", "--config", action="store", type="string", dest="configPath")
-    parser.add_option("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
-    parser.add_option("-t", "--thread", action="store",
-                      type="int", dest="threadCount", default=mp.cpu_count() * 2)
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", action="store", type=str, dest="inputPath")
+    parser.add_argument("-o", "--output", action="store", type=str, dest="outputPath")
+    parser.add_argument("-c", "--config", action="store", type=str, dest="configPath")
+    parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
+    parser.add_argument("-t", "--thread", action="store",
+                      type=int, dest="threadCount", default=mp.cpu_count())
 
-    (c_options, args) = parser.parse_args()
+    c_options, args = parser.parse_known_args()
 
     if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
         print usage()
