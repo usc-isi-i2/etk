@@ -582,7 +582,7 @@
             "extract_using_dictionary": {
               "config": {
                 "dictionary": "states_usa_canada",
-                "ngrams": 2
+                "ngrams": 3
               }
             }
           }
