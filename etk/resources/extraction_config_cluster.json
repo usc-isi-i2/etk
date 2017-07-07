@@ -216,7 +216,7 @@
           "extractors": {
             "extract_using_dictionary": {
               "config": {
-                "ngrams": 1,
+                "ngrams": 3,
                 "dictionary": "states_usa_codes"
               }
             }
@@ -517,7 +517,8 @@
           "extractors": {
             "extract_using_dictionary": {
               "config": {
-                "dictionary": "state"
+                "dictionary": "states_usa_canada",
+                "ngrams": 3
               }
             }
           }
@@ -580,7 +581,8 @@
           "extractors": {
             "extract_using_dictionary": {
               "config": {
-                "dictionary": "state"
+                "dictionary": "states_usa_canada",
+                "ngrams": 2
               }
             }
           }
