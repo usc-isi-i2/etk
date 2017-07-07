@@ -474,6 +474,7 @@ class Core(object):
             # print e
             raise e
             print 'Failed doc:', doc['doc_id']
+            return None
         return doc
 
     @staticmethod

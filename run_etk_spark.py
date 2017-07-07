@@ -38,8 +38,12 @@ if __name__ == '__main__':
     conf = SparkConf()
     extraction_config = json.load(codecs.open(extraction_config_path))
     c = Core(extraction_config=extraction_config)
-    input_rdd = sc.sequenceFile(input_path).partitionBy(1000)
-    input_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
-        .mapValues(lambda x: c.process(x, create_knowledge_graph=True)).mapValues(json.dumps)
-    input_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
+    input_rdd = sc.sequenceFile(input_path)#.partitionBy(1000)
+    output_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
+        .mapValues(lambda x: c.process(x, create_knowledge_graph=True))
+    output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(json.dumps)
+    output_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
+
+    print sc.sequenceFile(input_path).count()
+    print sc.sequenceFile(output_path).count()
 
