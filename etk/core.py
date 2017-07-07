@@ -471,8 +471,7 @@ class Core(object):
                     doc = Core.rearrange_description(doc)
                     doc = Core.rearrange_title(doc)
         except Exception as e:
-            # print e
-            raise e
+            print e
             print 'Failed doc:', doc['doc_id']
             return None
         return doc
