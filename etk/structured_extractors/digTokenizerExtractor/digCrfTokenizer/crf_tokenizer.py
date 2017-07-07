@@ -72,6 +72,8 @@ result = t.tokenize(value).join(" ")
     """
 
     whitespaceSet = set(string.whitespace)
+    # whitespaceSet.add('\xc2\xa0')
+    whitespaceSet.add(u"\u00A0")
     punctuationSet = set(string.punctuation)
     htmlEntityNameCharacterSet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                                   'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',

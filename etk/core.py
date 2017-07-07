@@ -473,6 +473,7 @@ class Core(object):
         except Exception as e:
             print e
             print 'Failed doc:', doc['doc_id']
+            return None
         return doc
 
     @staticmethod

@@ -4,7 +4,7 @@ import codecs
 import sys
 import multiprocessing as mp, os
 import core
-from optparse import OptionParser
+from argparse import ArgumentParser
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -94,10 +94,13 @@ def run_serial(input, output, core, prefix=''):
         start_time_doc = time.time()
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
-        output.write(json.dumps(result) + '\n')
-        time_taken_doc = time.time() - start_time_doc
-        if time_taken_doc > 5:
-            print prefix, "Took", str(time_taken_doc), " seconds"
+        if result:
+            output.write(json.dumps(result) + '\n')
+            time_taken_doc = time.time() - start_time_doc
+            if time_taken_doc > 5:
+                print prefix, "Took", str(time_taken_doc), " seconds"
+        else:
+            print 'Failed line number:', index
         index += 1
     output.close()
 
@@ -190,15 +193,15 @@ Optional
     """
 
 if __name__ == "__main__":
-    parser = OptionParser()
-    parser.add_option("-i", "--input", action="store", type="string", dest="inputPath")
-    parser.add_option("-o", "--output", action="store", type="string", dest="outputPath")
-    parser.add_option("-c", "--config", action="store", type="string", dest="configPath")
-    parser.add_option("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
-    parser.add_option("-t", "--thread", action="store",
-                      type="int", dest="threadCount", default=mp.cpu_count() * 2)
+    parser = ArgumentParser()
+    parser.add_argument("-i", "--input", action="store", type=str, dest="inputPath")
+    parser.add_argument("-o", "--output", action="store", type=str, dest="outputPath")
+    parser.add_argument("-c", "--config", action="store", type=str, dest="configPath")
+    parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
+    parser.add_argument("-t", "--thread", action="store",
+                      type=int, dest="threadCount", default=mp.cpu_count())
 
-    (c_options, args) = parser.parse_args()
+    c_options, args = parser.parse_known_args()
 
     if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
         print usage()
