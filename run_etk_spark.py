@@ -44,6 +44,6 @@ if __name__ == '__main__':
     output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(json.dumps)
     output_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
 
-    print input_rdd.count()
-    print output_rdd.count()
+    print sc.sequenceFile(input_path).count()
+    print sc.sequenceFile(output_path).count()
 
