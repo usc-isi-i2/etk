@@ -471,7 +471,8 @@ class Core(object):
                     doc = Core.rearrange_description(doc)
                     doc = Core.rearrange_title(doc)
         except Exception as e:
-            print e
+            # print e
+            raise e
             print 'Failed doc:', doc['doc_id']
         return doc
 
@@ -1525,7 +1526,9 @@ class Core(object):
                     city_country_separate_count = 0
                     city = pop_places[place][0]["value"]
                     state = pop_places[place][0]["metadata"]["state"]
+                    state = "" if not state else state
                     country = pop_places[place][0]["metadata"]["country"]
+                    country = "" if not country else country
                     if state in self.state_to_codes_lower_dict:
                         state_code = self.state_to_codes_lower_dict[state]
                     else:
@@ -1614,7 +1617,6 @@ class Core(object):
                                 if priori_idx == 5 and city in self.populated_cities:
                                     result['value'] = result_value + "-0.1"
                                     results[priori_idx+1].append(result)
-
 
             return_result = None
             for priori in range(len(priori_lst)+1):
