@@ -94,10 +94,13 @@ def run_serial(input, output, core, prefix=''):
         start_time_doc = time.time()
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
-        output.write(json.dumps(result) + '\n')
-        time_taken_doc = time.time() - start_time_doc
-        if time_taken_doc > 5:
-            print prefix, "Took", str(time_taken_doc), " seconds"
+        if result:
+            output.write(json.dumps(result) + '\n')
+            time_taken_doc = time.time() - start_time_doc
+            if time_taken_doc > 5:
+                print prefix, "Took", str(time_taken_doc), " seconds"
+        else:
+            print 'Failed line number:', index
         index += 1
     output.close()
 
