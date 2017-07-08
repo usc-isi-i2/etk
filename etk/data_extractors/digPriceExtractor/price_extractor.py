@@ -43,6 +43,8 @@ def extract(text):
 
     prices = prices['price']
     result = []
+    # default - this line here as etk failed while running on 2017-1 dataset
+    tunit_val = "60"
     for price in prices:
         ans = dict()
         ans["value"] = int(price["price"])
