@@ -1615,8 +1615,14 @@ class Core(object):
                                 break
                             else:
                                 if priori_idx == 5 and city in self.populated_cities:
-                                    result['value'] = result_value + "-0.1"
-                                    results[priori_idx+1].append(result)
+                                    if self.populated_cities[city]["country"] == country:
+                                        if "state" in self.populated_cities[city]:
+                                            if self.populated_cities[city]["state"] == state:
+                                                result['value'] = result_value + "-0.1"
+                                                results[priori_idx+1].append(result)
+                                        else:
+                                            result['value'] = result_value + "-0.1"
+                                            results[priori_idx + 1].append(result)
 
             return_result = None
             for priori in range(len(priori_lst)+1):
