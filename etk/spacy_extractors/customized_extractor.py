@@ -1,4 +1,3 @@
-import codecs
 import json
 import spacy
 import copy
@@ -646,13 +645,40 @@ def get_longest(value_lst):
     return result
 
 
+def reject(pos_lst, neg_lst):
+    pos_lst.sort()
+    neg_lst.sort()
+    result = []
+    pivot_pos = pos_lst[0]
+    pivot_neg = neg_lst[0]
+    while pos_lst:
+        if pivot_pos[1] <= pivot_neg[0]:
+            result.append(pivot_pos)
+            pos_lst.pop(0)
+            if pos_lst:
+                pivot_pos = pos_lst[0]
+        elif pivot_pos[0] >= pivot_neg[1]:
+            neg_lst.pop(0)
+            if not neg_lst:
+                result += pos_lst
+                break
+            else:
+                pivot_neg = neg_lst[0]
+        else:
+            pos_lst.pop(0)
+            if pos_lst:
+                pivot_pos = pos_lst[0]
+    return result
+
+
 def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
 
     rule = Rule(nlp)
     # rule_num = 0
     extracted_lst = []
-    value_lst = []
+    value_lst_pos = []
+    value_lst_neg = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
             rule.init_matcher()
@@ -705,14 +731,21 @@ def extract(field_rules, nlp_doc, nlp):
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
                         filtered_value = filtered_value + (line["identifier"],)
-                        value_lst.append(filtered_value)
-
+                        if line["polarity"] == "positive":
+                            value_lst_pos.append(filtered_value)
+                        else:
+                            value_lst_neg.append(filtered_value)
                     rule.init_matcher()
             rule.init_flag()
 
-    if value_lst:
-        longest_lst = get_longest(value_lst)
-        for (start, end, value, label, identifier) in longest_lst:
+    if value_lst_pos:
+        longest_lst_pos = get_longest(value_lst_pos)
+        if value_lst_neg:
+            longest_lst_neg = get_longest(value_lst_neg)
+            return_lst = reject(longest_lst_pos, longest_lst_neg)
+        else:
+            return_lst = longest_lst_pos
+        for (start, end, value, label, identifier) in return_lst:
             result = {
                 "value": value,
                 "context": {
@@ -726,6 +759,6 @@ def extract(field_rules, nlp_doc, nlp):
 
     #print json.dumps(extracted_lst, indent=2)
     
-    #print "total rule num:"
-    #print rule_num
+    # print "total rule num:"
+    # print rule_num
     return extracted_lst
