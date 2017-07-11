@@ -731,7 +731,7 @@ def extract(field_rules, nlp_doc, nlp):
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
                         filtered_value = filtered_value + (line["identifier"],)
-                        if line["polarity"] == "positive":
+                        if line["polarity"] == "true":
                             value_lst_pos.append(filtered_value)
                         else:
                             value_lst_neg.append(filtered_value)
@@ -757,7 +757,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    #print json.dumps(extracted_lst, indent=2)
+    # print json.dumps(extracted_lst, indent=2)
     
     # print "total rule num:"
     # print rule_num
