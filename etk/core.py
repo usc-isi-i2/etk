@@ -1510,9 +1510,9 @@ class Core(object):
                 raise ValueError('{} dictionary missing from resources'.format(_POPULATED_CITIES))
 
         try:
-            priori_lst = ['city_state_together_count', 'city_state_code_together_count',
-                          'city_country_together_count', 'city_state_separate_count',
-                          'city_country_separate_count', 'city_state_code_separate_count']
+            priori_lst = ['city_state_together', 'city_state_code_together',
+                          'city_country_together', 'city_state_separate',
+                          'city_country_separate', 'city_state_code_separate']
             results = [[] for i in range(len(priori_lst)+1)]
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
@@ -1542,6 +1542,10 @@ class Core(object):
                                 if "context" in each_city:
                                     cities.append((each_city["origin"]["segment"], 
                                         each_city["context"]["start"], each_city["context"]["end"]))
+                            if city_lst:
+                                document_id = each_city["origin"]["document_id"]
+                            else:
+                                document_id = ""
 
                     states = []
                     if country == "united states":
@@ -1574,30 +1578,40 @@ class Core(object):
                                                 each_state_code["context"]["start"], each_state_code["context"]["end"]))
 
                     if cities:
+                        segments = []
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
                                     city_state_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_state_separate_count += 1
                             for a_state_code in state_codes:
                                 if a_city[0] == a_state_code[0] and a_city[1] != a_state_code[1] and a_state_code[1] - a_city[2]<3 and a_state_code[1] - a_city[2]>0:
                                     city_state_code_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_state_code_separate_count += 1
                             for a_country in countries:
                                 if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
                                     city_country_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_country_separate_count += 1
 
                         result = copy.deepcopy(pop_places[place][0])
-                        result['metadata']['city_state_together_count'] = city_state_together_count
-                        result['metadata']['city_state_separate_count'] = city_state_separate_count
-                        result['metadata']['city_state_code_together_count'] = city_state_code_together_count
-                        result['metadata']['city_state_code_separate_count'] = city_state_code_separate_count
-                        result['metadata']['city_country_together_count'] = city_country_together_count
-                        result['metadata']['city_country_separate_count'] = city_country_separate_count
+                        result['origin'] = dict()
+                        result['origin']['document_id'] = document_id
+                        result['origin']['method'] = 'create_city_state_country_triple'
+                        result['metadata']['city_state_together'] = city_state_together_count
+                        result['metadata']['city_state_separate'] = city_state_separate_count
+                        result['metadata']['city_state_code_together'] = city_state_code_together_count
+                        result['metadata']['city_state_code_separate'] = city_state_code_separate_count
+                        result['metadata']['city_country_together'] = city_country_together_count
+                        result['metadata']['city_country_separate'] = city_country_separate_count
                         for priori_idx, counter in enumerate(priori_lst):
                             if country == "united states":
                                 result_value = city + ',' + state
@@ -1607,10 +1621,18 @@ class Core(object):
                             if result['metadata'][counter] > 0:
                                 if priori_idx < 3:
                                     result['value'] = result_value + "-1.0"
+                                    result['origin']['score'] = 1.0
+                                    result['origin']['segment'] = counter + ' in'
+                                    for segment in segments:
+                                        result['origin']['segment'] = result['origin']['segment'] + ' ' + segment
                                 elif priori_idx < 5:
                                     result['value'] = result_value + "-0.8"
+                                    result['origin']['score'] = 0.8
+                                    result['origin']['segment'] = counter + ' in somewhere'
                                 else:
-                                    result['value'] = result_value + "-0.1"
+                                    result['value'] = result_value + "-0.3"
+                                    result['origin']['score'] = 0.3
+                                    result['origin']['segment'] = counter + ' in somewhere'
                                 results[priori_idx].append(result)
                                 break
                             else:
@@ -1619,9 +1641,13 @@ class Core(object):
                                         if "state" in self.populated_cities[city]:
                                             if self.populated_cities[city]["state"] == state:
                                                 result['value'] = result_value + "-0.1"
+                                                result['origin']['score'] = 0.1
+                                                result['origin']['segment'] = 'none'
                                                 results[priori_idx+1].append(result)
                                         else:
                                             result['value'] = result_value + "-0.1"
+                                            result['origin']['score'] = 0.1
+                                            result['origin']['segment'] = 'none'
                                             results[priori_idx + 1].append(result)
 
             return_result = None
