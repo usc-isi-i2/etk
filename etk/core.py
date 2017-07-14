@@ -581,10 +581,13 @@ class Core(object):
             if 'key' in extraction:
                 key = extraction['key']
 
-            if len(key) < 32766:
-                if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
-                    doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
-                doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
+            # TODO FIX THIS HACK
+            if len(key) > 32766:
+                key = key[0:500]
+
+            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
 
