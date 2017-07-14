@@ -262,11 +262,12 @@ class Pattern(object):
         self.token_lst = [[], {}]
 
     # add a word token
-    def add_word_token(self, d, flag, t_id):
+    def add_word_token(self, d, flag, t_id, nlp):
         token_to_rule = []
 
-        for this_token in create_word_token(d["token"], d["capitalization"], d["length"],
-                                            flag, d["contain_digit"], d["is_out_of_vocabulary"], d["is_in_vocabulary"]):
+        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], flag, d["contain_digit"],
+                                            d["is_out_of_vocabulary"], d["is_in_vocabulary"],
+                                            d["match_all_forms_for_lexeme"], nlp):
             token_to_rule = add_pos_totoken(d["part_of_speech"],
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
@@ -387,7 +388,8 @@ def add_token_tolist(t_lst, token_l, flag, inf, t_id):
                     if c not in result_dict:
                         result_dict[c] = copy.deepcopy(result_dict[idx])
                     result_dict[c].update({len(each_copy) - 1: new_inf})
-                    result_dict[c]["output_idx"].append(t_id)
+                    if t_id not in result_dict[c]["output_idx"]:
+                        result_dict[c]["output_idx"].append(t_id)
         else:
             c = -1
             for s_id, token in enumerate(token_l):
@@ -422,7 +424,8 @@ def add_token_tolist(t_lst, token_l, flag, inf, t_id):
                     each_copy.append(token)
                     result.append(each_copy)
                     result_dict[c].update({len(each_copy) - 1: new_inf})
-                    result_dict[c]["output_idx"].append(t_id)
+                    if t_id not in result_dict[c]["output_idx"]:
+                        result_dict[c]["output_idx"].append(t_id)
         else:
             result.append([])
             c = 0
@@ -459,10 +462,13 @@ def add_pos_totoken(pos_l, this_token, token_to_rule):
 
 
 # create word token according to user input
-def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab):
+def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab, all_forms, nlp):
     # if user enter one word
     if len(word_l) == 1:
-        token = {spacy.attrs.LOWER: word_l[0].lower()}
+        if all_forms == "true":
+            token = {spacy.attrs.LEMMA: find_lexeme_base(word_l[0], nlp)}
+        else:
+            token = {spacy.attrs.LOWER: word_l[0].lower()}
         token_l = speci_capi(token, capi_l, word_l)
     # if user does not enter any word
     elif not word_l:
@@ -484,8 +490,14 @@ def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in
                     token_l.append(copy.deepcopy(token))
     # if user enter multiple words, use flag set before
     else:
-        token = {FLAG_DICT[str(flag)]: True}
-        token_l = speci_capi(token, capi_l, word_l)
+        if all_forms == "false":
+            token = {FLAG_DICT[str(flag)]: True}
+            token_l = speci_capi(token, capi_l, word_l)
+        else:
+            token_l = list()
+            for word_token in word_l:
+                token = {spacy.attrs.LEMMA: find_lexeme_base(word_token, nlp)}
+                token_l += speci_capi(token, capi_l, word_l)
 
     return token_l
 
@@ -744,6 +756,8 @@ def check_head(m_lst, output_lst, def_inf, doc):
                         return_lst.append(a_match)
         return return_lst
 
+def find_lexeme_base(word, nlp):
+    return nlp([word])[0].lemma_
 
 def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
@@ -764,11 +778,11 @@ def extract(field_rules, nlp_doc, nlp):
 
             for token_id, token_d in enumerate(line["pattern"]):
                 if token_d["type"] == "word":
-                    if len(token_d["token"]) >= 2:
+                    if len(token_d["token"]) >= 2 and token_d["match_all_forms_for_lexeme"] == "false":
                         # set flag for multiply words
                         flagnum += 1
                         rule.set_flag(token_d["token"], flagnum)
-                    new_pattern.add_word_token(token_d, flagnum, token_id)
+                    new_pattern.add_word_token(token_d, flagnum, token_id, nlp)
 
                 if token_d["type"] == "shape":
                     new_pattern.add_shape_token(token_d, token_id)
@@ -793,9 +807,8 @@ def extract(field_rules, nlp_doc, nlp):
             for i in range(len(tl)):
                 # rule_num += 1
                 if tl[i]:
-                    tl_add_dep = add_dep(tl[i], line["dependencies"], ps_inf[i]["output_idx"])
+                    tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"], ps_inf[i]["output_idx"])
                     rule_to_print = create_print(tl_add_dep)
-                    # print rule_to_print
                     rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
                     m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"], nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
@@ -834,7 +847,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    print json.dumps(extracted_lst, indent=2)
+    # print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
