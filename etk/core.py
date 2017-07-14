@@ -581,9 +581,10 @@ class Core(object):
             if 'key' in extraction:
                 key = extraction['key']
 
-            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
-                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
-            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
+            if len(key) < 32766:
+                if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+                    doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+                doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
 
@@ -910,7 +911,12 @@ class Core(object):
         return self.jobjs[json_name]
 
     def load_trie(self, file_name):
-        values = json.load(gzip.open(file_name), 'utf-8')
+        try:
+            values = json.load(gzip.open(file_name), 'utf-8')
+        except:
+            values = None
+        if not values:
+            values = json.load(codecs.open(file_name), 'utf-8')
         trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
         return trie
 
