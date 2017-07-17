@@ -207,6 +207,8 @@ class Core(object):
                                     for re_extractor in re_extractors:
                                         doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
                                                                                         matches[index].value, re_extractor)
+                                else:
+                                    print 'Large document not running READABILITY, doc_id: {}'.format(doc['doc_id'])
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                           extractors[extractor])
