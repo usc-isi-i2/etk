@@ -136,7 +136,7 @@ class Core(object):
     def __init__(self, extraction_config=None, debug=False, load_spacy=False):
         self.extraction_config = extraction_config
         self.debug = debug
-        self.html_title_regex = r'<title>(.*)?</title>'
+        self.html_title_regex = r'<title>(.*?)</title>'
         self.tries = dict()
         self.pickles = dict()
         self.jobjs = dict()
@@ -581,10 +581,13 @@ class Core(object):
             if 'key' in extraction:
                 key = extraction['key']
 
-            if len(key) < 32766:
-                if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
-                    doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
-                doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
+            # TODO FIX THIS HACK
+            if len(key) > 32766:
+                key = key[0:500]
+
+            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
 
