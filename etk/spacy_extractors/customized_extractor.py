@@ -771,6 +771,10 @@ def extract(field_rules, nlp_doc, nlp):
     value_lst_neg = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
+            if "polarity" not in line:
+                line["polarity"] = "true"
+            if "dependencies" not in line:
+                line["dependencies"] = []
             rule.init_matcher()
             rule.init_flag()
             new_pattern = Pattern()
