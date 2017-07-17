@@ -199,12 +199,14 @@ class Core(object):
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
                             if extractor == _READABILITY:
-                                re_extractors = extractors[extractor]
-                                if isinstance(re_extractors, dict):
-                                    re_extractors = [re_extractors]
-                                for re_extractor in re_extractors:
-                                    doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
-                                                                                    matches[index].value, re_extractor)
+                                # TODO REMOVE THIS HACK
+                                if len(matches[index].value) < 1572479:
+                                    re_extractors = extractors[extractor]
+                                    if isinstance(re_extractors, dict):
+                                        re_extractors = [re_extractors]
+                                    for re_extractor in re_extractors:
+                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                        matches[index].value, re_extractor)
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
                                                                           extractors[extractor])
