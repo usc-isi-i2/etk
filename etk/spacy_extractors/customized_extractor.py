@@ -777,6 +777,8 @@ def extract(field_rules, nlp_doc, nlp):
             flagnum = 17
 
             for token_id, token_d in enumerate(line["pattern"]):
+                if "match_all_forms_for_lexeme" not in token_d:
+                    token_d["match_all_forms_for_lexeme"] = "false"
                 if token_d["type"] == "word":
                     if len(token_d["token"]) >= 2 and token_d["match_all_forms_for_lexeme"] == "false":
                         # set flag for multiply words
