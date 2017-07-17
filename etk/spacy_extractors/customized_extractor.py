@@ -55,7 +55,6 @@ FLAG_DICT = {
 POS_MAP = {
     "noun": "NOUN",
     "pronoun": "PROPN",
-    "punctuation": "PUNCT",
     "proper noun": "PROPN",
     "determiner": "DET",
     "symbol": "SYM",
@@ -562,7 +561,7 @@ def filter(doc, matches, inf_inf):
         for i in range(len(pattern)):
             inf = inf_inf[i]
             if "shape" in inf:
-                if len(pattern[i]) != len(inf["shape"]):
+                if compare_shape(pattern[i], inf["shape"]):
                     flag = False
                     break
             if "prefix" in inf:
@@ -704,6 +703,7 @@ def get_longest(value_lst):
     return result
 
 
+# reject negative matches based on overlapping
 def reject(pos_lst, neg_lst):
     pos_lst.sort()
     neg_lst.sort()
@@ -756,8 +756,14 @@ def check_head(m_lst, output_lst, def_inf, doc):
                         return_lst.append(a_match)
         return return_lst
 
+
 def find_lexeme_base(word, nlp):
     return nlp([word])[0].lemma_
+
+
+def compare_shape(token, shape):
+    return counting_stars(str(token)) != counting_stars(shape)
+
 
 def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
