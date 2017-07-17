@@ -160,6 +160,7 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         try:
+            print 'Now Processing url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
             if self.extraction_config:
                 doc_id = None
                 if _DOCUMENT_ID in self.extraction_config:
@@ -474,6 +475,7 @@ class Core(object):
             print e
             print 'Failed doc:', doc['doc_id']
             return None
+        print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
     @staticmethod
