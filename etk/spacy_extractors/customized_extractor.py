@@ -264,9 +264,9 @@ class Pattern(object):
     def add_word_token(self, d, flag, t_id, nlp):
         token_to_rule = []
 
-        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], flag, d["contain_digit"],
-                                            d["is_out_of_vocabulary"], d["is_in_vocabulary"],
-                                            d["match_all_forms_for_lexeme"], nlp):
+        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], flag,
+                                            d["contain_digit"], d["is_out_of_vocabulary"],
+                                            d["is_in_vocabulary"], d["match_all_forms_for_lexeme"], nlp):
             token_to_rule = add_pos_totoken(d["part_of_speech"],
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
