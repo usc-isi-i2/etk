@@ -202,7 +202,7 @@ class Core(object):
                         for extractor in extractors.keys():
                             if extractor == _READABILITY:
                                 # TODO REMOVE THIS HACK
-                                if len(matches[index].value) < 1572479:
+                                if len(matches[index].value) < 700000 and 'amigobulls.com' not in doc['url']:
                                     re_extractors = extractors[extractor]
                                     if isinstance(re_extractors, dict):
                                         re_extractors = [re_extractors]
@@ -1039,7 +1039,7 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._relevant_text_from_context(d[_SIMPLE_TOKENS], self._extract_using_dictionary(tokens, pre_process,
+        return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
                                                                                                   self.tries[
                                                                                                       field_name],
                                                                                                   pre_filter,
