@@ -139,6 +139,153 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                                         ngrams, joiner)
         self.assertEqual(r, None)
 
+    def test_positive_case_sensitive(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/case_sensitive_female_name.json")
+        doc = {
+            'content_extraction': {
+                'content_strict': {
+                    'text': 'My name is Margie and this is a test for extracting this name using case sensitive '
+                            'dictionary'
+                }
+            },
+            'doc_id': 'id',
+            'url': 'http://givemeabreak.com'
+        }
+        e_config = {
+            "resources": {
+                "dictionaries": {
+                    "women_name": women_name_file_path
+                }
+            },
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.content_strict.text.`parent`"
+                    ,
+                    "fields": {
+                        "name": {
+                            "extractors": {
+                                "extract_using_dictionary": {
+                                    "config": {
+                                        'case_sensitive': 'True',
+                                        "dictionary": "women_name",
+                                        "ngrams": 1,
+                                        "joiner": " ",
+                                        "pre_filter": [
+                                            "x"
+                                        ],
+                                        "post_filter": [
+                                            "isinstance(x, basestring)"
+                                        ]
+                                    },
+                                    "extraction_policy": "keep_existing"
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+
+        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
+        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
+        self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
+        self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
+        self.assertTrue(
+            "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
+        extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
+
+        expected_extraction = {
+                  "results": [
+                    {
+                      "origin": {
+                        "score": 1.0,
+                        "segment": "content_strict",
+                        "method": "extract_using_dictionary"
+                      },
+                      "context": {
+                        "end": 4,
+                        "tokens_left": [
+                          "my",
+                          "name",
+                          "is"
+                        ],
+                        "text": "my name is <etk 'attribute' = 'name'>margie</etk> and this is a test ",
+                        "start": 3,
+                        "input": "tokens",
+                        "tokens_right": [
+                          "and",
+                          "this",
+                          "is",
+                          "a",
+                          "test"
+                        ]
+                      },
+                      "value": "Margie"
+                    }
+                  ]
+                }
+        self.assertEqual(extraction, expected_extraction)
+
+    def test_negative_case_sensitive(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/case_sensitive_female_name.json")
+        doc = {
+            'content_extraction': {
+                'content_strict': {
+                    'text': 'My name is margie and this is a test for extracting this name using case sensitive '
+                            'dictionary'
+                }
+            },
+            'doc_id': 'id',
+            'url': 'http://givemeabreak.com'
+        }
+        e_config = {
+            "resources": {
+                "dictionaries": {
+                    "women_name": women_name_file_path
+                }
+            },
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.content_strict.text.`parent`"
+                    ,
+                    "fields": {
+                        "name": {
+                            "extractors": {
+                                "extract_using_dictionary": {
+                                    "config": {
+                                        'case_sensitive': 'trUe',
+                                        "dictionary": "women_name",
+                                        "ngrams": 1,
+                                        "joiner": " ",
+                                        "pre_filter": [
+                                            "x"
+                                        ],
+                                        "post_filter": [
+                                            "isinstance(x, basestring)"
+                                        ]
+                                    },
+                                    "extraction_policy": "keep_existing"
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+
+        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
+        self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
+        self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
 
 if __name__ == '__main__':
     unittest.main()
