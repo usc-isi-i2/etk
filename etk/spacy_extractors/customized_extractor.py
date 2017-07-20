@@ -202,7 +202,7 @@ DEP_MAP = {
       "punctuation": "punct",
       "modifier of quantifier": "quantmod",
       "relative clause modifier": "rcmod",
-      "root": "root",
+      "root": "ROOT",
       "open clausal complement": "xcomp"
 }
 
