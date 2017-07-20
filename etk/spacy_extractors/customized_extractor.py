@@ -266,7 +266,7 @@ class Pattern(object):
 
         for this_token in create_word_token(d["token"], d["capitalization"], d["length"], flag,
                                             d["contain_digit"], d["is_out_of_vocabulary"],
-                                            d["is_in_vocabulary"], d["match_all_forms_for_lexeme"], nlp):
+                                            d["is_in_vocabulary"], d["match_all_forms"], nlp):
             token_to_rule = add_pos_totoken(d["part_of_speech"],
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
@@ -323,6 +323,13 @@ class Pattern(object):
                                False, token_d["is_in_output"])
         self.token_lst = add_token_tolist(self.token_lst, [this_token],
                                           token_d["is_required"], token_inf, t_id)
+
+    def add_newline_token(self, token_d, t_id):
+        token_to_rule = [{spacy.attrs.LOWER: u"\n"}]
+        token_inf = create_inf("", "", False, False)
+        self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
+                                          token_d["is_required"], token_inf, t_id)
+
 
 
 # Check if prefix matches
@@ -787,10 +794,10 @@ def extract(field_rules, nlp_doc, nlp):
             flagnum = 17
 
             for token_id, token_d in enumerate(line["pattern"]):
-                if "match_all_forms_for_lexeme" not in token_d:
-                    token_d["match_all_forms_for_lexeme"] = "false"
+                if "match_all_forms" not in token_d:
+                    token_d["match_all_forms"] = "false"
                 if token_d["type"] == "word":
-                    if len(token_d["token"]) >= 2 and token_d["match_all_forms_for_lexeme"] == "false":
+                    if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
                         # set flag for multiply words
                         flagnum += 1
                         rule.set_flag(token_d["token"], flagnum)
@@ -810,8 +817,10 @@ def extract(field_rules, nlp_doc, nlp):
                         # set flag for multiply punctuations
                         flagnum += 1
                         rule.set_flag(token_d["token"], flagnum)
-
                     new_pattern.add_punctuation_token(token_d, flagnum, token_id)
+
+                if token_d["type"] == "wildcard":
+                    new_pattern.add_newline_token(token_d, token_id)
 
             tl = new_pattern.token_lst[0]
             ps_inf = new_pattern.token_lst[1]
@@ -821,6 +830,7 @@ def extract(field_rules, nlp_doc, nlp):
                 if tl[i]:
                     tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"], ps_inf[i]["output_idx"])
                     rule_to_print = create_print(tl_add_dep)
+                    # print rule_to_print
                     rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
                     m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"], nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
