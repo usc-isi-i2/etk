@@ -1,4 +1,5 @@
 import sys
+
 stdout = sys.stdout
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -99,6 +100,7 @@ _STATE_TO_COUNTRY = "state_to_country"
 _STATE_TO_CODES_LOWER = "state_to_codes_lower"
 _POPULATED_PLACES = "populated_places"
 _POPULATED_CITIES = "populated_cities"
+_CASE_SENSITIVE = 'case_sensitive'
 
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
@@ -160,6 +162,7 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         try:
+            # print 'Now Processing url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
             if self.extraction_config:
                 doc_id = None
                 if _DOCUMENT_ID in self.extraction_config:
@@ -198,17 +201,24 @@ class Core(object):
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
                             if extractor == _READABILITY:
-                                re_extractors = extractors[extractor]
-                                if isinstance(re_extractors, dict):
-                                    re_extractors = [re_extractors]
-                                for re_extractor in re_extractors:
-                                    doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
-                                                                                    matches[index].value, re_extractor)
+                                # TODO REMOVE THIS HACK
+                                if len(matches[index].value) < 700000 and 'amigobulls.com' not in doc['url'] and 'kulakowka.com' not in doc['url']:
+                                    re_extractors = extractors[extractor]
+                                    if isinstance(re_extractors, dict):
+                                        re_extractors = [re_extractors]
+                                    for re_extractor in re_extractors:
+                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                        matches[index].value,
+                                                                                        re_extractor)
+                                else:
+                                    print 'Large document not running READABILITY, doc_id: {}'.format(doc['doc_id'])
                             elif extractor == _TITLE:
-                                doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION], matches[index].value,
+                                doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
+                                                                          matches[index].value,
                                                                           extractors[extractor])
                             elif extractor == _LANDMARK:
-                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION], matches[index].value,
+                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
+                                                                             matches[index].value,
                                                                              extractors[extractor], doc[_URL])
                             elif extractor == _TABLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
@@ -245,13 +255,15 @@ class Core(object):
                                     # Get the crf tokens
                                     if _TEXT in match.value:
                                         if _TOKENS_ORIGINAL_CASE not in match.value:
-                                            match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(match.value[_TEXT],
-                                                                                                        lowercase=False)
+                                            match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
+                                                match.value[_TEXT],
+                                                lowercase=False)
                                         if _TOKENS not in match.value:
                                             match.value[_TOKENS] = self.crftokens_to_lower(
                                                 match.value[_TOKENS_ORIGINAL_CASE])
                                         if _SIMPLE_TOKENS not in match.value:
-                                            match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+                                            match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(
+                                                match.value[_TOKENS])
                                         if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
                                             match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(
                                                 match.value[_TOKENS_ORIGINAL_CASE])
@@ -297,17 +309,19 @@ class Core(object):
                                                                                                     extractor,
                                                                                                     ep):
 
-                                                                        results = foo(doc, extractors[extractor][_CONFIG])
+                                                                        results = foo(doc,
+                                                                                      extractors[extractor][_CONFIG])
                                                                         if results:
-                                                                            self.add_data_extraction_results(match.value,
-                                                                                                             field,
-                                                                                                             extractor,
-                                                                                                             self.add_origin_info(
-                                                                                                                 results,
-                                                                                                                 method,
-                                                                                                                 segment,
-                                                                                                                 score,
-                                                                                                                 doc_id))
+                                                                            self.add_data_extraction_results(
+                                                                                match.value,
+                                                                                field,
+                                                                                extractor,
+                                                                                self.add_origin_info(
+                                                                                    results,
+                                                                                    method,
+                                                                                    segment,
+                                                                                    score,
+                                                                                    doc_id))
                                                                             if create_knowledge_graph:
                                                                                 self.create_knowledge_graph(doc, field,
                                                                                                             results)
@@ -318,15 +332,18 @@ class Core(object):
                                                                     results = foo(match.value,
                                                                                   extractors[extractor][_CONFIG])
                                                                     if results:
-                                                                        self.add_data_extraction_results(match.value, field,
+                                                                        self.add_data_extraction_results(match.value,
+                                                                                                         field,
                                                                                                          extractor,
                                                                                                          self.add_origin_info(
                                                                                                              results,
                                                                                                              method,
                                                                                                              segment,
-                                                                                                             score, doc_id))
+                                                                                                             score,
+                                                                                                             doc_id))
                                                                         if create_knowledge_graph:
-                                                                            self.create_knowledge_graph(doc, field, results)
+                                                                            self.create_knowledge_graph(doc, field,
+                                                                                                        results)
                                         else:  # extract whatever you can!
                                             if _EXTRACTORS in fields[field]:
                                                 extractors = fields[field][_EXTRACTORS]
@@ -351,15 +368,18 @@ class Core(object):
 
                                                                     results = foo(doc, extractors[extractor][_CONFIG])
                                                                     if results:
-                                                                        self.add_data_extraction_results(match.value, field,
+                                                                        self.add_data_extraction_results(match.value,
+                                                                                                         field,
                                                                                                          extractor,
                                                                                                          self.add_origin_info(
                                                                                                              results,
                                                                                                              method,
                                                                                                              segment,
-                                                                                                             score, doc_id))
+                                                                                                             score,
+                                                                                                             doc_id))
                                                                         if create_knowledge_graph:
-                                                                            self.create_knowledge_graph(doc, field, results)
+                                                                            self.create_knowledge_graph(doc, field,
+                                                                                                        results)
                                                         else:
                                                             results = foo(match.value,
                                                                           extractors[extractor][_CONFIG])
@@ -464,7 +484,6 @@ class Core(object):
                                                         # doc[_KNOWLEDGE_GRAPH][field] = results
                                                         self.create_knowledge_graph(doc, field, results)
 
-
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -473,7 +492,8 @@ class Core(object):
         except Exception as e:
             print e
             print 'Failed doc:', doc['doc_id']
-            return None
+            raise e
+        # print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
     @staticmethod
@@ -720,10 +740,12 @@ class Core(object):
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
+
             if isinstance(ifl_extractions, list):
                 # we have a rogue post type page, put it in its place
+                field_name = 'inferlink_posts_special_text'
                 content_extraction[field_name] = dict()
-                content_extraction[field_name]['inferlink_posts'] = ifl_extractions
+                content_extraction[field_name][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
             else:
                 time_taken = time.time() - start_time
                 if self.debug:
@@ -736,6 +758,19 @@ class Core(object):
                         o[key]['text'] = ifl_extractions[key]
                         content_extraction[field_name].update(o)
         return content_extraction
+
+    @staticmethod
+    def inferlink_posts_to_text(inferlink_posts):
+        text = ''
+        for inferlink_post in inferlink_posts:
+            for k, v in inferlink_post.iteritems():
+                if k == 'review_details':
+                    for pair in v:
+                        if 'key' in pair and 'value' in pair:
+                            text += '{}_{}: {}\n'.format('review_details', pair['key'], pair['value'])
+                else:
+                    text += '{}: {}\n'.format(k, v)
+        return text
 
     def consolidate_landmark_rules(self):
         rules = dict()
@@ -913,19 +948,23 @@ class Core(object):
             self.jobjs[json_name] = self.load_json_file(self.get_pickle_file_name_from_config(json_name))
         return self.jobjs[json_name]
 
-    def load_trie(self, file_name):
+    def load_trie(self, file_name, case_sensitive=False):
         try:
             values = json.load(gzip.open(file_name), 'utf-8')
         except:
             values = None
         if not values:
             values = json.load(codecs.open(file_name), 'utf-8')
-        trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
+
+        if case_sensitive:
+            trie = dictionary_extractor.populate_trie(map(lambda x: x, values))
+        else:
+            trie = dictionary_extractor.populate_trie(map(lambda x: x.lower(), values))
         return trie
 
-    def load_dictionary(self, field_name, dict_name):
+    def load_dictionary(self, field_name, dict_name, case_sensitive):
         if field_name not in self.tries:
-            self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name))
+            self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name), case_sensitive)
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
@@ -976,15 +1015,22 @@ class Core(object):
 
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
+
+        # case sensitivity is disabled by default
+        case_sensitive = str(config[_CASE_SENSITIVE]).lower() == 'true' if _CASE_SENSITIVE in config else False
+
         # this method is self aware that it needs tokens as input
-        tokens = d[_SIMPLE_TOKENS]
+        if case_sensitive:
+            tokens = d[_SIMPLE_TOKENS_ORIGINAL_CASE]
+        else:
+            tokens = d[_SIMPLE_TOKENS]
 
         if not tokens:
             return None
         if _DICTIONARY not in config:
             raise KeyError('No dictionary specified for {}'.format(field_name))
 
-        self.load_dictionary(field_name, config[_DICTIONARY])
+        self.load_dictionary(field_name, config[_DICTIONARY], case_sensitive)
 
         pre_process = None
         if _PRE_PROCESS in config and len(config[_PRE_PROCESS]) > 0:
@@ -1008,7 +1054,7 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._relevant_text_from_context(d[_SIMPLE_TOKENS], self._extract_using_dictionary(tokens, pre_process,
+        return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
                                                                                                   self.tries[
                                                                                                       field_name],
                                                                                                   pre_filter,
@@ -1073,7 +1119,9 @@ class Core(object):
 
         # call the custom spacy extractor
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
-        results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE], custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp), config[_FIELD_NAME])
+        results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
+                                                   custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
+                                                   config[_FIELD_NAME])
         return results
 
     def extract_using_spacy(self, d, config):
@@ -1488,7 +1536,6 @@ class Core(object):
             pass
         return None
 
-
     def country_from_states(self, d, config):
         if not self.state_to_country_dict:
             try:
@@ -1509,7 +1556,8 @@ class Core(object):
     def create_city_state_country_triple(self, d, config):
         if not self.state_to_codes_lower_dict:
             try:
-                self.state_to_codes_lower_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
+                self.state_to_codes_lower_dict = self.load_json_file(
+                    self.get_dict_file_name_from_config(_STATE_TO_CODES_LOWER))
             except Exception as e:
                 raise ValueError('{} dictionary missing from resources'.format(_STATE_TO_CODES_LOWER))
         if not self.populated_cities:
@@ -1519,9 +1567,9 @@ class Core(object):
                 raise ValueError('{} dictionary missing from resources'.format(_POPULATED_CITIES))
 
         try:
-            priori_lst = ['city_state_together_count', 'city_state_code_together_count',
-                          'city_country_together_count', 'city_state_separate_count',
-                          'city_country_separate_count', 'city_state_code_separate_count']
+            priori_lst = ['city_state_together', 'city_state_code_together',
+                          'city_country_together', 'city_state_separate',
+                          'city_country_separate', 'city_state_code_separate']
             results = [[] for i in range(len(priori_lst)+1)]
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
@@ -1549,8 +1597,12 @@ class Core(object):
                             city_lst = knowledge_graph["city_name"][city]
                             for each_city in city_lst:
                                 if "context" in each_city:
-                                    cities.append((each_city["origin"]["segment"], 
+                                    cities.append((each_city["origin"]["segment"],
                                         each_city["context"]["start"], each_city["context"]["end"]))
+                            if city_lst:
+                                document_id = each_city["origin"]["document_id"]
+                            else:
+                                document_id = ""
 
                     states = []
                     if country == "united states":
@@ -1560,7 +1612,7 @@ class Core(object):
                                 for each_state in state_lst:
                                     if "context" in each_state:
                                         states.append((each_state["origin"]["segment"],
-                                            each_state["context"]["start"], each_state["context"]["end"]))
+                                                       each_state["context"]["start"], each_state["context"]["end"]))
 
                     countries = []
                     if "country" in knowledge_graph:
@@ -1569,7 +1621,7 @@ class Core(object):
                             for each_country in country_lst:
                                 if "context" in each_country:
                                     countries.append((each_country["origin"]["segment"],
-                                        each_country["context"]["start"], each_country["context"]["end"]))
+                                                      each_country["context"]["start"], each_country["context"]["end"]))
 
                     state_codes = []
                     if country == "united states":
@@ -1580,55 +1632,95 @@ class Core(object):
                                     for each_state_code in state_code_lst:
                                         if "context" in each_state_code:
                                             state_codes.append((each_state_code["origin"]["segment"],
-                                                each_state_code["context"]["start"], each_state_code["context"]["end"]))
+                                                                each_state_code["context"]["start"],
+                                                                each_state_code["context"]["end"]))
 
                     if cities:
+                        segments = []
                         for a_city in cities:
                             for a_state in states:
-                                if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (abs(a_city[2] - a_state[1])<3 or abs(a_city[1] - a_state[2])<3):
+                                if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (
+                                        abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
                                     city_state_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_state_separate_count += 1
                             for a_state_code in state_codes:
-                                if a_city[0] == a_state_code[0] and a_city[1] != a_state_code[1] and a_state_code[1] - a_city[2]<3 and a_state_code[1] - a_city[2]>0:
+                                if a_city[0] == a_state_code[0] and a_city[1] != a_state_code[1] and a_state_code[1] - \
+                                        a_city[2] < 3 and a_state_code[1] - a_city[2] > 0:
                                     city_state_code_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_state_code_separate_count += 1
                             for a_country in countries:
-                                if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (abs(a_city[2] - a_country[1])<5 or abs(a_city[1] - a_country[2])<3):
+                                if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (
+                                        abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
                                     city_country_together_count += 1
+                                    if a_city[0] not in segments:
+                                        segments.append(a_city[0])
                                 else:
                                     city_country_separate_count += 1
 
                         result = copy.deepcopy(pop_places[place][0])
-                        result['metadata']['city_state_together_count'] = city_state_together_count
-                        result['metadata']['city_state_separate_count'] = city_state_separate_count
-                        result['metadata']['city_state_code_together_count'] = city_state_code_together_count
-                        result['metadata']['city_state_code_separate_count'] = city_state_code_separate_count
-                        result['metadata']['city_country_together_count'] = city_country_together_count
-                        result['metadata']['city_country_separate_count'] = city_country_separate_count
+                        result['origin'] = dict()
+                        result['origin']['document_id'] = document_id
+                        result['origin']['method'] = 'create_city_state_country_triple'
+                        result['metadata']['city_state_together'] = city_state_together_count
+                        result['metadata']['city_state_separate'] = city_state_separate_count
+                        result['metadata']['city_state_code_together'] = city_state_code_together_count
+                        result['metadata']['city_state_code_separate'] = city_state_code_separate_count
+                        result['metadata']['city_country_together'] = city_country_together_count
+                        result['metadata']['city_country_separate'] = city_country_separate_count
                         for priori_idx, counter in enumerate(priori_lst):
                             if country == "united states":
                                 result_value = city + ',' + state
                             else:
                                 result_value = city + ',' + country
-                            result['key'] = city+':'+state+':'+country+':'+str(result['metadata']['longitude'])+':'+str(result['metadata']['latitude'])
+                            result['key'] = city + ':' + state + ':' + country + ':' + str(
+                                result['metadata']['longitude']) + ':' + str(result['metadata']['latitude'])
                             if result['metadata'][counter] > 0:
                                 if priori_idx < 3:
                                     result['value'] = result_value + "-1.0"
+                                    result['origin']['score'] = 1.0
+                                    result['origin']['segment'] = counter + ' in'
+                                    for segment in segments:
+                                        result['origin']['segment'] = result['origin']['segment'] + ' ' + segment
                                 elif priori_idx < 5:
                                     result['value'] = result_value + "-0.8"
+                                    result['origin']['score'] = 0.8
+                                    result['origin']['segment'] = counter + ' in somewhere'
                                 else:
-                                    result['value'] = result_value + "-0.1"
+                                    result['value'] = result_value + "-0.3"
+                                    result['origin']['score'] = 0.3
+                                    result['origin']['segment'] = counter + ' in somewhere'
                                 results[priori_idx].append(result)
                                 break
                             else:
-                                if priori_idx == 5 and city in self.populated_cities:
-                                    result['value'] = result_value + "-0.1"
-                                    results[priori_idx+1].append(result)
+                                if isinstance(self.populated_cities, dict):
+                                    if priori_idx == 5 and city in self.populated_cities:
+                                        if self.populated_cities[city]["country"] == country:
+                                            if "state" in self.populated_cities[city]:
+                                                if self.populated_cities[city]["state"] == state:
+                                                    result['value'] = result_value + "-0.1"
+                                                    result['origin']['score'] = 0.1
+                                                    result['origin']['segment'] = 'none'
+                                                    results[priori_idx+1].append(result)
+                                            else:
+                                                result['value'] = result_value + "-0.1"
+                                                result['origin']['score'] = 0.1
+                                                result['origin']['segment'] = 'none'
+                                                results[priori_idx + 1].append(result)
+                                else:
+                                    if priori_idx == 5 and city in self.populated_cities:
+                                        result['value'] = result_value + "-0.1"
+                                        result['origin']['score'] = 0.1
+                                        result['origin']['segment'] = 'none'
+                                        results[priori_idx + 1].append(result)
 
             return_result = None
-            for priori in range(len(priori_lst)+1):
+            for priori in range(len(priori_lst) + 1):
                 if results[priori]:
                     if priori < 3:
                         return_result = results[priori]
