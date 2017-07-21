@@ -29,7 +29,7 @@ def extract(html, url, extractionrulesall, threshold=0.5):
                                 return flatten['posts-0-0']
                         else:
                             for key in flatten.keys():
-                                if isinstance(flatten[key], list) and len(flatten[key]) > 0:
+                                if flatten[key].strip() != '':
                                     inferlink_extraction[key] = flatten[key]
                 properly_extracted_fields = len(inferlink_extraction)
                 if not (properly_extracted_fields > 0 and float(properly_extracted_fields) / float(number_of_rules) >= threshold):
