@@ -162,7 +162,7 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         try:
-            print 'Now Processing url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
+            # print 'Now Processing url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
             if self.extraction_config:
                 doc_id = None
                 if _DOCUMENT_ID in self.extraction_config:
@@ -202,7 +202,7 @@ class Core(object):
                         for extractor in extractors.keys():
                             if extractor == _READABILITY:
                                 # TODO REMOVE THIS HACK
-                                if len(matches[index].value) < 700000 and 'amigobulls.com' not in doc['url']:
+                                if len(matches[index].value) < 700000 and 'amigobulls.com' not in doc['url'] and 'kulakowka.com' not in doc['url']:
                                     re_extractors = extractors[extractor]
                                     if isinstance(re_extractors, dict):
                                         re_extractors = [re_extractors]
@@ -492,8 +492,8 @@ class Core(object):
         except Exception as e:
             print e
             print 'Failed doc:', doc['doc_id']
-            return None
-        print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
+            raise e
+        # print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
     @staticmethod
@@ -740,6 +740,7 @@ class Core(object):
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
+
             if isinstance(ifl_extractions, list):
                 # we have a rogue post type page, put it in its place
                 content_extraction[field_name] = dict()

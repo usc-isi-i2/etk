@@ -8,6 +8,7 @@ def extract(html, url, extractionrulesall, threshold=0.5):
     matched_rule_key = None
     for rule_key in extractionrulesall.keys():
         if rule_key in url:
+            # print rule_key, url
             extractionrules_list = extractionrulesall[rule_key]
             number_of_rules = len(extractionrules_list)
             matched_rule_key = rule_key
@@ -22,13 +23,13 @@ def extract(html, url, extractionrulesall, threshold=0.5):
                     extraction_list = rules.extract(html)
                     flatten = flattenResult(extraction_list)
                     if flatten:
-                        if "posts" in flatten:
+                        if "posts-0-0" in flatten:
                             # this is a forum kind of page, handle differently
-                            if len(flatten['posts']) > 0:
-                                return flatten['posts']
+                            if len(flatten['posts-0-0']) > 0:
+                                return flatten['posts-0-0']
                         else:
                             for key in flatten.keys():
-                                if flatten[key].strip() != '':
+                                if isinstance(flatten[key], list) and len(flatten[key]) > 0:
                                     inferlink_extraction[key] = flatten[key]
                 properly_extracted_fields = len(inferlink_extraction)
                 if not (properly_extracted_fields > 0 and float(properly_extracted_fields) / float(number_of_rules) >= threshold):
