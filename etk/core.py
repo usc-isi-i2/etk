@@ -743,8 +743,9 @@ class Core(object):
 
             if isinstance(ifl_extractions, list):
                 # we have a rogue post type page, put it in its place
+                field_name = 'inferlink_posts_special_text'
                 content_extraction[field_name] = dict()
-                content_extraction[field_name]['inferlink_posts'] = ifl_extractions
+                content_extraction[field_name][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
             else:
                 time_taken = time.time() - start_time
                 if self.debug:
@@ -757,6 +758,19 @@ class Core(object):
                         o[key]['text'] = ifl_extractions[key]
                         content_extraction[field_name].update(o)
         return content_extraction
+
+    @staticmethod
+    def inferlink_posts_to_text(inferlink_posts):
+        text = ''
+        for inferlink_post in inferlink_posts:
+            for k, v in inferlink_post.iteritems():
+                if k == 'review_details':
+                    for pair in v:
+                        if 'key' in pair and 'value' in pair:
+                            text += '{}_{}: {}\n'.format('review_details', pair['key'], pair['value'])
+                else:
+                    text += '{}: {}\n'.format(k, v)
+        return text
 
     def consolidate_landmark_rules(self):
         rules = dict()
