@@ -296,7 +296,6 @@ class Core(object):
                                                             foo = None
                                                         if foo:
                                                             # score is 1.0 because every method thinks it is the best
-                                                            print extractor
                                                             score = 1.0
                                                             method = extractor
                                                             if _CONFIG not in extractors[extractor]:
@@ -558,8 +557,8 @@ class Core(object):
                     title = ce[_TITLE][_TEXT]
                     segment = _HTML
             if not title or title.strip() == '':
-                if _CONTENT_STRICT in ce:
-                    vals = ce[_CONTENT_STRICT][_TEXT].split(' ')
+                if _CONTENT_RELAXED in ce:
+                    vals = ce[_CONTENT_RELAXED][_TEXT].split(' ')
                     new_vals = list()
                     for i in range(0, len(vals)):
                         if len(new_vals) == 10:
