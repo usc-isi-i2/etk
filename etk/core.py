@@ -560,7 +560,13 @@ class Core(object):
             if not title or title.strip() == '':
                 if _CONTENT_STRICT in ce:
                     vals = ce[_CONTENT_STRICT][_TEXT].split(' ')
-                    title = ' '.join(vals[0:10])
+                    new_vals = list()
+                    for i in range(0, len(vals)):
+                        if len(new_vals) == 10:
+                            break
+                        if vals[i].strip() != '':
+                            new_vals.append(vals[i])
+                    title = ' '.join(new_vals)
                     segment = _HTML
 
             if title and title != '':
