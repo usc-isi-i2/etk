@@ -557,6 +557,11 @@ class Core(object):
                 if _TITLE in ce:
                     title = ce[_TITLE][_TEXT]
                     segment = _HTML
+            if not title or title.strip() == '':
+                if _CONTENT_STRICT in ce:
+                    vals = ce[_CONTENT_STRICT][_TEXT].split(' ')
+                    title = ' '.join(vals[0:5])
+                    segment = _HTML
 
             if title and title != '':
                 if _KNOWLEDGE_GRAPH not in doc:
