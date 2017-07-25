@@ -492,7 +492,7 @@ class Core(object):
         except Exception as e:
             print e
             print 'Failed doc:', doc['doc_id']
-            raise e
+            #raise e
         # print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
@@ -504,7 +504,10 @@ class Core(object):
         if _CONTENT_EXTRACTION in doc:
             ce = doc[_CONTENT_EXTRACTION]
             if _INFERLINK_EXTRACTIONS in ce:
-                if _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
+                if _CONTENT_RELAXED in ce:
+                    description = ce[_CONTENT_RELAXED][_TEXT]
+                    segment = _CONTENT_RELAXED
+                elif _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
                     description = ce[_INFERLINK_EXTRACTIONS][_DESCRIPTION][_TEXT]
                     segment = _INFERLINK
             if not description or description.strip() == '':
@@ -552,6 +555,17 @@ class Core(object):
             if not title or title.strip() == '':
                 if _TITLE in ce:
                     title = ce[_TITLE][_TEXT]
+                    segment = _HTML
+            if not title or title.strip() == '':
+                if _CONTENT_RELAXED in ce:
+                    vals = ce[_CONTENT_RELAXED][_TEXT].split(' ')
+                    new_vals = list()
+                    for i in range(0, len(vals)):
+                        if len(new_vals) == 10:
+                            break
+                        if vals[i].strip() != '':
+                            new_vals.append(vals[i])
+                    title = ' '.join(new_vals)
                     segment = _HTML
 
             if title and title != '':
