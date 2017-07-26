@@ -107,9 +107,8 @@ def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=No
             if kafka_producer is None:
                 output.write(json.dumps(result) + '\n')
             else:
-                print 'producer sent', kafka_topic
                 r= kafka_producer.send(kafka_topic, result)
-                r.get(timeout=60)
+                r.get(timeout=60) # wait till sent
             time_taken_doc = time.time() - start_time_doc
             if time_taken_doc > 5:
                 print prefix, "Took", str(time_taken_doc), " seconds"
@@ -228,14 +227,6 @@ if __name__ == "__main__":
         sys.exit()
 
     try:
-        # # init kafka producer
-        # kafka_producer, kafka_topic = None, None
-        # if c_options.kafkaServer:
-        #     kafka_producer = KafkaProducer(
-        #         bootstrap_servers=c_options.kafkaServer,
-        #         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-        #     kafka_topic = c_options.kafkaTopic
-
         start_time = time.time()
         if c_options.enableMP and c_options.threadCount > 1:
             print "processing parallelly"
