@@ -5,6 +5,8 @@ import sys
 import multiprocessing as mp, os
 import core
 from argparse import ArgumentParser
+from kafka import KafkaProducer
+
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -86,8 +88,15 @@ def run_parallel(input, output, core, processes=0):
     pool.close()
 
 
-def run_serial(input, output, core, prefix=''):
-    output = codecs.open(output, 'w')
+def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=None):
+    # ignore file output if kafka is set
+    if kafka_server is None:
+        output = codecs.open(output, 'w')
+    else:
+        kafka_producer = KafkaProducer(
+            bootstrap_servers=kafka_server,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+
     index = 1
     for line in codecs.open(input):
         print prefix, 'processing line number:', index
@@ -95,15 +104,21 @@ def run_serial(input, output, core, prefix=''):
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
         if result:
-            output.write(json.dumps(result) + '\n')
+            if kafka_producer is None:
+                output.write(json.dumps(result) + '\n')
+            else:
+                print 'producer sent', kafka_topic
+                r= kafka_producer.send(kafka_topic, result)
+                r.get(timeout=60)
             time_taken_doc = time.time() - start_time_doc
             if time_taken_doc > 5:
                 print prefix, "Took", str(time_taken_doc), " seconds"
         else:
             print 'Failed line number:', index
         index += 1
-    output.close()
 
+    if kafka_producer is None:
+        output.close()
 
 def process_one(x):
     # output = "output-%d.gz" % pathos.helpers.mp.current_process().getPid()
@@ -128,7 +143,7 @@ def run_parallel_2(input_path, output_path, core, processes=0):
     #     output_f.write('\n')
 
 
-def run_parallel_3(input_path, output_path, config_path, processes):
+def run_parallel_3(input_path, output_path, config_path, processes, kafka_server, kafka_topic):
     if not os.path.exists(output_path) or not os.path.isdir(output_path) :
         raise Exception('temp path is invalid')
     # if len(os.listdir(temp_path)) != 0:
@@ -158,7 +173,8 @@ def run_parallel_3(input_path, output_path, config_path, processes):
         input_chunk_path = os.path.join(output_path, 'input_chunk_{}.json'.format(i))
         output_chunk_path = os.path.join(output_path, 'output_chunk_{}.json'.format(i))
         p = mp.Process(target=run_parallel_worker,
-                   args=(i, input_chunk_path, output_chunk_path, config_path))
+                   args=(i, input_chunk_path, output_chunk_path, config_path,
+                         kafka_server, kafka_topic))
         process_handlers.append(p)
 
     # start processes
@@ -172,10 +188,11 @@ def run_parallel_3(input_path, output_path, config_path, processes):
     print '-------------------'
 
 
-def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_path):
+def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_path, kafka_server, kafka_topic):
     print 'start worker #{}'.format(worker_id)
     c = core.Core(json.load(codecs.open(config_path, 'r')))
-    run_serial(input_chunk_path, output_chunk_path, c, prefix='worker #{}:'.format(worker_id))
+    run_serial(input_chunk_path, output_chunk_path, c,
+               prefix='worker #{}:'.format(worker_id), kafka_server=kafka_server, kafka_topic=kafka_topic)
     print 'worker #{} finished'.format(worker_id)
 
 
@@ -183,13 +200,14 @@ def usage():
     return """\
 Usage: python run_core.py [args]
 -i, --input <input_doc>                   Input file
--o, --output <output_doc>                 Output file
+-o, --output <output_doc>                 Output file (serial), output / temp directory path (multi-processing)
 -c, --config <config>                     Config file
 
 Optional
--m, --enable-multiprocessing
--t, --thread <processes_count>            Serial(default=0)
-                                          Run Parallel(>0)
+-m, --enable-multiprocessing              Enable multi processing
+-t, --thread <processes_count>            Run Parallel(default=cpu_count), only works if -m is set
+--kafka-server                            Output will be sent to Apache Kafka
+--kafka-topic                             Topic of Apache Kafka
     """
 
 if __name__ == "__main__":
@@ -200,13 +218,24 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
     parser.add_argument("-t", "--thread", action="store",
                       type=int, dest="threadCount", default=mp.cpu_count())
+    parser.add_argument("--kafka-server", action="store", type=str, dest="kafkaServer")
+    parser.add_argument("--kafka-topic", action="store", type=str, dest="kafkaTopic")
 
     c_options, args = parser.parse_known_args()
 
     if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
-        print usage()
+        usage()
         sys.exit()
+
     try:
+        # # init kafka producer
+        # kafka_producer, kafka_topic = None, None
+        # if c_options.kafkaServer:
+        #     kafka_producer = KafkaProducer(
+        #         bootstrap_servers=c_options.kafkaServer,
+        #         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+        #     kafka_topic = c_options.kafkaTopic
+
         start_time = time.time()
         if c_options.enableMP and c_options.threadCount > 1:
             print "processing parallelly"
@@ -214,11 +243,14 @@ if __name__ == "__main__":
                 input_path=c_options.inputPath,
                 output_path=c_options.outputPath,
                 config_path=c_options.configPath,
-                processes=c_options.threadCount)
+                processes=c_options.threadCount,
+                kafka_server=c_options.kafkaServer,
+                kafka_topic=c_options.kafkaTopic)
         else:
             print "processing serially"
             c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
-            run_serial(c_options.inputPath, c_options.outputPath, c)
+            run_serial(c_options.inputPath, c_options.outputPath, c,
+                       kafka_server=c_options.kafkaServer, kafka_topic=c_options.kafkaTopic)
         print('The script took {0} second !'.format(time.time() - start_time))
 
     except Exception as e:
