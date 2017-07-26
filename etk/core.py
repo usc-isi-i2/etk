@@ -492,7 +492,7 @@ class Core(object):
         except Exception as e:
             print e
             print 'Failed doc:', doc['doc_id']
-            #raise e
+            return None
         # print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
