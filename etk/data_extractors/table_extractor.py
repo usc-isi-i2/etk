@@ -131,7 +131,9 @@ class TableClassification():
         cell_text = [match.value for match in cell_text_path.find(cell)]
         cell_data = [match.value for match in cell_extraction.find(cell)]
         for text in cell_text:
-            if any([re.sub('[^\w]', '', x) in self.sem_labels for x in text.lower().split(':')]):
+            text = re.sub('[^\w]', ' ', text)
+            text = re.sub('\s+', ' ', text)
+            if any([x in text for x in self.sem_labels]):
                 if 'SEMANTIC_TYPE' not in extractors_suceeded:
                     extractors_suceeded['SEMANTIC_TYPE'] = 1
                 else:
@@ -299,7 +301,7 @@ def extract(html_doc, min_data_rows = 1):
     soup = BeautifulSoup(html_doc, 'html.parser')
     
     if(soup.table == None):
-        return None
+        return []
     else:
         result_tables = list()
         tables = soup.findAll('table')
