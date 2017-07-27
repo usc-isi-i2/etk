@@ -226,6 +226,8 @@ class InformationExtraction:
         return all_res
 
     def extract(self, t):
+        if 'labels' not in t:
+            return None
         labels = t['labels']
         if 'IN-DOMAIN' not in labels:
             return None
