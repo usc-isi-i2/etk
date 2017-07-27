@@ -273,14 +273,14 @@ class Core(object):
                                             #     match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
                                     fields = de_config[_FIELDS]
                                     for field in fields.keys():
+                                        run_extractor = True
+                                        full_path = str(match.full_path)
+                                        segment = self.determine_segment(full_path)
                                         if field != '*':
                                             """
                                                 Special case for inferlink extractions:
                                                 For eg, We do not want to extract name from inferlink_posting-date #DUH
                                             """
-                                            run_extractor = True
-                                            full_path = str(match.full_path)
-                                            segment = self.determine_segment(full_path)
                                             if _INFERLINK in full_path:
                                                 if field not in full_path:
                                                     run_extractor = False
@@ -861,7 +861,9 @@ class Core(object):
         ep = self.determine_extraction_policy(table_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
             start_time = time.time()
-            content_extraction[field_name] = self.extract_table(html)
+            tables = self.extract_table(html, table_config)
+            if tables is not None:
+                content_extraction[field_name] = tables
             time_taken = time.time() - start_time
             if self.debug:
                 print 'time taken to process table %s' % time_taken
@@ -987,27 +989,6 @@ class Core(object):
         if pickle_name not in self.pickles:
             self.pickles[pickle_name] = self.load_pickle_file(self.get_pickle_file_name_from_config(pickle_name))
         return self.pickles[pickle_name]
-
-    def classify_table(self, d, config):
-        result = self.classify_table_(d, config)
-        # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
-        return result
-
-    def classify_table_(self, d, config):
-        model = config['model']
-        sem_types = config['sem_types']
-        cl_model = self.load_pickle(model)
-        sem_types = self.load_json(sem_types)
-        tc = table_extractor.TableClassification(sem_types, cl_model)
-        l = tc.predict_label(d)
-        tarr = table_extractor.Toolkit.create_table_array(d)
-        table_extractor.Toolkit.clean_cells(tarr)
-        res = dict()
-        res['value'] = l[2]
-        res['all_labels'] = l
-        res['context'] = dict(start=0, end=0, input=d['fingerprint'], text=str(tarr))
-        res['tarr'] = tarr
-        return [res]
 
     def table_data_extractor(self, d, config):
         result = self.table_data_extractor_(d, config)
@@ -1436,8 +1417,20 @@ class Core(object):
         # The object also has a method get_original_index() to retrieve index in faithful tokens
         return ft.filter_tokens(config)
 
-    def extract_table(self, html_doc):
-        return table_extractor.extract(html_doc)
+    def extract_table(self, d, config):
+        cl_tables = False
+        model = None,
+        sem_types = []
+        if _CONFIG in config:
+            config = config[_CONFIG]
+            if config['classify_tables'] == 'yes':
+                cl_tables = True
+                model = config['classification_model']
+                sem_types = config['sem_types']
+                sem_types = self.load_json(sem_types)
+                model = self.load_pickle(model)
+        te = table_extractor.TableExtraction(cl_tables, sem_types, model)
+        return te.extract(d)
 
     # def extract_stock_tickers(self, doc):
     #     return extract_stock_tickers(doc)
