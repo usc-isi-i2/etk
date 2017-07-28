@@ -210,7 +210,6 @@ DEP_MAP = {
 Class Rule
 '''
 
-
 class Rule(object):
     # initial and load english vocab
     def __init__(self, nlp):
@@ -329,7 +328,6 @@ class Pattern(object):
         token_inf = create_inf("", "", False, False)
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
                                           token_d["is_required"], token_inf, t_id)
-
 
 
 # Check if prefix matches
@@ -775,7 +773,7 @@ def compare_shape(token, shape):
 def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
     # for tok in nlp_doc:
-    #     print tok.orth_
+    #     print tok.lower_
     #     print tok.dep_
     rule = Rule(nlp)
     # rule_num = 0
@@ -834,10 +832,12 @@ def extract(field_rules, nlp_doc, nlp):
                     rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
                     m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"], nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
-                    output_inf = []
+                    output_infs = []
                     for e in ps_inf[i]:
                         if e != "output_idx":
-                            output_inf.append(ps_inf[i][e]["is_in_output"])
+                            output_infs.append((e, ps_inf[i][e]["is_in_output"]))
+                    output_infs.sort()
+                    output_inf = [p[1] for p in output_infs]
 
                     for (ent_id, label, start, end) in matches:
                         value = get_value(nlp_doc, start, end, output_inf, label)
