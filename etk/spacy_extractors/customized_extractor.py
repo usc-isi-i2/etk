@@ -324,7 +324,11 @@ class Pattern(object):
                                           token_d["is_required"], token_inf, t_id)
 
     def add_newline_token(self, token_d, t_id):
-        token_to_rule = [{spacy.attrs.LOWER: u"\n"}]
+        num_newline = int(token_d["newlines_number"])
+        s = ''
+        for i in range(num_newline):
+            s += '\n'
+        token_to_rule = [{spacy.attrs.LOWER: s.decode('utf-8')}]
         token_inf = create_inf("", "", False, False)
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
                                           token_d["is_required"], token_inf, t_id)
@@ -817,7 +821,7 @@ def extract(field_rules, nlp_doc, nlp):
                         rule.set_flag(token_d["token"], flagnum)
                     new_pattern.add_punctuation_token(token_d, flagnum, token_id)
 
-                if token_d["type"] == "wildcard":
+                if token_d["type"] == "newline":
                     new_pattern.add_newline_token(token_d, token_id)
 
             tl = new_pattern.token_lst[0]
