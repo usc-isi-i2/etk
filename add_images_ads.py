@@ -95,8 +95,7 @@ class Janitor(object):
                         }
                     }
                 }
-            },
-            "size": batch_size
+            }
         }
         page = self.dest_es.search(index=self.dest_index, doc_type=self.dest_doc_type, scroll='2m',
                                    search_type='scan', size=batch_size, body=q)
