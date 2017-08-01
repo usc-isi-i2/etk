@@ -73,33 +73,45 @@ class Janitor(object):
         q = {
             "query": {
                 "filtered": {
-                   "query": {"match_all": {}},
-                   "filter": {
-                       "and": {
-                          "filters": [
-                             {
-                                 "term": {
-                                    "knowledge_graph.website.key": "backpage.com"
-                                 }
-                             },
-                             {
-                                 "not": {
-                                    "filter": {
-                                        "exists": {
-                                           "field": "dig_version"
+                    "query": {"match_all": {}},
+                    "filter": {
+                        "and": {
+                            "filters": [
+                                {
+                                    "term": {
+                                        "knowledge_graph.website.key": "backpage.com"
+                                    }
+                                },
+                                {
+                                    "not": {
+                                        "filter": {
+                                            "exists": {
+                                                "field": "dig_version"
+                                            }
                                         }
                                     }
-                                 }
-                             }
-                          ]
-                       }
-                   }
+                                }
+                            ]
+                        }
+                    }
                 }
             },
             "size": batch_size
         }
-        r = self.dest_es.search(index=self.dest_index, doc_type=self.dest_doc_type, body=q)
-        return r['hits']['hits']
+        page = self.dest_es.search(index=self.dest_index, doc_type=self.dest_doc_type, scroll='2m',
+                                   search_type='scan', size=batch_size, body=q)
+        sid = page['_scroll_id']
+        scroll_size = page['hits']['total']
+
+        # Start scrolling
+        while (scroll_size > 0):
+            page = self.dest_es.scroll(scroll_id=sid, scroll='2m')
+            # Update the scroll ID
+            sid = page['_scroll_id']
+            scroll_size = len(page['hits']['hits'])
+            print "scroll size: " + str(scroll_size)
+
+            self.get_images_from_es(page['hits']['hits'])
 
     def bulk_upload(self, ads):
         actions = list()
@@ -121,12 +133,15 @@ if __name__ == '__main__':
     ads_no_images_path = args[0]
     log_path = args[1]
     j = Janitor(ads_no_images_path, log_path)
-    while (True):
-        try:
-            ads = j.get_ads()
-            if len(ads) == 0:
-                break
-                print 'done'
-            j.get_images_from_es(ads)
-        except:
-            pass
+    j.get_ads()
+    # while (True):
+    #     try:
+    #         ads = j.get_ads()
+    #         if len(ads) == 0:
+    #             break
+    #             print 'done'
+    #         j.get_images_from_es(ads)
+    #     except Exception as e:
+    #         j.log_file.write('{}\n'.format(datetime.now().isoformat()))
+    #         j.log_file.write('Exception: {}'.format(e))
+    #         pass
