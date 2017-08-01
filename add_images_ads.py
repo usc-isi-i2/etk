@@ -68,7 +68,7 @@ class Janitor(object):
             all_images.append(kg_object)
         return all_images
 
-    def get_ads(self, batch_size=100):
+    def get_ads(self, batch_size=10):
         # TODO PROCESS BACKPAGE first
         q = {
             "query": {
@@ -132,7 +132,10 @@ if __name__ == '__main__':
     ads_no_images_path = args[0]
     log_path = args[1]
     j = Janitor(ads_no_images_path, log_path)
-    j.get_ads()
+    try:
+        j.get_ads()
+    except:
+        j.get_ads()
     # while (True):
     #     try:
     #         ads = j.get_ads()
