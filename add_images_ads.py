@@ -47,8 +47,9 @@ class Janitor(object):
                 ad['_source'] = source
                 new_ads.append(ad)
             else:
-                self.o_file.write(ad['_id'])
-                self.o_file.write('\n')
+                print 'No images for ad: {}'.format(ad['_id'])
+                # self.o_file.write(ad['_id'])
+                # self.o_file.write('\n')
         self.bulk_upload(new_ads)
         updated_docs = len(new_ads)
         self.total_docs_processed += updated_docs
