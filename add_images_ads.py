@@ -132,10 +132,12 @@ if __name__ == '__main__':
     ads_no_images_path = args[0]
     log_path = args[1]
     j = Janitor(ads_no_images_path, log_path)
-    try:
-        j.get_ads()
-    except:
-        j.get_ads()
+    for i in range(0,1000):
+        try:
+            j.get_ads()
+        except:
+            print 'Failed attempt: {}'.format(i)
+            pass
     # while (True):
     #     try:
     #         ads = j.get_ads()
