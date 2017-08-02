@@ -137,7 +137,7 @@ if __name__ == '__main__':
         try:
             j.get_ads()
         except:
-            print 'Failed attempt: {}'.format(i)
+            j.log_file.write('Failed attempt: {}\n'.format(i))
             pass
     # while (True):
     #     try:
