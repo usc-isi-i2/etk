@@ -1,5 +1,5 @@
 from optparse import OptionParser
-import json
+import time
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
 import codecs
@@ -133,12 +133,14 @@ if __name__ == '__main__':
     ads_no_images_path = args[0]
     log_path = args[1]
     j = Janitor(ads_no_images_path, log_path)
+    start_time = time.time()
     for i in range(0,1000):
         try:
             j.get_ads()
         except:
             j.log_file.write('Failed attempt: {}\n'.format(i))
             pass
+    j.log_file.write('The script took {0} second !'.format(time.time() - start_time))
     # while (True):
     #     try:
     #         ads = j.get_ads()
