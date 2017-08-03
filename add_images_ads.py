@@ -124,13 +124,7 @@ class Janitor(object):
                 "doc": ad['_source']
             }
             actions.append(action)
-        for i in range(0, 10):
-            try:
-                helpers.bulk(self.dest_es, actions)
-                break
-            except:
-                self.log_file.write('Failed to upload updated documents, attempt # {}\n'.format(i))
-                pass
+        helpers.bulk(self.dest_es, actions)
 
 
 if __name__ == '__main__':
@@ -139,17 +133,12 @@ if __name__ == '__main__':
     ads_no_images_path = args[0]
     log_path = args[1]
     j = Janitor(ads_no_images_path, log_path)
-    try:
-        j.get_ads()
-    except Exception as e:
-        j.log_file.write('Exception: {}\n'.format(e))
-    # start_time = time.time()
-
-    # for i in range(0,1000):
-    #     try:
-    #         j.get_ads()
-    #     except:
-    #         j.log_file.write('Failed attempt: {}\n'.format(i))
-    #         pass
-    # j.log_file.write('The script took {0} second !'.format(time.time() - start_time))
+    start_time = time.time()
+    for i in range(0,1000):
+        try:
+            j.get_ads()
+        except:
+            j.log_file.write('Failed attempt: {}\n'.format(i))
+            pass
+    j.log_file.write('The script took {0} second !'.format(time.time() - start_time))
 
