@@ -775,7 +775,10 @@ def compare_shape(token, shape):
     token_shape = ""
     for i in str(token):
         if i.isalpha():
-            token_shape += "x"
+            if i.islower():
+                token_shape += "x"
+            elif i.isupper():
+                token_shape += "X"
         elif i.isdigit():
             token_shape += "d"
     return counting_stars(str(token_shape)) != counting_stars(shape)
@@ -880,7 +883,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    # print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
