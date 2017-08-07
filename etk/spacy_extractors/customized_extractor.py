@@ -324,7 +324,7 @@ class Pattern(object):
                                           token_d["is_required"], token_inf, t_id)
 
     def add_newline_token(self, token_d, t_id):
-        num_newline = int(token_d["newlines_number"])
+        num_newline = int(token_d["count"])
         s = ''
         for i in range(num_newline):
             s += '\n'
@@ -572,6 +572,7 @@ def filter(doc, matches, inf_inf):
             if "shape" in inf:
                 if compare_shape(pattern[i], inf["shape"]):
                     flag = False
+                    print flag
                     break
             if "prefix" in inf:
                 prefix = inf["prefix"]
@@ -771,7 +772,13 @@ def find_lexeme_base(word, nlp):
 
 
 def compare_shape(token, shape):
-    return counting_stars(str(token)) != counting_stars(shape)
+    token_shape = ""
+    for i in str(token):
+        if i.isalpha():
+            token_shape += "x"
+        elif i.isdigit():
+            token_shape += "d"
+    return counting_stars(str(token_shape)) != counting_stars(shape)
 
 
 def extract(field_rules, nlp_doc, nlp):
@@ -821,7 +828,7 @@ def extract(field_rules, nlp_doc, nlp):
                         rule.set_flag(token_d["token"], flagnum)
                     new_pattern.add_punctuation_token(token_d, flagnum, token_id)
 
-                if token_d["type"] == "newline":
+                if token_d["type"] == "linesplit":
                     new_pattern.add_newline_token(token_d, token_id)
 
             tl = new_pattern.token_lst[0]
