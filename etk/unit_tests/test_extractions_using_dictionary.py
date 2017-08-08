@@ -198,7 +198,6 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue(
             "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
-
         expected_extraction = {
                   "results": [
                     {
@@ -210,11 +209,11 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                       "context": {
                         "end": 4,
                         "tokens_left": [
-                          "my",
+                          "My",
                           "name",
                           "is"
                         ],
-                        "text": "my name is <etk 'attribute' = 'name'>margie</etk> and this is a test ",
+                        "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test ",
                         "start": 3,
                         "input": "tokens",
                         "tokens_right": [
