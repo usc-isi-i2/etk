@@ -56,3 +56,4 @@ dependencies:
   - scipy
   - numpy
   - kafka-python>=1.3.3
+  - digsandpaper>=0.1.4
