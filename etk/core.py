@@ -143,7 +143,7 @@ class Core(object):
         self.pickles = dict()
         self.jobjs = dict()
         self.global_extraction_policy = None
-        self.global_error_handling = None
+        self.global_error_handling = _RAISE_ERROR
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()

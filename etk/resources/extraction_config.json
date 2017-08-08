@@ -434,6 +434,7 @@
         }
       },
       "city_state_pair": {
+        "priority": 2,
         "extractors": {
           "create_city_state_pair": {
             "config": {}
@@ -448,7 +449,8 @@
       "country_classifier": {
         "extractors": {
           "country_feature": {
-            "config": {}
+            "config": {
+            }
           }
         }
       }
