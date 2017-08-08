@@ -210,6 +210,7 @@ DEP_MAP = {
 Class Rule
 '''
 
+
 class Rule(object):
     # initial and load english vocab
     def __init__(self, nlp):
@@ -253,10 +254,7 @@ Class Pattern
 class Pattern(object):
     # initial a Pattern
     def __init__(self):
-        '''
-        First list contains pattern to be matched.
-        Second dict contains information about prefix, suffix, shape
-        '''
+        # First list contains pattern to be matched. Second dict contains information about prefix, suffix, shape
         self.token_lst = [[], {}]
 
     # add a word token
@@ -883,7 +881,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    print json.dumps(extracted_lst, indent=2)
+    # print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
