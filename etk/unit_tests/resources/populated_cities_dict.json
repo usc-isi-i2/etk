@@ -1,0 +1,3253 @@
+{
+  "auburn": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "birmingham": {
+    "country": "united kingdom"
+  },
+  "dothan": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "gadsden": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "huntsville": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "mobile": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "montgomery": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "muscle shoals": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "tuscaloosa": {
+    "state": "alabama",
+    "country": "united states"
+  },
+  "anchorage": {
+    "state": "alaska",
+    "country": "united states"
+  },
+  "fairbanks": {
+    "state": "alaska",
+    "country": "united states"
+  },
+  "juneau": {
+    "state": "alaska",
+    "country": "united states"
+  },
+  "kenai peninsula": {
+    "state": "alaska",
+    "country": "united states"
+  },
+  "flagstaff": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "sedona": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "mohave county": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "phoenix": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "prescott": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "show low": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "sierra vista": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "tucson": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "yuma": {
+    "state": "arizona",
+    "country": "united states"
+  },
+  "fayetteville": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "fort smith": {
+    "state": "arkansas",
+    "country": "united states"
+  },
+  "jonesboro": {
+    "state": "arkansas",
+    "country": "united states"
+  },
+  "little rock": {
+    "state": "arkansas",
+    "country": "united states"
+  },
+  "bakersfield": {
+    "state": "california",
+    "country": "united states"
+  },
+  "chico": {
+    "state": "california",
+    "country": "united states"
+  },
+  "fresno": {
+    "state": "california",
+    "country": "united states"
+  },
+  "humboldt county": {
+    "state": "california",
+    "country": "united states"
+  },
+  "imperial county": {
+    "state": "california",
+    "country": "united states"
+  },
+  "inland empire": {
+    "state": "california",
+    "country": "united states"
+  },
+  "long beach": {
+    "state": "california",
+    "country": "united states"
+  },
+  "los angeles": {
+    "state": "california",
+    "country": "united states"
+  },
+  "mendocino": {
+    "state": "california",
+    "country": "united states"
+  },
+  "merced": {
+    "state": "california",
+    "country": "united states"
+  },
+  "modesto": {
+    "state": "california",
+    "country": "united states"
+  },
+  "monterey": {
+    "state": "california",
+    "country": "united states"
+  },
+  "north bay": {
+    "state": "california",
+    "country": "united states"
+  },
+  "oakland": {
+    "state": "california",
+    "country": "united states"
+  },
+  "east bay": {
+    "state": "california",
+    "country": "united states"
+  },
+  "orange county": {
+    "state": "california",
+    "country": "united states"
+  },
+  "palm springs": {
+    "state": "california",
+    "country": "united states"
+  },
+  "palmdale": {
+    "state": "california",
+    "country": "united states"
+  },
+  "lancaster": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "redding": {
+    "state": "california",
+    "country": "united states"
+  },
+  "sacramento": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san diego": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san fernando valley": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san francisco": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san gabriel valley": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san jose": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san luis obispo": {
+    "state": "california",
+    "country": "united states"
+  },
+  "san mateo": {
+    "state": "california",
+    "country": "united states"
+  },
+  "santa barbara": {
+    "state": "california",
+    "country": "united states"
+  },
+  "santa cruz": {
+    "state": "california",
+    "country": "united states"
+  },
+  "santa maria": {
+    "state": "california",
+    "country": "united states"
+  },
+  "siskiyou": {
+    "state": "california",
+    "country": "united states"
+  },
+  "stockton": {
+    "state": "california",
+    "country": "united states"
+  },
+  "susanville": {
+    "state": "california",
+    "country": "united states"
+  },
+  "ventura": {
+    "state": "california",
+    "country": "united states"
+  },
+  "visalia": {
+    "state": "california",
+    "country": "united states"
+  },
+  "boulder": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "colorado springs": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "denver": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "fort collins": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "pueblo": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "rockies": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "western slope": {
+    "state": "colorado",
+    "country": "united states"
+  },
+  "bridgeport": {
+    "state": "connecticut",
+    "country": "united states"
+  },
+  "eastern connecticut": {
+    "state": "connecticut",
+    "country": "united states"
+  },
+  "hartford": {
+    "state": "connecticut",
+    "country": "united states"
+  },
+  "new haven": {
+    "state": "connecticut",
+    "country": "united states"
+  },
+  "northwest connecticut": {
+    "state": "connecticut",
+    "country": "united states"
+  },
+  "northern virginia": {
+    "state": "district of columbia",
+    "country": "united states"
+  },
+  "southern maryland": {
+    "state": "district of columbia",
+    "country": "united states"
+  },
+  "washington d.c.": {
+    "state": "district of columbia",
+    "country": "united states"
+  },
+  "daytona": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "fort lauderdale": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "fort myers": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "gainesville": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "jacksonville": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "keys": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "lakeland": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "miami": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "ocala": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "okaloosa": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "orlando": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "palm bay": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "panama city": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "pensacola": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "sarasota": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "bradenton": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "space coast": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "st. augustine": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "tallahassee": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "tampa": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "treasure coast": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "west palm beach": {
+    "state": "florida",
+    "country": "united states"
+  },
+  "albany": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "athens": {
+    "country": "greece"
+  },
+  "atlanta": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "augusta": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "brunswick": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "columbus": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "macon": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "northwest georgia": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "savannah": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "statesboro": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "valdosta": {
+    "state": "georgia",
+    "country": "united states"
+  },
+  "big island": {
+    "state": "hawaii",
+    "country": "united states"
+  },
+  "honolulu": {
+    "state": "hawaii",
+    "country": "united states"
+  },
+  "kauai": {
+    "state": "hawaii",
+    "country": "united states"
+  },
+  "maui": {
+    "state": "hawaii",
+    "country": "united states"
+  },
+  "boise": {
+    "state": "idaho",
+    "country": "united states"
+  },
+  "east idaho": {
+    "state": "idaho",
+    "country": "united states"
+  },
+  "lewiston": {
+    "state": "idaho",
+    "country": "united states"
+  },
+  "twin falls": {
+    "state": "idaho",
+    "country": "united states"
+  },
+  "bloomington": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "carbondale": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "chambana": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "chicago": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "decatur": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "la salle county": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "mattoon": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "peoria": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "rockford": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "springfield": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "western illinois": {
+    "state": "illinois",
+    "country": "united states"
+  },
+  "evansville": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "ft wayne": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "indianapolis": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "kokomo": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "lafayette": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "muncie": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "richmond": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "south bend": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "terre haute": {
+    "state": "indiana",
+    "country": "united states"
+  },
+  "ames": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "cedar rapids": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "desmoines": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "dubuque": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "fort dodge": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "iowa city": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "mason city": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "quad cities": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "sioux city": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "southest iowa": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "waterloo": {
+    "state": "iowa",
+    "country": "united states"
+  },
+  "lawrence": {
+    "state": "kansas",
+    "country": "united states"
+  },
+  "manhattan": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "salina": {
+    "state": "kansas",
+    "country": "united states"
+  },
+  "topeka": {
+    "state": "kansas",
+    "country": "united states"
+  },
+  "wichita": {
+    "state": "kansas",
+    "country": "united states"
+  },
+  "bowling green": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "eastern kentucky": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "lexington": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "louisville": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "owensboro": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "western kentucky": {
+    "state": "kentucky",
+    "country": "united states"
+  },
+  "alexandria": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "baton rouge": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "houma": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "lake charles": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "monroe": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "new orleans": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "shreveport": {
+    "state": "louisiana",
+    "country": "united states"
+  },
+  "annapolis": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "baltimore": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "cumberland valley": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "eastern shore": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "frederick": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "western maryland": {
+    "state": "maryland",
+    "country": "united states"
+  },
+  "boston": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "brockton": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "cape cod": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "lowell": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "south coast": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "worcester": {
+    "state": "massachusetts",
+    "country": "united states"
+  },
+  "ann arbor": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "battle creek": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "central michigan": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "detroit": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "flint": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "grand rapids": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "holland": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "jackson": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "kalamazoo": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "lansing": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "muskegon": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "northern michigan": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "port huron": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "saginaw": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "southwest michigan": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "upper peninsula": {
+    "state": "michigan",
+    "country": "united states"
+  },
+  "bemidji": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "brainerd": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "duluth": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "mankato": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "minneapolis": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "st. paul": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "rochester": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "st. cloud": {
+    "state": "minnesota",
+    "country": "united states"
+  },
+  "biloxi": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "hattiesburg": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "meridian": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "north mississippi": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "southwest mississippi": {
+    "state": "mississippi",
+    "country": "united states"
+  },
+  "columbia": {
+    "state": "south carolina",
+    "country": "united states"
+  },
+  "jeff city": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "joplin": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "kansas city": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "kirksville": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "lake of the ozarks": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "southeast missouri": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "st joseph": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "st. louis": {
+    "state": "missouri",
+    "country": "united states"
+  },
+  "billings": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "bozeman": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "butte": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "great falls": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "helena": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "kalispell": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "missoula": {
+    "state": "montana",
+    "country": "united states"
+  },
+  "grand island": {
+    "state": "nebraska",
+    "country": "united states"
+  },
+  "lincoln": {
+    "state": "nebraska",
+    "country": "united states"
+  },
+  "north platte": {
+    "state": "nebraska",
+    "country": "united states"
+  },
+  "omaha": {
+    "state": "nebraska",
+    "country": "united states"
+  },
+  "scottsbluff": {
+    "state": "nebraska",
+    "country": "united states"
+  },
+  "elko": {
+    "state": "nevada",
+    "country": "united states"
+  },
+  "las vegas": {
+    "state": "nevada",
+    "country": "united states"
+  },
+  "reno": {
+    "state": "nevada",
+    "country": "united states"
+  },
+  "central jersey": {
+    "state": "new jersey",
+    "country": "united states"
+  },
+  "jersey shore": {
+    "state": "new jersey",
+    "country": "united states"
+  },
+  "north jersey": {
+    "state": "new jersey",
+    "country": "united states"
+  },
+  "south jersey": {
+    "state": "new jersey",
+    "country": "united states"
+  },
+  "albuquerque": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "clovis": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "portales": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "farmington": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "las cruces": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "roswell": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "carlsbad": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "santa fe": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "taos": {
+    "state": "new mexico",
+    "country": "united states"
+  },
+  "binghamton": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "bronx": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "brooklyn": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "buffalo": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "catskills": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "chautauqua": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "elmira": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "fairfield": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "finger lakes": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "glens falls": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "hudson valley": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "ithaca": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "long island": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "oneonta": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "plattsburgh": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "potsdam": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "queens": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "staten island": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "syracuse": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "twin tiers": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "utica": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "watertown": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "westchester": {
+    "state": "new york",
+    "country": "united states"
+  },
+  "asheville": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "boone": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "charlotte": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "eastern": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "greensboro": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "hickory": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "high point": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "outer banks": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "raleigh-durham": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "wilmington": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "winston-salem": {
+    "state": "north carolina",
+    "country": "united states"
+  },
+  "bismarck": {
+    "state": "north dakota",
+    "country": "united states"
+  },
+  "fargo": {
+    "state": "north dakota",
+    "country": "united states"
+  },
+  "grand forks": {
+    "state": "north dakota",
+    "country": "united states"
+  },
+  "minot": {
+    "state": "north dakota",
+    "country": "united states"
+  },
+  "akron": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "canton": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "ashtabula": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "chillicothe": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "cincinnati": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "cleveland": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "dayton": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "huntington": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "ashland": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "lima": {
+    "country": "peru"
+  },
+  "findlay": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "mansfield": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "sandusky": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "toledo": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "tuscarawas county": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "youngstown": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "zanesville": {
+    "state": "ohio",
+    "country": "united states"
+  },
+  "cambridge": {
+    "country": "united kingdom"
+  },
+  "lawton": {
+    "state": "oklahoma",
+    "country": "united states"
+  },
+  "norman": {
+    "state": "oklahoma",
+    "country": "united states"
+  },
+  "oklahoma city": {
+    "state": "oklahoma",
+    "country": "united states"
+  },
+  "stillwater": {
+    "state": "oklahoma",
+    "country": "united states"
+  },
+  "tulsa": {
+    "state": "oklahoma",
+    "country": "united states"
+  },
+  "bend": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "corvallis": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "east oregon": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "eugene": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "klamath falls": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "medford": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "oregon coast": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "portland": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "roseburg": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "salem": {
+    "state": "oregon",
+    "country": "united states"
+  },
+  "allentown": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "altoona": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "chambersburg": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "erie": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "harrisburg": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "meadville": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "penn state": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "philadelphia": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "pittsburgh": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "poconos": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "reading": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "scranton": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "williamsport": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "york": {
+    "state": "pennsylvania",
+    "country": "united states"
+  },
+  "providence": {
+    "state": "rhode island",
+    "country": "united states"
+  },
+  "warwick": {
+    "state": "rhode island",
+    "country": "united states"
+  },
+  "charleston": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "florence": {
+    "state": "south carolina",
+    "country": "united states"
+  },
+  "greenville": {
+    "state": "south carolina",
+    "country": "united states"
+  },
+  "hilton head": {
+    "state": "south carolina",
+    "country": "united states"
+  },
+  "myrtle beach": {
+    "state": "south carolina",
+    "country": "united states"
+  },
+  "aberdeen": {
+    "country": "united kingdom"
+  },
+  "pierre": {
+    "state": "south dakota",
+    "country": "united states"
+  },
+  "rapid city": {
+    "state": "south dakota",
+    "country": "united states"
+  },
+  "sioux falls": {
+    "state": "south dakota",
+    "country": "united states"
+  },
+  "chattanooga": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "clarksville": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "cookeville": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "johnson city": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "knoxville": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "memphis": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "nashville": {
+    "state": "tennessee",
+    "country": "united states"
+  },
+  "tri-cities": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "abilene": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "amarillo": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "austin": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "beaumont": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "brownsville": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "college station": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "corpus christi": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "dallas": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "del rio": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "denton": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "el paso": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "fort worth": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "galveston": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "houston": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "killeen": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "laredo": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "longview": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "lubbock": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "mcallen": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "mid cities": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "odessa": {
+    "country": "ukraine"
+  },
+  "san antonio": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "san marcos": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "texarkana": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "texoma": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "tyler": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "victoria": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "waco": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "wichita falls": {
+    "state": "texas",
+    "country": "united states"
+  },
+  "logan": {
+    "state": "utah",
+    "country": "united states"
+  },
+  "ogden": {
+    "state": "utah",
+    "country": "united states"
+  },
+  "provo": {
+    "state": "utah",
+    "country": "united states"
+  },
+  "salt lake city": {
+    "state": "utah",
+    "country": "united states"
+  },
+  "st. george": {
+    "state": "utah",
+    "country": "united states"
+  },
+  "charlottesville": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "chesapeake": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "danville": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "fredericksburg": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "hampton": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "harrisonburg": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "lynchburg": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "new river valley": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "newport news": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "norfolk": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "portsmouth": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "roanoke": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "southwest virginia": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "suffolk": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "virginia beach": {
+    "state": "virginia",
+    "country": "united states"
+  },
+  "bellingham": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "everett": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "moses lake": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "mt. vernon": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "olympia": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "pullman": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "seattle": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "spokane": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "tacoma": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "wenatchee": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "yakima": {
+    "state": "washington",
+    "country": "united states"
+  },
+  "martinsburg": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "morgantown": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "parkersburg": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "southern west virginia": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "wheeling": {
+    "state": "west virginia",
+    "country": "united states"
+  },
+  "appleton": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "eau claire": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "green bay": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "janesville": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "la crosse": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "madison": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "milwaukee": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "racine": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "sheboygan": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "wausa": {
+    "state": "wisconsin",
+    "country": "united states"
+  },
+  "calgary": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "edmonton": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "ft mcmurray": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "grande prairie": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "lethbridge": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "medicine hat": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "red deer": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "st. albert": {
+    "state": "alberta",
+    "country": "canada"
+  },
+  "abbotsford": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "cariboo": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "comox valley": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "cranbrook": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "kamloops": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "kelowna": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "nanaimo": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "peace river country": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "prince george": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "skeena": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "sunshine coast": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "vancouver": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "whistler": {
+    "state": "british columbia",
+    "country": "canada"
+  },
+  "brandon": {
+    "state": "manitoba",
+    "country": "canada"
+  },
+  "winnipeg": {
+    "state": "manitoba",
+    "country": "canada"
+  },
+  "fredericton": {
+    "state": "new brunswick",
+    "country": "canada"
+  },
+  "moncton": {
+    "state": "new brunswick",
+    "country": "canada"
+  },
+  "st. john": {
+    "state": "new brunswick",
+    "country": "canada"
+  },
+  "barrie": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "belleville": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "brantford": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "chatham": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "cornwall": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "guelph": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "hamilton": {
+    "country": "new zealand"
+  },
+  "kingston": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "kitchener": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "london": {
+    "country": "united kingdom"
+  },
+  "niagara": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "ottawa": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "owen sound": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "peterborough": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "sarnia": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "sault ste marie": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "sudbury": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "thunder bay": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "toronto": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "windsor": {
+    "state": "ontario",
+    "country": "canada"
+  },
+  "montreal": {
+    "state": "quebec",
+    "country": "canada"
+  },
+  "quebec city": {
+    "state": "quebec",
+    "country": "canada"
+  },
+  "saguenay": {
+    "state": "quebec",
+    "country": "canada"
+  },
+  "sherbrooke": {
+    "state": "quebec",
+    "country": "canada"
+  },
+  "trois-rivières": {
+    "state": "quebec",
+    "country": "canada"
+  },
+  "prince albert": {
+    "state": "saskatchewan",
+    "country": "canada"
+  },
+  "regina": {
+    "state": "saskatchewan",
+    "country": "canada"
+  },
+  "saskatoon": {
+    "state": "saskatchewan",
+    "country": "canada"
+  },
+  "tiranë": {
+    "country": "albania"
+  },
+  "graz": {
+    "country": "austria"
+  },
+  "innsbruck": {
+    "country": "austria"
+  },
+  "linz": {
+    "country": "austria"
+  },
+  "salzburg": {
+    "country": "austria"
+  },
+  "wien": {
+    "country": "austria"
+  },
+  "minsk": {
+    "country": "belarus"
+  },
+  "antwerp": {
+    "country": "belgium"
+  },
+  "bruges": {
+    "country": "belgium"
+  },
+  "brussel": {
+    "country": "belgium"
+  },
+  "charleroi": {
+    "country": "belgium"
+  },
+  "ghent": {
+    "country": "belgium"
+  },
+  "liege": {
+    "country": "belgium"
+  },
+  "namur": {
+    "country": "belgium"
+  },
+  "sarajevo": {
+    "country": "bosnia and herzegovina"
+  },
+  "balgariya": {
+    "country": "bulgaria"
+  },
+  "zagreb": {
+    "country": "croatia"
+  },
+  "limassol": {
+    "country": "cyprus"
+  },
+  "nicosia": {
+    "country": "cyprus"
+  },
+  "brno": {
+    "country": "czech republic"
+  },
+  "České budějovice": {
+    "country": "czech republic"
+  },
+  "liberec": {
+    "country": "czech republic"
+  },
+  "olomouc": {
+    "country": "czech republic"
+  },
+  "ostrava": {
+    "country": "czech republic"
+  },
+  "plzeň": {
+    "country": "czech republic"
+  },
+  "praha": {
+    "country": "czech republic"
+  },
+  "aarhus": {
+    "country": "denmark"
+  },
+  "københavn": {
+    "country": "denmark"
+  },
+  "tallinn": {
+    "country": "estonia"
+  },
+  "helsinki": {
+    "country": "finland"
+  },
+  "bordeaux": {
+    "country": "france"
+  },
+  "bretagne": {
+    "country": "france"
+  },
+  "corse": {
+    "country": "france"
+  },
+  "départements d'outre mer": {
+    "country": "france"
+  },
+  "grenoble": {
+    "country": "france"
+  },
+  "lille": {
+    "country": "france"
+  },
+  "loire": {
+    "country": "france"
+  },
+  "lyon": {
+    "country": "france"
+  },
+  "marseille": {
+    "country": "france"
+  },
+  "montpellier": {
+    "country": "france"
+  },
+  "nantes": {
+    "country": "france"
+  },
+  "nice": {
+    "country": "france"
+  },
+  "normandie": {
+    "country": "france"
+  },
+  "paris": {
+    "country": "france"
+  },
+  "strasbourg": {
+    "country": "france"
+  },
+  "toulouse": {
+    "country": "france"
+  },
+  "berlin": {
+    "country": "germany"
+  },
+  "bodensee": {
+    "country": "germany"
+  },
+  "bremen": {
+    "country": "germany"
+  },
+  "dortmund": {
+    "country": "germany"
+  },
+  "dresden": {
+    "country": "germany"
+  },
+  "düsseldorf": {
+    "country": "germany"
+  },
+  "essen": {
+    "country": "germany"
+  },
+  "frankfurt": {
+    "country": "germany"
+  },
+  "freiburg": {
+    "country": "germany"
+  },
+  "hamburg": {
+    "country": "germany"
+  },
+  "hannover": {
+    "country": "germany"
+  },
+  "heidelberg": {
+    "country": "germany"
+  },
+  "kaiserslautern": {
+    "country": "germany"
+  },
+  "karlsruhe": {
+    "country": "germany"
+  },
+  "kiel": {
+    "country": "germany"
+  },
+  "köln": {
+    "country": "germany"
+  },
+  "leipzig": {
+    "country": "germany"
+  },
+  "lübeck": {
+    "country": "germany"
+  },
+  "mannheim": {
+    "country": "germany"
+  },
+  "münchen": {
+    "country": "germany"
+  },
+  "nürnberg": {
+    "country": "germany"
+  },
+  "rostock": {
+    "country": "germany"
+  },
+  "saarbrücken": {
+    "country": "germany"
+  },
+  "schwerin": {
+    "country": "germany"
+  },
+  "stuttgart": {
+    "country": "germany"
+  },
+  "crete": {
+    "country": "greece"
+  },
+  "patras": {
+    "country": "greece"
+  },
+  "thessaloniki": {
+    "country": "greece"
+  },
+  "budapest": {
+    "country": "hungary"
+  },
+  "debrecen": {
+    "country": "hungary"
+  },
+  "miskolc": {
+    "country": "hungary"
+  },
+  "szeged": {
+    "country": "hungary"
+  },
+  "iceland": {
+    "country": "iceland"
+  },
+  "cork": {
+    "country": "ireland"
+  },
+  "derry": {
+    "country": "ireland"
+  },
+  "dublin": {
+    "country": "ireland"
+  },
+  "galway": {
+    "country": "ireland"
+  },
+  "limerick": {
+    "country": "ireland"
+  },
+  "lisburn": {
+    "country": "ireland"
+  },
+  "waterford": {
+    "country": "ireland"
+  },
+  "bari": {
+    "country": "italy"
+  },
+  "bologna": {
+    "country": "italy"
+  },
+  "brescia": {
+    "country": "italy"
+  },
+  "calabria": {
+    "country": "italy"
+  },
+  "firenze": {
+    "country": "italy"
+  },
+  "forli-cesena": {
+    "country": "italy"
+  },
+  "genova": {
+    "country": "italy"
+  },
+  "milano": {
+    "country": "italy"
+  },
+  "napoli": {
+    "country": "italy"
+  },
+  "perugia": {
+    "country": "italy"
+  },
+  "roma": {
+    "country": "italy"
+  },
+  "sardegna": {
+    "country": "italy"
+  },
+  "sicilia": {
+    "country": "italy"
+  },
+  "torino": {
+    "country": "italy"
+  },
+  "trieste": {
+    "country": "italy"
+  },
+  "venezia": {
+    "country": "italy"
+  },
+  "prishtinë": {
+    "country": "kosovo"
+  },
+  "rīga": {
+    "country": "latvia"
+  },
+  "vilnius": {
+    "country": "lithuania"
+  },
+  "luxembourg": {
+    "country": "luxembourg"
+  },
+  "Скопје": {
+    "country": "macedonia"
+  },
+  "malta": {
+    "country": "malta"
+  },
+  "monaco": {
+    "country": "monaco"
+  },
+  "podgorica": {
+    "country": "montenegro"
+  },
+  "amsterdam": {
+    "country": "netherlands"
+  },
+  "den haag": {
+    "country": "netherlands"
+  },
+  "eindhoven": {
+    "country": "netherlands"
+  },
+  "groningen": {
+    "country": "netherlands"
+  },
+  "rotterdam": {
+    "country": "netherlands"
+  },
+  "utrecht": {
+    "country": "netherlands"
+  },
+  "bergen": {
+    "country": "norway"
+  },
+  "oslo": {
+    "country": "norway"
+  },
+  "białystok": {
+    "country": "poland"
+  },
+  "bydgoszcz": {
+    "country": "poland"
+  },
+  "gdańsk": {
+    "country": "poland"
+  },
+  "katowice": {
+    "country": "poland"
+  },
+  "kraków": {
+    "country": "poland"
+  },
+  "Łódź": {
+    "country": "poland"
+  },
+  "lublin": {
+    "country": "poland"
+  },
+  "poznań": {
+    "country": "poland"
+  },
+  "szczecin": {
+    "country": "poland"
+  },
+  "warszawa": {
+    "country": "poland"
+  },
+  "wrocław": {
+    "country": "poland"
+  },
+  "braga": {
+    "country": "portugal"
+  },
+  "coimbra": {
+    "country": "portugal"
+  },
+  "faro": {
+    "country": "portugal"
+  },
+  "algarve": {
+    "country": "portugal"
+  },
+  "lisboa": {
+    "country": "portugal"
+  },
+  "madeira": {
+    "country": "portugal"
+  },
+  "porto": {
+    "country": "portugal"
+  },
+  "brașov": {
+    "country": "romania"
+  },
+  "bucuresti": {
+    "country": "romania"
+  },
+  "cluj-napoca": {
+    "country": "romania"
+  },
+  "constanța": {
+    "country": "romania"
+  },
+  "craiova": {
+    "country": "romania"
+  },
+  "galați": {
+    "country": "romania"
+  },
+  "iași": {
+    "country": "romania"
+  },
+  "timișoara": {
+    "country": "romania"
+  },
+  "moskva": {
+    "country": "russia"
+  },
+  "sankt-peterburg": {
+    "country": "russia"
+  },
+  "beograd": {
+    "country": "serbia"
+  },
+  "bratislava": {
+    "country": "slovakia"
+  },
+  "košice": {
+    "country": "slovakia"
+  },
+  "alicante": {
+    "country": "spain"
+  },
+  "barcelona": {
+    "country": "spain"
+  },
+  "bilbao": {
+    "country": "spain"
+  },
+  "cádiz": {
+    "country": "spain"
+  },
+  "canarias": {
+    "country": "spain"
+  },
+  "coruña": {
+    "country": "spain"
+  },
+  "granada": {
+    "country": "spain"
+  },
+  "ibiza": {
+    "country": "spain"
+  },
+  "madrid": {
+    "country": "spain"
+  },
+  "málaga": {
+    "country": "spain"
+  },
+  "mallorca": {
+    "country": "spain"
+  },
+  "murcia": {
+    "country": "spain"
+  },
+  "oviedo": {
+    "country": "spain"
+  },
+  "salamanca": {
+    "country": "spain"
+  },
+  "san sebastián": {
+    "country": "spain"
+  },
+  "sevilla": {
+    "country": "spain"
+  },
+  "valencia": {
+    "country": "spain"
+  },
+  "valladolid": {
+    "country": "spain"
+  },
+  "zaragoza": {
+    "country": "spain"
+  },
+  "göteborg": {
+    "country": "sweden"
+  },
+  "helsingborg": {
+    "country": "sweden"
+  },
+  "jönköping": {
+    "country": "sweden"
+  },
+  "malmö": {
+    "country": "sweden"
+  },
+  "norrköping": {
+    "country": "sweden"
+  },
+  "Örebro": {
+    "country": "sweden"
+  },
+  "stockholm": {
+    "country": "sweden"
+  },
+  "umeå": {
+    "country": "sweden"
+  },
+  "uppsala": {
+    "country": "sweden"
+  },
+  "västerås": {
+    "country": "sweden"
+  },
+  "basel": {
+    "country": "switzerland"
+  },
+  "bern": {
+    "country": "switzerland"
+  },
+  "genève": {
+    "country": "switzerland"
+  },
+  "lausanne": {
+    "country": "switzerland"
+  },
+  "lugano": {
+    "country": "switzerland"
+  },
+  "zürich": {
+    "country": "switzerland"
+  },
+  "dnipropetrovsk": {
+    "country": "ukraine"
+  },
+  "donetsk": {
+    "country": "ukraine"
+  },
+  "kharkiv": {
+    "country": "ukraine"
+  },
+  "kyiv": {
+    "country": "ukraine"
+  },
+  "lviv": {
+    "country": "ukraine"
+  },
+  "zaporizhia": {
+    "country": "ukraine"
+  },
+  "bath": {
+    "country": "united kingdom"
+  },
+  "belfast": {
+    "country": "united kingdom"
+  },
+  "brighton": {
+    "country": "united kingdom"
+  },
+  "bristol": {
+    "country": "united kingdom"
+  },
+  "devon": {
+    "country": "united kingdom"
+  },
+  "east anglia": {
+    "country": "united kingdom"
+  },
+  "east midlands": {
+    "country": "united kingdom"
+  },
+  "edinburgh": {
+    "country": "united kingdom"
+  },
+  "essex": {
+    "country": "united kingdom"
+  },
+  "glasgow": {
+    "country": "united kingdom"
+  },
+  "hampshire": {
+    "country": "united kingdom"
+  },
+  "kent": {
+    "country": "united kingdom"
+  },
+  "leeds": {
+    "country": "united kingdom"
+  },
+  "liverpool": {
+    "country": "united kingdom"
+  },
+  "manchester": {
+    "country": "united kingdom"
+  },
+  "newcastle": {
+    "country": "australia"
+  },
+  "oxford": {
+    "country": "united kingdom"
+  },
+  "sheffield": {
+    "country": "united kingdom"
+  },
+  "wales": {
+    "country": "united kingdom"
+  },
+  "manama": {
+    "country": "bahrain"
+  },
+  "bangladesh": {
+    "country": "bangladesh"
+  },
+  "beijing": {
+    "country": "china"
+  },
+  "chengdu": {
+    "country": "china"
+  },
+  "chongqing": {
+    "country": "china"
+  },
+  "dalian": {
+    "country": "china"
+  },
+  "guangzhou": {
+    "country": "china"
+  },
+  "hangzhou": {
+    "country": "china"
+  },
+  "nanjing": {
+    "country": "china"
+  },
+  "shanghai": {
+    "country": "china"
+  },
+  "shenyang": {
+    "country": "china"
+  },
+  "shenzhen": {
+    "country": "china"
+  },
+  "wuhan": {
+    "country": "china"
+  },
+  "xi'an": {
+    "country": "china"
+  },
+  "hk": {
+    "country": "hong kong"
+  },
+  "kowloon": {
+    "country": "hong kong"
+  },
+  "new territories": {
+    "country": "hong kong"
+  },
+  "ahmedabad": {
+    "country": "india"
+  },
+  "bangalore": {
+    "country": "india"
+  },
+  "bhubaneswar": {
+    "country": "india"
+  },
+  "chandigarh": {
+    "country": "india"
+  },
+  "chennai": {
+    "country": "india"
+  },
+  "delhi": {
+    "country": "india"
+  },
+  "goa": {
+    "country": "india"
+  },
+  "hyderabad": {
+    "country": "india"
+  },
+  "indore": {
+    "country": "india"
+  },
+  "jaipur": {
+    "country": "india"
+  },
+  "kanpur": {
+    "country": "india"
+  },
+  "kerala": {
+    "country": "india"
+  },
+  "kolkata": {
+    "country": "india"
+  },
+  "lucknow": {
+    "country": "india"
+  },
+  "mumbai": {
+    "country": "india"
+  },
+  "nagpur": {
+    "country": "india"
+  },
+  "pune": {
+    "country": "india"
+  },
+  "surat": {
+    "country": "india"
+  },
+  "visakhapatnam": {
+    "country": "india"
+  },
+  "bali": {
+    "country": "indonesia"
+  },
+  "bandung": {
+    "country": "indonesia"
+  },
+  "batam": {
+    "country": "indonesia"
+  },
+  "jakarta": {
+    "country": "indonesia"
+  },
+  "makassar": {
+    "country": "indonesia"
+  },
+  "medan": {
+    "country": "indonesia"
+  },
+  "surabaya": {
+    "country": "indonesia"
+  },
+  "haifa": {
+    "country": "israel"
+  },
+  "jerusalem": {
+    "country": "israel"
+  },
+  "rishon lezion": {
+    "country": "israel"
+  },
+  "telaviv": {
+    "country": "israel"
+  },
+  "westbank": {
+    "country": "israel"
+  },
+  "fukuoka": {
+    "country": "japan"
+  },
+  "hiroshima": {
+    "country": "japan"
+  },
+  "nagoya": {
+    "country": "japan"
+  },
+  "okinawa": {
+    "country": "japan"
+  },
+  "osaka": {
+    "country": "japan"
+  },
+  "kobe": {
+    "country": "japan"
+  },
+  "kyoto": {
+    "country": "japan"
+  },
+  "sapporo": {
+    "country": "japan"
+  },
+  "sendai": {
+    "country": "japan"
+  },
+  "tokyo": {
+    "country": "japan"
+  },
+  "amman": {
+    "country": "jordan"
+  },
+  "busan": {
+    "country": "korea"
+  },
+  "changwon": {
+    "country": "korea"
+  },
+  "daegu": {
+    "country": "korea"
+  },
+  "daejeon": {
+    "country": "korea"
+  },
+  "gwangju": {
+    "country": "korea"
+  },
+  "incheon": {
+    "country": "korea"
+  },
+  "seoul": {
+    "country": "korea"
+  },
+  "suwon": {
+    "country": "korea"
+  },
+  "ulsan": {
+    "country": "korea"
+  },
+  "kuwait": {
+    "country": "kuwait"
+  },
+  "beirut": {
+    "country": "lebanon"
+  },
+  "sidon": {
+    "country": "lebanon"
+  },
+  "tripoli": {
+    "country": "lebanon"
+  },
+  "macau": {
+    "country": "macau"
+  },
+  "ipoh": {
+    "country": "malaysia"
+  },
+  "johor bahru": {
+    "country": "malaysia"
+  },
+  "kota bharu": {
+    "country": "malaysia"
+  },
+  "kota kinabalu": {
+    "country": "malaysia"
+  },
+  "kuala lumpur": {
+    "country": "malaysia"
+  },
+  "kuching": {
+    "country": "malaysia"
+  },
+  "penang": {
+    "country": "malaysia"
+  },
+  "petaling jaya": {
+    "country": "malaysia"
+  },
+  "ulaanbaatar": {
+    "country": "mongolia"
+  },
+  "muscat": {
+    "country": "oman"
+  },
+  "faisalabad": {
+    "country": "pakistan"
+  },
+  "islamabad": {
+    "country": "pakistan"
+  },
+  "karachi": {
+    "country": "pakistan"
+  },
+  "lahore": {
+    "country": "pakistan"
+  },
+  "cebu": {
+    "country": "philippines"
+  },
+  "davao": {
+    "country": "philippines"
+  },
+  "manila": {
+    "country": "philippines"
+  },
+  "pampanga": {
+    "country": "philippines"
+  },
+  "doha": {
+    "country": "qatar"
+  },
+  "singapore": {
+    "country": "singapore"
+  },
+  "taipei": {
+    "country": "taiwan"
+  },
+  "bangkok": {
+    "country": "thailand"
+  },
+  "ankara": {
+    "country": "turkey"
+  },
+  "antalya": {
+    "country": "turkey"
+  },
+  "istanbul": {
+    "country": "turkey"
+  },
+  "abudhabi": {
+    "country": "united arab emirates"
+  },
+  "ajman": {
+    "country": "united arab emirates"
+  },
+  "al ain": {
+    "country": "united arab emirates"
+  },
+  "dubai": {
+    "country": "united arab emirates"
+  },
+  "sharjah": {
+    "country": "united arab emirates"
+  },
+  "vietnam": {
+    "country": "vietnam"
+  },
+  "adelaide": {
+    "country": "australia"
+  },
+  "brisbane": {
+    "country": "australia"
+  },
+  "cairns": {
+    "country": "australia"
+  },
+  "canberra": {
+    "country": "australia"
+  },
+  "darwin": {
+    "country": "australia"
+  },
+  "gold coast": {
+    "country": "australia"
+  },
+  "hobart": {
+    "country": "australia"
+  },
+  "launceston": {
+    "country": "australia"
+  },
+  "melbourne": {
+    "country": "australia"
+  },
+  "perth": {
+    "country": "australia"
+  },
+  "sydney": {
+    "country": "australia"
+  },
+  "toowoomba": {
+    "country": "australia"
+  },
+  "townsville": {
+    "country": "australia"
+  },
+  "wollongong": {
+    "country": "australia"
+  },
+  "guam": {
+    "country": "guam"
+  },
+  "auckland": {
+    "country": "new zealand"
+  },
+  "christchurch": {
+    "country": "new zealand"
+  },
+  "dunedin": {
+    "country": "new zealand"
+  },
+  "invercargill": {
+    "country": "new zealand"
+  },
+  "napier-hastings": {
+    "country": "new zealand"
+  },
+  "nelson": {
+    "country": "new zealand"
+  },
+  "northland": {
+    "country": "new zealand"
+  },
+  "tauranga": {
+    "country": "new zealand"
+  },
+  "wellington": {
+    "country": "new zealand"
+  },
+  "buenos aires": {
+    "country": "argentina"
+  },
+  "cordoba": {
+    "country": "argentina"
+  },
+  "laplata": {
+    "country": "argentina"
+  },
+  "mendoza": {
+    "country": "argentina"
+  },
+  "rosario": {
+    "country": "argentina"
+  },
+  "salta": {
+    "country": "argentina"
+  },
+  "south argentina": {
+    "country": "argentina"
+  },
+  "tucuman": {
+    "country": "argentina"
+  },
+  "belize": {
+    "country": "belize"
+  },
+  "la paz": {
+    "country": "bolivia"
+  },
+  "bahia": {
+    "country": "brazil"
+  },
+  "belem": {
+    "country": "brazil"
+  },
+  "belo horizonte": {
+    "country": "brazil"
+  },
+  "brasilia": {
+    "country": "brazil"
+  },
+  "curitiba": {
+    "country": "brazil"
+  },
+  "fortaleza": {
+    "country": "brazil"
+  },
+  "goiânia": {
+    "country": "brazil"
+  },
+  "manaus": {
+    "country": "brazil"
+  },
+  "porto alegre": {
+    "country": "brazil"
+  },
+  "recife": {
+    "country": "brazil"
+  },
+  "rio de janeiro": {
+    "country": "brazil"
+  },
+  "são paulo": {
+    "country": "brazil"
+  },
+  "bahamas": {
+    "country": "caribbean"
+  },
+  "dominican republic": {
+    "country": "caribbean"
+  },
+  "jamaica": {
+    "country": "caribbean"
+  },
+  "other caribbean": {
+    "country": "caribbean"
+  },
+  "puerto rico": {
+    "country": "caribbean"
+  },
+  "virgin islands": {
+    "country": "caribbean"
+  },
+  "antofagasta": {
+    "country": "chile"
+  },
+  "chillán": {
+    "country": "chile"
+  },
+  "concepcion": {
+    "country": "chile"
+  },
+  "iquique": {
+    "country": "chile"
+  },
+  "la serena": {
+    "country": "chile"
+  },
+  "montt": {
+    "country": "chile"
+  },
+  "rancagua": {
+    "country": "chile"
+  },
+  "santiago": {
+    "country": "chile"
+  },
+  "talca": {
+    "country": "chile"
+  },
+  "temuco": {
+    "country": "chile"
+  },
+  "valparaiso": {
+    "country": "chile"
+  },
+  "barranquilla": {
+    "country": "colombia"
+  },
+  "bogota": {
+    "country": "colombia"
+  },
+  "bucaramanga": {
+    "country": "colombia"
+  },
+  "cali": {
+    "country": "colombia"
+  },
+  "cartagena": {
+    "country": "colombia"
+  },
+  "cucuta": {
+    "country": "colombia"
+  },
+  "ibagué": {
+    "country": "colombia"
+  },
+  "medellin": {
+    "country": "colombia"
+  },
+  "neiva": {
+    "country": "colombia"
+  },
+  "pasto": {
+    "country": "colombia"
+  },
+  "pereira": {
+    "country": "colombia"
+  },
+  "santa marta": {
+    "country": "colombia"
+  },
+  "costa rica": {
+    "country": "costa rica"
+  },
+  "ambato": {
+    "country": "ecuador"
+  },
+  "cuenca": {
+    "country": "ecuador"
+  },
+  "esmeraldas": {
+    "country": "ecuador"
+  },
+  "guayaquil": {
+    "country": "ecuador"
+  },
+  "machala": {
+    "country": "ecuador"
+  },
+  "manta": {
+    "country": "ecuador"
+  },
+  "quito": {
+    "country": "ecuador"
+  },
+  "santo domingo": {
+    "country": "ecuador"
+  },
+  "san miguel": {
+    "country": "el salvador"
+  },
+  "san salvador": {
+    "country": "el salvador"
+  },
+  "santa ana": {
+    "country": "el salvador"
+  },
+  "guatemala": {
+    "country": "guatemala"
+  },
+  "georgetown": {
+    "country": "guyana"
+  },
+  "tegucigalpa": {
+    "country": "honduras"
+  },
+  "acapulco": {
+    "country": "mexico"
+  },
+  "baja california": {
+    "country": "mexico"
+  },
+  "chihuahua": {
+    "country": "mexico"
+  },
+  "ciudad juárez": {
+    "country": "mexico"
+  },
+  "df": {
+    "country": "mexico"
+  },
+  "guadalajara": {
+    "country": "mexico"
+  },
+  "guanajuato": {
+    "country": "mexico"
+  },
+  "hermosillo": {
+    "country": "mexico"
+  },
+  "hidalgo": {
+    "country": "mexico"
+  },
+  "mazatlán": {
+    "country": "mexico"
+  },
+  "monterrey": {
+    "country": "mexico"
+  },
+  "oaxaca": {
+    "country": "mexico"
+  },
+  "puebla": {
+    "country": "mexico"
+  },
+  "puerto vallarta": {
+    "country": "mexico"
+  },
+  "querétaro": {
+    "country": "mexico"
+  },
+  "san luis potosí": {
+    "country": "mexico"
+  },
+  "tijuana": {
+    "country": "mexico"
+  },
+  "toluca": {
+    "country": "mexico"
+  },
+  "vera cruz": {
+    "country": "mexico"
+  },
+  "yucatán": {
+    "country": "mexico"
+  },
+  "managua": {
+    "country": "nicaragua"
+  },
+  "ciudad de panamá": {
+    "country": "panama"
+  },
+  "colón": {
+    "country": "panama"
+  },
+  "david": {
+    "country": "panama"
+  },
+  "asunción": {
+    "country": "paraguay"
+  },
+  "arequipa": {
+    "country": "peru"
+  },
+  "chiclayo": {
+    "country": "peru"
+  },
+  "chimbote": {
+    "country": "peru"
+  },
+  "cusco": {
+    "country": "peru"
+  },
+  "huancayo": {
+    "country": "peru"
+  },
+  "iquitos": {
+    "country": "peru"
+  },
+  "piura": {
+    "country": "peru"
+  },
+  "trujillo": {
+    "country": "peru"
+  },
+  "paramaribo": {
+    "country": "suriname"
+  },
+  "montevideo": {
+    "country": "uruguay"
+  },
+  "caracas": {
+    "country": "venezuela"
+  },
+  "cameroon": {
+    "country": "cameroon"
+  },
+  "cairo": {
+    "country": "egypt"
+  },
+  "abidjan": {
+    "country": "ivory coast"
+  },
+  "morocco": {
+    "country": "morocco"
+  },
+  "nigeria": {
+    "country": "nigeria"
+  },
+  "cape town": {
+    "country": "south africa"
+  },
+  "durban": {
+    "country": "south africa"
+  },
+  "johannesburg": {
+    "country": "south africa"
+  },
+  "port elizabeth": {
+    "country": "south africa"
+  },
+  "pretoria": {
+    "country": "south africa"
+  }
+}
