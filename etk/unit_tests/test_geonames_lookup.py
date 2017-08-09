@@ -151,7 +151,7 @@ class TestGeonamesLookup(unittest.TestCase):
                 "key": "los angeles-country:chile-geoname_id:3882428-latitude:-37.46973-longitude:-72.35366-population:125430-state:biobío"
             }
         ]
-        exx_city_name = [
+        ex_city_name_gt = [
             {
                 "confidence": 1,
                 "provenance": [
@@ -222,7 +222,7 @@ class TestGeonamesLookup(unittest.TestCase):
                 "key": "los angeles"
             }
         ]
-        exx_city = [
+        ex_city_gt = [
             {
                 "value": "los angeles,california-1.0",
                 "confidence": 1,
@@ -256,7 +256,7 @@ class TestGeonamesLookup(unittest.TestCase):
                 "key": "los angeles:california:united states:-118.24368:34.05223"
             }
         ]
-        exx_states_usa_codes = [
+        ex_states_usa_codes_gt = [
             {
                 "confidence": 1,
                 "provenance": [
@@ -656,15 +656,15 @@ class TestGeonamesLookup(unittest.TestCase):
         self.assertEqual(pop_places, ex_pop_places)
 
         pop_city_name = json.loads(json.JSONEncoder().encode(r['knowledge_graph']['city_name']))
-        ex_city_name = json.loads(json.JSONEncoder().encode(exx_city_name))
+        ex_city_name = json.loads(json.JSONEncoder().encode(ex_city_name_gt))
         self.assertEqual(pop_city_name, ex_city_name)
-        
+
         pop_city = json.loads(json.JSONEncoder().encode(r['knowledge_graph']['city']))
-        ex_city = json.loads(json.JSONEncoder().encode(exx_city))
+        ex_city = json.loads(json.JSONEncoder().encode(ex_city_gt))
         self.assertEqual(pop_city, ex_city)
 
         pop_states_usa_codes = json.loads(json.JSONEncoder().encode(r['knowledge_graph']['states_usa_codes']))
-        ex_states_usa_codes = json.loads(json.JSONEncoder().encode(exx_states_usa_codes))
+        ex_states_usa_codes = json.loads(json.JSONEncoder().encode(ex_states_usa_codes_gt))
         self.assertEqual(pop_states_usa_codes, ex_states_usa_codes)
 
         # self.assertTrue('geonames_country' in r['knowledge_graph'])
