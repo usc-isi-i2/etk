@@ -19,14 +19,18 @@ def load_social_media_matcher(nlp):
 
     is_separator = FLAG55
     is_social_media = FLAG54
-    social_media_ids = {nlp.vocab.strings[s.lower()] for s in social_media}
-    separators_ids = {nlp.vocab.strings[s.lower()] for s in separators}
+    for sm_id in social_media:
+        nlp.vocab[nlp.vocab.strings[sm_id.lower()]].set_flag(is_social_media, True)
+    for sep in separators:
+        nlp.vocab[nlp.vocab.strings[sep.lower()]].set_flag(is_separator, True)
+    # social_media_ids = {nlp.vocab.strings[s.lower()] for s in social_media}
+    # separators_ids = {nlp.vocab.strings[s.lower()] for s in separators}
 
-    for lexeme in nlp.vocab:
-        if lexeme.lower in social_media_ids:
-            lexeme.set_flag(is_social_media, True)
-        if lexeme.lower in separators_ids:
-            lexeme.set_flag(is_separator, True)
+    # for lexeme in nlp.vocab:
+    #     if lexeme.lower in social_media_ids:
+    #         lexeme.set_flag(is_social_media, True)
+    #     if lexeme.lower in separators_ids:
+    #         lexeme.set_flag(is_separator, True)
 
     matcher = Matcher(nlp.vocab)
     matcher.add_entity("social_media")

@@ -28,10 +28,8 @@ def load_age_matcher(nlp):
     years = ['years', 'yrs', 'year']
     add_to_vocab(nlp, years)
     is_year = FLAG63
-    target_ids = {nlp.vocab.strings[s.lower()] for s in years}
-    for lexeme in nlp.vocab:
-        if lexeme.lower in target_ids:
-            lexeme.set_flag(is_year, True)
+    for s in years:
+        nlp.vocab[nlp.vocab.strings[s.lower()]].set_flag(is_year, True)
 
     # New Entity Type : Age
     matcher.add_entity("Age")
