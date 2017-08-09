@@ -205,6 +205,7 @@ class InformationExtraction:
     def extract_entity(self, t):
         all_res = dict()
         tarr = Toolkit.create_table_array(t)
+        Toolkit.clean_cells(tarr)
         num_cols = len(tarr)
         if num_cols == 0:
             return None

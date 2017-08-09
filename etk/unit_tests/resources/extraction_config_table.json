@@ -10,7 +10,7 @@
     "pickle": {
       "table_classifier": "./etk/unit_tests/table_data_extraction/table_cl_model.bin",
       "sem_labels": "./etk/unit_tests/table_data_extraction/HT-attribute-labels.json",
-      "sem_labels_mapping": "./etk/unit_tests/table_data_extraction/temp.jl"
+      "sem_labels_mapping": "./etk/unit_tests/table_data_extraction/test_rules.jl"
     }
   },
   "content_extraction": {
@@ -18,32 +18,19 @@
     "extractors": {
       "table": {
         "field_name": "table",
+        "config": {
+          "classify_tables": "yes",
+          "classification_model": "table_classifier",
+          "sem_types": "sem_labels"
+        },
         "extraction_policy": "keep_existing"
       }
     }
   },
   "data_extraction": [
     {
-      "input_path": [
-        "*.table[*]"
-      ],
-      "fields": {
-        "table_type" : {
-          "extractors": {
-            "classify_table": {
-              "config": {
-                "model": "table_classifier",
-                "sem_types": "sem_labels"
-              },
-              "extraction_policy": "replace"
-            }
-          }
-        }
-      }
-    },
-    {
     "input_path": [
-        "*.table[*].data_extraction.table_type.classify_table.results[*]"
+        "content_extraction.table[*]"
       ],
       "fields": {
         "*" : {
