@@ -882,7 +882,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    print json.dumps(extracted_lst, indent=2)
+    # print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
