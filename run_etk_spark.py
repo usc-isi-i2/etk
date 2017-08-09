@@ -29,17 +29,30 @@ if __name__ == '__main__':
     compression = "org.apache.hadoop.io.compress.GzipCodec"
 
     parser = OptionParser()
+    parser.add_option("-p", "--partitions", action="store",
+                      type="int", dest="partitions", default=0)
     (c_options, args) = parser.parse_args()
     input_path = args[0]
     output_path = args[1]
     extraction_config_path = args[2]
 
+    partitions = c_options.partitions
+
     sc = SparkContext(appName="ETK-Extractions")
     conf = SparkConf()
     extraction_config = json.load(codecs.open(extraction_config_path))
     c = Core(extraction_config=extraction_config)
-    input_rdd = sc.sequenceFile(input_path).partitionBy(1000)
-    input_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
-        .mapValues(lambda x: c.process(x, create_knowledge_graph=True)).mapValues(json.dumps)
-    input_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
+    if partitions == 0:
+        input_rdd = sc.sequenceFile(input_path)#.partitionBy(1000)
+    else:
+        input_rdd = sc.sequenceFile(input_path).partitionBy(partitions)
+
+    output_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
+        .mapValues(lambda x: c.process(x, create_knowledge_graph=True))
+
+    output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(json.dumps)
+    output_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
+
+    print sc.sequenceFile(input_path).count()
+    print sc.sequenceFile(output_path).count()
 
