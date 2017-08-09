@@ -321,15 +321,16 @@ class Pattern(object):
         self.token_lst = add_token_tolist(self.token_lst, [this_token],
                                           token_d["is_required"], token_inf, t_id)
 
-    def add_newline_token(self, token_d, t_id):
-        num_newline = int(token_d["count"])
-        s = ''
-        for i in range(num_newline):
-            s += '\n'
-        token_to_rule = [{spacy.attrs.LOWER: s.decode('utf-8')}]
-        token_inf = create_inf("", "", False, False)
-        self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
-                                          token_d["is_required"], token_inf, t_id)
+    def add_linebreak_token(self, token_d, t_id):
+        num_break = int(token_d["quantity"])
+        if num_break:
+            s = ''
+            for i in range(num_break):
+                s += '\n'
+            token_to_rule = [{spacy.attrs.LOWER: s.decode('utf-8')}]
+            token_inf = create_inf("", "", False, False)
+            self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
+                                              token_d["is_required"], token_inf, t_id)
 
 
 # Check if prefix matches
@@ -829,8 +830,8 @@ def extract(field_rules, nlp_doc, nlp):
                         rule.set_flag(token_d["token"], flagnum)
                     new_pattern.add_punctuation_token(token_d, flagnum, token_id)
 
-                if token_d["type"] == "linesplit":
-                    new_pattern.add_newline_token(token_d, token_id)
+                if token_d["type"] == "linebreak":
+                    new_pattern.add_linebreak_token(token_d, token_id)
 
             tl = new_pattern.token_lst[0]
             ps_inf = new_pattern.token_lst[1]
@@ -881,7 +882,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    # print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
