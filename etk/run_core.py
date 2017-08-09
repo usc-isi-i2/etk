@@ -15,6 +15,7 @@ def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=No
     if kafka_server is None:
         output = codecs.open(output, 'w')
     else:
+        kafka_server = kafka_server.split(',')
         kafka_producer = KafkaProducer(
             bootstrap_servers=kafka_server,
             value_serializer=lambda v: json.dumps(v).encode('utf-8'))
@@ -137,11 +138,11 @@ Optional
 -m, --multiprocessing-enabled
 -t, --multiprocessing-processes <processes>
                                          
---kafka-input-server <host:port>
+--kafka-input-server <host:port,...>
 --kafka-input-topic <topic_name>
 --kafka-input-group-id <group_id>
 --kafka-input-session-timeout <ms>
---kafka-output-server <host:port>
+--kafka-output-server <host:port,...>
 --kafka-output-topic <topic_name>
 
 --indexing
@@ -179,16 +180,18 @@ if __name__ == "__main__":
     # kafka input
     if c_options.kafkaInputServer is not None:
         try:
+            kafka_input_server = c_options.kafkaInputServer.split(',')
             consumer = KafkaConsumer(
-                bootstrap_servers=c_options.kafkaInputServer,
+                bootstrap_servers=kafka_input_server,
                 group_id=c_options.kafkaInputGroupId,
                 consumer_timeout_ms=c_options.kafkaInputSessionTimeout,
                 value_deserializer=lambda v: json.loads(v.decode('utf-8')))
             consumer.subscribe([c_options.kafkaInputTopic])
-            producer = KafkaProducer(
-                bootstrap_servers=c_options.kafkaOutputServer,
-                value_serializer=lambda v: json.dumps(v).encode('utf-8'))
             c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
+            kafka_output_server = c_options.kafkaOutputServer.split(',')
+            producer = KafkaProducer(
+                bootstrap_servers=kafka_output_server,
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'))
             run_serial_cdrs(c, consumer, producer, c_options.kafkaOutputTopic, indexing=c_options.indexing)
 
         except Exception as e:
