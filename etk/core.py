@@ -162,7 +162,6 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False):
         try:
-            # print 'Now Processing url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
             if self.extraction_config:
                 doc_id = None
                 if _DOCUMENT_ID in self.extraction_config:
@@ -207,17 +206,13 @@ class Core(object):
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
                             if extractor == _READABILITY:
-                                # TODO REMOVE THIS HACK
-                                if len(matches[index].value) < 700000 and 'amigobulls.com' not in doc['url'] and 'kulakowka.com' not in doc['url']:
-                                    re_extractors = extractors[extractor]
-                                    if isinstance(re_extractors, dict):
-                                        re_extractors = [re_extractors]
-                                    for re_extractor in re_extractors:
-                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
-                                                                                        matches[index].value,
-                                                                                        re_extractor)
-                                else:
-                                    print 'Large document not running READABILITY, doc_id: {}'.format(doc['doc_id'])
+                                re_extractors = extractors[extractor]
+                                if isinstance(re_extractors, dict):
+                                    re_extractors = [re_extractors]
+                                for re_extractor in re_extractors:
+                                    doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                    matches[index].value,
+                                                                                    re_extractor)
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                           matches[index].value,
@@ -273,10 +268,7 @@ class Core(object):
                                         if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
                                             match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(
                                                 match.value[_TOKENS_ORIGINAL_CASE])
-                                            # if _TOKENS not in match.value:
-                                            #     match.value[_TOKENS] = self.extract_crftokens(match.value[_TEXT])
-                                            # if _SIMPLE_TOKENS not in match.value:
-                                            #     match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(match.value[_TOKENS])
+
                                     fields = de_config[_FIELDS]
                                     for field in fields.keys():
                                         run_extractor = True
@@ -391,7 +383,6 @@ class Core(object):
                                                                           extractors[extractor][_CONFIG])
                                                             if results:
                                                                 for f, res in results.items():
-                                                                    # extractors[extractor][_CONFIG][_FIELD_NAME] = f
                                                                     self.add_data_extraction_results(match.value, f,
                                                                                                      extractor,
                                                                                                      self.add_origin_info(
@@ -502,7 +493,6 @@ class Core(object):
                 print e
                 print 'Failed doc:', doc['doc_id']
                 return None
-        # print 'DONE url: {}, doc_id: {}'.format(doc['url'], doc['doc_id'])
         return doc
 
     @staticmethod
