@@ -2,92 +2,24 @@ import time
 import json
 import codecs
 import sys
-import multiprocessing as mp, os
+import os
+import multiprocessing as mp
 import core
 from argparse import ArgumentParser
-# # from concurrent import futures
-# from pathos.multiprocessing import ProcessingPool
-# from pathos import multiprocessing as mpp
-# import multiprocessing as mp
-# import pathos
-# # from pathos.helpers
-import gzip
-""" Process code begins here """
+from kafka import KafkaProducer, KafkaConsumer
+from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
 
 
-def output_write(output_path):
-    return codecs.open(output_path, 'w+')
+def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=None):
+    # ignore file output if kafka is set
+    if kafka_server is None:
+        output = codecs.open(output, 'w')
+    else:
+        kafka_server = kafka_server.split(',')
+        kafka_producer = KafkaProducer(
+            bootstrap_servers=kafka_server,
+            value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
-
-def chunk_file(file_name, size=1024 * 1024):
-    """ Splitting data into chunks for parallel processing
-    :param file_name - name of the file to split
-    :param size - size of file to split
-    """
-    file_end = os.path.getsize(file_name)
-    with open(file_name, 'r') as f:
-        chunk_end = f.tell()
-        while True:
-            chunk_start = chunk_end
-            f.seek(size, 1)
-            f.readline()
-            chunk_end = f.tell()
-            yield chunk_start, chunk_end - chunk_start
-            if chunk_end > file_end:
-                break
-
-
-def process_wrapper(core, input, chunk_start, chunk_size, queue):
-    results = []
-    with open(input) as f:
-        f.seek(chunk_start)
-        lines = f.read(chunk_size).splitlines()
-        for i, line in enumerate(lines):
-            document = json.loads(line)
-            try:
-                document = core.process(document, create_knowledge_graph=True)
-            except Exception as e:
-                print "Failed - ", e
-
-            # queue.put(json.dumps(document))
-            # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
-
-
-def listener(queue, output):
-    f = open(output, 'wb')
-    while 1:
-        message = queue.get()
-        if message == 'kill':
-            print "Done writing to file......."
-            break
-        f.write(message + '\n')
-        f.flush()
-    f.close()
-
-
-def run_parallel(input, output, core, processes=0):
-    processes = processes or mp.cpu_count()
-    processes += 2 # for writing
-
-    manager = mp.Manager()
-    queue = manager.Queue()
-    pool = mp.Pool(processes)
-
-    # put listener to work first
-    watcher = pool.apply_async(listener, (queue, output))
-
-    jobs = []
-    
-    for chunk_start, chunk_size in chunk_file(input):
-        jobs.append(pool.apply_async(process_wrapper, (core, input, chunk_start, chunk_size, queue)))
-    for job in jobs:
-        job.get()
-    queue.put('kill')
-    pool.close()
-
-
-def run_serial(input, output, core, prefix=''):
-    output = codecs.open(output, 'w')
     index = 1
     for line in codecs.open(input):
         print prefix, 'processing line number:', index
@@ -95,40 +27,49 @@ def run_serial(input, output, core, prefix=''):
         jl = json.loads(line)
         result = core.process(jl, create_knowledge_graph=True)
         if result:
-            output.write(json.dumps(result) + '\n')
+            if kafka_producer is None:
+                output.write(json.dumps(result) + '\n')
+            else:
+                r= kafka_producer.send(kafka_topic, result)
+                r.get(timeout=60) # wait till sent
             time_taken_doc = time.time() - start_time_doc
             if time_taken_doc > 5:
                 print prefix, "Took", str(time_taken_doc), " seconds"
         else:
             print 'Failed line number:', index
         index += 1
-    output.close()
+
+    if kafka_producer is None:
+        output.close()
 
 
-def process_one(x):
-    # output = "output-%d.gz" % pathos.helpers.mp.current_process().getPid()
-    output = c_options.outputPath + "/output-%d.jl" % mp.current_process().pid
-    with codecs.open(output, "a+") as out:
-        out.write('%s\n' % json.dumps(c.process(x)))
+def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
+    # high level api will handle batch thing
+    # will exit once timeout
+    for msg in consumer:
+        print 'consumer message', msg
+        cdr = msg.value
+        if not validate_cdr(cdr):
+            print 'invalid cdr:', cdr.get('doc_id', 'unknown doc_id')
+            continue
+        print 'processing', cdr['doc_id']
+        try:
+            result = core.process(cdr, create_knowledge_graph=True)
+            if not result:
+                raise Exception('run core error')
+            # indexing
+            if indexing:
+                result = index_knowledge_graph_fields(result)
+            # dumping result
+            if result:
+                r = producer.send(producer_topic, result)
+                r.get(timeout=60)  # wait till sent
+            print 'done'
+        except Exception as e:
+            print 'failed at', cdr['doc_id']
 
-def run_parallel_2(input_path, output_path, core, processes=0):
-    lines = codecs.open(input_path, 'r').readlines()
-    inputs = list()
-    # pool = ProcessingPool(16)
-    pool = mpp.Pool(8)
-    for line in lines:
-        inputs.append(json.loads(line))
-    # pool = .ProcessPoolExecutor(max_workers=8)
-    # results = list(pool.map(process_one, inputs))
-    pool.map(process_one, inputs)
 
-    # output_f = codecs.open(output_path, 'w')
-    # for result in results:
-    #     output_f.write(json.dumps(result))
-    #     output_f.write('\n')
-
-
-def run_parallel_3(input_path, output_path, config_path, processes):
+def run_parallel_3(input_path, output_path, config_path, processes, kafka_server, kafka_topic):
     if not os.path.exists(output_path) or not os.path.isdir(output_path) :
         raise Exception('temp path is invalid')
     # if len(os.listdir(temp_path)) != 0:
@@ -158,7 +99,8 @@ def run_parallel_3(input_path, output_path, config_path, processes):
         input_chunk_path = os.path.join(output_path, 'input_chunk_{}.json'.format(i))
         output_chunk_path = os.path.join(output_path, 'output_chunk_{}.json'.format(i))
         p = mp.Process(target=run_parallel_worker,
-                   args=(i, input_chunk_path, output_chunk_path, config_path))
+                   args=(i, input_chunk_path, output_chunk_path, config_path,
+                         kafka_server, kafka_topic))
         process_handlers.append(p)
 
     # start processes
@@ -172,24 +114,39 @@ def run_parallel_3(input_path, output_path, config_path, processes):
     print '-------------------'
 
 
-def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_path):
+def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_path, kafka_server, kafka_topic):
     print 'start worker #{}'.format(worker_id)
     c = core.Core(json.load(codecs.open(config_path, 'r')))
-    run_serial(input_chunk_path, output_chunk_path, c, prefix='worker #{}:'.format(worker_id))
+    run_serial(input_chunk_path, output_chunk_path, c,
+               prefix='worker #{}:'.format(worker_id), kafka_server=kafka_server, kafka_topic=kafka_topic)
     print 'worker #{} finished'.format(worker_id)
+
+
+def validate_cdr(cdr):
+    if 'doc_id' not in cdr:
+        return False
+    return True
 
 
 def usage():
     return """\
 Usage: python run_core.py [args]
 -i, --input <input_doc>                   Input file
--o, --output <output_doc>                 Output file
+-o, --output <output_doc>                 Output file (serial), output / temp directory path (multi-processing)
 -c, --config <config>                     Config file
 
 Optional
--m, --enable-multiprocessing
--t, --thread <processes_count>            Serial(default=0)
-                                          Run Parallel(>0)
+-m, --multiprocessing-enabled
+-t, --multiprocessing-processes <processes>
+                                         
+--kafka-input-server <host:port,...>
+--kafka-input-topic <topic_name>
+--kafka-input-group-id <group_id>
+--kafka-input-session-timeout <ms>
+--kafka-output-server <host:port,...>
+--kafka-output-topic <topic_name>
+
+--indexing
     """
 
 if __name__ == "__main__":
@@ -197,31 +154,71 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--input", action="store", type=str, dest="inputPath")
     parser.add_argument("-o", "--output", action="store", type=str, dest="outputPath")
     parser.add_argument("-c", "--config", action="store", type=str, dest="configPath")
-    parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
-    parser.add_argument("-t", "--thread", action="store",
-                      type=int, dest="threadCount", default=mp.cpu_count())
+
+    parser.add_argument("-m", "--multiprocessing-enabled", action="store_true", dest="mpEnabled")
+    parser.add_argument("-t", "--multiprocessing-processes", action="store",
+                        type=int, dest="mpProcesses", default=mp.cpu_count())
+
+    parser.add_argument("--kafka-input-server", action="store", type=str, dest="kafkaInputServer")
+    parser.add_argument("--kafka-input-topic", action="store", type=str, dest="kafkaInputTopic")
+    parser.add_argument("--kafka-input-group-id", action="store", type=str, dest="kafkaInputGroupId")
+    parser.add_argument("--kafka-input-session-timeout", action="store", type=int,
+                        dest="kafkaInputSessionTimeout", default=60*60*1000) # default to 1 hour
+    parser.add_argument("--kafka-output-server", action="store", type=str, dest="kafkaOutputServer")
+    parser.add_argument("--kafka-output-topic", action="store", type=str, dest="kafkaOutputTopic")
+
+    parser.add_argument("--indexing", action="store_true", dest="indexing")
 
     c_options, args = parser.parse_known_args()
 
-    if not (c_options.inputPath and c_options.outputPath and c_options.configPath):
-        print usage()
+    if not c_options.configPath and \
+       not (c_options.inputPath or
+                (c_options.kafkaInputServer and c_options.kafkaInputTopic and c_options.kafkaInputGroupId)) and \
+       not (c_options.outputPath or (c_options.kafkaOutputServer or c_options.kafkaOutputTopic)):
+        usage()
         sys.exit()
-    try:
-        start_time = time.time()
-        if c_options.enableMP and c_options.threadCount > 1:
-            print "processing parallelly"
-            run_parallel_3(
-                input_path=c_options.inputPath,
-                output_path=c_options.outputPath,
-                config_path=c_options.configPath,
-                processes=c_options.threadCount)
-        else:
-            print "processing serially"
-            c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
-            run_serial(c_options.inputPath, c_options.outputPath, c)
-        print('The script took {0} second !'.format(time.time() - start_time))
 
-    except Exception as e:
-        print e
+    # kafka input
+    if c_options.kafkaInputServer is not None:
+        try:
+            kafka_input_server = c_options.kafkaInputServer.split(',')
+            consumer = KafkaConsumer(
+                bootstrap_servers=kafka_input_server,
+                group_id=c_options.kafkaInputGroupId,
+                consumer_timeout_ms=c_options.kafkaInputSessionTimeout,
+                value_deserializer=lambda v: json.loads(v.decode('utf-8')))
+            consumer.subscribe([c_options.kafkaInputTopic])
+            c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
+            kafka_output_server = c_options.kafkaOutputServer.split(',')
+            producer = KafkaProducer(
+                bootstrap_servers=kafka_output_server,
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+            run_serial_cdrs(c, consumer, producer, c_options.kafkaOutputTopic, indexing=c_options.indexing)
+
+        except Exception as e:
+            print e
+
+    # file input
+    else:
+        try:
+            start_time = time.time()
+            if c_options.mpEnabled and c_options.mpProcesses > 1:
+                print "processing parallelly"
+                run_parallel_3(
+                    input_path=c_options.inputPath,
+                    output_path=c_options.outputPath,
+                    config_path=c_options.configPath,
+                    processes=c_options.mpProcesses,
+                    kafka_server=c_options.kafkaServer,
+                    kafka_topic=c_options.kafkaTopic)
+            else:
+                print "processing serially"
+                c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
+                run_serial(c_options.inputPath, c_options.outputPath, c,
+                           kafka_server=c_options.kafkaServer, kafka_topic=c_options.kafkaTopic)
+            print('The script took {0} second !'.format(time.time() - start_time))
+
+        except Exception as e:
+            print e
 
 
