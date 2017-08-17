@@ -64,6 +64,7 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
             if result:
                 r = producer.send(producer_topic, result)
                 r.get(timeout=60)  # wait till sent
+            print 'done'
         except Exception as e:
             print 'failed at', cdr['doc_id']
 
