@@ -47,7 +47,6 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
     # high level api will handle batch thing
     # will exit once timeout
     for msg in consumer:
-        print 'consumer message', msg
         cdr = msg.value
         if not validate_cdr(cdr):
             print 'invalid cdr:', cdr.get('doc_id', 'unknown doc_id')
