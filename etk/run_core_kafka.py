@@ -6,8 +6,8 @@ import os
 import multiprocessing as mp
 import core
 from argparse import ArgumentParser
-# from kafka import KafkaProducer, KafkaConsumer
-# from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
+from kafka import KafkaProducer, KafkaConsumer
+from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
 
 
 def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=None):
