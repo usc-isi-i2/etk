@@ -21,7 +21,7 @@ class Normalizer():
         if include_context:
             output = []
             for co in cleaned_output.split():
-                phonenum = {}
+                phonenum = dict()
                 phonenum['value'] = co
                 if co in uncleaned_output:
                     phonenum['obfuscation'] = 'False'
