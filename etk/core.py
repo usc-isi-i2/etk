@@ -173,14 +173,14 @@ class Core(object):
                         raise KeyError('{} not found in the input document'.format(doc_id_field))
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
-                    error_handling = self.extraction_config[
-                        _ERROR_HANDLING] if _ERROR_HANDLING in self.extraction_config else _RAISE_ERROR
-                    if error_handling != _RAISE_ERROR or error_handling != _IGNORE_DOCUMENT:
-                        print 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
-                              ' By default its value has been set to \"{}\"'.format(
-                            _RAISE_ERROR, _IGNORE_DOCUMENT, _RAISE_ERROR)
-                        error_handling = _RAISE_ERROR
-                    self.global_error_handling = error_handling
+                error_handling = self.extraction_config[
+                    _ERROR_HANDLING] if _ERROR_HANDLING in self.extraction_config else _RAISE_ERROR
+                if error_handling != _RAISE_ERROR and error_handling != _IGNORE_DOCUMENT:
+                    print 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
+                          ' By default its value has been set to \"{}\"'.format(
+                        _RAISE_ERROR, _IGNORE_DOCUMENT, _RAISE_ERROR)
+                    error_handling = _RAISE_ERROR
+                self.global_error_handling = error_handling
 
                 """Handle content extraction first aka Phase 1"""
                 if _CONTENT_EXTRACTION in self.extraction_config:
