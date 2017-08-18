@@ -1222,7 +1222,14 @@ class Core(object):
     @staticmethod
     def _extract_phone(tokens, source_type, include_context, output_format):
         result = phone_extractor.extract(tokens, source_type, include_context, output_format)
-        return result if result else None
+        if isinstance(result, dict):
+            result = [result]
+        new_result = list()
+        for r in result:
+            val = r['value']
+            if len(val) <= 10 or val.startswith('+') or val.startswith('1'):
+                new_result.append(r)
+        return new_result if len(new_result) > 0 else None
 
     def extract_email(self, d, config):
         text = d[_TEXT]
