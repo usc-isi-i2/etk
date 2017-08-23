@@ -27,6 +27,10 @@ def extract(html, url, extractionrulesall, threshold=0.5):
                             # this is a forum kind of page, handle differently
                             if len(flatten['posts-0-0']) > 0:
                                 return flatten['posts-0-0']
+                        elif "posts" in flatten:
+                            # this is a forum kind of page, handle differently
+                            if len(flatten['posts']) > 0:
+                                return flatten['posts']
                         else:
                             for key in flatten.keys():
                                 if flatten[key].strip() != '':
