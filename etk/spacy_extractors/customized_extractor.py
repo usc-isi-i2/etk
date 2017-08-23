@@ -571,7 +571,6 @@ def filter(doc, matches, inf_inf):
             if "shape" in inf:
                 if compare_shape(pattern[i], inf["shape"]):
                     flag = False
-                    print flag
                     break
             if "prefix" in inf:
                 prefix = inf["prefix"]
