@@ -744,8 +744,8 @@ def add_dep(m_lst, def_inf, output_lst):
         return m_lst
     else:
         for element in def_inf:
-            if element["from"] in output_lst and element["to"] in output_lst:
-                to_idx = output_lst.index(element["to"])
+            if int(element["from"]) in output_lst and int(element["to"]) in output_lst and element["dependency"]:
+                to_idx = output_lst.index(int(element["to"]))
                 m_lst[to_idx][spacy.attrs.DEP] = DEP_MAP[element["dependency"]]
         return m_lst
 
@@ -756,9 +756,9 @@ def check_head(m_lst, output_lst, def_inf, doc):
     else:
         return_lst = list()
         for element in def_inf:
-            if element["from"] in output_lst and element["to"] in output_lst:
-                from_idx = output_lst.index(element["from"])
-                to_idx = output_lst.index(element["to"])
+            if int(element["from"]) in output_lst and int(element["to"]) in output_lst:
+                from_idx = output_lst.index(int(element["from"]))
+                to_idx = output_lst.index(int(element["to"]))
                 for a_match in m_lst:
                     (ent_id, label, start, end) = a_match
                     if doc[start+to_idx].head == doc[start+from_idx]:
