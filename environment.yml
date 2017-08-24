@@ -57,3 +57,4 @@ dependencies:
   - numpy
   - kafka-python>=1.3.3
   - digsandpaper>=0.1.4
+  - python-logstash>=0.4.6

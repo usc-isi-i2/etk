@@ -41,6 +41,8 @@ import pickle
 import copy
 from collections import OrderedDict
 import sys
+import logging
+import logstash
 
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
@@ -132,6 +134,19 @@ _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
 _TLD = 'tld'
 _FEATURE_COMPUTATION = "feature_computation"
+_LOGGING = "logging"
+_LOGSTASH = "logstash"
+_HOST = "host"
+_LOCALHOST = "localhost"
+_PORT = "port"
+_LEVEL = "level"
+_VERSION = "version"
+_CRITICAL = 50
+_ERROR = 40
+_WARNING = 30
+_INFO = 20
+_DEBUG = 10
+_NOTSET = 0
 
 
 class Core(object):
@@ -157,6 +172,18 @@ class Core(object):
         self.state_to_country_dict = None
         self.state_to_codes_lower_dict = None
         self.populated_cities = None
+
+        if self.extraction_config:
+            if _LOGGING in self.extraction_config:
+                logging_conf = self.extraction_config[_LOGGING]
+                if _LOGSTASH in logging_conf:
+                    logstash_conf = logging_conf[_LOGSTASH]
+                    self.logstash_logger = logging.getLogger('etk-logstash-logger')
+                    host = logstash_conf[_HOST] if _HOST in logstash_conf else _LOCALHOST
+                    port = logging_conf[_PORT] if _PORT in logging_conf else 5959
+                    self.logstash_logger.setLevel(logging_conf[_LEVEL] if _LEVEL in logging_conf else _ERROR)
+                    self.logstash_logger.addHandler(
+                        logstash.LogstashHandler(host, port, logging_conf[_VERSION] if _VERSION in logging_conf else 1))
 
     """ Define all API methods """
 
