@@ -146,7 +146,8 @@ _ERROR = 40
 _WARNING = 30
 _INFO = 20
 _DEBUG = 10
-_NOTSET = 0
+_EXCEPTION = 47
+_ETK_VERSION = "etk_version"
 
 
 class Core(object):
@@ -172,22 +173,49 @@ class Core(object):
         self.state_to_country_dict = None
         self.state_to_codes_lower_dict = None
         self.populated_cities = None
-
+        self.logstash_logger = None
+        self.etk_version = "1"
         if self.extraction_config:
+            self.etk_version = self.extraction_config[_ETK_VERSION] if _ETK_VERSION in self.extraction_config else "1"
             if _LOGGING in self.extraction_config:
                 logging_conf = self.extraction_config[_LOGGING]
                 if _LOGSTASH in logging_conf:
                     logstash_conf = logging_conf[_LOGSTASH]
                     self.logstash_logger = logging.getLogger('etk-logstash-logger')
                     host = logstash_conf[_HOST] if _HOST in logstash_conf else _LOCALHOST
-                    port = logging_conf[_PORT] if _PORT in logging_conf else 5959
-                    self.logstash_logger.setLevel(logging_conf[_LEVEL] if _LEVEL in logging_conf else _ERROR)
+                    port = logstash_conf[_PORT] if _PORT in logstash_conf else 5959
+                    self.logstash_logger.setLevel(logstash_conf[_LEVEL] if _LEVEL in logstash_conf else _ERROR)
                     self.logstash_logger.addHandler(
-                        logstash.LogstashHandler(host, port, logging_conf[_VERSION] if _VERSION in logging_conf else 1))
+                        logstash.LogstashHandler(host, port, logstash_conf[_VERSION] if _VERSION in logging_conf else 1))
+
+    def log(self, message, level, doc_id=None, url=None, extra=None):
+        if self.logstash_logger:
+            if not extra:
+                extra = dict()
+            extra[_ETK_VERSION] = self.etk_version
+            if doc_id:
+                extra[_DOCUMENT_ID] = doc_id
+            if url:
+                extra[_URL] = url
+
+            if level == _ERROR:
+                self.logstash_logger.error(message, extra=extra)
+            elif level == _WARNING:
+                self.logstash_logger.warning(message, extra=extra)
+            elif level == _INFO:
+                self.logstash_logger.info(message, extra=extra)
+            elif level == _DEBUG:
+                self.logstash_logger.debug(message, extra=extra)
+            elif level == _CRITICAL:
+                self.logstash_logger.critical(message, extra=extra)
+            elif level == _EXCEPTION:
+                self.logstash_logger.exception(message, extra=extra)
+
 
     """ Define all API methods """
 
     def process(self, doc, create_knowledge_graph=False):
+        start_time = time.time()
         try:
             if self.extraction_config:
                 doc_id = None
@@ -203,9 +231,11 @@ class Core(object):
                 error_handling = self.extraction_config[
                     _ERROR_HANDLING] if _ERROR_HANDLING in self.extraction_config else _RAISE_ERROR
                 if error_handling != _RAISE_ERROR and error_handling != _IGNORE_DOCUMENT:
-                    print 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
+                    warning = 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
                           ' By default its value has been set to \"{}\"'.format(
                         _RAISE_ERROR, _IGNORE_DOCUMENT, _RAISE_ERROR)
+                    print warning
+                    self.log(warning, _WARNING)
                     error_handling = _RAISE_ERROR
                 self.global_error_handling = error_handling
 
@@ -223,12 +253,14 @@ class Core(object):
                         self.content_extraction_path = parse(html_path)
                         time_taken = time.time() - start_time
                         if self.debug:
-                            print 'time taken to process parse %s' % time_taken
+                            self.log('time taken to process parse %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
+                                     url=doc[_URL])
                     start_time = time.time()
                     matches = self.content_extraction_path.find(doc)
                     time_taken = time.time() - start_time
                     if self.debug:
-                        print 'time taken to process matches %s' % time_taken
+                        self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
+                                 url=doc[_URL])
                     extractors = ce_config[_EXTRACTORS]
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
@@ -420,7 +452,7 @@ class Core(object):
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(doc, f, res)
                                                     else:
-                                                        print('method {} not found!'.format(extractor))
+                                                        self.log('method {} not found!'.format(extractor), _INFO)
 
                 """Optional Phase 3: Knowledge Graph Enhancement"""
                 if _KG_ENHANCEMENT in self.extraction_config:
@@ -513,13 +545,19 @@ class Core(object):
                     """ Add title and description as fields in the knowledge graph as well"""
                     doc = Core.rearrange_description(doc)
                     doc = Core.rearrange_title(doc)
+
         except Exception as e:
+            self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL])
             if self.global_error_handling == _RAISE_ERROR:
                 raise e
             else:
-                print e
-                print 'Failed doc:', doc['doc_id']
                 return None
+        time_taken = time.time() - start_time
+        if time_taken > 5:
+            extra = dict()
+            extra['time_taken'] = time_taken
+            self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
+                     doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
         return doc
 
     @staticmethod
@@ -778,7 +816,6 @@ class Core(object):
         else:
             pct = 0.5
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
-            start_time = time.time()
             ifl_extractions = Core.extract_landmark(html, url, extraction_rules, pct)
 
             if isinstance(ifl_extractions, list):
@@ -787,9 +824,6 @@ class Core(object):
                 content_extraction[field_name] = dict()
                 content_extraction[field_name][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
             else:
-                time_taken = time.time() - start_time
-                if self.debug:
-                    print 'time taken to process landmark %s' % time_taken
                 if ifl_extractions and len(ifl_extractions.keys()) > 0:
                     content_extraction[field_name] = dict()
                     for key in ifl_extractions:
@@ -873,26 +907,18 @@ class Core(object):
         field_name = title_config[_FIELD_NAME] if _FIELD_NAME in title_config else _TITLE
         ep = self.determine_extraction_policy(title_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
-            start_time = time.time()
             extracted_title = self.extract_title(html)
             if extracted_title:
                 content_extraction[field_name] = extracted_title
-            time_taken = time.time() - start_time
-            if self.debug:
-                print 'time taken to process title %s' % time_taken
         return content_extraction
 
     def run_table_extractor(self, content_extraction, html, table_config):
         field_name = table_config[_FIELD_NAME] if _FIELD_NAME in table_config else _TABLE
         ep = self.determine_extraction_policy(table_config)
         if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
-            start_time = time.time()
             tables = self.extract_table(html, table_config)
             if tables is not None:
                 content_extraction[field_name] = tables
-            time_taken = time.time() - start_time
-            if self.debug:
-                print 'time taken to process table %s' % time_taken
         return content_extraction
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -906,11 +932,7 @@ class Core(object):
         if _FIELD_NAME in re_extractor:
             field_name = re_extractor[_FIELD_NAME]
         ep = self.determine_extraction_policy(re_extractor)
-        start_time = time.time()
         readability_text = self.extract_readability(html, options)
-        time_taken = time.time() - start_time
-        if self.debug:
-            print 'time taken to process readability %s' % time_taken
         if readability_text:
             if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
                 content_extraction[field_name] = readability_text
@@ -1465,12 +1487,6 @@ class Core(object):
         te = table_extractor.TableExtraction(cl_tables, sem_types, model)
         return te.extract(d)
 
-    # def extract_stock_tickers(self, doc):
-    #     return extract_stock_tickers(doc)
-
-    # def extract_spacy(self, doc):
-    #     return spacy_extractor.spacy_extract(doc)
-
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
@@ -1539,11 +1555,6 @@ class Core(object):
         else:
             return None
         populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
-
-        # results = geonames_extractor.get_country_from_populated_places(populated_places)
-
-        # if results:
-        #     self.create_knowledge_graph(d, _COUNTRY , results)
 
         return populated_places
 
@@ -1778,5 +1789,5 @@ class Core(object):
             return return_result
 
         except Exception as e:
-            print e
+            self.log('Exception in create_city_state_country_triple()', _EXCEPTION, url=d[_URL], doc_id=d[_DOCUMENT_ID])
             return None
