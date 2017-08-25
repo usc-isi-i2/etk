@@ -8,6 +8,7 @@ import core
 from argparse import ArgumentParser
 from kafka import KafkaProducer, KafkaConsumer
 from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
+import traceback
 
 
 def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=None):
@@ -42,7 +43,6 @@ def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=No
     if kafka_producer is None:
         output.close()
 
-
 def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
     # high level api will handle batch thing
     # will exit once timeout
@@ -65,7 +65,10 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
                 r.get(timeout=60)  # wait till sent
             print 'done'
         except Exception as e:
-            print e
+            # print e
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            print ''.join(lines)
             print 'failed at', cdr['doc_id']
 
 
