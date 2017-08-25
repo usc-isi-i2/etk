@@ -41,6 +41,7 @@ import pickle
 import copy
 from collections import OrderedDict
 import sys
+import traceback
 import logging
 import logstash
 
@@ -549,6 +550,9 @@ class Core(object):
         except Exception as e:
             self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL])
             if self.global_error_handling == _RAISE_ERROR:
+                # exc_type, exc_value, exc_traceback = sys.exc_info()
+                # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                # print ''.join(lines)
                 raise e
             else:
                 return None
@@ -1534,7 +1538,7 @@ class Core(object):
             try:
                 self.country_code_dict = self.load_json_file(self.get_dict_file_name_from_config('country_code'))
             except:
-                raise '{} dictionary missing from resources'.format('country_code')
+                raise Exception('{} dictionary missing from resources'.format('country_code'))
 
         tokens_url = d[_SIMPLE_TOKENS]
         return self._relevant_text_from_context(tokens_url,
