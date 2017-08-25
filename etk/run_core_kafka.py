@@ -48,9 +48,11 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
     # will exit once timeout
     for msg in consumer:
         cdr = msg.value
-        if not validate_cdr(cdr):
-            print 'invalid cdr:', cdr.get('doc_id', 'unknown doc_id')
-            continue
+        # if not validate_cdr(cdr):
+        #     print 'invalid cdr:', cdr.get('doc_id', 'unknown doc_id')
+        #     continue
+        if 'doc_id' not in cdr:
+            cdr['doc_id'] = cdr['_id']
         print 'processing', cdr['doc_id']
         try:
             result = core.process(cdr, create_knowledge_graph=True)
@@ -125,10 +127,10 @@ def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_p
     print 'worker #{} finished'.format(worker_id)
 
 
-def validate_cdr(cdr):
-    if 'doc_id' not in cdr:
-        return False
-    return True
+# def validate_cdr(cdr):
+#     if 'doc_id' not in cdr:
+#         return False
+#     return True
 
 
 def usage():
@@ -169,7 +171,8 @@ if __name__ == "__main__":
                         dest="kafkaInputSessionTimeout", default=60*60*1000) # default to 1 hour
     parser.add_argument("--kafka-output-server", action="store", type=str, dest="kafkaOutputServer")
     parser.add_argument("--kafka-output-topic", action="store", type=str, dest="kafkaOutputTopic")
-
+    parser.add_argument("--kafka-input-args", action="store", type=str, dest="kafkaInputArgs")
+    parser.add_argument("--kafka-output-args", action="store", type=str, dest="kafkaOutputArgs")
     parser.add_argument("--indexing", action="store_true", dest="indexing")
 
     c_options, args = parser.parse_known_args()
@@ -184,22 +187,35 @@ if __name__ == "__main__":
     # kafka input
     if c_options.kafkaInputServer is not None:
         try:
+            # parse input and output args
+            input_args = json.loads(c_options.kafkaInputArgs) if c_options.kafkaInputArgs else {}
+            output_args = json.loads(c_options.kafkaOutputArgs) if c_options.kafkaOutputArgs else {}
+
+            print input_args
+
             kafka_input_server = c_options.kafkaInputServer.split(',')
             consumer = KafkaConsumer(
                 bootstrap_servers=kafka_input_server,
                 group_id=c_options.kafkaInputGroupId,
                 consumer_timeout_ms=c_options.kafkaInputSessionTimeout,
-                value_deserializer=lambda v: json.loads(v.decode('utf-8')))
+                value_deserializer=lambda v: json.loads(v.decode('utf-8')),
+                **input_args
+            )
             consumer.subscribe([c_options.kafkaInputTopic])
             c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
             kafka_output_server = c_options.kafkaOutputServer.split(',')
             producer = KafkaProducer(
                 bootstrap_servers=kafka_output_server,
-                value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+                value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+                **output_args
+            )
             run_serial_cdrs(c, consumer, producer, c_options.kafkaOutputTopic, indexing=c_options.indexing)
 
         except Exception as e:
-            print e
+            # print e
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            print ''.join(lines)
 
     # file input
     else:
