@@ -191,7 +191,12 @@ if __name__ == "__main__":
             input_args = json.loads(c_options.kafkaInputArgs) if c_options.kafkaInputArgs else {}
             output_args = json.loads(c_options.kafkaOutputArgs) if c_options.kafkaOutputArgs else {}
 
-            print input_args
+            # print 'input:'
+            # print c_options.kafkaInputServer.split(',')
+            # print c_options.kafkaInputGroupId
+            # print c_options.kafkaInputSessionTimeout
+            # print c_options.kafkaInputTopic
+            # print input_args
 
             kafka_input_server = c_options.kafkaInputServer.split(',')
             consumer = KafkaConsumer(
