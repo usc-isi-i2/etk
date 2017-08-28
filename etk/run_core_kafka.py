@@ -53,6 +53,7 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
         #     continue
         if 'doc_id' not in cdr:
             cdr['doc_id'] = cdr['_id']
+        del cdr['_id'] # remove _id
         print 'processing', cdr['doc_id']
         try:
             result = core.process(cdr, create_knowledge_graph=True)
@@ -202,7 +203,7 @@ if __name__ == "__main__":
             consumer = KafkaConsumer(
                 bootstrap_servers=kafka_input_server,
                 group_id=c_options.kafkaInputGroupId,
-                consumer_timeout_ms=c_options.kafkaInputSessionTimeout,
+                    consumer_timeout_ms=c_options.kafkaInputSessionTimeout,
                 value_deserializer=lambda v: json.loads(v.decode('utf-8')),
                 **input_args
             )
