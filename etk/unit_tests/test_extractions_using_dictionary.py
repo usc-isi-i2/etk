@@ -104,7 +104,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
@@ -189,10 +189,8 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         c = Core(extraction_config=e_config)
         r = c.process(doc)
 
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
-        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
         self.assertTrue(
@@ -280,9 +278,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         c = Core(extraction_config=e_config)
         r = c.process(doc)
 
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
-        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
 

@@ -235,7 +235,6 @@ class Core(object):
                     warning = 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
                           ' By default its value has been set to \"{}\"'.format(
                         _RAISE_ERROR, _IGNORE_DOCUMENT, _RAISE_ERROR)
-                    print warning
                     self.log(warning, _WARNING)
                     error_handling = _RAISE_ERROR
                 self.global_error_handling = error_handling
@@ -315,19 +314,21 @@ class Core(object):
                                     # First rule of DATA Extraction club: Get tokens
                                     # Get the crf tokens
                                     if _TEXT in match.value:
-                                        if _TOKENS_ORIGINAL_CASE not in match.value:
-                                            match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
-                                                match.value[_TEXT],
-                                                lowercase=False)
-                                        if _TOKENS not in match.value:
-                                            match.value[_TOKENS] = self.crftokens_to_lower(
-                                                match.value[_TOKENS_ORIGINAL_CASE])
-                                        if _SIMPLE_TOKENS not in match.value:
-                                            match.value[_SIMPLE_TOKENS] = self.extract_tokens_from_crf(
-                                                match.value[_TOKENS])
+                                        # if _TOKENS_ORIGINAL_CASE not in match.value:
+                                        #     match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
+                                        #         match.value[_TEXT],
+                                        #         lowercase=False)
+                                        # if _TOKENS not in match.value:
+                                        #     match.value[_TOKENS] = self.crftokens_to_lower(
+                                        #         match.value[_TOKENS_ORIGINAL_CASE])
+
                                         if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
-                                            match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_tokens_from_crf(
-                                                match.value[_TOKENS_ORIGINAL_CASE])
+                                            match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
+                                                match.value[_TEXT],
+                                                lowercase=False, create_structured_tokens=False)
+                                        if _SIMPLE_TOKENS not in match.value:
+                                            match.value[_SIMPLE_TOKENS] = [val.lower() for val in
+                                                                           match.value[_SIMPLE_TOKENS_ORIGINAL_CASE]]
 
                                     fields = de_config[_FIELDS]
                                     for field in fields.keys():
@@ -1442,8 +1443,8 @@ class Core(object):
         return None
 
     @staticmethod
-    def extract_crftokens(text, options=None, lowercase=True):
-        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+    def extract_crftokens(text, options=None, lowercase=True, create_structured_tokens=True):
+        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=create_structured_tokens)
         return t.extract(text, lowercase)
 
     @staticmethod
