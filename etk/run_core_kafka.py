@@ -48,12 +48,10 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
     # will exit once timeout
     for msg in consumer:
         cdr = msg.value
-        # if not validate_cdr(cdr):
-        #     print 'invalid cdr:', cdr.get('doc_id', 'unknown doc_id')
-        #     continue
+        if ('_id' not in cdr) and ('doc_id' not in cdr) and ('document_id' not in cdr):
+            print 'invalid cdr: unknown doc_id'
         if 'doc_id' not in cdr:
-            cdr['doc_id'] = cdr['_id']
-        del cdr['_id'] # remove _id
+            cdr['doc_id'] = cdr.get('_id', cdr['document_id'])
         print 'processing', cdr['doc_id']
         try:
             result = core.process(cdr, create_knowledge_graph=True)
@@ -126,12 +124,6 @@ def run_parallel_worker(worker_id, input_chunk_path, output_chunk_path, config_p
     run_serial(input_chunk_path, output_chunk_path, c,
                prefix='worker #{}:'.format(worker_id), kafka_server=kafka_server, kafka_topic=kafka_topic)
     print 'worker #{} finished'.format(worker_id)
-
-
-# def validate_cdr(cdr):
-#     if 'doc_id' not in cdr:
-#         return False
-#     return True
 
 
 def usage():
