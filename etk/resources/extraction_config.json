@@ -2,6 +2,15 @@
   "document_id": "doc_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
+  "etk_version": "2",
+  "logging": {
+    "logstash": {
+      "host": "localhost",
+      "port": 5959,
+      "version": 2,
+      "level": 20
+    }
+  },
   "resources": {
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
