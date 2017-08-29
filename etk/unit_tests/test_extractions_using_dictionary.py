@@ -114,16 +114,14 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
 
         ex = {'results': [
             {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+             'context': {'end': 11,
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
                                  "weight 55 kilos ",
-                         'start': 10, 'input': 'tokens',
-                         'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
+                         'start': 10, 'input': 'tokens'}, 'value': u'helena'},
             {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+             'context': {'end': 137,
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
-                         'start': 136, 'input': 'tokens',
-                         'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
+                         'start': 136, 'input': 'tokens'}, 'value': u'luna'}]}
         self.assertEqual(extraction, ex)
 
     def test_empty_tokens(self):
@@ -206,21 +204,9 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                       },
                       "context": {
                         "end": 4,
-                        "tokens_left": [
-                          "My",
-                          "name",
-                          "is"
-                        ],
                         "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test ",
                         "start": 3,
-                        "input": "tokens",
-                        "tokens_right": [
-                          "and",
-                          "this",
-                          "is",
-                          "a",
-                          "test"
-                        ]
+                        "input": "tokens"
                       },
                       "value": "Margie"
                     }

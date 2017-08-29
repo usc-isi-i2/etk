@@ -80,21 +80,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   "segment": "content_strict",
                   "context": {
                     "end": 31,
-                    "tokens_left": [
-                      "looking",
-                      "for",
-                      "an",
-                      "extraordinary",
-                      "experience"
-                    ],
                     "text": "looking for an extraordinary experience <etk 'attribute' = 'JUNK'>Girl</etk> with an upscale lAdy who ",
-                    "tokens_right": [
-                      "with",
-                      "an",
-                      "upscale",
-                      "lAdy",
-                      "who"
-                    ],
                     "start": 30,
                     "input": "tokens",
                     "identifier": "rule_3",
@@ -113,21 +99,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   "segment": "content_relaxed",
                   "context": {
                     "end": 40,
-                    "tokens_left": [
-                      "looking",
-                      "for",
-                      "an",
-                      "extraordinary",
-                      "experience"
-                    ],
                     "text": "looking for an extraordinary experience <etk 'attribute' = 'JUNK'>Girl</etk> with an upscale lAdy who ",
-                    "tokens_right": [
-                      "with",
-                      "an",
-                      "upscale",
-                      "lAdy",
-                      "who"
-                    ],
                     "start": 39,
                     "input": "tokens",
                     "identifier": "rule_3",
@@ -153,21 +125,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   "segment": "content_relaxed",
                   "context": {
                     "end": 44,
-                    "tokens_left": [
-                      "experience",
-                      "Girl",
-                      "with",
-                      "an",
-                      "upscale"
-                    ],
                     "text": "experience Girl with an upscale <etk 'attribute' = 'JUNK'>lAdy</etk> who knows how to cater ",
-                    "tokens_right": [
-                      "who",
-                      "knows",
-                      "how",
-                      "to",
-                      "cater"
-                    ],
                     "start": 43,
                     "input": "tokens",
                     "identifier": "rule_3",
@@ -193,21 +151,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   "segment": "content_strict",
                   "context": {
                     "end": 70,
-                    "tokens_left": [
-                      "call",
-                      "bA22by",
-                      "!",
-                      "Confirmations",
-                      "\n\n"
-                    ],
                     "text": "call bA22by ! Confirmations \n\n <etk 'attribute' = 'JUNK'>i runqi \n\n\n 0321332</etk> Confirmations \n\n\n I ' ll ",
-                    "tokens_right": [
-                      "Confirmations",
-                      "\n\n\n",
-                      "I",
-                      "'",
-                      "ll"
-                    ],
                     "start": 66,
                     "input": "tokens",
                     "identifier": "rule_0",
@@ -226,21 +170,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   "segment": "content_relaxed",
                   "context": {
                     "end": 79,
-                    "tokens_left": [
-                      "call",
-                      "bA22by",
-                      "!",
-                      "Confirmations",
-                      "\n\n"
-                    ],
                     "text": "call bA22by ! Confirmations \n\n <etk 'attribute' = 'JUNK'>i runqi \n\n\n 0321332</etk> Confirmations \n\n\n I ' ll ",
-                    "tokens_right": [
-                      "Confirmations",
-                      "\n\n\n",
-                      "I",
-                      "'",
-                      "ll"
-                    ],
                     "start": 75,
                     "input": "tokens",
                     "identifier": "rule_0",

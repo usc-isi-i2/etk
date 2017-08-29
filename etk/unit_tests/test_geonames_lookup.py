@@ -160,23 +160,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 90,
-                                "tokens_left": [
-                                    "'",
-                                    "s",
-                                    "location",
-                                    ":",
-                                    "\n"
-                                ],
                                 "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' ",
                                 "start": 88,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    ",",
-                                    "california",
-                                    "\n",
-                                    "escort",
-                                    "'"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -191,23 +177,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 90,
-                                "tokens_left": [
-                                    "'",
-                                    "s",
-                                    "location",
-                                    ":",
-                                    "\n"
-                                ],
                                 "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' ",
                                 "start": 88,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    ",",
-                                    "california",
-                                    "\n",
-                                    "escort",
-                                    "'"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -265,23 +237,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 18,
-                                "tokens_left": [
-                                    "160cms",
-                                    "weight",
-                                    "55",
-                                    "kilos",
-                                    "contact"
-                                ],
                                 "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ ",
                                 "start": 17,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "at",
-                                    "escort",
-                                    ".",
-                                    "here",
-                                    "@"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -296,23 +254,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 194,
-                                "tokens_left": [
-                                    "-",
-                                    "452",
-                                    "-",
-                                    "2013",
-                                    "."
-                                ],
                                 "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on ",
                                 "start": 193,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "and",
-                                    "my",
-                                    "friends",
-                                    "are",
-                                    "on"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -327,23 +271,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 218,
-                                "tokens_left": [
-                                    ".",
-                                    ".",
-                                    "skittlegirl",
-                                    "\n\n\n\n\n\n",
-                                    "call"
-                                ],
                                 "text": ". . skittlegirl \n\n\n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 ",
                                 "start": 217,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "on",
-                                    "my",
-                                    "cell",
-                                    "at",
-                                    "323"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -358,23 +288,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 18,
-                                "tokens_left": [
-                                    "160cms",
-                                    "weight",
-                                    "55",
-                                    "kilos",
-                                    "contact"
-                                ],
                                 "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ ",
                                 "start": 17,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "at",
-                                    "escort",
-                                    ".",
-                                    "here",
-                                    "@"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -389,23 +305,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 194,
-                                "tokens_left": [
-                                    "-",
-                                    "452",
-                                    "-",
-                                    "2013",
-                                    "."
-                                ],
                                 "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on ",
                                 "start": 193,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "and",
-                                    "my",
-                                    "friends",
-                                    "are",
-                                    "on"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -420,23 +322,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 218,
-                                "tokens_left": [
-                                    ".",
-                                    ".",
-                                    "skittlegirl",
-                                    "\n\n\n\n\n\n",
-                                    "call"
-                                ],
                                 "text": ". . skittlegirl \n\n\n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 ",
                                 "start": 217,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "on",
-                                    "my",
-                                    "cell",
-                                    "at",
-                                    "323"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -458,23 +346,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 174,
-                                "tokens_left": [
-                                    "exactly",
-                                    "what",
-                                    "you",
-                                    "deserve",
-                                    "call"
-                                ],
                                 "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly ",
                                 "start": 173,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "text",
-                                    "fetish",
-                                    "friendly",
-                                    "fantasy",
-                                    "friendly"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -489,23 +363,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 174,
-                                "tokens_left": [
-                                    "exactly",
-                                    "what",
-                                    "you",
-                                    "deserve",
-                                    "call"
-                                ],
                                 "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly ",
                                 "start": 173,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "text",
-                                    "fetish",
-                                    "friendly",
-                                    "fantasy",
-                                    "friendly"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -527,23 +387,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 127,
-                                "tokens_left": [
-                                    "there",
-                                    "are",
-                                    "50",
-                                    "girls",
-                                    "looking"
-                                ],
                                 "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n\n ",
                                 "start": 126,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    ".",
-                                    "\n",
-                                    "view",
-                                    "girls",
-                                    "\n\n"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -558,23 +404,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_strict",
                             "context": {
                                 "end": 147,
-                                "tokens_left": [
-                                    "explore",
-                                    ",",
-                                    "embrace",
-                                    "and",
-                                    "indulge"
-                                ],
                                 "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent ",
                                 "start": 146,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "your",
-                                    "favorite",
-                                    "fantasy",
-                                    "%",
-                                    "independent"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -589,23 +421,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 127,
-                                "tokens_left": [
-                                    "there",
-                                    "are",
-                                    "50",
-                                    "girls",
-                                    "looking"
-                                ],
                                 "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n\n ",
                                 "start": 126,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    ".",
-                                    "\n",
-                                    "view",
-                                    "girls",
-                                    "\n\n"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -620,23 +438,9 @@ class TestGeonamesLookup(unittest.TestCase):
                             "segment": "content_relaxed",
                             "context": {
                                 "end": 147,
-                                "tokens_left": [
-                                    "explore",
-                                    ",",
-                                    "embrace",
-                                    "and",
-                                    "indulge"
-                                ],
                                 "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent ",
                                 "start": 146,
-                                "input": "tokens",
-                                "tokens_right": [
-                                    "your",
-                                    "favorite",
-                                    "fantasy",
-                                    "%",
-                                    "independent"
-                                ]
+                                "input": "tokens"
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },

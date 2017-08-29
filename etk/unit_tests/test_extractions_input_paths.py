@@ -91,23 +91,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -120,23 +106,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -192,23 +164,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -221,23 +179,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -352,23 +296,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -381,23 +311,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -453,23 +369,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -482,23 +384,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -580,22 +468,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 5,
-                    "tokens_left": [
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 4,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }

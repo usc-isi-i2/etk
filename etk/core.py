@@ -998,8 +998,8 @@ class Core(object):
                             ' '.join(text_or_tokens[new_start:start]).encode('utf-8'),
                             relevant_text,
                             ' '.join(text_or_tokens[end:new_end]).encode('utf-8'))
-                        result['context']['tokens_left'] = text_or_tokens[new_start:start]
-                        result['context']['tokens_right'] = text_or_tokens[end:new_end]
+                        # result['context']['tokens_left'] = text_or_tokens[new_start:start]
+                        # result['context']['tokens_right'] = text_or_tokens[end:new_end]
                         result['context']['input'] = _TOKENS
         return results
 
