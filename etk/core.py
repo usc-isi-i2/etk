@@ -499,7 +499,6 @@ class Core(object):
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     results = foo(match.value, extractors[extractor][_CONFIG])
                                                     if results:
-                                                        # doc[_KNOWLEDGE_GRA][field] = results
                                                         self.create_knowledge_graph(doc, field, results)
 
                 """Optional Phase 4: feature computation"""
@@ -543,7 +542,7 @@ class Core(object):
                                                         self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
-                    doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
+                    # doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
                     """ Add title and description as fields in the knowledge graph as well"""
                     doc = Core.rearrange_description(doc)
                     doc = Core.rearrange_title(doc)
@@ -551,9 +550,9 @@ class Core(object):
         except Exception as e:
             self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL])
             if self.global_error_handling == _RAISE_ERROR:
-                # exc_type, exc_value, exc_traceback = sys.exc_info()
-                # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-                # print ''.join(lines)
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                print ''.join(lines)
                 raise e
             else:
                 return None
@@ -660,39 +659,96 @@ class Core(object):
             doc[_KNOWLEDGE_GRAPH] = dict()
 
         if field_name not in doc[_KNOWLEDGE_GRAPH]:
-            doc[_KNOWLEDGE_GRAPH][field_name] = dict()
+            doc[_KNOWLEDGE_GRAPH][field_name] = list()
+
+        # if field_name == 'phone':
+        #     print 'in create_knowledge_graph'
+        #     print json.dumps(extractions, indent=2)
 
         for extraction in extractions:
-            key = extraction['value']
-            if (isinstance(key, basestring) or isinstance(key, numbers.Number)) and field_name != _POSTING_DATE:
-                # try except block because unicode characters will not be lowered
-                try:
-                    key = str(key).strip().lower()
-                except:
-                    pass
-            if 'metadata' in extraction:
-                sorted_metadata = Core.sort_dict(extraction['metadata'])
-                for k, v in sorted_metadata.iteritems():
-                    if isinstance(v, numbers.Number):
-                        v = str(v)
-                    # if v:
-                    #     v = v.encode('utf-8')
-                    if v and v.strip() != '':
-                        # key += '-' + str(k) + ':' + str(v)
-                        key = '{}-{}:{}'.format(key, k, v)
-
             if 'key' in extraction:
                 key = extraction['key']
+            else:
+                key = extraction['value']
+                if (isinstance(key, basestring) or isinstance(key, numbers.Number)) and field_name != _POSTING_DATE:
+                    # try except block because unicode characters will not be lowered
+                    try:
+                        key = str(key).strip().lower()
+                    except:
+                        pass
+                if 'metadata' in extraction:
+                    sorted_metadata = Core.sort_dict(extraction['metadata'])
+                    for k, v in sorted_metadata.iteritems():
+                        if isinstance(v, numbers.Number):
+                            v = str(v)
+                        # if v:
+                        #     v = v.encode('utf-8')
+                        if v and v.strip() != '':
+                            # key += '-' + str(k) + ':' + str(v)
+                            key = '{}-{}:{}'.format(key, k, v)
 
             # TODO FIX THIS HACK
             if len(key) > 32766:
                 key = key[0:500]
 
-            if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
-                doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
-            doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
+            provenance = dict()
+            method = None
+            confidence = None
+            metadata = None
+            value = None
+
+            if 'origin' in extraction:
+                origin = extraction['origin']
+                if 'obfuscation' in extraction:
+                    origin['extraction_metadata'] = dict()
+                    origin['extraction_metadata']['obfuscation'] = extraction['obfuscation']
+                method = origin['method']
+                confidence = origin['score']
+                origin.pop('score', None)
+                origin.pop('method', None)
+                provenance['source'] = origin
+
+            if 'context' in extraction:
+                provenance['source']['context'] = extraction['context']
+            if 'metadata' in extraction and not metadata:
+                metadata = extraction['metadata']
+            if method:
+                provenance["method"] = method
+            if not value:
+                value = extraction['value']
+                provenance['extracted_value'] = value
+            if confidence:
+                provenance['confidence'] = dict()
+                provenance['confidence']['extraction'] = confidence
+            if metadata:
+                provenance['qualifiers'] = metadata
+            doc[_KNOWLEDGE_GRAPH][field_name] = Core.add_extraction_knowledge_graph(
+                    doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value)
+
+            # if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
+            #     doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
+            # doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
 
         return doc
+
+
+    @staticmethod
+    def add_extraction_knowledge_graph(kg_extractions, provenance, key, value):
+        if len(kg_extractions) > 0:
+            for kg_e in kg_extractions:
+                if key == kg_e['key']:
+                    kg_e['provenance'].append(provenance)
+                    return kg_extractions
+
+        kg_extraction = dict()
+        kg_extraction['provenance'] = [provenance]
+        kg_extraction['value'] = value
+        kg_extraction['key'] = key
+        kg_extraction['confidence'] = 1
+        kg_extractions.append(kg_extraction)
+        return kg_extractions
+
+
 
     @staticmethod
     def reformat_knowledge_graph(knowledge_graph):
@@ -703,6 +759,9 @@ class Core(object):
             for key in values.keys():
                 o = dict()
                 o['key'] = key
+                # if semantic_type == 'phone':
+                #     print 'in reformat knowledge graph'
+                #     print json.dumps(values[key], indent=2)
                 new_provenances, metadata, value = Core.rearrange_provenance(values[key])
                 o['provenance'] = new_provenances
                 if metadata:
@@ -1556,11 +1615,12 @@ class Core(object):
                 raise '{} dictionary missing from resources'.format(_GEONAMES)
 
         if _CITY_NAME in d[_KNOWLEDGE_GRAPH]:
-            cities = d[_KNOWLEDGE_GRAPH][_CITY_NAME].keys()
+            # cities = d[_KNOWLEDGE_GRAPH][_CITY_NAME].keys()
+            cities = [x['key'] for x in d[_KNOWLEDGE_GRAPH][_CITY_NAME]]
         else:
             return None
-        populated_places = geonames_extractor.get_populated_places(cities, self.geonames_dict)
-
+        populated_places = self.add_origin_info(geonames_extractor.get_populated_places(cities, self.geonames_dict),
+                                                'geonames_lookup', 'post_process', 1.0, d[_DOCUMENT_ID])
         return populated_places
 
     @staticmethod
@@ -1600,7 +1660,8 @@ class Core(object):
                 raise '{} dictionary missing from resources'.format(_STATE_TO_COUNTRY)
 
         if _STATE in d[_KNOWLEDGE_GRAPH]:
-            states = d[_KNOWLEDGE_GRAPH][_STATE].keys()
+            # states = d[_KNOWLEDGE_GRAPH][_STATE].keys()
+            states = [x['key'] for x in d[_KNOWLEDGE_GRAPH][_STATE]]
         else:
             return None
 
@@ -1637,62 +1698,67 @@ class Core(object):
                     city_state_code_separate_count = 0
                     city_country_together_count = 0
                     city_country_separate_count = 0
-                    city = pop_places[place][0]["value"]
-                    state = pop_places[place][0]["metadata"]["state"]
-                    state = "" if not state else state
-                    country = pop_places[place][0]["metadata"]["country"]
-                    country = "" if not country else country
+                    city = place["value"]
+                    state = place['provenance'][0]['qualifiers'][_STATE] if _STATE in place['provenance'][0][
+                        'qualifiers'] else ""
+                    country = place['provenance'][0]['qualifiers'][_COUNTRY] if _COUNTRY in place['provenance'][0][
+                        'qualifiers'] else ""
+                    document_id = place['provenance'][0]['source'][_DOCUMENT_ID]
+
                     if state in self.state_to_codes_lower_dict:
                         state_code = self.state_to_codes_lower_dict[state]
                     else:
                         state_code = None
 
-                    cities = []
-                    if "city_name" in knowledge_graph:
-                        if city in knowledge_graph["city_name"]:
-                            city_lst = knowledge_graph["city_name"][city]
-                            for each_city in city_lst:
-                                if "context" in each_city:
-                                    cities.append((each_city["origin"]["segment"],
-                                        each_city["context"]["start"], each_city["context"]["end"]))
-                            if city_lst:
-                                document_id = each_city["origin"]["document_id"]
-                            else:
-                                document_id = ""
+                    cities = list()
 
-                    states = []
+                    if _CITY_NAME in knowledge_graph:
+                        city_name_objects = knowledge_graph[_CITY_NAME]
+                        for city_name_object in city_name_objects:
+                            if city == city_name_object["value"]:
+                                for prov in city_name_object["provenance"]:
+                                    if "context" in prov["source"]:
+                                        cities.append((prov["source"]["segment"], prov["source"]["context"]["start"],
+                                                       prov["source"]["context"]["end"]))
+
+                    states = list()
                     if country == "united states":
-                        if "state" in knowledge_graph:
-                            if state in knowledge_graph["state"]:
-                                state_lst = knowledge_graph["state"][state]
-                                for each_state in state_lst:
-                                    if "context" in each_state:
-                                        states.append((each_state["origin"]["segment"],
-                                                       each_state["context"]["start"], each_state["context"]["end"]))
+                        if _STATE in knowledge_graph:
+                            state_objects = knowledge_graph[_STATE]
+                            for state_object in state_objects:
+                                if state == state_object["value"]:
+                                    for prov in state_object["provenance"]:
+                                        if "context" in prov["source"]:
+                                            states.append(
+                                                (prov["source"]["segment"], prov["source"]["context"]["start"],
+                                                 prov["source"]["context"]["end"]))
 
-                    countries = []
-                    if "country" in knowledge_graph:
-                        if country in knowledge_graph["country"]:
-                            country_lst = knowledge_graph["country"][country]
-                            for each_country in country_lst:
-                                if "context" in each_country:
-                                    countries.append((each_country["origin"]["segment"],
-                                                      each_country["context"]["start"], each_country["context"]["end"]))
+                    countries = list()
+                    if _COUNTRY in knowledge_graph:
+                        country_objects = knowledge_graph[_COUNTRY]
+                        for country_object in country_objects:
+                            if country == country_object["value"]:
+                                for prov in country_object["provenance"]:
+                                    if "context" in prov["source"]:
+                                        countries.append(
+                                            (prov["source"]["segment"], prov["source"]["context"]["start"],
+                                             prov["source"]["context"]["end"]))
 
-                    state_codes = []
+                    state_codes = list()
                     if country == "united states":
                         if state_code:
                             if "states_usa_codes" in knowledge_graph:
-                                if state_code in knowledge_graph["states_usa_codes"]:
-                                    state_code_lst = knowledge_graph["states_usa_codes"][state_code]
-                                    for each_state_code in state_code_lst:
-                                        if "context" in each_state_code:
-                                            state_codes.append((each_state_code["origin"]["segment"],
-                                                                each_state_code["context"]["start"],
-                                                                each_state_code["context"]["end"]))
+                                states_usa_objects = knowledge_graph["states_usa_codes"]
+                                for state_usa_object in states_usa_objects:
+                                    if state_code == state_usa_object["value"]:
+                                        for prov in state_usa_object["provenance"]:
+                                            if "context" in prov["source"]:
+                                                state_codes.append(
+                                                    (prov["source"]["segment"], prov["source"]["context"]["start"],
+                                                     prov["source"]["context"]["end"]))
 
                     if cities:
-                        segments = []
+                        segments = list()
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (
@@ -1719,38 +1785,48 @@ class Core(object):
                                 else:
                                     city_country_separate_count += 1
 
-                        result = copy.deepcopy(pop_places[place][0])
-                        result['origin'] = dict()
-                        result['origin']['document_id'] = document_id
-                        result['origin']['method'] = 'create_city_state_country_triple'
-                        result['metadata']['city_state_together'] = city_state_together_count
-                        result['metadata']['city_state_separate'] = city_state_separate_count
-                        result['metadata']['city_state_code_together'] = city_state_code_together_count
-                        result['metadata']['city_state_code_separate'] = city_state_code_separate_count
-                        result['metadata']['city_country_together'] = city_country_together_count
-                        result['metadata']['city_country_separate'] = city_country_separate_count
+                        # result = copy.deepcopy(pop_places[place][0])
+                        # result = copy.deepcopy(place)
+                        result = dict()
+                        origin = dict()
+                        origin['method'] = 'create_city_state_country_triple'
+                        origin[_DOCUMENT_ID] = document_id
+                        origin['score'] = 1.0
+
+                        qualifiers = dict()
+                        qualifiers['city_state_together'] = city_state_together_count
+                        qualifiers['city_state_separate'] = city_state_separate_count
+                        qualifiers['city_state_code_together'] = city_state_code_together_count
+                        qualifiers['city_state_code_separate'] = city_state_code_separate_count
+                        qualifiers['city_country_together'] = city_country_together_count
+                        qualifiers['city_country_separate'] = city_country_separate_count
+                        qualifiers['population'] = place["provenance"][0]["qualifiers"]['population']
+                        qualifiers['longitude'] = place["provenance"][0]["qualifiers"]['longitude']
+                        qualifiers['latitude'] = place["provenance"][0]["qualifiers"]['latitude']
+
+                        result['metadata'] = qualifiers
+
                         for priori_idx, counter in enumerate(priori_lst):
                             if country == "united states":
                                 result_value = city + ',' + state
                             else:
                                 result_value = city + ',' + country
                             result['key'] = city + ':' + state + ':' + country + ':' + str(
-                                result['metadata']['longitude']) + ':' + str(result['metadata']['latitude'])
-                            if result['metadata'][counter] > 0:
+                                place["provenance"][0]["qualifiers"]['longitude']) + ':' + str(
+                                place["provenance"][0]["qualifiers"]['latitude'])
+                            if qualifiers[counter] > 0:
                                 if priori_idx < 3:
                                     result['value'] = result_value + "-1.0"
-                                    result['origin']['score'] = 1.0
-                                    result['origin']['segment'] = counter + ' in'
+                                    origin['segment'] = counter + ' in'
                                     for segment in segments:
-                                        result['origin']['segment'] = result['origin']['segment'] + ' ' + segment
+                                        origin['segment'] += ' ' + segment
                                 elif priori_idx < 5:
                                     result['value'] = result_value + "-0.8"
-                                    result['origin']['score'] = 0.8
-                                    result['origin']['segment'] = counter + ' in somewhere'
+                                    origin['segment'] = counter + ' in somewhere'
                                 else:
                                     result['value'] = result_value + "-0.3"
-                                    result['origin']['score'] = 0.3
-                                    result['origin']['segment'] = counter + ' in somewhere'
+                                    origin['segment'] = counter + ' in somewhere'
+                                result['origin'] = origin
                                 results[priori_idx].append(result)
                                 break
                             else:
@@ -1760,19 +1836,19 @@ class Core(object):
                                             if "state" in self.populated_cities[city]:
                                                 if self.populated_cities[city]["state"] == state:
                                                     result['value'] = result_value + "-0.1"
-                                                    result['origin']['score'] = 0.1
-                                                    result['origin']['segment'] = 'none'
+                                                    origin['segment'] = 'none'
+                                                    result['origin'] = origin
                                                     results[priori_idx+1].append(result)
                                             else:
                                                 result['value'] = result_value + "-0.1"
-                                                result['origin']['score'] = 0.1
-                                                result['origin']['segment'] = 'none'
+                                                origin['segment'] = 'none'
+                                                result['origin'] = origin
                                                 results[priori_idx + 1].append(result)
                                 else:
                                     if priori_idx == 5 and city in self.populated_cities:
                                         result['value'] = result_value + "-0.1"
-                                        result['origin']['score'] = 0.1
-                                        result['origin']['segment'] = 'none'
+                                        origin['segment'] = 'none'
+                                        result['origin'] = origin
                                         results[priori_idx + 1].append(result)
 
             return_result = None
@@ -1785,14 +1861,21 @@ class Core(object):
                         high_pop = 0
                         high_idx = 0
                         for idx, a_result in enumerate(results[priori]):
-                            if a_result['metadata']['population'] >= high_pop:
-                                high_pop = a_result['metadata']['population']
+                            if a_result['qualifiers']['population'] >= high_pop:
+                                high_pop = a_result['qualifiers']['population']
                                 high_idx = idx
                         return_result = [results[priori][high_idx]]
                         break
-
+            # self.print_p(return_result)
             return return_result
 
         except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            print ''.join(lines)
             self.log('Exception in create_city_state_country_triple()', _EXCEPTION, url=d[_URL], doc_id=d[_DOCUMENT_ID])
             return None
+
+    @staticmethod
+    def print_p(x):
+        print json.dumps(x, indent=2)

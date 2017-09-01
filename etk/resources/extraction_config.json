@@ -451,18 +451,5 @@
         }
       }
     }
-  },
-  "feature_computation": {
-    "input_path": "knowledge_graph.`parent`",
-    "fields": {
-      "country_classifier": {
-        "extractors": {
-          "country_feature": {
-            "config": {
-            }
-          }
-        }
-      }
-    }
   }
 }
