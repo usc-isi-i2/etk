@@ -187,7 +187,8 @@ class Core(object):
                     port = logstash_conf[_PORT] if _PORT in logstash_conf else 5959
                     self.logstash_logger.setLevel(logstash_conf[_LEVEL] if _LEVEL in logstash_conf else _ERROR)
                     self.logstash_logger.addHandler(
-                        logstash.LogstashHandler(host, port, logstash_conf[_VERSION] if _VERSION in logging_conf else 1))
+                        logstash.LogstashHandler(host, port,
+                                                 logstash_conf[_VERSION] if _VERSION in logging_conf else 1))
 
     def log(self, message, level, doc_id=None, url=None, extra=None):
         if self.logstash_logger:
@@ -212,7 +213,6 @@ class Core(object):
             elif level == _EXCEPTION:
                 self.logstash_logger.exception(message, extra=extra)
 
-
     """ Define all API methods """
 
     def process(self, doc, create_knowledge_graph=False):
@@ -233,7 +233,7 @@ class Core(object):
                     _ERROR_HANDLING] if _ERROR_HANDLING in self.extraction_config else _RAISE_ERROR
                 if error_handling != _RAISE_ERROR and error_handling != _IGNORE_DOCUMENT:
                     warning = 'WARN: error handling in extraction config can either be \"{}\" or \"{}\".' \
-                          ' By default its value has been set to \"{}\"'.format(
+                              ' By default its value has been set to \"{}\"'.format(
                         _RAISE_ERROR, _IGNORE_DOCUMENT, _RAISE_ERROR)
                     self.log(warning, _WARNING)
                     error_handling = _RAISE_ERROR
@@ -501,46 +501,6 @@ class Core(object):
                                                     if results:
                                                         self.create_knowledge_graph(doc, field, results)
 
-                """Optional Phase 4: feature computation"""
-                if _FEATURE_COMPUTATION in self.extraction_config:
-                    kg_configs = self.extraction_config[_FEATURE_COMPUTATION]
-                    if isinstance(kg_configs, dict):
-                        kg_configs = [kg_configs]
-
-                    for i in range(len(kg_configs)):
-                        kg_config = kg_configs[i]
-                        input_paths = kg_config[_INPUT_PATH] if _INPUT_PATH in kg_config else None
-                        if not input_paths:
-                            raise KeyError(
-                                '{} not found for feature computation in extraction_config'.format(_INPUT_PATH))
-
-                        if not isinstance(input_paths, list):
-                            input_paths = [input_paths]
-
-                        for input_path in input_paths:
-                            if _FIELDS in kg_config:
-                                if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
-                                matches = self.data_extraction_path[input_path].find(doc)
-                                for match in matches:
-                                    fields = kg_config[_FIELDS]
-                                    for field in fields.keys():
-                                        if _EXTRACTORS in fields[field]:
-                                            extractors = fields[field][_EXTRACTORS]
-                                            for extractor in extractors.keys():
-                                                try:
-                                                    foo = getattr(self, extractor)
-                                                except:
-                                                    foo = None
-                                                if foo:
-                                                    if _CONFIG not in extractors[extractor]:
-                                                        extractors[extractor][_CONFIG] = dict()
-                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                    results = foo(match.value, extractors[extractor][_CONFIG])
-                                                    if results:
-                                                        # doc[_KNOWLEDGE_GRAPH][field] = results
-                                                        self.create_knowledge_graph(doc, field, results)
-
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     # doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -723,14 +683,9 @@ class Core(object):
             if metadata:
                 provenance['qualifiers'] = metadata
             doc[_KNOWLEDGE_GRAPH][field_name] = Core.add_extraction_knowledge_graph(
-                    doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value)
-
-            # if key not in doc[_KNOWLEDGE_GRAPH][field_name]:
-            #     doc[_KNOWLEDGE_GRAPH][field_name][key] = list()
-            # doc[_KNOWLEDGE_GRAPH][field_name][key].append(extraction)
+                doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value)
 
         return doc
-
 
     @staticmethod
     def add_extraction_knowledge_graph(kg_extractions, provenance, key, value):
@@ -747,66 +702,6 @@ class Core(object):
         kg_extraction['confidence'] = 1
         kg_extractions.append(kg_extraction)
         return kg_extractions
-
-
-
-    @staticmethod
-    def reformat_knowledge_graph(knowledge_graph):
-        new_kg = dict()
-        for semantic_type in knowledge_graph.keys():
-            new_kg[semantic_type] = list()
-            values = knowledge_graph[semantic_type]
-            for key in values.keys():
-                o = dict()
-                o['key'] = key
-                # if semantic_type == 'phone':
-                #     print 'in reformat knowledge graph'
-                #     print json.dumps(values[key], indent=2)
-                new_provenances, metadata, value = Core.rearrange_provenance(values[key])
-                o['provenance'] = new_provenances
-                if metadata:
-                    o['qualifiers'] = metadata
-                o['value'] = value
-                # default confidence value, to be updated by later analysis
-                o['confidence'] = 1
-                new_kg[semantic_type].append(o)
-        return new_kg
-
-    @staticmethod
-    def rearrange_provenance(old_provenances):
-        new_provenances = list()
-        metadata = None
-        value = None
-        for prov in old_provenances:
-            new_prov = dict()
-            method = None
-            confidence = None
-
-            if 'origin' in prov:
-                origin = prov['origin']
-                if 'obfuscation' in prov:
-                    origin['extraction_metadata'] = dict()
-                    origin['extraction_metadata']['obfuscation'] = prov['obfuscation']
-                method = origin['method']
-                confidence = origin['score']
-                origin.pop('score', None)
-                origin.pop('method', None)
-                new_prov['source'] = origin
-
-            if 'context' in prov:
-                new_prov['source']['context'] = prov['context']
-            if 'metadata' in prov and not metadata:
-                metadata = prov['metadata']
-            if method:
-                new_prov["method"] = method
-            if not value:
-                value = prov['value']
-            new_prov['extracted_value'] = value
-            if confidence:
-                new_prov['confidence'] = dict()
-                new_prov['confidence']['extraction'] = confidence
-            new_provenances.append(new_prov)
-        return new_provenances, metadata, value
 
     @staticmethod
     def add_data_extraction_results(d, field_name, method_name, results):
@@ -1162,11 +1057,11 @@ class Core(object):
         joiner = config[_JOINER] if _JOINER in config else ' '
 
         return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
-                                                                                                  self.tries[
-                                                                                                      field_name],
-                                                                                                  pre_filter,
-                                                                                                  post_filter,
-                                                                                                  ngrams, joiner),
+                                                                                       self.tries[
+                                                                                           field_name],
+                                                                                       pre_filter,
+                                                                                       post_filter,
+                                                                                       ngrams, joiner),
                                                 field_name)
 
     @staticmethod
@@ -1687,7 +1582,7 @@ class Core(object):
             priori_lst = ['city_state_together', 'city_state_code_together',
                           'city_country_together', 'city_state_separate',
                           'city_country_separate', 'city_state_code_separate']
-            results = [[] for i in range(len(priori_lst)+1)]
+            results = [[] for i in range(len(priori_lst) + 1)]
             knowledge_graph = d[_KNOWLEDGE_GRAPH]
             if "populated_places" in knowledge_graph:
                 pop_places = knowledge_graph["populated_places"]
@@ -1762,7 +1657,7 @@ class Core(object):
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (
-                                        abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
+                                                abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
                                     city_state_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -1778,7 +1673,7 @@ class Core(object):
                                     city_state_code_separate_count += 1
                             for a_country in countries:
                                 if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (
-                                        abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
+                                                abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
                                     city_country_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -1838,7 +1733,7 @@ class Core(object):
                                                     result['value'] = result_value + "-0.1"
                                                     origin['segment'] = 'none'
                                                     result['origin'] = origin
-                                                    results[priori_idx+1].append(result)
+                                                    results[priori_idx + 1].append(result)
                                             else:
                                                 result['value'] = result_value + "-0.1"
                                                 origin['segment'] = 'none'
