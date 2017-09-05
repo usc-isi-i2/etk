@@ -1,5 +1,6 @@
 {
   "eroticmugshots.com": [
+    {"rules":[
     {
       "rule_type": "ItemRule",
       "removehtml": true,
@@ -44,6 +45,7 @@
       "end_regex": ":00\\<br/\\>",
       "include_end_regex": true,
       "name": "inferlink_posting-date"
+    }]
     }
   ]
 }
