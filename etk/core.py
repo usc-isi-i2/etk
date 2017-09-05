@@ -509,10 +509,10 @@ class Core(object):
 
         except Exception as e:
             self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL])
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            print ''.join(lines)
             if self.global_error_handling == _RAISE_ERROR:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-                print ''.join(lines)
                 raise e
             else:
                 return None
@@ -620,10 +620,6 @@ class Core(object):
 
         if field_name not in doc[_KNOWLEDGE_GRAPH]:
             doc[_KNOWLEDGE_GRAPH][field_name] = list()
-
-        # if field_name == 'phone':
-        #     print 'in create_knowledge_graph'
-        #     print json.dumps(extractions, indent=2)
 
         for extraction in extractions:
             if 'key' in extraction:
@@ -1501,16 +1497,13 @@ class Core(object):
                                                 config[_FIELD_NAME])
 
     def geonames_lookup(self, d, config):
-        field_name = config[_FIELD_NAME]
-
         if not self.geonames_dict:
             try:
                 self.geonames_dict = self.load_json_file(self.get_dict_file_name_from_config(_GEONAMES))
-            except Exception as e:
-                raise '{} dictionary missing from resources'.format(_GEONAMES)
+            except Exception:
+                raise Exception('{} dictionary missing from resources'.format(_GEONAMES))
 
         if _CITY_NAME in d[_KNOWLEDGE_GRAPH]:
-            # cities = d[_KNOWLEDGE_GRAPH][_CITY_NAME].keys()
             cities = [x['key'] for x in d[_KNOWLEDGE_GRAPH][_CITY_NAME]]
         else:
             return None
@@ -1551,11 +1544,10 @@ class Core(object):
         if not self.state_to_country_dict:
             try:
                 self.state_to_country_dict = self.load_json_file(self.get_dict_file_name_from_config(_STATE_TO_COUNTRY))
-            except Exception as e:
-                raise '{} dictionary missing from resources'.format(_STATE_TO_COUNTRY)
+            except Exception:
+                raise Exception('{} dictionary missing from resources'.format(_STATE_TO_COUNTRY))
 
         if _STATE in d[_KNOWLEDGE_GRAPH]:
-            # states = d[_KNOWLEDGE_GRAPH][_STATE].keys()
             states = [x['key'] for x in d[_KNOWLEDGE_GRAPH][_STATE]]
         else:
             return None
@@ -1680,8 +1672,6 @@ class Core(object):
                                 else:
                                     city_country_separate_count += 1
 
-                        # result = copy.deepcopy(pop_places[place][0])
-                        # result = copy.deepcopy(place)
                         result = dict()
                         origin = dict()
                         origin['method'] = 'create_city_state_country_triple'
@@ -1761,7 +1751,6 @@ class Core(object):
                                 high_idx = idx
                         return_result = [results[priori][high_idx]]
                         break
-            # self.print_p(return_result)
             return return_result
 
         except Exception as e:
