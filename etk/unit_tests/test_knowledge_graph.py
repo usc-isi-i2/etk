@@ -70,7 +70,6 @@ class TestExtractionsInputPaths(unittest.TestCase):
         r = c.process(self.doc, create_knowledge_graph=True)
         self.assertTrue('knowledge_graph' in r)
         kg = r['knowledge_graph']
-        # print json.dumps(kg, indent=2)
         expected_kg = {
             "title": [
                 {
@@ -96,24 +95,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "end": 11,
-                                    "tokens_left": [
-                                        "27",
-                                        "\n\n\n",
-                                        "my",
-                                        "name",
-                                        "is"
-                                    ],
-                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                                     "start": 10,
+                                    "end": 11,
                                     "input": "tokens",
-                                    "tokens_right": [
-                                        "height",
-                                        "160cms",
-                                        "weight",
-                                        "55",
-                                        "kilos"
-                                    ]
+                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -138,30 +123,16 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                 "extraction": 1.0
                             },
                             "method": "extract_using_regex",
-                            "extracted_value": "helena"
+                            "extracted_value": "Helena"
                         },
                         {
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "end": 11,
-                                    "tokens_left": [
-                                        "27",
-                                        "\n\n\n",
-                                        "my",
-                                        "name",
-                                        "is"
-                                    ],
-                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                                     "start": 10,
+                                    "end": 11,
                                     "input": "tokens",
-                                    "tokens_right": [
-                                        "height",
-                                        "160cms",
-                                        "weight",
-                                        "55",
-                                        "kilos"
-                                    ]
+                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -186,11 +157,11 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                 "extraction": 1.0
                             },
                             "method": "extract_using_regex",
-                            "extracted_value": "helena"
+                            "extracted_value": "Helena"
                         }
                     ],
-                    "value": "helena",
-                    "key": "helena"
+                    "key": "helena",
+                    "value": "helena"
                 },
                 {
                     "confidence": 1,
@@ -199,24 +170,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "end": 137,
-                                    "tokens_left": [
-                                        "\n\n",
-                                        "hey",
-                                        "i",
-                                        "'",
-                                        "m"
-                                    ],
-                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                                     "start": 136,
+                                    "end": 137,
                                     "input": "tokens",
-                                    "tokens_right": [
-                                        "3234522013",
-                                        "let",
-                                        "'",
-                                        "s",
-                                        "explore"
-                                    ]
+                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -230,24 +187,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "end": 137,
-                                    "tokens_left": [
-                                        "\n\n",
-                                        "hey",
-                                        "i",
-                                        "'",
-                                        "m"
-                                    ],
-                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                                     "start": 136,
+                                    "end": 137,
                                     "input": "tokens",
-                                    "tokens_right": [
-                                        "3234522013",
-                                        "let",
-                                        "'",
-                                        "s",
-                                        "explore"
-                                    ]
+                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -261,24 +204,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "title",
                                 "context": {
-                                    "end": 10,
-                                    "tokens_left": [
-                                        "2013",
-                                        "escort",
-                                        "alert",
-                                        "!",
-                                        "-"
-                                    ],
-                                    "text": "2013 escort alert ! - <etk 'attribute' = 'name'>luna</etk> the hot playmate ( 323 ",
                                     "start": 9,
+                                    "end": 10,
                                     "input": "tokens",
-                                    "tokens_right": [
-                                        "the",
-                                        "hot",
-                                        "playmate",
-                                        "(",
-                                        "323"
-                                    ]
+                                    "text": "2013 escort alert ! - <etk 'attribute' = 'name'>luna</etk> the hot playmate ( 323 "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -289,8 +218,8 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "extracted_value": "luna"
                         }
                     ],
-                    "value": "luna",
-                    "key": "luna"
+                    "key": "luna",
+                    "value": "luna"
                 }
             ],
             "description": [

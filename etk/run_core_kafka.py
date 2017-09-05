@@ -48,10 +48,10 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
     # will exit once timeout
     for msg in consumer:
         cdr = msg.value
-        if ('_id' not in cdr) and ('doc_id' not in cdr) and ('document_id' not in cdr):
-            print 'invalid cdr: unknown doc_id'
         if 'doc_id' not in cdr:
-            cdr['doc_id'] = cdr.get('_id', cdr['document_id'])
+            cdr['doc_id'] = cdr.get('_id', cdr.get('document_id', ''))
+        if len(cdr['doc_id']) == 0:
+            print 'invalid cdr: unknown doc_id'
         print 'processing', cdr['doc_id']
         try:
             result = core.process(cdr, create_knowledge_graph=True)

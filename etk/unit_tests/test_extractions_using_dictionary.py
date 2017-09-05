@@ -104,7 +104,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
@@ -114,16 +114,14 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
 
         ex = {'results': [
             {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11, 'tokens_left': [u'27', u'\n\n\n', u'my', u'name', u'is'],
+             'context': {'end': 11,
                          'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
                                  "weight 55 kilos ",
-                         'start': 10, 'input': 'tokens',
-                         'tokens_right': [u'height', u'160cms', u'weight', u'55', u'kilos']}, 'value': u'helena'},
+                         'start': 10, 'input': 'tokens'}, 'value': u'helena'},
             {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137, 'tokens_left': [u'\n\n', u'hey', u'i', u"'", u'm'],
+             'context': {'end': 137,
                          'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
-                         'start': 136, 'input': 'tokens',
-                         'tokens_right': [u'3234522013', u'let', u"'", u's', u'explore']}, 'value': u'luna'}]}
+                         'start': 136, 'input': 'tokens'}, 'value': u'luna'}]}
         self.assertEqual(extraction, ex)
 
     def test_empty_tokens(self):
@@ -189,10 +187,8 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         c = Core(extraction_config=e_config)
         r = c.process(doc)
 
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
-        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
         self.assertTrue(
@@ -208,21 +204,9 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                       },
                       "context": {
                         "end": 4,
-                        "tokens_left": [
-                          "My",
-                          "name",
-                          "is"
-                        ],
                         "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test ",
                         "start": 3,
-                        "input": "tokens",
-                        "tokens_right": [
-                          "and",
-                          "this",
-                          "is",
-                          "a",
-                          "test"
-                        ]
+                        "input": "tokens"
                       },
                       "value": "Margie"
                     }
@@ -280,9 +264,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         c = Core(extraction_config=e_config)
         r = c.process(doc)
 
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
-        self.assertTrue('tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
 
