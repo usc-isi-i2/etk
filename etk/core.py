@@ -1746,8 +1746,8 @@ class Core(object):
                         high_pop = 0
                         high_idx = 0
                         for idx, a_result in enumerate(results[priori]):
-                            if a_result['qualifiers']['population'] >= high_pop:
-                                high_pop = a_result['qualifiers']['population']
+                            if a_result['metadata']['population'] >= high_pop:
+                                high_pop = a_result['metadata']['population']
                                 high_idx = idx
                         return_result = [results[priori][high_idx]]
                         break
