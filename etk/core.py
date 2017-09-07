@@ -1588,8 +1588,14 @@ class Core(object):
                     city = place["value"]
                     state = place['provenance'][0]['qualifiers'][_STATE] if _STATE in place['provenance'][0][
                         'qualifiers'] else ""
+                    # in some cases, place['provenance'][0]['qualifiers'][_STATE] might be None
+                    if not state:
+                        state = ''
                     country = place['provenance'][0]['qualifiers'][_COUNTRY] if _COUNTRY in place['provenance'][0][
                         'qualifiers'] else ""
+                    # in some cases, place['provenance'][0]['qualifiers'][_COUNTRY] might be None
+                    if not country:
+                        country = ''
                     document_id = place['provenance'][0]['source'][_DOCUMENT_ID]
 
                     if state in self.state_to_codes_lower_dict:
