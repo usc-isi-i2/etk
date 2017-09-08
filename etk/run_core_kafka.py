@@ -10,7 +10,6 @@ from kafka import KafkaProducer, KafkaConsumer
 from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
 import traceback
 
-
 def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=None):
     # ignore file output if kafka is set
     if kafka_server is None:
@@ -43,7 +42,7 @@ def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=No
     if kafka_producer is None:
         output.close()
 
-def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
+def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False):
     # high level api will handle batch thing
     # will exit once timeout
     for msg in consumer:
@@ -54,7 +53,7 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
             print 'invalid cdr: unknown doc_id'
         print 'processing', cdr['doc_id']
         try:
-            result = core.process(cdr, create_knowledge_graph=True)
+            result = etk_core.process(cdr, create_knowledge_graph=True)
             if not result:
                 raise Exception('run core error')
             # indexing
@@ -64,6 +63,8 @@ def run_serial_cdrs(core, consumer, producer, producer_topic, indexing=False):
             if result:
                 r = producer.send(producer_topic, result)
                 r.get(timeout=60)  # wait till sent
+            else:
+                etk_core.log('fail to indexing doc {}'.format(cdr['doc_id']), core._ERROR)
             print 'done'
         except Exception as e:
             # print e
