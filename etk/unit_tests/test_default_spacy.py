@@ -26,13 +26,11 @@ class TestTableExtractions(unittest.TestCase):
 
     def test_extraction_from_default_spacy(self):
         c = Core(extraction_config=self.e_config, load_spacy=True)
-        with open('../../../../elicit_20_output.jl', 'w') as outfile:
-            for i in range(len(self.ground_truth_input)):
-                r = c.process(self.ground_truth_input[
-                              i], create_knowledge_graph=True)
-                # output = json.dumps(r)
-                self.assertEquals(self.ground_truth_output[i][
-                                  'knowledge_graph'], r['knowledge_graph'])
+        for i in range(len(self.ground_truth_input)):
+            r = c.process(self.ground_truth_input[
+                          i], create_knowledge_graph=True)
+            self.assertEquals(self.ground_truth_output[i][
+                              'knowledge_graph'], r['knowledge_graph'])
 
 if __name__ == '__main__':
     unittest.main()
