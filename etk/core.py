@@ -65,6 +65,7 @@ _READABILITY = 'readability'
 _LANDMARK = 'landmark'
 _TITLE = 'title'
 _DESCRIPTION = "description"
+_INFERLINK_DESCRIPTION = 'inferlink_description'
 _STRICT = 'strict'
 _FIELD_NAME = 'field_name'
 _CONTENT_STRICT = 'content_strict'
@@ -533,12 +534,13 @@ class Core(object):
         if _CONTENT_EXTRACTION in doc:
             ce = doc[_CONTENT_EXTRACTION]
             if _INFERLINK_EXTRACTIONS in ce:
-                if _CONTENT_RELAXED in ce:
+                if _INFERLINK_DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
+                    description = ce[_INFERLINK_EXTRACTIONS][_INFERLINK_DESCRIPTION][_TEXT]
+                    segment = _INFERLINK
+                elif _CONTENT_RELAXED in ce:
                     description = ce[_CONTENT_RELAXED][_TEXT]
                     segment = _CONTENT_RELAXED
-                elif _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
-                    description = ce[_INFERLINK_EXTRACTIONS][_DESCRIPTION][_TEXT]
-                    segment = _INFERLINK
+
             if not description or description.strip() == '':
                 if _CONTENT_STRICT in ce:
                     description = ce[_CONTENT_STRICT][_TEXT]
