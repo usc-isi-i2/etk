@@ -1,0 +1,55 @@
+{
+  "document_id": "doc_id",
+  "error_handling": "raise_error",
+  "content_extraction": {
+    "input_path": "raw_content",
+    "extractors": {
+      "readability": [
+        {
+          "strict": "yes",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_strict"
+        },
+        {
+          "strict": "no",
+          "extraction_policy": "keep_existing",
+          "field_name": "content_relaxed"
+        }
+      ],
+      "title": {
+        "extraction_policy": "keep_existing"
+      }
+    }
+  },
+  "data_extraction": [
+    {
+    "input_path": [
+        "*.content_strict.text.`parent`",
+        "*.content_relaxed.text.`parent`",
+        "*.title.text.`parent`"
+      ],
+      "fields": {
+        "*" : {
+          "extractors": {
+            "extract_using_default_spacy": {
+              "config": {
+                "spacy_to_etk_mapping": {
+                  "PERSON": "person_name",
+                  "NORP": "group",
+                  "FACILITY": "facility",
+                  "ORG": "organization_name",
+                  "GPE": "city_name",
+                  "LOC": "location_non_gpe",
+                  "PRODUCT": "product",
+                  "LANGUAGE": "language",
+                  "MONEY": "money"
+                }
+              },
+              "extraction_policy": "replace"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -10,6 +10,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
 from spacy_extractors import customized_extractor as custom_spacy_extractor
+from spacy_extractors.default_extractor import DefaultExtractor as default_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -1154,6 +1155,24 @@ class Core(object):
                                                                                        self.matchers[_ADDRESS]),
                                                        _ADDRESS)
         return results
+
+    def extract_using_default_spacy(self, d, config):
+        if not self.nlp:
+            self.prep_spacy()
+
+        spacy_to_etk_mapping = config.get('spacy_to_etk_mapping', None)
+        if spacy_to_etk_mapping is None:
+            results = list()
+        else:
+            nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
+            results = default_spacy_extractor.extract(nlp_doc, spacy_to_etk_mapping)
+
+        modified_results = dict()
+        for field_name, result in results.items():
+            modified_results[field_name] = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE], result,
+                                                field_name)
+
+        return modified_results
 
     def extract_from_landmark(self, doc, config):
         field_name = config[_FIELD_NAME]
