@@ -6,6 +6,8 @@
     "person_name": "caused_by.member.label",
     "posting_date": "occurs_at.interval_is_before.has_date_value",
     "description": "comment",
-    "effect":"is_cause_of.comment"
+    "title": "comment",
+    "effect":"is_cause_of.comment",
+    "website": "publisher"
   }
 }
