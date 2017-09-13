@@ -10,6 +10,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
 from spacy_extractors import customized_extractor as custom_spacy_extractor
+from spacy_extractors.default_extractor import DefaultExtractor as default_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
 from data_extractors import regex_extractor
@@ -64,6 +65,7 @@ _READABILITY = 'readability'
 _LANDMARK = 'landmark'
 _TITLE = 'title'
 _DESCRIPTION = "description"
+_INFERLINK_DESCRIPTION = 'inferlink_description'
 _STRICT = 'strict'
 _FIELD_NAME = 'field_name'
 _CONTENT_STRICT = 'content_strict'
@@ -150,6 +152,8 @@ _DEBUG = 10
 _EXCEPTION = 47
 _ETK_VERSION = "etk_version"
 
+_CONVERT_TO_KG = "convert_to_kg"
+
 
 class Core(object):
     def __init__(self, extraction_config=None, debug=False, load_spacy=False):
@@ -164,6 +168,7 @@ class Core(object):
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
+        self.kgc_paths = dict()
         if load_spacy:
             self.prep_spacy()
         else:
@@ -225,8 +230,34 @@ class Core(object):
                     if doc_id_field in doc:
                         doc_id = doc[doc_id_field]
                         doc[_DOCUMENT_ID] = doc_id
+                        # TODO this is a hack, remove this later
+                        if 'doc_id' not in doc:
+                            doc['doc_id'] = doc_id
                     else:
                         raise KeyError('{} not found in the input document'.format(doc_id_field))
+                """Convert to knowledge_graph"""
+                if _CONVERT_TO_KG in self.extraction_config:
+                    conversion_map = self.extraction_config[_CONVERT_TO_KG]
+                    # conversion map is a dictionary where the key is field_name to be in the knowledge_graph,
+                    #  and value is the the json path of the input doc
+                    for field_name, kgc_path in conversion_map.iteritems():
+                        if kgc_path not in self.kgc_paths:
+                            self.kgc_paths[kgc_path] = parse(kgc_path)
+                        kg_matches = self.kgc_paths[kgc_path].find(doc)
+                        for kg_match in kg_matches:
+                            results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
+                                                                     doc_id=doc_id, score=1.0)
+                            if not results:
+                                msg = 'Error while converting to Knowledge Graph, input path: {} is not ' \
+                                      'a leaf node in the json document'.format(kgc_path)
+                                self.log(msg, _ERROR)
+                                print msg
+                                if self.global_error_handling == _RAISE_ERROR:
+                                    raise ValueError(msg)
+                            else:
+                                if create_knowledge_graph:
+                                    self.create_knowledge_graph(doc, field_name, results)
+                
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
                 error_handling = self.extraction_config[
@@ -524,6 +555,20 @@ class Core(object):
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
         return doc
 
+    def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
+        results = list()
+        if not isinstance(values, list):
+            values = [values]
+        for val in values:
+            if isinstance(val, basestring):
+                result = dict()
+                result['value'] = val
+                results.append(result)
+            else:
+                return None
+        return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
+
+
     @staticmethod
     def rearrange_description(doc):
         method = 'rearrange_description'
@@ -532,12 +577,13 @@ class Core(object):
         if _CONTENT_EXTRACTION in doc:
             ce = doc[_CONTENT_EXTRACTION]
             if _INFERLINK_EXTRACTIONS in ce:
-                if _CONTENT_RELAXED in ce:
+                if _INFERLINK_DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
+                    description = ce[_INFERLINK_EXTRACTIONS][_INFERLINK_DESCRIPTION][_TEXT]
+                    segment = _INFERLINK
+                elif _CONTENT_RELAXED in ce:
                     description = ce[_CONTENT_RELAXED][_TEXT]
                     segment = _CONTENT_RELAXED
-                elif _DESCRIPTION in ce[_INFERLINK_EXTRACTIONS]:
-                    description = ce[_INFERLINK_EXTRACTIONS][_DESCRIPTION][_TEXT]
-                    segment = _INFERLINK
+
             if not description or description.strip() == '':
                 if _CONTENT_STRICT in ce:
                     description = ce[_CONTENT_STRICT][_TEXT]
@@ -1154,6 +1200,24 @@ class Core(object):
                                                                                        self.matchers[_ADDRESS]),
                                                        _ADDRESS)
         return results
+
+    def extract_using_default_spacy(self, d, config):
+        if not self.nlp:
+            self.prep_spacy()
+
+        spacy_to_etk_mapping = config.get('spacy_to_etk_mapping', None)
+        if spacy_to_etk_mapping is None:
+            results = list()
+        else:
+            nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
+            results = default_spacy_extractor.extract(nlp_doc, spacy_to_etk_mapping)
+
+        modified_results = dict()
+        for field_name, result in results.items():
+            modified_results[field_name] = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE], result,
+                                                field_name)
+
+        return modified_results
 
     def extract_from_landmark(self, doc, config):
         field_name = config[_FIELD_NAME]
