@@ -66,7 +66,27 @@ POS_MAP = {
     "pre/post-position": "ADP",
     "adverb": "ADV",
     "particle": "PART",
-    "interjection": "INTJ"
+    "interjection": "INTJ",
+    "X": "X",
+    "NUM": "NUM",
+    "SPACE": "SPACE"
+}
+
+INV_POS_MAP = {
+    "NOUN": "noun",
+    "PROPN": "pronoun",
+    "DET": "determiner",
+    "SYM": "symbol",
+    "ADJ": "adjective",
+    "CONJ": "conjunction",
+    "VERB": "verb",
+    "ADP": "pre/post-position",
+    "ADV": "adverb",
+    "PART": "particle",
+    "INTJ": "interjection",
+    "X": "X",
+    "NUM": "NUM",
+    "SPACE": "SPACE"
 }
 
 name_dict = {
@@ -988,7 +1008,7 @@ def calc_ratio(extracts, pos_lst, neg_lst, tokenizer, nlp):
 
 
 def compare_rule(rule1, rule2, r1, r2):
-    if r1[0] >= r2[0]:
+    if r1[0] > r2[0]:
         return copy.deepcopy(rule1), r1
     else:
         return copy.deepcopy(rule2), r2
@@ -1043,7 +1063,7 @@ def add_number_constrain(rule, p_id, docs):
     return result
 
 
-def add_work_constrain(rule, p_id, docs):
+def add_word_constrain(rule, p_id, docs):
     result = list()
 
     # add only token constrains
@@ -1058,8 +1078,8 @@ def add_work_constrain(rule, p_id, docs):
     # add exact capitalization constrains
     this_rule["rules"][0]["pattern"][p_id]["capitalization"].append("exact")
     result.append(copy.deepcopy(this_rule))
-    this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "true"
-    result.append(copy.deepcopy(this_rule))
+    # this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "true"
+    # result.append(copy.deepcopy(this_rule))
 
     # add only capitalization constrains to non token constrain rules
     this_rule = copy.deepcopy(rule)
@@ -1098,6 +1118,41 @@ def add_work_constrain(rule, p_id, docs):
     for doc in docs:
         if len(doc[p_id]) not in this_rule["rules"][0]["pattern"][p_id]["length"]:
             this_rule["rules"][0]["pattern"][p_id]["length"].append(len(doc[p_id]))
+    result.append(copy.deepcopy(this_rule))
+
+    # add pos tag constrains
+    temp_lst = copy.deepcopy(result)
+    for a_rule in temp_lst:
+        this_rule = copy.deepcopy(a_rule)
+        for doc in docs:
+            if doc[p_id].pos_ not in this_rule["rules"][0]["pattern"][p_id]["part_of_speech"]:
+                this_rule["rules"][0]["pattern"][p_id]["part_of_speech"].append(INV_POS_MAP[doc[p_id].pos_])
+        result.append(copy.deepcopy(this_rule))
+
+    this_rule = copy.deepcopy(rule)
+    for doc in docs:
+        if doc[p_id].pos_ not in this_rule["rules"][0]["pattern"][p_id]["part_of_speech"]:
+            this_rule["rules"][0]["pattern"][p_id]["part_of_speech"].append(INV_POS_MAP[doc[p_id].pos_])
+    result.append(copy.deepcopy(this_rule))
+
+    # add in_vocab, out_vocab constrains
+    temp_lst = copy.deepcopy(result)
+    for a_rule in temp_lst:
+        if not a_rule["rules"][0]["pattern"][p_id]["token"]:
+            this_rule = copy.deepcopy(a_rule)
+            for doc in docs:
+                if doc[p_id].is_oov:
+                    this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = "true"
+                else:
+                    this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = "true"
+            result.append(copy.deepcopy(this_rule))
+
+    this_rule = copy.deepcopy(rule)
+    for doc in docs:
+        if doc[p_id].is_oov:
+            this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = "true"
+        else:
+            this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = "true"
     result.append(copy.deepcopy(this_rule))
 
     return result
@@ -1151,12 +1206,12 @@ def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
             pass
 
         if pattern["type"] == "word" and pattern["contain_digit"] != "true":
-            new_rule_lst = add_work_constrain(base_rule, p_id, positive_docs)
+            new_rule_lst = add_word_constrain(base_rule, p_id, positive_docs)
 
             for new_rule in new_rule_lst:
                 extractions = extract(new_rule, nlp_doc, nlp)
                 new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
                 base_rule, base_rule_r = compare_rule(base_rule, new_rule, base_rule_r, new_r)
 
-    # print json.dumps(base_rule, indent=2)
-    # print base_rule_r
+    print json.dumps(base_rule, indent=2)
+    print base_rule_r
