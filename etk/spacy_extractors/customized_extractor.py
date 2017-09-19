@@ -1038,6 +1038,21 @@ def get_shape(word):
     return result
 
 
+def allsame(x):
+    return len(set(x)) == 1
+
+
+def get_prefix(lst):
+    r = [i[0] for i in itertools.takewhile(allsame, itertools.izip(*lst))]
+    return "".join(r)
+
+
+def get_suffix(lst):
+    r_lst = [x[::-1] for x in lst]
+    r = [i[0] for i in itertools.takewhile(allsame, itertools.izip(*r_lst))]
+    return "".join(r)[::-1]
+
+
 def add_punct_constrain(rule, p_id, docs):
     result = copy.deepcopy(rule)
     for doc in docs:
@@ -1059,18 +1074,17 @@ def add_number_constrain(rule, p_id, docs):
 
     # add numbers constrains
     this_rule = copy.deepcopy(rule)
+    number_lst = []
     for doc in docs:
-        if doc[p_id].lemma_ not in this_rule["rules"][0]["pattern"][p_id]["numbers"]:
-            this_rule["rules"][0]["pattern"][p_id]["numbers"].append(doc[p_id].lemma_)
+        if doc[p_id].lemma_ not in number_lst:
+            number_lst.append(doc[p_id].lemma_)
+    this_rule["rules"][0]["pattern"][p_id]["numbers"] = number_lst
     result.append(copy.deepcopy(this_rule))
 
     for a_rule in temp_lst:
         this_rule = copy.deepcopy(a_rule)
-        for doc in docs:
-            if doc[p_id].lemma_ not in this_rule["rules"][0]["pattern"][p_id]["numbers"]:
-                this_rule["rules"][0]["pattern"][p_id]["numbers"].append(doc[p_id].lemma_)
+        this_rule["rules"][0]["pattern"][p_id]["numbers"] = number_lst
         result.append(copy.deepcopy(this_rule))
-    temp_lst = copy.deepcopy(result)
 
     # add max min constrains ??
     return result
@@ -1096,10 +1110,15 @@ def add_word_constrain(rule, p_id, docs):
 
     # add only capitalization constrains to non token constrain rules
     this_rule = copy.deepcopy(rule)
+    capi_lst = []
     for doc in docs:
         capi = check_capitalization(doc[p_id])
-        if capi not in this_rule["rules"][0]["pattern"][p_id]["capitalization"]:
-            this_rule["rules"][0]["pattern"][p_id]["capitalization"].append(capi)
+        if capi not in capi_lst:
+            capi_lst.append(capi)
+    if not this_rule["rules"][0]["pattern"][p_id]["capitalization"]:
+        this_rule["rules"][0]["pattern"][p_id]["capitalization"] = capi_lst
+    else:
+        this_rule["rules"][0]["pattern"][p_id]["capitalization"] += capi_lst
     result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "false"
     result.append(copy.deepcopy(this_rule))
@@ -1109,63 +1128,89 @@ def add_word_constrain(rule, p_id, docs):
     for a_rule in temp_lst:
         if a_rule["rules"][0]["pattern"][p_id]["token"]:
             this_rule = copy.deepcopy(a_rule)
-            # token_lower_lst = [x.lower() for x in a_rule["rules"][0]["pattern"][p_id]["token"]]
-            for doc in docs:
-                # if doc[p_id].lower_ not in token_lower_lst:
-                capi = check_capitalization(doc[p_id])
-                if capi not in this_rule["rules"][0]["pattern"][p_id]["capitalization"]:
-                    this_rule["rules"][0]["pattern"][p_id]["capitalization"].append(capi)
+            if not this_rule["rules"][0]["pattern"][p_id]["capitalization"]:
+                this_rule["rules"][0]["pattern"][p_id]["capitalization"] = capi_lst
+            else:
+                this_rule["rules"][0]["pattern"][p_id]["capitalization"] += capi_lst
             result.append(copy.deepcopy(this_rule))
 
     # add length constrains
+    length_lst = []
+    for doc in docs:
+        if len(doc[p_id]) not in length_lst:
+            length_lst.append(len(doc[p_id]))
+
     temp_lst = copy.deepcopy(result)
     for a_rule in temp_lst:
         if not a_rule["rules"][0]["pattern"][p_id]["token"]:
             this_rule = copy.deepcopy(a_rule)
-            for doc in docs:
-                if len(doc[p_id]) not in this_rule["rules"][0]["pattern"][p_id]["length"]:
-                    this_rule["rules"][0]["pattern"][p_id]["length"].append(len(doc[p_id]))
+            this_rule["rules"][0]["pattern"][p_id]["length"] = length_lst
             result.append(copy.deepcopy(this_rule))
 
     this_rule = copy.deepcopy(rule)
-    for doc in docs:
-        if len(doc[p_id]) not in this_rule["rules"][0]["pattern"][p_id]["length"]:
-            this_rule["rules"][0]["pattern"][p_id]["length"].append(len(doc[p_id]))
+    this_rule["rules"][0]["pattern"][p_id]["length"] = length_lst
     result.append(copy.deepcopy(this_rule))
 
     # add pos tag constrains
+    pos_lst = []
+    for doc in docs:
+        if doc[p_id].pos_ not in pos_lst:
+            pos_lst.append(INV_POS_MAP[doc[p_id].pos_])
+
     temp_lst = copy.deepcopy(result)
     for a_rule in temp_lst:
         this_rule = copy.deepcopy(a_rule)
-        for doc in docs:
-            if doc[p_id].pos_ not in this_rule["rules"][0]["pattern"][p_id]["part_of_speech"]:
-                this_rule["rules"][0]["pattern"][p_id]["part_of_speech"].append(INV_POS_MAP[doc[p_id].pos_])
+        this_rule["rules"][0]["pattern"][p_id]["part_of_speech"] = pos_lst
         result.append(copy.deepcopy(this_rule))
 
     this_rule = copy.deepcopy(rule)
-    for doc in docs:
-        if doc[p_id].pos_ not in this_rule["rules"][0]["pattern"][p_id]["part_of_speech"]:
-            this_rule["rules"][0]["pattern"][p_id]["part_of_speech"].append(INV_POS_MAP[doc[p_id].pos_])
+    this_rule["rules"][0]["pattern"][p_id]["part_of_speech"] = pos_lst
     result.append(copy.deepcopy(this_rule))
 
     # add in_vocab, out_vocab constrains
+    invob = "false"
+    outvob = "false"
+    for doc in docs:
+        if doc[p_id].is_oov:
+            invob = "true"
+        else:
+            outvob = "true"
+
     temp_lst = copy.deepcopy(result)
     for a_rule in temp_lst:
         if not a_rule["rules"][0]["pattern"][p_id]["token"]:
             this_rule = copy.deepcopy(a_rule)
-            for doc in docs:
-                if doc[p_id].is_oov:
-                    this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = "true"
-                else:
-                    this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = "true"
+            this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = invob
+            this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = outvob
             result.append(copy.deepcopy(this_rule))
 
     this_rule = copy.deepcopy(rule)
-    for doc in docs:
-        if doc[p_id].is_oov:
-            this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = "true"
-        else:
-            this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = "true"
+    this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = invob
+    this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = outvob
+    result.append(copy.deepcopy(this_rule))
+
+    # add prefix, suffix constrain
+    this_token_lst = [doc[p_id].orth_ for doc in docs]
+    this_prefix = get_prefix(this_token_lst)
+    this_suffix = get_suffix(this_token_lst)
+
+    temp_lst = copy.deepcopy(result)
+    for a_rule in temp_lst:
+        if not a_rule["rules"][0]["pattern"][p_id]["token"]:
+            this_rule = copy.deepcopy(a_rule)
+            this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
+            result.append(copy.deepcopy(this_rule))
+            this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
+            result.append(copy.deepcopy(this_rule))
+            this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
+            result.append(copy.deepcopy(this_rule))
+
+    this_rule = copy.deepcopy(rule)
+    this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
     result.append(copy.deepcopy(this_rule))
 
     return result
@@ -1247,5 +1292,5 @@ def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
         else:
             print "empty rule list"
 
-    # print json.dumps(base_rule, indent=2)
-    # print base_rule_r
+    print json.dumps(base_rule, indent=2)
+    print base_rule_r
