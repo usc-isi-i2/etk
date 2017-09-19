@@ -151,8 +151,8 @@ _INFO = 20
 _DEBUG = 10
 _EXCEPTION = 47
 _ETK_VERSION = "etk_version"
-
 _CONVERT_TO_KG = "convert_to_kg"
+_PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 
 
 class Core(object):
@@ -181,7 +181,10 @@ class Core(object):
         self.populated_cities = None
         self.logstash_logger = None
         self.etk_version = "1"
+        self.prefer_inferlink_description = False
         if self.extraction_config:
+            if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
+                self.prefer_inferlink_description = self.extraction_config[_PREFER_INFERLINK_DESCRIPTION]
             self.etk_version = self.extraction_config[_ETK_VERSION] if _ETK_VERSION in self.extraction_config else "1"
             if _LOGGING in self.extraction_config:
                 logging_conf = self.extraction_config[_LOGGING]
@@ -257,7 +260,7 @@ class Core(object):
                             else:
                                 if create_knowledge_graph:
                                     self.create_knowledge_graph(doc, field_name, results)
-                
+
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
                 error_handling = self.extraction_config[
@@ -293,24 +296,39 @@ class Core(object):
                         self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
                                  url=doc[_URL])
                     extractors = ce_config[_EXTRACTORS]
+                    run_readability = True
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
-                            if extractor == _READABILITY:
-                                re_extractors = extractors[extractor]
-                                if isinstance(re_extractors, dict):
-                                    re_extractors = [re_extractors]
-                                for re_extractor in re_extractors:
-                                    doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
-                                                                                    matches[index].value,
-                                                                                    re_extractor)
+                            if extractor == _LANDMARK:
+                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
+                                                                             matches[index].value,
+                                                                             extractors[extractor], doc[_URL])
+                                landmark_config = extractors[extractor]
+                                landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
+                                    else _INFERLINK_EXTRACTIONS
+                                if self.prefer_inferlink_description:
+                                    if landmark_field_name in doc[_CONTENT_EXTRACTION]:
+                                        if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
+                                            inferlink_desc = doc[_CONTENT_EXTRACTION][landmark_field_name][
+                                                _INFERLINK_DESCRIPTION]
+                                            if _TEXT in inferlink_desc and inferlink_desc[_TEXT] and inferlink_desc[
+                                                _TEXT].strip() != '':
+                                                run_readability = False
+
+                            elif extractor == _READABILITY:
+                                if run_readability:
+                                    re_extractors = extractors[extractor]
+                                    if isinstance(re_extractors, dict):
+                                        re_extractors = [re_extractors]
+                                    for re_extractor in re_extractors:
+                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                        matches[index].value,
+                                                                                        re_extractor)
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                           matches[index].value,
                                                                           extractors[extractor])
-                            elif extractor == _LANDMARK:
-                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
-                                                                             matches[index].value,
-                                                                             extractors[extractor], doc[_URL])
+
                             elif extractor == _TABLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                                     matches[index].value,

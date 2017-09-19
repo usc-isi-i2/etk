@@ -11,6 +11,7 @@
       "level": 20
     }
   },
+  "prefer_inferlink_description": false,
   "resources": {
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
