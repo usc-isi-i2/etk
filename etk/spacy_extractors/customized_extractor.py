@@ -949,46 +949,55 @@ def init_rules():
 
 
 def create_rule_lst(l):
+    df = []
+    for i in range(len(l[0])):
+        digit_flag = [j[i].is_digit for j in l]
+        df.append(digit_flag)
+
     result = list()
-    result.append(init_rules())
-    for token in l:
-        this_token = copy.deepcopy(DEFAULT_TOKEN)
+    for match in l:
+        rr = list()
+        rr.append(init_rules())
+        for token_id, token in enumerate(match):
+            this_token = copy.deepcopy(DEFAULT_TOKEN)
 
-        if token.is_punct:
-            this_token["type"] = "punctuation"
-            temp_element = list()
-            for element in result:
-                temp_element.append(copy.deepcopy(element))
-                element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+            if token.is_punct:
+                this_token["type"] = "punctuation"
+                temp_element = list()
+                for element in rr:
+                    temp_element.append(copy.deepcopy(element))
+                    element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
 
-        elif token.is_digit:
-            this_token["type"] = "number"
-            temp_element = list()
-            for element in result:
-                temp_element.append(copy.deepcopy(element))
-                element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
-            temp_token = copy.deepcopy(DEFAULT_TOKEN)
-            temp_token["type"] = "word"
-            for element in temp_element:
-                element["rules"][0]["pattern"].append(copy.deepcopy(temp_token))
-                result.append(element)
+            elif True in df[token_id] and False not in df[token_id] :
+                this_token["type"] = "number"
+                temp_element = list()
+                for element in rr:
+                    temp_element.append(copy.deepcopy(element))
+                    element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+                temp_token = copy.deepcopy(DEFAULT_TOKEN)
+                temp_token["type"] = "word"
+                for element in temp_element:
+                    element["rules"][0]["pattern"].append(copy.deepcopy(temp_token))
+                    rr.append(element)
 
-        elif token.is_alpha:
-            this_token["type"] = "word"
-            this_token["contain_digit"] = "false"
-            for element in result:
-                element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+            elif False in df[token_id]:
+                if token.is_alpha:
+                    this_token["type"] = "word"
+                    this_token["contain_digit"] = "false"
+                    for element in rr:
+                        element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
 
-        elif '\n' in str(token):
-            this_token["type"] = "linebreak"
-            this_token["quantity"] = str(token).count("\n")
-            for element in result:
-                element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+                elif '\n' in str(token):
+                    this_token["type"] = "linebreak"
+                    this_token["quantity"] = str(token).count("\n")
+                    for element in rr:
+                        element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
 
-        else:
-            this_token["type"] = "word"
-            for element in result:
-                element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+                else:
+                    this_token["type"] = "word"
+                    for element in rr:
+                        element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
+        result += copy.deepcopy(rr)
 
     return result
 
@@ -1010,8 +1019,14 @@ def calc_ratio(extracts, pos_lst, neg_lst, tokenizer, nlp):
 def compare_rule(rule1, rule2, r1, r2):
     if r1[0] > r2[0]:
         return copy.deepcopy(rule1), r1
-    else:
+    elif r1[0] < r2[0]:
         return copy.deepcopy(rule2), r2
+    elif r1[1] < r2[1]:
+        return copy.deepcopy(rule2), r2
+    elif r1[1] > r2[1]:
+        return copy.deepcopy(rule1), r1
+    else:
+        return copy.deepcopy(rule1), r1
 
 
 def check_capitalization(word_token):
@@ -1236,6 +1251,29 @@ def add_shape_constrain(rule, p_id, docs):
                 this_rule["rules"][0]["pattern"][p_id]["shapes"].append(get_shape(str(doc[p_id])))
         result.append(copy.deepcopy(this_rule))
 
+    # add prefix suffix constrain
+    this_token_lst = [doc[p_id].orth_ for doc in docs]
+    this_prefix = get_prefix(this_token_lst)
+    this_suffix = get_suffix(this_token_lst)
+
+    temp_lst = copy.deepcopy(result)
+    for a_rule in temp_lst:
+        this_rule = copy.deepcopy(a_rule)
+        this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
+        result.append(copy.deepcopy(this_rule))
+        this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
+        result.append(copy.deepcopy(this_rule))
+        this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
+        result.append(copy.deepcopy(this_rule))
+
+    this_rule = copy.deepcopy(rule)
+    this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
+    result.append(copy.deepcopy(this_rule))
+
     return result
 
 
@@ -1250,17 +1288,16 @@ def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
     # negative_lst = [[str(j) for j in i] for i in negative_docs]
 
     positive_instances = random.sample(positive_docs, 3) if len(positive_docs) > 3 else positive_docs
-
     base_rule_results = list()
-    for positive_doc in positive_instances:
-        field_rules_lst = create_rule_lst(positive_doc)
 
-        for field_rules in field_rules_lst:
-            extractions = extract(field_rules, nlp_doc, nlp)
+    field_rules_lst = create_rule_lst(positive_instances)
 
-            r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+    for field_rules in field_rules_lst:
+        extractions = extract(field_rules, nlp_doc, nlp)
 
-            base_rule_results.append((r, field_rules))
+        r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+
+        base_rule_results.append((r, field_rules))
 
     base_rule_results.sort(key=lambda t: t[0], reverse=True)
     base_rule_r = base_rule_results[0][0]
