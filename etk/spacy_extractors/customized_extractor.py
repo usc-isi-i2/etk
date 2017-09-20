@@ -1280,9 +1280,20 @@ def add_shape_constrain(rule, p_id, docs):
 def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
     t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
     p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
-    n = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in negative_extractions]
+    # n = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in negative_extractions]
     positive_docs = [nlp(i) for i in p]
-    negative_docs = [nlp(i) for i in n]
+    pos_strings = [str(i) for i in positive_docs]
+    match_length = len(positive_docs[0])
+
+    negative_docs = []
+    for i in range(len(nlp_doc) - match_length + 1):
+        span = nlp_doc[i:i + match_length]
+        sub_doc = nlp([k["value"].decode("utf-8") for k in t.extract(str(span), lowercase=False)])
+        if str(sub_doc) not in pos_strings:
+            negative_docs.append(sub_doc)
+
+    # print negative_docs[1]
+    # negative_docs = [nlp(i) for i in n]
 
     # positive_lst = [[str(j) for j in i] for i in positive_docs]
     # negative_lst = [[str(j) for j in i] for i in negative_docs]
