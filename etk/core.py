@@ -1399,8 +1399,10 @@ class Core(object):
 
     @staticmethod
     def handle_text_or_results(x):
-        if isinstance(x, basestring):
+        if isinstance(x, basestring) or isinstance(x, numbers.Number):
             o = dict()
+            if isinstance(x, numbers.Number):
+                x = str(x)
             o['value'] = x
             return [o]
         if isinstance(x, dict):
