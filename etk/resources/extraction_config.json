@@ -11,6 +11,7 @@
       "level": 20
     }
   },
+  "prefer_inferlink_description": false,
   "resources": {
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
@@ -24,7 +25,9 @@
       "country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/countries.json.gz",
       "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz",
       "state_to_country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/state_country_dict.json",
-      "geonames": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json"
+      "geonames": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json",
+      "state_to_codes_lower": "/Users/amandeep/Github/dig3-resources/builtin_resources/states_to_codes_lower.json",
+      "populated_cities": "/Users/amandeep/Github/dig3-resources/builtin_resources/populated_cities.json"
     },
     "landmark": [
       "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
@@ -162,7 +165,7 @@
             }
           }
         },
-        "city": {
+        "city_name": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
@@ -397,7 +400,7 @@
             }
           }
         },
-        "city": {
+        "city_name": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
@@ -424,8 +427,15 @@
     }
   ],
   "kg_enhancement": {
-    "input_path": "knowledge_graph.`parent`",
     "fields": {
+      "city": {
+        "priority": 1,
+        "extractors": {
+          "create_city_state_country_triple": {
+            "config": {}
+          }
+        }
+      },
       "populated_places": {
         "priority": 0,
         "extractors": {
@@ -433,36 +443,8 @@
             "config": {}
           }
         }
-      },
-      "country": {
-        "priority": 1,
-        "extractors": {
-          "country_from_states": {
-            "config": {}
-          }
-        }
-      },
-      "city_state_pair": {
-        "priority": 2,
-        "extractors": {
-          "create_city_state_pair": {
-            "config": {}
-          }
-        }
       }
-    }
-  },
-  "feature_computation": {
-    "input_path": "knowledge_graph.`parent`",
-    "fields": {
-      "country_classifier": {
-        "extractors": {
-          "country_feature": {
-            "config": {
-            }
-          }
-        }
-      }
-    }
+    },
+    "input_path": "knowledge_graph.`parent`"
   }
 }
