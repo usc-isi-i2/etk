@@ -95,6 +95,9 @@ def run_serial(input, output, core, prefix='', indexing=True):
         print prefix, 'processing line number:', index
         start_time_doc = time.time()
         jl = json.loads(line)
+        jl.pop('knowledge_graph', None)
+        jl.pop('content_extraction', None)
+        jl.pop('indexed', None)
         result = core.process(jl, create_knowledge_graph=True)
         if indexing:
             result = index_knowledge_graph_fields(result)
