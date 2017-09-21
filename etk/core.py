@@ -1381,7 +1381,11 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_age(text), config[_FIELD_NAME])
+        results = self._extract_age(text)
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+            results = self.run_post_filters_results(results, post_filters)
+        return self._relevant_text_from_context(d[_TEXT], results, config[_FIELD_NAME])
 
     @staticmethod
     def _extract_age(text):
@@ -1613,8 +1617,11 @@ class Core(object):
             return None
 
     @staticmethod
-    def filter_age(d, config):
-        text = d[_TEXT]
+    def filter_age(d, config=None):
+        if isinstance(d, basestring) or isinstance(d, numbers.Number):
+            text = d
+        else:
+            text = d[_TEXT]
         try:
             text = text.replace('\n', '')
             text = text.replace('\t', '')
