@@ -225,8 +225,12 @@ DEP_MAP = {
       "modifier of quantifier": "quantmod",
       "relative clause modifier": "rcmod",
       "root": "ROOT",
-      "open clausal complement": "xcomp"
+      "open clausal complement": "xcomp",
+      "nummod": "nummod"
 }
+
+INV_DEP_MAP = {v: k for k, v in DEP_MAP.iteritems()}
+INV_DEP_MAP["nummod"] = "nummod"
 
 DEFAULT_TOKEN = {
           "capitalization": [],
@@ -246,6 +250,12 @@ DEFAULT_TOKEN = {
           "suffix": "",
           "token": [],
           "type": ""
+}
+
+DEFAULT_DEPENDENCY = {
+    "from": "",
+    "to": "",
+    "dependency": []
 }
 
 '''
@@ -1277,7 +1287,33 @@ def add_shape_constrain(rule, p_id, docs):
     return result
 
 
-def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
+def add_dependency(rule, pos_lst):
+    result = list()
+    dep_lst = dict()
+    for p in pos_lst:
+        for t in p:
+            if t.i not in dep_lst:
+                dep_lst[t.i] = list()
+            dep = copy.deepcopy(DEFAULT_DEPENDENCY)
+            dep["dependency"] = INV_DEP_MAP[t.dep_]
+            dep["from"] = t.i
+            dep["to"] = t.head.i
+            if dep not in dep_lst[t.i]:
+                dep_lst[t.i].append(dep)
+    dep_lst = {i:dep_lst[i] for i in dep_lst if len(dep_lst[i]) == 1}
+    for key in dep_lst:
+        temp_lst = copy.deepcopy(result)
+        for a_rule in temp_lst:
+            this_rule = copy.deepcopy(a_rule)
+            this_rule["rules"][0]["dependencies"].append(copy.deepcopy(dep_lst[key][0]))
+            result.append(copy.deepcopy(this_rule))
+        this_rule = copy.deepcopy(rule)
+        this_rule["rules"][0]["dependencies"].append(copy.deepcopy(dep_lst[key][0]))
+        result.append(copy.deepcopy(this_rule))
+    return result
+
+
+def infer_rule(nlp_doc, nlp, positive_extractions):
     t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
     p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
     # n = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in negative_extractions]
@@ -1295,9 +1331,6 @@ def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
     # print negative_docs[1]
     # negative_docs = [nlp(i) for i in n]
 
-    # positive_lst = [[str(j) for j in i] for i in positive_docs]
-    # negative_lst = [[str(j) for j in i] for i in negative_docs]
-
     positive_instances = random.sample(positive_docs, 3) if len(positive_docs) > 3 else positive_docs
     base_rule_results = list()
 
@@ -1314,31 +1347,40 @@ def infer_rule(nlp_doc, nlp, positive_extractions, negative_extractions):
     base_rule_r = base_rule_results[0][0]
     base_rule = base_rule_results[0][1]
     # print json.dumps(base_rule, indent=2)
+    rr = base_rule_r
+    while 1:
+        pattern_lst = base_rule["rules"][0]["pattern"]
+        new_rule_lst = list()
+        for p_id, pattern in enumerate(pattern_lst):
+            if pattern["type"] == "punctuation":
+                new_rule_lst = [add_punct_constrain(base_rule, p_id, positive_docs)]
 
-    pattern_lst = base_rule["rules"][0]["pattern"]
-    new_rule_lst = list()
-    for p_id, pattern in enumerate(pattern_lst):
-        if pattern["type"] == "punctuation":
-            new_rule_lst = [add_punct_constrain(base_rule, p_id, positive_docs)]
+            if pattern["type"] == "number":
+                new_rule_lst = add_number_constrain(base_rule, p_id, positive_docs)
 
-        if pattern["type"] == "number":
-            new_rule_lst = add_number_constrain(base_rule, p_id, positive_docs)
+            if pattern["type"] == "word" and pattern["contain_digit"] == "true":
+                shape_rule_lst = add_shape_constrain(base_rule, p_id, positive_docs)
+                word_rule_lst = add_word_constrain(base_rule, p_id, positive_docs)
+                new_rule_lst = shape_rule_lst + word_rule_lst
 
-        if pattern["type"] == "word" and pattern["contain_digit"] == "true":
-            shape_rule_lst = add_shape_constrain(base_rule, p_id, positive_docs)
-            word_rule_lst = add_word_constrain(base_rule, p_id, positive_docs)
-            new_rule_lst = shape_rule_lst + word_rule_lst
+            if pattern["type"] == "word" and pattern["contain_digit"] != "true":
+                new_rule_lst = add_word_constrain(base_rule, p_id, positive_docs)
 
-        if pattern["type"] == "word" and pattern["contain_digit"] != "true":
-            new_rule_lst = add_word_constrain(base_rule, p_id, positive_docs)
+            if new_rule_lst:
+                for new_rule in new_rule_lst:
+                    extractions = extract(new_rule, nlp_doc, nlp)
+                    new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+                    base_rule, base_rule_r = compare_rule(base_rule, new_rule, base_rule_r, new_r)
+            else:
+                print "empty rule list"
+        if rr <= base_rule_r:
+            break
 
-        if new_rule_lst:
-            for new_rule in new_rule_lst:
-                extractions = extract(new_rule, nlp_doc, nlp)
-                new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
-                base_rule, base_rule_r = compare_rule(base_rule, new_rule, base_rule_r, new_r)
-        else:
-            print "empty rule list"
+    dependency_rule_lst = add_dependency(base_rule, positive_docs)
+    for a_rule in dependency_rule_lst:
+        extractions = extract(a_rule, nlp_doc, nlp)
+        new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+        base_rule, base_rule_r = compare_rule(base_rule, a_rule, base_rule_r, new_r)
 
     print json.dumps(base_rule, indent=2)
     print base_rule_r
