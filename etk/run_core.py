@@ -5,6 +5,7 @@ import sys
 import multiprocessing as mp, os
 import core
 from argparse import ArgumentParser
+from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -87,14 +88,19 @@ def run_parallel(input, output, core, processes=0):
     pool.close()
 
 
-def run_serial(input, output, core, prefix=''):
+def run_serial(input, output, core, prefix='', indexing=True):
     output = codecs.open(output, 'w')
     index = 1
     for line in codecs.open(input):
         print prefix, 'processing line number:', index
         start_time_doc = time.time()
         jl = json.loads(line)
+        jl.pop('knowledge_graph', None)
+        jl.pop('content_extraction', None)
+        jl.pop('indexed', None)
         result = core.process(jl, create_knowledge_graph=True)
+        if indexing:
+            result = index_knowledge_graph_fields(result)
         if result:
             output.write(json.dumps(result) + '\n')
             time_taken_doc = time.time() - start_time_doc

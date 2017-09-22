@@ -151,6 +151,8 @@ _INFO = 20
 _DEBUG = 10
 _EXCEPTION = 47
 _ETK_VERSION = "etk_version"
+_CONVERT_TO_KG = "convert_to_kg"
+_PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 
 
 class Core(object):
@@ -166,6 +168,7 @@ class Core(object):
         # to make sure we do not parse json_paths more times than needed, we define the following 2 properties
         self.content_extraction_path = None
         self.data_extraction_path = dict()
+        self.kgc_paths = dict()
         if load_spacy:
             self.prep_spacy()
         else:
@@ -178,7 +181,10 @@ class Core(object):
         self.populated_cities = None
         self.logstash_logger = None
         self.etk_version = "1"
+        self.prefer_inferlink_description = False
         if self.extraction_config:
+            if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
+                self.prefer_inferlink_description = self.extraction_config[_PREFER_INFERLINK_DESCRIPTION]
             self.etk_version = self.extraction_config[_ETK_VERSION] if _ETK_VERSION in self.extraction_config else "1"
             if _LOGGING in self.extraction_config:
                 logging_conf = self.extraction_config[_LOGGING]
@@ -227,8 +233,34 @@ class Core(object):
                     if doc_id_field in doc:
                         doc_id = doc[doc_id_field]
                         doc[_DOCUMENT_ID] = doc_id
+                        # TODO this is a hack, remove this later
+                        if 'doc_id' not in doc:
+                            doc['doc_id'] = doc_id
                     else:
                         raise KeyError('{} not found in the input document'.format(doc_id_field))
+                """Convert to knowledge_graph"""
+                if _CONVERT_TO_KG in self.extraction_config:
+                    conversion_map = self.extraction_config[_CONVERT_TO_KG]
+                    # conversion map is a dictionary where the key is field_name to be in the knowledge_graph,
+                    #  and value is the the json path of the input doc
+                    for field_name, kgc_path in conversion_map.iteritems():
+                        if kgc_path not in self.kgc_paths:
+                            self.kgc_paths[kgc_path] = parse(kgc_path)
+                        kg_matches = self.kgc_paths[kgc_path].find(doc)
+                        for kg_match in kg_matches:
+                            results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
+                                                                     doc_id=doc_id, score=1.0)
+                            if not results:
+                                msg = 'Error while converting to Knowledge Graph, input path: {} is not ' \
+                                      'a leaf node in the json document'.format(kgc_path)
+                                self.log(msg, _ERROR)
+                                print msg
+                                if self.global_error_handling == _RAISE_ERROR:
+                                    raise ValueError(msg)
+                            else:
+                                if create_knowledge_graph:
+                                    self.create_knowledge_graph(doc, field_name, results)
+
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
                 error_handling = self.extraction_config[
@@ -264,24 +296,39 @@ class Core(object):
                         self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
                                  url=doc[_URL])
                     extractors = ce_config[_EXTRACTORS]
+                    run_readability = True
                     for index in range(len(matches)):
                         for extractor in extractors.keys():
-                            if extractor == _READABILITY:
-                                re_extractors = extractors[extractor]
-                                if isinstance(re_extractors, dict):
-                                    re_extractors = [re_extractors]
-                                for re_extractor in re_extractors:
-                                    doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
-                                                                                    matches[index].value,
-                                                                                    re_extractor)
+                            if extractor == _LANDMARK:
+                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
+                                                                             matches[index].value,
+                                                                             extractors[extractor], doc[_URL])
+                                landmark_config = extractors[extractor]
+                                landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
+                                    else _INFERLINK_EXTRACTIONS
+                                if self.prefer_inferlink_description:
+                                    if landmark_field_name in doc[_CONTENT_EXTRACTION]:
+                                        if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
+                                            inferlink_desc = doc[_CONTENT_EXTRACTION][landmark_field_name][
+                                                _INFERLINK_DESCRIPTION]
+                                            if _TEXT in inferlink_desc and inferlink_desc[_TEXT] and inferlink_desc[
+                                                _TEXT].strip() != '':
+                                                run_readability = False
+
+                            elif extractor == _READABILITY:
+                                if run_readability:
+                                    re_extractors = extractors[extractor]
+                                    if isinstance(re_extractors, dict):
+                                        re_extractors = [re_extractors]
+                                    for re_extractor in re_extractors:
+                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                        matches[index].value,
+                                                                                        re_extractor)
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                           matches[index].value,
                                                                           extractors[extractor])
-                            elif extractor == _LANDMARK:
-                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
-                                                                             matches[index].value,
-                                                                             extractors[extractor], doc[_URL])
+
                             elif extractor == _TABLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                                     matches[index].value,
@@ -525,6 +572,20 @@ class Core(object):
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
         return doc
+
+    def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
+        results = list()
+        if not isinstance(values, list):
+            values = [values]
+        for val in values:
+            if isinstance(val, basestring):
+                result = dict()
+                result['value'] = val
+                results.append(result)
+            else:
+                return None
+        return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
+
 
     @staticmethod
     def rearrange_description(doc):
@@ -1320,7 +1381,11 @@ class Core(object):
         text = d[_TEXT]
         if _PRE_FILTER in config:
             text = self.run_user_filters(d, config[_PRE_FILTER], config[_FIELD_NAME])
-        return self._relevant_text_from_context(d[_TEXT], self._extract_age(text), config[_FIELD_NAME])
+        results = self._extract_age(text)
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+            results = self.run_post_filters_results(results, post_filters)
+        return self._relevant_text_from_context(d[_TEXT], results, config[_FIELD_NAME])
 
     @staticmethod
     def _extract_age(text):
@@ -1338,8 +1403,10 @@ class Core(object):
 
     @staticmethod
     def handle_text_or_results(x):
-        if isinstance(x, basestring):
+        if isinstance(x, basestring) or isinstance(x, numbers.Number):
             o = dict()
+            if isinstance(x, numbers.Number):
+                x = str(x)
             o['value'] = x
             return [o]
         if isinstance(x, dict):
@@ -1550,8 +1617,11 @@ class Core(object):
             return None
 
     @staticmethod
-    def filter_age(d, config):
-        text = d[_TEXT]
+    def filter_age(d, config=None):
+        if isinstance(d, basestring) or isinstance(d, numbers.Number):
+            text = d
+        else:
+            text = d[_TEXT]
         try:
             text = text.replace('\n', '')
             text = text.replace('\t', '')
