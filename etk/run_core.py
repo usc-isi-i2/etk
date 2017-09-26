@@ -5,6 +5,7 @@ import sys
 import multiprocessing as mp, os
 import core
 from argparse import ArgumentParser
+from digsandpaper.elasticsearch_indexing.index_knowledge_graph import index_knowledge_graph_fields
 # # from concurrent import futures
 # from pathos.multiprocessing import ProcessingPool
 # from pathos import multiprocessing as mpp
@@ -12,6 +13,7 @@ from argparse import ArgumentParser
 # import pathos
 # # from pathos.helpers
 import gzip
+
 """ Process code begins here """
 
 
@@ -49,8 +51,8 @@ def process_wrapper(core, input, chunk_start, chunk_size, queue):
             except Exception as e:
                 print "Failed - ", e
 
-            # queue.put(json.dumps(document))
-            # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
+                # queue.put(json.dumps(document))
+                # print "Processing chunk - ", str(chunk_start), " File - ", str(i)
 
 
 def listener(queue, output):
@@ -67,7 +69,7 @@ def listener(queue, output):
 
 def run_parallel(input, output, core, processes=0):
     processes = processes or mp.cpu_count()
-    processes += 2 # for writing
+    processes += 2  # for writing
 
     manager = mp.Manager()
     queue = manager.Queue()
@@ -77,7 +79,7 @@ def run_parallel(input, output, core, processes=0):
     watcher = pool.apply_async(listener, (queue, output))
 
     jobs = []
-    
+
     for chunk_start, chunk_size in chunk_file(input):
         jobs.append(pool.apply_async(process_wrapper, (core, input, chunk_start, chunk_size, queue)))
     for job in jobs:
@@ -86,14 +88,19 @@ def run_parallel(input, output, core, processes=0):
     pool.close()
 
 
-def run_serial(input, output, core, prefix=''):
+def run_serial(input, output, core, prefix='', indexing=True):
     output = codecs.open(output, 'w')
     index = 1
     for line in codecs.open(input):
         print prefix, 'processing line number:', index
         start_time_doc = time.time()
         jl = json.loads(line)
+        jl.pop('knowledge_graph', None)
+        jl.pop('content_extraction', None)
+        jl.pop('indexed', None)
         result = core.process(jl, create_knowledge_graph=True)
+        if indexing:
+            result = index_knowledge_graph_fields(result)
         if result:
             output.write(json.dumps(result) + '\n')
             time_taken_doc = time.time() - start_time_doc
@@ -110,6 +117,7 @@ def process_one(x):
     output = c_options.outputPath + "/output-%d.jl" % mp.current_process().pid
     with codecs.open(output, "a+") as out:
         out.write('%s\n' % json.dumps(c.process(x)))
+
 
 def run_parallel_2(input_path, output_path, core, processes=0):
     lines = codecs.open(input_path, 'r').readlines()
@@ -129,7 +137,7 @@ def run_parallel_2(input_path, output_path, core, processes=0):
 
 
 def run_parallel_3(input_path, output_path, config_path, processes):
-    if not os.path.exists(output_path) or not os.path.isdir(output_path) :
+    if not os.path.exists(output_path) or not os.path.isdir(output_path):
         raise Exception('temp path is invalid')
     # if len(os.listdir(temp_path)) != 0:
     #     raise Exception('temp path is not empty')
@@ -158,7 +166,7 @@ def run_parallel_3(input_path, output_path, config_path, processes):
         input_chunk_path = os.path.join(output_path, 'input_chunk_{}.json'.format(i))
         output_chunk_path = os.path.join(output_path, 'output_chunk_{}.json'.format(i))
         p = mp.Process(target=run_parallel_worker,
-                   args=(i, input_chunk_path, output_chunk_path, config_path))
+                       args=(i, input_chunk_path, output_chunk_path, config_path))
         process_handlers.append(p)
 
     # start processes
@@ -192,6 +200,7 @@ Optional
                                           Run Parallel(>0)
     """
 
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("-i", "--input", action="store", type=str, dest="inputPath")
@@ -199,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--config", action="store", type=str, dest="configPath")
     parser.add_argument("-m", "--enable-multiprocessing", action="store_true", dest="enableMP")
     parser.add_argument("-t", "--thread", action="store",
-                      type=int, dest="threadCount", default=mp.cpu_count())
+                        type=int, dest="threadCount", default=mp.cpu_count())
 
     c_options, args = parser.parse_known_args()
 
@@ -223,5 +232,4 @@ if __name__ == "__main__":
 
     except Exception as e:
         print e
-
 

@@ -1,4 +1,3 @@
-import codecs
 import json
 import spacy
 import copy
@@ -56,7 +55,6 @@ FLAG_DICT = {
 POS_MAP = {
     "noun": "NOUN",
     "pronoun": "PROPN",
-    "punctuation": "PUNCT",
     "proper noun": "PROPN",
     "determiner": "DET",
     "symbol": "SYM",
@@ -153,6 +151,61 @@ name_dict = {
     81: u'PROB'
 }
 
+DEP_MAP = {
+      "adjectival complement": "acomp",
+      "adverbial clause modifier": "advcl",
+      "adverbial modifier": "advmod",
+      "agent": "agent",
+      "adjectival modifier": "amod",
+      "appositional modifier": "appos",
+      "attribute": "attr",
+      "auxiliary": "aux",
+      "auxiliary passive": "auxpass",
+      "coordinating conjunction": "cc",
+      "clausal complement": "ccomp",
+      "complementizer": "complm",
+      "conjunct": "conj",
+      "copula": "cop",
+      "clausal subject": "csubj",
+      "clausal subject passive": "csubjpass",
+      "unclassified dependent": "dep",
+      "determiner": "det",
+      "direct object": "dobj",
+      "expletive": "expl",
+      "modifier in hyphenation": "hmod",
+      "hyphen": "hyph",
+      "infinitival modifier": "infmod",
+      "interjection": "intj",
+      "indirect object": "iobj",
+      "marker": "mark",
+      "meta modifier": "meta",
+      "negation modifier": "neg",
+      "modifier of nominal": "nmod",
+      "noun compound modifier": "nn",
+      "noun phrase as adverbial modifier": "npadvmod",
+      "nominal subject": "nsubj",
+      "nominal subject passive": "nsubjpass",
+      "number modifier": "num",
+      "number compound modifier": "number",
+      "object predicate": "oprd",
+      "object": "obj",
+      "oblique nominal": "obl",
+      "parataxis": "parataxis",
+      "participal modifier": "partmod",
+      "complement of preposition": "pcomp",
+      "object of preposition": "pobj",
+      "possession modifier": "poss",
+      "possessive modifier": "possessive",
+      "pre-correlative conjunction": "preconj",
+      "prepositional modifier": "prep",
+      "particle": "prt",
+      "punctuation": "punct",
+      "modifier of quantifier": "quantmod",
+      "relative clause modifier": "rcmod",
+      "root": "ROOT",
+      "open clausal complement": "xcomp"
+}
+
 '''
 Class Rule
 '''
@@ -201,28 +254,26 @@ Class Pattern
 class Pattern(object):
     # initial a Pattern
     def __init__(self):
-        '''
-        First list contains pattern to be matched.
-        Second dict contains information about prefix, suffix, shape
-        '''
+        # First list contains pattern to be matched. Second dict contains information about prefix, suffix, shape
         self.token_lst = [[], {}]
 
     # add a word token
-    def add_word_token(self, d, flag):
+    def add_word_token(self, d, flag, t_id, nlp):
         token_to_rule = []
 
-        for this_token in create_word_token(d["token"], d["capitalization"], d["length"],
-                                            flag, d["contain_digit"], d["is_out_of_vocabulary"], d["is_in_vocabulary"]):
+        for this_token in create_word_token(d["token"], d["capitalization"], d["length"], flag,
+                                            d["contain_digit"], d["is_out_of_vocabulary"],
+                                            d["is_in_vocabulary"], d["match_all_forms"], nlp):
             token_to_rule = add_pos_totoken(d["part_of_speech"],
                                             this_token, token_to_rule)
         # add prefix and suffix information to token information for filter
         token_inf = create_inf(d["prefix"], d["suffix"],
                                not d["token"], d["is_in_output"])
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
-                                          d["is_required"], token_inf)
+                                          d["is_required"], token_inf, t_id)
 
     # add a shape token
-    def add_shape_token(self, d):
+    def add_shape_token(self, d, t_id):
         token_to_rule = []
         for this_token in create_shape_token(d["shapes"]):
             token_to_rule = add_pos_totoken(d["part_of_speech"],
@@ -233,14 +284,10 @@ class Pattern(object):
         if d["shapes"]:
             token_inf["shapes"] = d["shapes"]
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
-                                          d["is_required"], token_inf)
-
-    # add a glossary token
-    def add_glossary_token(self, token_d):
-        pass
+                                          d["is_required"], token_inf, t_id)
 
     # add a number token
-    def add_number_token(self, token_d, flag):
+    def add_number_token(self, token_d, flag, t_id):
         token_to_rule = []
         token_inf = create_inf("", "",
                                False, token_d["is_in_output"])
@@ -259,10 +306,10 @@ class Pattern(object):
         else:
             token_to_rule = [{FLAG_DICT[str(flag)]: True}]
         self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
-                                          token_d["is_required"], token_inf)
+                                          token_d["is_required"], token_inf, t_id)
 
     # add a punctuation token
-    def add_punctuation_token(self, token_d, flag):
+    def add_punctuation_token(self, token_d, flag, t_id):
         if not token_d["token"]:
             this_token = {spacy.attrs.IS_PUNCT: True}
         elif len(token_d["token"]) == 1:
@@ -272,11 +319,18 @@ class Pattern(object):
         token_inf = create_inf("", "",
                                False, token_d["is_in_output"])
         self.token_lst = add_token_tolist(self.token_lst, [this_token],
-                                          token_d["is_required"], token_inf)
+                                          token_d["is_required"], token_inf, t_id)
 
-    # add a symbol token
-    def add_symbol_token(self, token_d):
-        pass
+    def add_linebreak_token(self, token_d, t_id):
+        num_break = int(token_d["quantity"])
+        if num_break:
+            s = ''
+            for i in range(num_break):
+                s += '\n'
+            token_to_rule = [{spacy.attrs.LOWER: s.decode('utf-8')}]
+            token_inf = create_inf("", "", False, False)
+            self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
+                                              token_d["is_required"], token_inf, t_id)
 
 
 # Check if prefix matches
@@ -318,7 +372,7 @@ def create_inf(p, s, a, is_in_output):
 
 
 # Add each token to list to be processed by matcher
-def add_token_tolist(t_lst, token_l, flag, inf):
+def add_token_tolist(t_lst, token_l, flag, inf, t_id):
     result = []
     result_lst = []
     result_dict = t_lst[1]
@@ -340,9 +394,9 @@ def add_token_tolist(t_lst, token_l, flag, inf):
                     result.append(each_copy)
                     if c not in result_dict:
                         result_dict[c] = copy.deepcopy(result_dict[idx])
-                        result_dict[c].update({len(each_copy) - 1: new_inf})
-                    else:
-                        result_dict[c].update({len(each_copy) - 1: new_inf})
+                    result_dict[c].update({len(each_copy) - 1: new_inf})
+                    if t_id not in result_dict[c]["output_idx"]:
+                        result_dict[c]["output_idx"].append(t_id)
         else:
             c = -1
             for s_id, token in enumerate(token_l):
@@ -353,9 +407,9 @@ def add_token_tolist(t_lst, token_l, flag, inf):
                 c += 1
                 result.append([token])
                 if c not in result_dict:
-                    result_dict[c] = {0: new_inf}
+                    result_dict[c] = {0: new_inf, "output_idx": [t_id]}
                 else:
-                    result_dict[c].update({0: new_inf})
+                    result_dict[c].update({0: new_inf, "output_idx": [t_id]})
 
     # If this token is optional
     else:
@@ -377,10 +431,12 @@ def add_token_tolist(t_lst, token_l, flag, inf):
                     each_copy.append(token)
                     result.append(each_copy)
                     result_dict[c].update({len(each_copy) - 1: new_inf})
+                    if t_id not in result_dict[c]["output_idx"]:
+                        result_dict[c]["output_idx"].append(t_id)
         else:
             result.append([])
             c = 0
-            result_dict[c] = {}
+            result_dict[c] = {"output_idx": []}
             for s_id, token in enumerate(token_l):
                 new_inf = copy.deepcopy(inf)
                 if "shapes" in inf:
@@ -389,9 +445,9 @@ def add_token_tolist(t_lst, token_l, flag, inf):
                 c += 1
                 result.append([token])
                 if c not in result_dict:
-                    result_dict[c] = {0: new_inf}
+                    result_dict[c] = {0: new_inf, "output_idx": [t_id]}
                 else:
-                    result_dict[c].update({0: new_inf})
+                    result_dict[c].update({0: new_inf, "output_idx": [t_id]})
 
     result_lst.append(result)
     result_lst.append(copy.deepcopy(result_dict))
@@ -413,10 +469,13 @@ def add_pos_totoken(pos_l, this_token, token_to_rule):
 
 
 # create word token according to user input
-def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab):
+def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in_vocab, all_forms, nlp):
     # if user enter one word
     if len(word_l) == 1:
-        token = {spacy.attrs.LOWER: word_l[0].lower()}
+        if all_forms == "true":
+            token = {spacy.attrs.LEMMA: find_lexeme_base(word_l[0], nlp)}
+        else:
+            token = {spacy.attrs.LOWER: word_l[0].lower()}
         token_l = speci_capi(token, capi_l, word_l)
     # if user does not enter any word
     elif not word_l:
@@ -438,8 +497,14 @@ def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in
                     token_l.append(copy.deepcopy(token))
     # if user enter multiple words, use flag set before
     else:
-        token = {FLAG_DICT[str(flag)]: True}
-        token_l = speci_capi(token, capi_l, word_l)
+        if all_forms == "false":
+            token = {FLAG_DICT[str(flag)]: True}
+            token_l = speci_capi(token, capi_l, word_l)
+        else:
+            token_l = list()
+            for word_token in word_l:
+                token = {spacy.attrs.LEMMA: find_lexeme_base(word_token, nlp)}
+                token_l += speci_capi(token, capi_l, word_l)
 
     return token_l
 
@@ -504,7 +569,7 @@ def filter(doc, matches, inf_inf):
         for i in range(len(pattern)):
             inf = inf_inf[i]
             if "shape" in inf:
-                if len(pattern[i]) != len(inf["shape"]):
+                if compare_shape(pattern[i], inf["shape"]):
                     flag = False
                     break
             if "prefix" in inf:
@@ -646,73 +711,165 @@ def get_longest(value_lst):
     return result
 
 
+# reject negative matches based on overlapping
+def reject(pos_lst, neg_lst):
+    pos_lst.sort()
+    neg_lst.sort()
+    result = []
+    pivot_pos = pos_lst[0]
+    pivot_neg = neg_lst[0]
+    while pos_lst:
+        if pivot_pos[1] <= pivot_neg[0]:
+            result.append(pivot_pos)
+            pos_lst.pop(0)
+            if pos_lst:
+                pivot_pos = pos_lst[0]
+        elif pivot_pos[0] >= pivot_neg[1]:
+            neg_lst.pop(0)
+            if not neg_lst:
+                result += pos_lst
+                break
+            else:
+                pivot_neg = neg_lst[0]
+        else:
+            pos_lst.pop(0)
+            if pos_lst:
+                pivot_pos = pos_lst[0]
+    return result
+
+
+def add_dep(m_lst, def_inf, output_lst):
+    if not def_inf:
+        return m_lst
+    else:
+        for element in def_inf:
+            if int(element["from"]) in output_lst and int(element["to"]) in output_lst and element["dependency"]:
+                to_idx = output_lst.index(int(element["to"]))
+                m_lst[to_idx][spacy.attrs.DEP] = DEP_MAP[element["dependency"]]
+        return m_lst
+
+
+def check_head(m_lst, output_lst, def_inf, doc):
+    if not def_inf:
+        return m_lst
+    else:
+        return_lst = list()
+        for element in def_inf:
+            if int(element["from"]) in output_lst and int(element["to"]) in output_lst:
+                from_idx = output_lst.index(int(element["from"]))
+                to_idx = output_lst.index(int(element["to"]))
+                for a_match in m_lst:
+                    (ent_id, label, start, end) = a_match
+                    if doc[start+to_idx].head == doc[start+from_idx]:
+                        return_lst.append(a_match)
+        return return_lst
+
+
+def find_lexeme_base(word, nlp):
+    return nlp([word])[0].lemma_
+
+
+def compare_shape(token, shape):
+    token_shape = ""
+    for i in str(token):
+        if i.isalpha():
+            if i.islower():
+                token_shape += "x"
+            elif i.isupper():
+                token_shape += "X"
+        elif i.isdigit():
+            token_shape += "d"
+    return counting_stars(str(token_shape)) != counting_stars(shape)
+
+
 def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
-
+    # for tok in nlp_doc:
+    #     print tok.lower_
+    #     print tok.dep_
     rule = Rule(nlp)
     # rule_num = 0
     extracted_lst = []
-    value_lst = []
+    value_lst_pos = []
+    value_lst_neg = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
+            if "polarity" not in line:
+                line["polarity"] = "true"
+            if "dependencies" not in line:
+                line["dependencies"] = []
             rule.init_matcher()
             rule.init_flag()
             new_pattern = Pattern()
             flagnum = 17
 
-            for token_d in line["pattern"]:
+            for token_id, token_d in enumerate(line["pattern"]):
+                if "match_all_forms" not in token_d:
+                    token_d["match_all_forms"] = "false"
                 if token_d["type"] == "word":
-                    if len(token_d["token"]) >= 2:
+                    if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
                         # set flag for multiply words
                         flagnum += 1
                         rule.set_flag(token_d["token"], flagnum)
-                    new_pattern.add_word_token(token_d, flagnum)
+                    new_pattern.add_word_token(token_d, flagnum, token_id, nlp)
 
                 if token_d["type"] == "shape":
-                    new_pattern.add_shape_token(token_d)
+                    new_pattern.add_shape_token(token_d, token_id)
 
                 if token_d["type"] == "number":
                     if len(token_d["numbers"]) >= 2:
                         flagnum += 1
                         rule.set_num_flag(token_d["numbers"], flagnum)
-                    new_pattern.add_number_token(token_d, flagnum)
+                    new_pattern.add_number_token(token_d, flagnum, token_id)
 
                 if token_d["type"] == "punctuation":
                     if len(token_d["token"]) >= 2:
                         # set flag for multiply punctuations
                         flagnum += 1
                         rule.set_flag(token_d["token"], flagnum)
+                    new_pattern.add_punctuation_token(token_d, flagnum, token_id)
 
-                    new_pattern.add_punctuation_token(token_d, flagnum)
-
-                if token_d["type"] == "symbol":
-                    new_pattern.add_symbol_token(token_d)
+                if token_d["type"] == "linebreak":
+                    new_pattern.add_linebreak_token(token_d, token_id)
 
             tl = new_pattern.token_lst[0]
             ps_inf = new_pattern.token_lst[1]
+
             for i in range(len(tl)):
                 # rule_num += 1
                 if tl[i]:
-                    rule_to_print = create_print(tl[i])
-                    rule.matcher.add_pattern(str(rule_to_print), tl[i], label=index)
-                    m = rule.matcher(nlp_doc)
+                    tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"], ps_inf[i]["output_idx"])
+                    rule_to_print = create_print(tl_add_dep)
+                    # print rule_to_print
+                    rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
+                    m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"], nlp_doc)
                     matches = filter(nlp_doc, m, ps_inf[i])
-                    output_inf = []
+                    output_infs = []
                     for e in ps_inf[i]:
-                        output_inf.append(ps_inf[i][e]["is_in_output"])
+                        if e != "output_idx":
+                            output_infs.append((e, ps_inf[i][e]["is_in_output"]))
+                    output_infs.sort()
+                    output_inf = [p[1] for p in output_infs]
 
                     for (ent_id, label, start, end) in matches:
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
                         filtered_value = filtered_value + (line["identifier"],)
-                        value_lst.append(filtered_value)
-
+                        if line["polarity"] == "true":
+                            value_lst_pos.append(filtered_value)
+                        else:
+                            value_lst_neg.append(filtered_value)
                     rule.init_matcher()
             rule.init_flag()
 
-    if value_lst:
-        longest_lst = get_longest(value_lst)
-        for (start, end, value, label, identifier) in longest_lst:
+    if value_lst_pos:
+        longest_lst_pos = get_longest(value_lst_pos)
+        if value_lst_neg:
+            longest_lst_neg = get_longest(value_lst_neg)
+            return_lst = reject(longest_lst_pos, longest_lst_neg)
+        else:
+            return_lst = longest_lst_pos
+        for (start, end, value, label, identifier) in return_lst:
             result = {
                 "value": value,
                 "context": {
@@ -724,8 +881,8 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    #print json.dumps(extracted_lst, indent=2)
-    
-    #print "total rule num:"
-    #print rule_num
+    # print json.dumps(extracted_lst, indent=2)
+
+    # print "total rule num:"
+    # print rule_num
     return extracted_lst

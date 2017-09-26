@@ -1,0 +1,213 @@
+{
+  "field": "name_of_field",
+  "test_text": "",
+  "rules": [
+    {
+      "description": "",
+      "identifier": "rule_0",
+      "is_active": "true",
+      "output_format": "",
+      "dependencies": [
+        {
+          "from": "3",
+          "to": "0",
+          "dependency": "nominal subject"
+        },
+        {
+          "from": "3",
+          "to": "1",
+          "dependency": "auxiliary"
+        }
+      ],
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [
+            "i"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "false",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [
+            "am"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "false",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "false",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [
+            "a"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [
+            "runqi"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [],
+          "type": "linebreak",
+          "quantity": 3
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [7],
+          "maximum": "400000",
+          "minimum": "300000",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": [],
+          "type": "number",
+          "quantity": ""
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "description": "",
+      "identifier": "rule_2",
+      "is_active": "true",
+      "output_format": "",
+      "dependencies": [
+      ],
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": ["runqi"],
+          "type": "word",
+          "quantity": ""
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "description": "",
+      "identifier": "rule_3",
+      "is_active": "true",
+      "output_format": "",
+      "dependencies": [
+      ],
+      "pattern": [
+        {
+          "capitalization": ["title", "mixed"],
+          "contain_digit": "",
+          "is_followed_by_space": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "",
+          "is_out_of_vocabulary": "",
+          "is_required": "true",
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [],
+          "suffix": "",
+          "token": ["girl", "lady"],
+          "type": "word",
+          "quantity": ""
+        }
+      ],
+      "polarity": "true"
+    }
+  ]
+}

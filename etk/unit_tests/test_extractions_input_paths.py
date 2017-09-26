@@ -72,7 +72,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
@@ -91,23 +91,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -120,23 +106,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -172,7 +144,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_relaxed" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_relaxed"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_relaxed"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("name" in r["content_extraction"]["content_relaxed"]["data_extraction"])
@@ -192,23 +164,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -221,23 +179,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -272,7 +216,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("title" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["title"])
-        self.assertTrue("tokens" in r["content_extraction"]["title"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["title"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["title"])
 
     def test_extraction_multiple_input_paths(self):
@@ -332,7 +276,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
         self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
@@ -352,23 +296,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -381,23 +311,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -433,7 +349,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_relaxed" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_relaxed"])
-        self.assertTrue("tokens" in r["content_extraction"]["content_relaxed"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("data_extraction" in r["content_extraction"]["content_relaxed"])
         self.assertTrue("name" in r["content_extraction"]["content_relaxed"]["data_extraction"])
@@ -453,23 +369,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 11,
-                    "tokens_left": [
-                      "27",
-                      "\n\n\n",
-                      "my",
-                      "name",
-                      "is"
-                    ],
                     "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos ",
                     "start": 10,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "height",
-                      "160cms",
-                      "weight",
-                      "55",
-                      "kilos"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "helena"
                 },
@@ -482,23 +384,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 137,
-                    "tokens_left": [
-                      "\n\n",
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 136,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
@@ -534,34 +422,34 @@ class TestExtractionsInputPaths(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("title" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["title"])
-        self.assertTrue("tokens" in r["content_extraction"]["title"])
+        self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["title"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["title"])
 
         self.assertTrue("inferlink_extractions" in r["content_extraction"])
         ie_ex = r["content_extraction"]["inferlink_extractions"]
 
         self.assertTrue("inferlink_location" in ie_ex)
-        self.assertTrue("tokens" in ie_ex["inferlink_location"])
+        self.assertTrue("simple_tokens_original_case" in ie_ex["inferlink_location"])
         self.assertTrue("simple_tokens" in ie_ex["inferlink_location"])
         self.assertFalse("data_extraction" in ie_ex["inferlink_location"])
 
         self.assertTrue("inferlink_age" in ie_ex)
-        self.assertTrue("tokens" in ie_ex["inferlink_age"])
+        self.assertTrue("simple_tokens_original_case" in ie_ex["inferlink_age"])
         self.assertTrue("simple_tokens" in ie_ex["inferlink_age"])
         self.assertFalse("data_extraction" in ie_ex["inferlink_age"])
 
         self.assertTrue("inferlink_phone" in ie_ex)
-        self.assertTrue("tokens" in ie_ex["inferlink_phone"])
+        self.assertTrue("simple_tokens_original_case" in ie_ex["inferlink_phone"])
         self.assertTrue("simple_tokens" in ie_ex["inferlink_phone"])
         self.assertFalse("data_extraction" in ie_ex["inferlink_phone"])
 
         self.assertTrue("inferlink_posting-date" in ie_ex)
-        self.assertTrue("tokens" in ie_ex["inferlink_posting-date"])
+        self.assertTrue("simple_tokens_original_case" in ie_ex["inferlink_posting-date"])
         self.assertTrue("simple_tokens" in ie_ex["inferlink_posting-date"])
         self.assertFalse("data_extraction" in ie_ex["inferlink_posting-date"])
 
         self.assertTrue("inferlink_description" in ie_ex)
-        self.assertTrue("tokens" in ie_ex["inferlink_description"])
+        self.assertTrue("simple_tokens_original_case" in ie_ex["inferlink_description"])
         self.assertTrue("simple_tokens" in ie_ex["inferlink_description"])
         self.assertTrue("data_extraction" in ie_ex["inferlink_description"])
 
@@ -580,22 +468,9 @@ class TestExtractionsInputPaths(unittest.TestCase):
                   },
                   "context": {
                     "end": 5,
-                    "tokens_left": [
-                      "hey",
-                      "i",
-                      "'",
-                      "m"
-                    ],
                     "text": "hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
                     "start": 4,
-                    "input": "tokens",
-                    "tokens_right": [
-                      "3234522013",
-                      "let",
-                      "'",
-                      "s",
-                      "explore"
-                    ]
+                    "input": "tokens"
                   },
                   "value": "luna"
                 }
