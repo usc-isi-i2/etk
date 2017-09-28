@@ -43,7 +43,8 @@
         {
           "strict": "yes",
           "extraction_policy": "keep_existing",
-          "field_name": "content_strict"
+          "field_name": "content_strict",
+          "timeout": 3
         },
         {
           "strict": "no",

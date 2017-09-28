@@ -45,6 +45,7 @@ import sys
 import traceback
 import logging
 import logstash
+import signal
 
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
@@ -153,6 +154,11 @@ _EXCEPTION = 47
 _ETK_VERSION = "etk_version"
 _CONVERT_TO_KG = "convert_to_kg"
 _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
+_TIMEOUT = "timeout"
+
+
+class TimeoutException(Exception):  # Custom exception class
+    pass
 
 
 class Core(object):
@@ -182,6 +188,7 @@ class Core(object):
         self.logstash_logger = None
         self.etk_version = "1"
         self.prefer_inferlink_description = False
+        self.readability_timeout = 3
         if self.extraction_config:
             if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
                 self.prefer_inferlink_description = self.extraction_config[_PREFER_INFERLINK_DESCRIPTION]
@@ -222,6 +229,10 @@ class Core(object):
                 self.logstash_logger.exception(message, extra=extra)
 
     """ Define all API methods """
+
+    @staticmethod
+    def timeout_handler(signum, frame):  # Custom signal handler
+        raise TimeoutException
 
     def process(self, doc, create_knowledge_graph=False):
         start_time = time.time()
@@ -320,10 +331,12 @@ class Core(object):
                                     re_extractors = extractors[extractor]
                                     if isinstance(re_extractors, dict):
                                         re_extractors = [re_extractors]
+
                                     for re_extractor in re_extractors:
                                         doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
                                                                                         matches[index].value,
                                                                                         re_extractor)
+
                             elif extractor == _TITLE:
                                 doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                           matches[index].value,
@@ -363,14 +376,6 @@ class Core(object):
                                     # First rule of DATA Extraction club: Get tokens
                                     # Get the crf tokens
                                     if _TEXT in match.value:
-                                        # if _TOKENS_ORIGINAL_CASE not in match.value:
-                                        #     match.value[_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
-                                        #         match.value[_TEXT],
-                                        #         lowercase=False)
-                                        # if _TOKENS not in match.value:
-                                        #     match.value[_TOKENS] = self.crftokens_to_lower(
-                                        #         match.value[_TOKENS_ORIGINAL_CASE])
-
                                         if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
                                             match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
                                                 match.value[_TEXT],
@@ -569,6 +574,7 @@ class Core(object):
         if time_taken > 5:
             extra = dict()
             extra['time_taken'] = time_taken
+            print 'Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken))
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
         return doc
@@ -585,7 +591,6 @@ class Core(object):
             else:
                 return None
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
-
 
     @staticmethod
     def rearrange_description(doc):
@@ -943,6 +948,7 @@ class Core(object):
     def run_readability(self, content_extraction, html, re_extractor):
         recall_priority = False
         field_name = None
+        readability_text = None
         if _STRICT in re_extractor:
             recall_priority = False if re_extractor[_STRICT] == _YES else True
             field_name = _CONTENT_RELAXED if recall_priority else _CONTENT_STRICT
@@ -951,7 +957,15 @@ class Core(object):
         if _FIELD_NAME in re_extractor:
             field_name = re_extractor[_FIELD_NAME]
         ep = self.determine_extraction_policy(re_extractor)
-        readability_text = self.extract_readability(html, options)
+        timeout = re_extractor[_TIMEOUT] if _TIMEOUT in re_extractor else self.readability_timeout
+        signal.signal(signal.SIGALRM, self.timeout_handler)
+        signal.alarm(timeout)
+        try:
+            readability_text = self.extract_readability(html, options)
+            signal.alarm(0)
+        except TimeoutException:
+            pass
+
         if readability_text:
             if field_name not in content_extraction or (field_name in content_extraction and ep == _REPLACE):
                 content_extraction[field_name] = readability_text
@@ -1233,7 +1247,7 @@ class Core(object):
         modified_results = dict()
         for field_name, result in results.items():
             modified_results[field_name] = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE], result,
-                                                field_name)
+                                                                            field_name)
 
         return modified_results
 
