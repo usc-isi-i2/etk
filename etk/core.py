@@ -155,6 +155,7 @@ _ETK_VERSION = "etk_version"
 _CONVERT_TO_KG = "convert_to_kg"
 _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
+_JSON_CONTENT = 'json_content'
 
 
 class TimeoutException(Exception):  # Custom exception class
@@ -175,6 +176,7 @@ class Core(object):
         self.content_extraction_path = None
         self.data_extraction_path = dict()
         self.kgc_paths = dict()
+        self.json_content_paths = dict()
         if load_spacy:
             self.prep_spacy()
         else:
@@ -289,68 +291,78 @@ class Core(object):
                     if _CONTENT_EXTRACTION not in doc:
                         doc[_CONTENT_EXTRACTION] = dict()
                     ce_config = self.extraction_config[_CONTENT_EXTRACTION]
-                    html_path = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else None
-                    if not html_path:
-                        raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
 
-                    if not self.content_extraction_path:
+                    # JSON CONTENT: create content for data extraction from json paths
+                    if _JSON_CONTENT in ce_config:
+                        jc_extractors = ce_config[_JSON_CONTENT]
+                        if isinstance(jc_extractors, dict):
+                            jc_extractors = [jc_extractors]
+                        for jc_extractor in jc_extractors:
+                            doc = self.convert_json_content(doc, jc_extractor)
+
+                    html_path = ce_config[_INPUT_PATH] if _INPUT_PATH in ce_config else None
+                    if not html_path and _EXTRACTORS in ce_config:
+                        raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
+                    if html_path and _EXTRACTORS in ce_config:
+                        if not self.content_extraction_path:
+                            start_time = time.time()
+                            self.content_extraction_path = parse(html_path)
+                            time_taken = time.time() - start_time
+                            if self.debug:
+                                self.log('time taken to process parse %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
+                                         url=doc[_URL])
                         start_time = time.time()
-                        self.content_extraction_path = parse(html_path)
+                        matches = self.content_extraction_path.find(doc)
                         time_taken = time.time() - start_time
                         if self.debug:
-                            self.log('time taken to process parse %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
+                            self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
                                      url=doc[_URL])
-                    start_time = time.time()
-                    matches = self.content_extraction_path.find(doc)
-                    time_taken = time.time() - start_time
-                    if self.debug:
-                        self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
-                                 url=doc[_URL])
-                    extractors = ce_config[_EXTRACTORS]
-                    run_readability = True
-                    for index in range(len(matches)):
-                        for extractor in extractors.keys():
-                            if extractor == _LANDMARK:
-                                doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
-                                                                             matches[index].value,
-                                                                             extractors[extractor], doc[_URL])
-                                landmark_config = extractors[extractor]
-                                landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
-                                    else _INFERLINK_EXTRACTIONS
-                                if self.prefer_inferlink_description:
-                                    if landmark_field_name in doc[_CONTENT_EXTRACTION]:
-                                        if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
-                                            inferlink_desc = doc[_CONTENT_EXTRACTION][landmark_field_name][
-                                                _INFERLINK_DESCRIPTION]
-                                            if _TEXT in inferlink_desc and inferlink_desc[_TEXT] and inferlink_desc[
-                                                _TEXT].strip() != '':
-                                                run_readability = False
+                        extractors = ce_config[_EXTRACTORS]
+                        run_readability = True
+                        for index in range(len(matches)):
+                            for extractor in extractors.keys():
+                                if extractor == _LANDMARK:
+                                    doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
+                                                                                 matches[index].value,
+                                                                                 extractors[extractor], doc[_URL])
+                                    landmark_config = extractors[extractor]
+                                    landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
+                                        else _INFERLINK_EXTRACTIONS
+                                    if self.prefer_inferlink_description:
+                                        if landmark_field_name in doc[_CONTENT_EXTRACTION]:
+                                            if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
+                                                inferlink_desc = doc[_CONTENT_EXTRACTION][landmark_field_name][
+                                                    _INFERLINK_DESCRIPTION]
+                                                if _TEXT in inferlink_desc and inferlink_desc[_TEXT] and inferlink_desc[
+                                                    _TEXT].strip() != '':
+                                                    run_readability = False
 
-                            elif extractor == _READABILITY:
-                                if run_readability:
-                                    re_extractors = extractors[extractor]
-                                    if isinstance(re_extractors, dict):
-                                        re_extractors = [re_extractors]
+                                elif extractor == _READABILITY:
+                                    if run_readability:
+                                        re_extractors = extractors[extractor]
+                                        if isinstance(re_extractors, dict):
+                                            re_extractors = [re_extractors]
 
-                                    for re_extractor in re_extractors:
-                                        doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                        for re_extractor in re_extractors:
+                                            doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
+                                                                                            matches[index].value,
+                                                                                            re_extractor)
+
+                                elif extractor == _TITLE:
+                                    doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
+                                                                              matches[index].value,
+                                                                              extractors[extractor])
+
+                                elif extractor == _TABLE:
+                                    doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                                         matches[index].value,
-                                                                                        re_extractor)
+                                                                                        extractors[extractor])
 
-                            elif extractor == _TITLE:
-                                doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
-                                                                          matches[index].value,
-                                                                          extractors[extractor])
-
-                            elif extractor == _TABLE:
-                                doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
-                                                                                    matches[index].value,
-                                                                                    extractors[extractor])
-                    # Add the url as segment as well
-                    if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
-                        doc[_CONTENT_EXTRACTION][_URL] = dict()
-                        doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
-                        doc[_TLD] = self.extract_tld(doc[_URL])
+                        # Add the url as segment as well
+                        if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
+                            doc[_CONTENT_EXTRACTION][_URL] = dict()
+                            doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+                            doc[_TLD] = self.extract_tld(doc[_URL])
 
                 """Phase 2: The Data Extraction"""
                 if _DATA_EXTRACTION in self.extraction_config:
@@ -577,6 +589,38 @@ class Core(object):
             print 'Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken))
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
+        return doc
+
+    def convert_json_content(self, doc, json_content_extractor):
+        input_path = json_content_extractor[_INPUT_PATH]
+        field_name = json_content_extractor[_FIELD_NAME]
+        val_list = list()
+
+        if input_path not in self.json_content_paths:
+            self.json_content_paths[input_path] = parse(input_path)
+        matches = self.json_content_paths[input_path].find(doc)
+        for match in matches:
+            values = match.value
+            if not isinstance(values, list):
+                values = [values]
+            for val in values:
+                if isinstance(val, basestring) or isinstance(val, numbers.Number):
+                    o = dict()
+                    o[_TEXT] = val
+                    val_list.append(o)
+                else:
+                    msg = 'Error while extracting json content, input path: {} is not a leaf node in the json ' \
+                          'document'.format(input_path)
+                    self.log(msg, _ERROR)
+                    print msg
+                    if self.global_error_handling == _RAISE_ERROR:
+                        raise ValueError(msg)
+        if len(val_list) > 0:
+            if _CONTENT_EXTRACTION not in doc:
+                doc[_CONTENT_EXTRACTION] = dict()
+            if field_name not in doc[_CONTENT_EXTRACTION]:
+                doc[_CONTENT_EXTRACTION][field_name] = list()
+            doc[_CONTENT_EXTRACTION][field_name].extend(val_list)
         return doc
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
