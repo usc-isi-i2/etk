@@ -21,7 +21,7 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue("content_extraction" not in r)
 
     def test_ce_no_inputpath(self):
-        e_config = {'content_extraction': {}}
+        e_config = {'content_extraction': {'extractors': {'title': {}}}}
         c = Core(extraction_config=e_config)
         with self.assertRaises(KeyError):
             r = c.process(self.doc)

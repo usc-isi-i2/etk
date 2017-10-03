@@ -26,11 +26,14 @@ class TestTableExtractions(unittest.TestCase):
 
     def test_extraction_from_default_spacy(self):
         c = Core(extraction_config=self.e_config, load_spacy=True)
+
         for i in range(len(self.ground_truth_input)):
             r = c.process(self.ground_truth_input[
                           i], create_knowledge_graph=True)
+
             self.assertEquals(self.ground_truth_output[i][
                               'knowledge_graph'], r['knowledge_graph'])
+
 
 if __name__ == '__main__':
     unittest.main()
