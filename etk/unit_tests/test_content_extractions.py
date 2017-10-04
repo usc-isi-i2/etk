@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import sys, os
+
 sys.path.append('../../')
 from etk.core import Core
 import json
@@ -8,7 +9,6 @@ import codecs
 
 
 class TestExtractions(unittest.TestCase):
-
     def setUp(self):
         file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1.jl")
         self.doc = json.load(codecs.open(file_path, 'r'))
@@ -28,22 +28,22 @@ class TestExtractions(unittest.TestCase):
 
     def test_ce_readability(self):
         e_config = {'content_extraction': {
-                        "input_path": "raw_content",
-                        "extractors": {
-                          "readability": [
-                            {
-                              "strict": "yes",
-                              "extraction_policy": "keep_existing"
-                            },
-                            {
-                              "strict": "no",
-                              "extraction_policy": "keep_existing",
-                              "field_name": "content_relaxed"
-                            }
-                          ]
-                        }
-                      }
+            "input_path": "raw_content",
+            "extractors": {
+                "readability": [
+                    {
+                        "strict": "yes",
+                        "extraction_policy": "keep_existing"
+                    },
+                    {
+                        "strict": "no",
+                        "extraction_policy": "keep_existing",
+                        "field_name": "content_relaxed"
                     }
+                ]
+            }
+        }
+        }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
         self.assertTrue('tld' in r)
@@ -65,10 +65,10 @@ class TestExtractions(unittest.TestCase):
             "extractors": {
                 "title": {
                     "extraction_policy": "keep_existing"
-                    }
-                 }
-               }
-             }
+                }
+            }
+        }
+        }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
         self.assertTrue("content_extraction" in r)
@@ -88,10 +88,10 @@ class TestExtractions(unittest.TestCase):
                     "field_name": "inferlink_extractions",
                     "extraction_policy": "keep_existing",
                     "landmark_threshold": 0.5
-                    }
-                 }
-               }
-             }
+                }
+            }
+        }
+        }
         c = Core(extraction_config=e_config)
         with self.assertRaises(KeyError):
             r = c.process(self.doc)
@@ -245,6 +245,90 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue('document_id' in r)
         doc_id = '1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21'
         self.assertEqual(r['document_id'], doc_id)
+
+    def test_json_content_path(self):
+        e_config = {
+            "extraction_policy": "replace",
+            "error_handling": "raise_error",
+            "document_id": "uri",
+            "content_extraction": {
+                "json_content": [
+                    {
+                        "input_path": "@graph[*].\"bioc:text\"",
+                        "field_name": "bioc_text"
+                    },
+                    {
+                        "input_path": "@graph[*].random_field",
+                        "field_name": "random_field"
+                    }
+                ]
+            },
+            "data_extraction": [
+                    {
+                        "input_path": "content_extraction.bioc_text[*].text.`parent`"
+                        ,
+                        "fields": {
+                            "character": {
+                                "extractors": {
+                                    "extract_as_is": {
+                                        "extraction_policy": "keep_existing"
+                                    }
+                                }
+
+                            }
+                        }
+                    },
+                    {
+                        "input_path": "content_extraction.random_field[*].text.`parent`"
+                        ,
+                        "fields": {
+                            "catch_phrase": {
+                                "extractors": {
+                                    "extract_as_is": {
+                                        "extraction_policy": "keep_existing"
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+            ]
+        }
+
+
+        doc = {
+            "uri": "1",
+            "url": "http://itsagoodshow.com",
+            "@graph": [
+                {
+                    "bioc:text": "Rick Sanchez",
+                    "random_field": "wubba lubba dub dub"
+                },
+                {
+                    "bioc:text": "Morty Smith",
+                    "random_field": "aww jeez man"
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc, create_knowledge_graph=True)
+        self.assertTrue("content_extraction" in r)
+        self.assertTrue("bioc_text" in r["content_extraction"])
+        t = r["content_extraction"]['bioc_text']
+        self.assertTrue(len(t) == 2)
+        self.assertTrue("knowledge_graph" in r)
+        self.assertTrue("character" in r["knowledge_graph"])
+        self.assertTrue("catch_phrase" in r["knowledge_graph"])
+        expected_characters = ['rick sanchez', 'morty smith']
+        expected_phrases = ['wubba lubba dub dub', 'aww jeez man']
+        for c in r['knowledge_graph']['character']:
+            self.assertTrue(c['key'] in expected_characters)
+
+        for c in r['knowledge_graph']['catch_phrase']:
+            self.assertTrue(c['key'] in expected_phrases)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

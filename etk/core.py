@@ -108,6 +108,7 @@ _POPULATED_PLACES = "populated_places"
 _POPULATED_CITIES = "populated_cities"
 _CASE_SENSITIVE = 'case_sensitive'
 
+_EXTRACT_AS_IS = "extract_as_is"
 _EXTRACT_USING_DICTIONARY = "extract_using_dictionary"
 _EXTRACT_USING_REGEX = "extract_using_regex"
 _EXTRACT_FROM_LANDMARK = "extract_from_landmark"
@@ -451,9 +452,14 @@ class Core(object):
                                                                                 self.create_knowledge_graph(doc, field,
                                                                                                             results)
                                                             else:
+                                                                if extractor == _EXTRACT_AS_IS:
+                                                                    segment = str(match.full_path)
+                                                                else:
+                                                                    segment = self.determine_segment(full_path)
                                                                 if self.check_if_run_extraction(match.value, field,
                                                                                                 extractor,
                                                                                                 ep):
+                                                                    start_e = time.time()
                                                                     results = foo(match.value,
                                                                                   extractors[extractor][_CONFIG])
                                                                     if results:
@@ -466,6 +472,8 @@ class Core(object):
                                                                                                              segment,
                                                                                                              score,
                                                                                                              doc_id))
+                                                                        end_e = time.time() - start_e
+                                                                        #print 'LOG: {},{},{},{}'.format(doc_id, extractor, field, end_e)
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
@@ -568,7 +576,6 @@ class Core(object):
                                                         self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
-                    # doc[_KNOWLEDGE_GRAPH] = self.reformat_knowledge_graph(doc[_KNOWLEDGE_GRAPH])
                     """ Add title and description as fields in the knowledge graph as well"""
                     doc = Core.rearrange_description(doc)
                     doc = Core.rearrange_title(doc)
@@ -622,6 +629,9 @@ class Core(object):
                 doc[_CONTENT_EXTRACTION][field_name] = list()
             doc[_CONTENT_EXTRACTION][field_name].extend(val_list)
         return doc
+
+    def extract_as_is(self, d, config=None):
+        return self._relevant_text_from_context(d[_TEXT], {"value": d[_TEXT]}, config[_FIELD_NAME])
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
         results = list()
