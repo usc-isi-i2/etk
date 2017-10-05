@@ -855,7 +855,7 @@ def extract(field_rules, nlp_doc, nlp):
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
                         filtered_value = filtered_value + (line["identifier"],)
-                        if line["polarity"] == "true":
+                        if line["polarity"] != "false":
                             value_lst_pos.append(filtered_value)
                         else:
                             value_lst_neg.append(filtered_value)
