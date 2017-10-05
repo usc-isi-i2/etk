@@ -420,7 +420,6 @@ class Core(object):
                                                             extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                             ep = self.determine_extraction_policy(extractors[extractor])
                                                             if extractor == _EXTRACT_FROM_LANDMARK:
-
                                                                 if _FIELDS in extractors[extractor][_CONFIG]:
                                                                     inferlink_fields = extractors[extractor][_CONFIG][_FIELDS]
                                                                     for inferlink_field in inferlink_fields:
@@ -431,7 +430,7 @@ class Core(object):
                                                                                                             ep):
 
                                                                                 results = foo(doc,
-                                                                                              extractors[extractor][_CONFIG])
+                                                                                              extractors[extractor][_CONFIG], selected_field=inferlink_field)
                                                                                 if results:
                                                                                     self.add_data_extraction_results(
                                                                                         match.value,
@@ -1333,7 +1332,7 @@ class Core(object):
 
         return modified_results
 
-    def extract_from_landmark(self, doc, config):
+    def extract_from_landmark(self, doc, config, selected_field=None):
         field_name = config[_FIELD_NAME]
         if _CONTENT_EXTRACTION not in doc:
             return None
@@ -1341,9 +1340,6 @@ class Core(object):
             return None
         results = list()
         inferlink_extraction = doc[_CONTENT_EXTRACTION][_INFERLINK_EXTRACTIONS]
-        fields = None
-        if _FIELDS in config:
-            fields = config[_FIELDS]
         pre_filters = None
         if _PRE_FILTER in config:
             pre_filters = config[_PRE_FILTER]
@@ -1351,10 +1347,9 @@ class Core(object):
         post_filters = None
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
-        if fields:
-            for field in fields:
-                if field in inferlink_extraction:
-                    d = inferlink_extraction[field]
+        if selected_field:
+                if selected_field in inferlink_extraction:
+                    d = inferlink_extraction[selected_field]
                     if pre_filters:
                         # Assumption all pre_filters are lambdas
                         d[_TEXT] = self.run_user_filters(d, pre_filters, config[_FIELD_NAME])
