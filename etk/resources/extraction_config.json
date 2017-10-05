@@ -30,7 +30,7 @@
       "populated_cities": "/Users/amandeep/Github/dig3-resources/builtin_resources/populated_cities.json"
     },
     "landmark": [
-      "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
+      "/Users/amandeep/Downloads/consolidated_rules.json"
     ],
     "spacy_field_rules": {
       "name": "/Users/amandeep/Github/etk/etk/resources/name.json",
@@ -67,7 +67,6 @@
     {
       "input_path": [
         "*.content_strict.text.`parent`",
-        "*.content_relaxed.text.`parent`",
         "*.title.text.`parent`",
         "*.inferlink_extractions.*.text.`parent`"
       ],
@@ -197,7 +196,8 @@
                 "fields": [
                   "inferlink_posting-date",
                   "inferlink_posting-date-2",
-                  "inferlink_posting-date-1"
+                  "inferlink_posting-date-1",
+                  "post_date"
                 ],
                 "post_filter": [
                   "parse_date"

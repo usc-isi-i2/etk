@@ -403,15 +403,6 @@ class Core(object):
                                         full_path = str(match.full_path)
                                         segment = self.determine_segment(full_path)
                                         if field != '*':
-                                            """
-                                                Special case for inferlink extractions:
-                                                For eg, We do not want to extract name from inferlink_posting-date #DUH
-                                            """
-                                            if _INFERLINK in full_path:
-                                                if field not in full_path:
-                                                    run_extractor = False
-                                                if _DESCRIPTION in full_path or _TITLE in full_path:
-                                                    run_extractor = True
                                             if run_extractor:
                                                 if _EXTRACTORS in fields[field]:
                                                     extractors = fields[field][_EXTRACTORS]
@@ -429,28 +420,58 @@ class Core(object):
                                                             extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                             ep = self.determine_extraction_policy(extractors[extractor])
                                                             if extractor == _EXTRACT_FROM_LANDMARK:
-                                                                if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
-                                                                    method = _METHOD_INFERLINK
-                                                                    if self.check_if_run_extraction(match.value, field,
-                                                                                                    extractor,
-                                                                                                    ep):
 
-                                                                        results = foo(doc,
-                                                                                      extractors[extractor][_CONFIG])
-                                                                        if results:
-                                                                            self.add_data_extraction_results(
-                                                                                match.value,
-                                                                                field,
-                                                                                extractor,
-                                                                                self.add_origin_info(
-                                                                                    results,
-                                                                                    method,
-                                                                                    segment,
-                                                                                    score,
-                                                                                    doc_id))
-                                                                            if create_knowledge_graph:
-                                                                                self.create_knowledge_graph(doc, field,
-                                                                                                            results)
+                                                                if _FIELDS in extractors[extractor][_CONFIG]:
+                                                                    inferlink_fields = extractors[extractor][_CONFIG][_FIELDS]
+                                                                    for inferlink_field in inferlink_fields:
+                                                                        if _INFERLINK_EXTRACTIONS in full_path and inferlink_field in full_path:
+                                                                            method = _METHOD_INFERLINK
+                                                                            if self.check_if_run_extraction(match.value, field,
+                                                                                                            extractor,
+                                                                                                            ep):
+
+                                                                                results = foo(doc,
+                                                                                              extractors[extractor][_CONFIG])
+                                                                                if results:
+                                                                                    self.add_data_extraction_results(
+                                                                                        match.value,
+                                                                                        field,
+                                                                                        extractor,
+                                                                                        self.add_origin_info(
+                                                                                            results,
+                                                                                            method,
+                                                                                            segment,
+                                                                                            score,
+                                                                                            doc_id))
+                                                                                    if create_knowledge_graph:
+                                                                                        self.create_knowledge_graph(doc, field,
+                                                                                                                    results)
+                                                                else:
+                                                                    if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
+                                                                        method = _METHOD_INFERLINK
+                                                                        if self.check_if_run_extraction(match.value,
+                                                                                                        field,
+                                                                                                        extractor,
+                                                                                                        ep):
+
+                                                                            results = foo(doc,
+                                                                                          extractors[extractor][
+                                                                                              _CONFIG])
+                                                                            if results:
+                                                                                self.add_data_extraction_results(
+                                                                                    match.value,
+                                                                                    field,
+                                                                                    extractor,
+                                                                                    self.add_origin_info(
+                                                                                        results,
+                                                                                        method,
+                                                                                        segment,
+                                                                                        score,
+                                                                                        doc_id))
+                                                                                if create_knowledge_graph:
+                                                                                    self.create_knowledge_graph(doc,
+                                                                                                                field,
+                                                                                                                results)
                                                             else:
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
@@ -898,16 +919,23 @@ class Core(object):
 
             if isinstance(ifl_extractions, list):
                 # we have a rogue post type page, put it in its place
-                field_name = 'inferlink_posts_special_text'
+                # Change Oct 5, 2017: Since we are not showing threads, pick the first post and extract from it
+                field_name_special_text = 'inferlink_posts_special_text'
+                content_extraction[field_name_special_text] = dict()
+                content_extraction[field_name_special_text][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
+                ifl_extractions = ifl_extractions[0]
+
+            if ifl_extractions and len(ifl_extractions.keys()) > 0:
                 content_extraction[field_name] = dict()
-                content_extraction[field_name][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
-            else:
-                if ifl_extractions and len(ifl_extractions.keys()) > 0:
-                    content_extraction[field_name] = dict()
-                    for key in ifl_extractions:
+                for key in ifl_extractions:
+                    if isinstance(ifl_extractions[key], basestring) or isinstance(ifl_extractions[key], numbers.Number):
                         o = dict()
-                        o[key] = dict()
-                        o[key]['text'] = ifl_extractions[key]
+                        if key == 'post_content' or 'content' in key:
+                            new_key = 'inferlink_description'
+                        else:
+                            new_key = key
+                        o[new_key] = dict()
+                        o[new_key]['text'] = ifl_extractions[key]
                         content_extraction[field_name].update(o)
         return content_extraction
 
@@ -1323,7 +1351,6 @@ class Core(object):
         post_filters = None
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
-
         if fields:
             for field in fields:
                 if field in inferlink_extraction:
