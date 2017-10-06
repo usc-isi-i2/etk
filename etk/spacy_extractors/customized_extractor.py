@@ -918,7 +918,7 @@ def extract(field_rules, nlp_doc, nlp):
                         value = get_value(nlp_doc, start, end, output_inf, label)
                         filtered_value = filter_value(value, line["output_format"])
                         filtered_value = filtered_value + (line["identifier"],)
-                        if line["polarity"] == "true":
+                        if line["polarity"] != "false":
                             value_lst_pos.append(filtered_value)
                         else:
                             value_lst_neg.append(filtered_value)
@@ -1051,7 +1051,7 @@ def get_score(a_rule):
         "prefix": 4,
         "numbers": 2,
         "token": 2,
-        "suffix":4
+        "suffix": 4
     }
     for pattern in a_rule["rules"][0]["pattern"]:
         this_score = 1
@@ -1072,7 +1072,7 @@ def get_score(a_rule):
                         this_score += consider_fields[field]
                 else:
                     this_score += consider_fields[field]
-        score += float(1) / this_score
+        score += (float(1) / this_score)
     score -= len(a_rule["rules"][0]["dependencies"])
     return score
 
@@ -1158,11 +1158,17 @@ def add_word_constrain(rule, p_id, docs):
 
     # add only token constrains
     this_rule = copy.deepcopy(rule)
+    token_orth_lst = []
+    token_lemma_lst = []
     for doc in docs:
-        if doc[p_id].orth_ not in this_rule["rules"][0]["pattern"][p_id]["token"]:
-            this_rule["rules"][0]["pattern"][p_id]["token"].append(doc[p_id].orth_)
+        if doc[p_id].orth_ not in token_orth_lst:
+            token_orth_lst.append(doc[p_id].orth_)
+        if doc[p_id].lemma_ not in token_lemma_lst:
+            token_lemma_lst.append(doc[p_id].lemma_)
+    this_rule["rules"][0]["pattern"][p_id]["token"] = token_lemma_lst
     result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "false"
+    this_rule["rules"][0]["pattern"][p_id]["token"] = token_orth_lst
     result.append(copy.deepcopy(this_rule))
 
     # add exact capitalization constrains
@@ -1452,4 +1458,3 @@ def infer_rule(nlp_doc, nlp, positive_extractions):
     print json.dumps(best_rule_lst_whole[0][1], indent=2)
     print rr
     print best_rule_lst_whole[0][0]
-    # print len(best_rule_lst)
