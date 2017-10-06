@@ -359,11 +359,11 @@ class Core(object):
                                                                                         matches[index].value,
                                                                                         extractors[extractor])
 
-                        # Add the url as segment as well
-                        if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
-                            doc[_CONTENT_EXTRACTION][_URL] = dict()
-                            doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
-                            doc[_TLD] = self.extract_tld(doc[_URL])
+                    # Add the url as segment as well
+                    if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
+                        doc[_CONTENT_EXTRACTION][_URL] = dict()
+                        doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
+                        doc[_TLD] = self.extract_tld(doc[_URL])
 
                 """Phase 2: The Data Extraction"""
                 if _DATA_EXTRACTION in self.extraction_config:
