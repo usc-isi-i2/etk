@@ -1690,19 +1690,25 @@ class Core(object):
         return populated_places
 
     @staticmethod
-    def parse_date(d, config={}):
+    def parse_date(d, config=dict()):
+        ignore_past_years = config['ignore_past_years'] if 'ignore_past_years' in config else 20
+        ignore_future_dates = config['ignore_future_dates'] if 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
-            return Core.spacy_parse_date(d)
+            return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates)
         else:
             try:
-                return date_parser.convert_to_iso_format(date_parser.parse_date(d[_TEXT]))
+                return date_parser.convert_to_iso_format(
+                    date_parser.parse_date(d[_TEXT], ignore_future_dates=ignore_future_dates,
+                                           ignore_past_years=ignore_past_years))
             except:
                 return None
 
     @staticmethod
-    def spacy_parse_date(str_date):
+    def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
         try:
-            return date_parser.convert_to_iso_format(date_parser.parse_date(str_date))
+            return date_parser.convert_to_iso_format(
+                date_parser.parse_date(str_date, ignore_future_dates=ignore_future_dates,
+                                       ignore_past_years=ignore_past_years))
         except:
             return None
 
