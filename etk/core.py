@@ -919,23 +919,31 @@ class Core(object):
             if isinstance(ifl_extractions, list):
                 # we have a rogue post type page, put it in its place
                 # Change Oct 5, 2017: Since we are not showing threads, pick the first post and extract from it
+                # preserve the original posts somewhere
+                content_extraction['inferlink_posts'] = ifl_extractions
                 field_name_special_text = 'inferlink_posts_special_text'
                 content_extraction[field_name_special_text] = dict()
                 content_extraction[field_name_special_text][_TEXT] = self.inferlink_posts_to_text(ifl_extractions)
                 ifl_extractions = ifl_extractions[0]
 
             if ifl_extractions and len(ifl_extractions.keys()) > 0:
+                description = ''
                 content_extraction[field_name] = dict()
                 for key in ifl_extractions:
                     if isinstance(ifl_extractions[key], basestring) or isinstance(ifl_extractions[key], numbers.Number):
-                        o = dict()
-                        if key == 'post_content' or 'content' in key:
-                            new_key = 'inferlink_description'
-                        else:
-                            new_key = key
-                        o[new_key] = dict()
-                        o[new_key]['text'] = ifl_extractions[key]
-                        content_extraction[field_name].update(o)
+                        if ifl_extractions[key]:
+                            o = dict()
+                            if key == 'post_content' or 'content' in key or 'description' in key:
+                                new_key = _INFERLINK_DESCRIPTION
+                                description += ifl_extractions[key] + '\n'
+                            else:
+                                new_key = key
+
+                            o[new_key] = dict()
+                            o[new_key]['text'] = ifl_extractions[key]
+                            content_extraction[field_name].update(o)
+                if description:
+                    content_extraction[field_name][_INFERLINK_DESCRIPTION][_TEXT] = description
         return content_extraction
 
     @staticmethod

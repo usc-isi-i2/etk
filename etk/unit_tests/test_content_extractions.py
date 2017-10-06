@@ -134,7 +134,7 @@ class TestExtractions(unittest.TestCase):
                 "text": "323-452-2013"
             },
             "inferlink_description": {
-                "text": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013"
+                "text": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013\n"
             },
             "inferlink_posting-date": {
                 "text": "2017-01-02 06:46"
@@ -176,13 +176,12 @@ class TestExtractions(unittest.TestCase):
                 "text": "323-452-2013"
             },
             "inferlink_description": {
-                "text": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013"
+                "text": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013\n"
             },
             "inferlink_posting-date": {
                 "text": "2017-01-02 06:46"
             }
         }
-
         self.assertEqual(r["content_extraction"]["inferlink_extractions"], ifl_extractions)
 
         self.assertTrue("content_strict" not in r["content_extraction"])
