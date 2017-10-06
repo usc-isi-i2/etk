@@ -30,7 +30,7 @@
       "populated_cities": "/Users/amandeep/Github/dig3-resources/builtin_resources/populated_cities.json"
     },
     "landmark": [
-      "/Users/amandeep/Downloads/consolidated_rules.json"
+      "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
     ],
     "spacy_field_rules": {
       "name": "/Users/amandeep/Github/etk/etk/resources/name.json",
