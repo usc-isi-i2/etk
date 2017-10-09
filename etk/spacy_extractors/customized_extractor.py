@@ -385,7 +385,7 @@ class Pattern(object):
                                           token_d["is_required"], token_inf, t_id)
 
     def add_linebreak_token(self, token_d, t_id):
-        num_break = int(token_d["quantity"])
+        num_break = int(token_d["length"][0])
         if num_break:
             s = ''
             for i in range(num_break):
@@ -944,7 +944,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    # print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num
@@ -1010,7 +1010,7 @@ def create_rule_lst(l):
 
                 elif '\n' in str(token):
                     this_token["type"] = "linebreak"
-                    this_token["quantity"] = str(token).count("\n")
+                    this_token["length"] = [str(token).count("\n")]
                     for element in rr:
                         element["rules"][0]["pattern"].append(copy.deepcopy(this_token))
 
