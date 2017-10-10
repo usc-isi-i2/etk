@@ -29,7 +29,7 @@ class TestTableExtractions(unittest.TestCase):
 
         for i in range(len(self.ground_truth_input)):
             r = c.process(self.ground_truth_input[
-                          i], create_knowledge_graph=True)
+                          i], create_knowledge_graph=True, html_description=False)
 
             self.assertEquals(self.ground_truth_output[i][
                               'knowledge_graph'], r['knowledge_graph'])

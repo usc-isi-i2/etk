@@ -33,7 +33,8 @@
       "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
     ],
     "spacy_field_rules": {
-      "name": "/Users/amandeep/Github/etk/etk/resources/spacy_field_rules.json"
+      "name": "/Users/amandeep/Github/etk/etk/resources/name.json",
+      "phone": "/Users/amandeep/Github/etk/etk/resources/phone.json"
     }
   },
   "content_extraction": {
@@ -66,7 +67,6 @@
     {
       "input_path": [
         "*.content_strict.text.`parent`",
-        "*.content_relaxed.text.`parent`",
         "*.title.text.`parent`",
         "*.inferlink_extractions.*.text.`parent`"
       ],
@@ -196,7 +196,8 @@
                 "fields": [
                   "inferlink_posting-date",
                   "inferlink_posting-date-2",
-                  "inferlink_posting-date-1"
+                  "inferlink_posting-date-1",
+                  "post_date"
                 ],
                 "post_filter": [
                   "parse_date"
@@ -279,6 +280,12 @@
         },
         "phone": {
           "extractors": {
+             "extract_using_custom_spacy": {
+              "extraction_policy": "keep_existing",
+              "config": {
+                "spacy_field_rules": "phone"
+              }
+            },
             "extract_phone": {
               "config": {},
               "extraction_policy": "replace"
