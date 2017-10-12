@@ -385,7 +385,7 @@ class Pattern(object):
                                           token_d["is_required"], token_inf, t_id)
 
     def add_linebreak_token(self, token_d, t_id):
-        num_break = int(token_d["length"][0])
+        num_break = int(token_d["length"][0]) if token_d["length"] else 1
         if num_break:
             s = ''
             for i in range(num_break):
