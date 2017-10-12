@@ -25,6 +25,20 @@ def remove_if_no_html(x):
         return False
     return True
 
+
+def remove_extra_fields(x):
+    if 'content_extraction' in x:
+        ce = x['content_extraction']
+        for key in ce.keys():
+            t = ce[key]
+            t.pop('simple_tokens_original_case', None)
+            t.pop('simple_tokens', None)
+            t.pop('data_extraction', None)
+            ce[key] = t
+        x['content_extraction'] = ce
+    return x
+
+
 if __name__ == '__main__':
     compression = "org.apache.hadoop.io.compress.GzipCodec"
 
@@ -50,7 +64,7 @@ if __name__ == '__main__':
     output_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
         .mapValues(lambda x: c.process(x, create_knowledge_graph=True))
 
-    output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(json.dumps)
+    output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(remove_extra_fields).mapValues(json.dumps)
     output_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
 
     print sc.sequenceFile(input_path).count()

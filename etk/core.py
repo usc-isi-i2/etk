@@ -237,7 +237,7 @@ class Core(object):
     def timeout_handler(signum, frame):  # Custom signal handler
         raise TimeoutException
 
-    def process(self, doc, create_knowledge_graph=False):
+    def process(self, doc, create_knowledge_graph=False, html_description=True):
         start_time = time.time()
         try:
             if self.extraction_config:
@@ -597,7 +597,7 @@ class Core(object):
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
-                    doc = Core.rearrange_description(doc)
+                    doc = Core.rearrange_description(doc, html_description)
                     doc = Core.rearrange_title(doc)
 
         except Exception as e:
@@ -668,7 +668,7 @@ class Core(object):
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
 
     @staticmethod
-    def rearrange_description(doc):
+    def rearrange_description(doc, html_description=True):
         method = 'rearrange_description'
         description = None
         segment = ''
@@ -688,6 +688,13 @@ class Core(object):
                     segment = _CONTENT_STRICT
 
             if description and description != '':
+                if html_description:
+                    try:
+                        new_description = re.sub('\\n+','<br>', description)
+                        new_description = re.sub('\\r+', '<br>', new_description)
+                    except:
+                        new_description = None
+                    description = new_description if new_description else description
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
