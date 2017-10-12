@@ -158,6 +158,19 @@ _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
 
+ten = '\n \n \n \n \n \n \n \n \n \n'
+nine = '\n \n \n \n \n \n \n \n \n'
+eight = '\n \n \n \n \n \n \n \n'
+seven =  '\n \n \n \n \n \n \n'
+six =     '\n \n \n \n \n \n'
+five =     '\n \n \n \n \n '
+four =      '\n \n \n \n'
+three =      '\n \n \n'
+two =         '\n \n'
+one =          '\n'
+
+ns = [ten, nine, eight, seven, six, five, four, three, two, one]
+
 
 class TimeoutException(Exception):  # Custom exception class
     pass
@@ -667,6 +680,18 @@ class Core(object):
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
 
     @staticmethod
+    def remove_line_breaks(x):
+        try:
+            x = x.replace('\r', '')
+            x = ' '.join(x.split(' '))
+            x = re.sub('\\n+', '\n', x)
+            for n in ns:
+                x = re.sub(n, '<br/>', x)
+        except:
+            return x
+        return x
+
+    @staticmethod
     def rearrange_description(doc, html_description=True):
         method = 'rearrange_description'
         description = None
@@ -688,12 +713,7 @@ class Core(object):
 
             if description and description != '':
                 if html_description:
-                    try:
-                        new_description = re.sub('\\n+','<br>', description)
-                        new_description = re.sub('\\r+', '<br>', new_description)
-                    except:
-                        new_description = None
-                    description = new_description if new_description else description
+                    description = Core.remove_line_breaks(description)
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
