@@ -12,7 +12,6 @@ def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_
         str_date = str_date.replace('\n', '')
         str_date = str_date.replace('<', '')
         str_date = str_date.replace('>', '')
-        
         if strict_parsing:
             parsed_date = dateparser.parse(str_date, settings={'STRICT_PARSING': True})
         else:

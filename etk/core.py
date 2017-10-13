@@ -252,6 +252,9 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False, html_description=True):
         start_time = time.time()
+        function_name = ''
+        time_taken_f = -1
+        field_of_fields = ''
         try:
             if self.extraction_config:
                 doc_id = None
@@ -441,9 +444,15 @@ class Core(object):
                                                                             if self.check_if_run_extraction(match.value, field,
                                                                                                             extractor,
                                                                                                             ep):
+                                                                                start_time_sp = time.time()
 
                                                                                 results = foo(doc,
                                                                                               extractors[extractor][_CONFIG], selected_field=inferlink_field)
+                                                                                tk = time.time() - start_time_sp
+                                                                                if tk > time_taken_f:
+                                                                                    field_of_fields = field
+                                                                                    function_name = extractor
+                                                                                    time_taken_f = tk
                                                                                 if results:
                                                                                     self.add_data_extraction_results(
                                                                                         match.value,
@@ -465,10 +474,16 @@ class Core(object):
                                                                                                         field,
                                                                                                         extractor,
                                                                                                         ep):
+                                                                            start_time_sp = time.time()
 
                                                                             results = foo(doc,
                                                                                           extractors[extractor][
                                                                                               _CONFIG])
+                                                                            tk = time.time() - start_time_sp
+                                                                            if tk > time_taken_f:
+                                                                                field_of_fields = field
+                                                                                function_name = extractor
+                                                                                time_taken_f = tk
                                                                             if results:
                                                                                 self.add_data_extraction_results(
                                                                                     match.value,
@@ -626,9 +641,11 @@ class Core(object):
         if time_taken > 5:
             extra = dict()
             extra['time_taken'] = time_taken
-            print 'Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken))
+            print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
+            print 'Max time spent in extractor: {}, field:{}, time: {}'.format(function_name, field_of_fields, time_taken_f)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
+
         return doc
 
     def convert_json_content(self, doc, json_content_extractor):
@@ -967,7 +984,11 @@ class Core(object):
                                 new_key = key
 
                             o[new_key] = dict()
-                            o[new_key]['text'] = ifl_extractions[key]
+                            if 'date' in key:
+                                o[new_key]['text'] = ifl_extractions[key][:30] if len(ifl_extractions[key]) > 30 else \
+                                ifl_extractions[key]
+                            else:
+                                o[new_key]['text'] = ifl_extractions[key]
                             content_extraction[field_name].update(o)
                 if description:
                     content_extraction[field_name][_INFERLINK_DESCRIPTION][_TEXT] = description
