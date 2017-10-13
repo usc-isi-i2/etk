@@ -1117,11 +1117,15 @@ def get_suffix(lst):
 
 
 def add_punct_constrain(rule, p_id, docs):
-    result = copy.deepcopy(rule)
+    result = list()
+    this_rule = copy.deepcopy(rule)
     for doc in docs:
-        if doc[p_id].lemma_ not in result["rules"][0]["pattern"][p_id]["token"]:
-            result["rules"][0]["pattern"][p_id]["token"].append(doc[p_id].lemma_)
-    return [result]
+        if doc[p_id].lemma_ not in this_rule["rules"][0]["pattern"][p_id]["token"]:
+            this_rule["rules"][0]["pattern"][p_id]["token"].append(doc[p_id].lemma_)
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
+    return result
 
 
 def add_number_constrain(rule, p_id, docs):
@@ -1133,6 +1137,8 @@ def add_number_constrain(rule, p_id, docs):
         if len(doc[p_id]) not in this_rule["rules"][0]["pattern"][p_id]["length"]:
             this_rule["rules"][0]["pattern"][p_id]["length"].append(len(doc[p_id]))
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
     temp_lst = copy.deepcopy(result)
 
     # add numbers constrains
@@ -1142,6 +1148,8 @@ def add_number_constrain(rule, p_id, docs):
         if doc[p_id].lemma_ not in number_lst:
             number_lst.append(doc[p_id].lemma_)
     this_rule["rules"][0]["pattern"][p_id]["numbers"] = number_lst
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     for a_rule in temp_lst:
@@ -1167,12 +1175,18 @@ def add_word_constrain(rule, p_id, docs):
             token_lemma_lst.append(doc[p_id].lemma_)
     this_rule["rules"][0]["pattern"][p_id]["token"] = token_lemma_lst
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "false"
     this_rule["rules"][0]["pattern"][p_id]["token"] = token_orth_lst
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "true"
     result.append(copy.deepcopy(this_rule))
 
     # add exact capitalization constrains
     this_rule["rules"][0]["pattern"][p_id]["capitalization"].append("exact")
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     # add only capitalization constrains to non token constrain rules
@@ -1189,7 +1203,11 @@ def add_word_constrain(rule, p_id, docs):
             if x not in this_rule["rules"][0]["pattern"][p_id]["capitalization"]:
                 this_rule["rules"][0]["pattern"][p_id]["capitalization"].append(x)
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["match_all_forms"] = "false"
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "true"
     result.append(copy.deepcopy(this_rule))
 
     # add capitalization constrains to non-empty token constrain rules
@@ -1221,6 +1239,8 @@ def add_word_constrain(rule, p_id, docs):
     this_rule = copy.deepcopy(rule)
     this_rule["rules"][0]["pattern"][p_id]["length"] = length_lst
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
 
     # add pos tag constrains
     pos_lst = []
@@ -1236,6 +1256,8 @@ def add_word_constrain(rule, p_id, docs):
 
     this_rule = copy.deepcopy(rule)
     this_rule["rules"][0]["pattern"][p_id]["part_of_speech"] = pos_lst
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     # add in_vocab, out_vocab constrains
@@ -1259,6 +1281,8 @@ def add_word_constrain(rule, p_id, docs):
     this_rule["rules"][0]["pattern"][p_id]["is_out_of_vocabulary"] = invob
     this_rule["rules"][0]["pattern"][p_id]["is_in_vocabulary"] = outvob
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
 
     # add prefix, suffix constrain
     this_token_lst = [doc[p_id].orth_ for doc in docs]
@@ -1279,9 +1303,15 @@ def add_word_constrain(rule, p_id, docs):
     this_rule = copy.deepcopy(rule)
     this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "true"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     return result
@@ -1296,6 +1326,8 @@ def add_shape_constrain(rule, p_id, docs):
     for doc in docs:
         if get_shape(str(doc[p_id])) not in this_rule["rules"][0]["pattern"][p_id]["shapes"]:
             this_rule["rules"][0]["pattern"][p_id]["shapes"].append(get_shape(str(doc[p_id])))
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     # add pos tag constrain
@@ -1325,9 +1357,15 @@ def add_shape_constrain(rule, p_id, docs):
     this_rule = copy.deepcopy(rule)
     this_rule["rules"][0]["pattern"][p_id]["prefix"] = this_prefix
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["suffix"] = this_suffix
     result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "true"
+    result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["prefix"] = ""
+    result.append(copy.deepcopy(this_rule))
+    this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
     result.append(copy.deepcopy(this_rule))
 
     return result
@@ -1359,23 +1397,38 @@ def add_dependency(rule, pos_lst):
     return result
 
 
+def longest_docs(l):
+    result = []
+    length = len(l[0])
+    for ll in l:
+        if len(ll) > length:
+            result = [ll]
+            length = len(ll)
+        elif len(ll) == length:
+            result.append(ll)
+    return result
+
+
 def infer_rule(nlp_doc, nlp, positive_extractions):
     t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
     p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
     positive_docs = [nlp(i) for i in p]
+    longest_positive_docs = longest_docs(positive_docs)
     pos_strings = [str(i) for i in positive_docs]
-    match_length = len(positive_docs[0])
+    match_length_lst = sorted(list(set([len(x) for x in positive_docs])))
 
     negative_docs = []
-    for i in range(len(nlp_doc) - match_length + 1):
-        span = nlp_doc[i:i + match_length]
-        sub_doc = nlp([k["value"].decode("utf-8") for k in t.extract(str(span), lowercase=False)])
-        if str(sub_doc) not in pos_strings:
-            negative_docs.append(sub_doc)
+    for i in range(len(nlp_doc) - match_length_lst[0] + 1):
+        for match_length in match_length_lst:
+            span = nlp_doc[i:i + match_length]
+            sub_doc = nlp([k["value"].decode("utf-8") for k in t.extract(str(span), lowercase=False)])
+            if str(sub_doc) not in pos_strings:
+                negative_docs.append(sub_doc)
 
     # print negative_docs
 
-    positive_instances = random.sample(positive_docs, 3) if len(positive_docs) > 3 else positive_docs
+    positive_instances = random.sample(longest_positive_docs, 3) if len(
+        longest_positive_docs) > 3 else longest_positive_docs
     base_rule_results = list()
 
     field_rules_lst = create_rule_lst(positive_instances)
@@ -1401,20 +1454,20 @@ def infer_rule(nlp_doc, nlp, positive_extractions):
         best_rule_lst = [d[1] for d in best_rule_lst_whole]
         if pattern["type"] == "punctuation":
             for base_rule in best_rule_lst:
-                new_rule_lst += add_punct_constrain(base_rule, p_id, positive_docs)
+                new_rule_lst += add_punct_constrain(base_rule, p_id, longest_positive_docs)
 
         if pattern["type"] == "number":
             for base_rule in best_rule_lst:
-                new_rule_lst += add_number_constrain(base_rule, p_id, positive_docs)
+                new_rule_lst += add_number_constrain(base_rule, p_id, longest_positive_docs)
 
         if pattern["type"] == "word" and pattern["contain_digit"] == "true":
             for base_rule in best_rule_lst:
-                new_rule_lst += add_shape_constrain(base_rule, p_id, positive_docs)
-                new_rule_lst += add_word_constrain(base_rule, p_id, positive_docs)
+                new_rule_lst += add_shape_constrain(base_rule, p_id, longest_positive_docs)
+                new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
 
         if pattern["type"] == "word" and pattern["contain_digit"] != "true":
             for base_rule in best_rule_lst:
-                new_rule_lst += add_word_constrain(base_rule, p_id, positive_docs)
+                new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
 
         if new_rule_lst:
             for new_rule in new_rule_lst:
@@ -1438,7 +1491,7 @@ def infer_rule(nlp_doc, nlp, positive_extractions):
     best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0], reverse=True)[:TOP_N]
     best_rule_lst = [d[1] for d in best_rule_lst_whole]
     for base_rule in best_rule_lst:
-        dependency_rule_lst += add_dependency(base_rule, positive_docs)
+        dependency_rule_lst += add_dependency(base_rule, longest_positive_docs)
 
     for a_rule in dependency_rule_lst:
         extractions = extract(a_rule, nlp_doc, nlp)
