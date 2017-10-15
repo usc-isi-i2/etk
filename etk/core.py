@@ -623,7 +623,8 @@ class Core(object):
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     results = foo(match.value, extractors[extractor][_CONFIG])
                                                     if results:
-                                                        self.create_knowledge_graph(doc, field, results)
+                                                        if not extractor == 'filter_results':
+                                                            self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -2043,7 +2044,7 @@ class Core(object):
             if field_name in d[_KNOWLEDGE_GRAPH]:
                 results = d[_KNOWLEDGE_GRAPH][field_name]
                 for result in results:
-                    if result['value'] in self.stop_word_dicts[field_name]:
+                    if result['value'].lower() in self.stop_word_dicts[field_name]:
                         result['confidence'] = 0.3
                     new_results.append(result)
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
