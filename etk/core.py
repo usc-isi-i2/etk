@@ -122,6 +122,7 @@ _EXTRACT_AGE = "extract_age"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
+_STOP_WORD_DICTIONARIES = "stop_word_dictionaries"
 _INFERLINK = "inferlink"
 _HTML = "html"
 
@@ -182,6 +183,7 @@ class Core(object):
         self.debug = debug
         self.html_title_regex = r'<title>(.*?)</title>'
         self.tries = dict()
+        self.stop_word_dicts = dict()
         self.pickles = dict()
         self.jobjs = dict()
         self.global_extraction_policy = None
@@ -1035,6 +1037,14 @@ class Core(object):
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
 
+
+    def get_stop_word_dictionary_name_from_config(self, dict_name):
+        if _RESOURCES in self.extraction_config:
+            if _STOP_WORD_DICTIONARIES in self.extraction_config[_RESOURCES]:
+                if dict_name in self.extraction_config[_RESOURCES][_STOP_WORD_DICTIONARIES]:
+                    return self.extraction_config[_RESOURCES][_STOP_WORD_DICTIONARIES][dict_name]
+        return None
+
     def get_pickle_file_name_from_config(self, pickle_name):
         if _RESOURCES in self.extraction_config:
             resources = self.extraction_config[_RESOURCES]
@@ -1199,6 +1209,12 @@ class Core(object):
     def load_dictionary(self, field_name, dict_name, case_sensitive):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name), case_sensitive)
+
+    def load_stop_words(self, field_name, dict_name):
+        if field_name not in self.stop_word_dicts:
+            dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
+            if dict_name:
+                self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
@@ -2012,3 +2028,26 @@ class Core(object):
     @staticmethod
     def print_p(x):
         print json.dumps(x, indent=2)
+
+    def filter_results(self, d, config):
+        if _KNOWLEDGE_GRAPH not in d:
+            return d
+        if _STOP_WORD_DICTIONARIES not in config:
+            return d
+
+        new_results = list()
+
+        field_name = config[_FIELD_NAME]
+        self.load_stop_words(field_name, config[_STOP_WORD_DICTIONARIES])
+        if field_name in self.stop_word_dicts:
+            if field_name in d[_KNOWLEDGE_GRAPH]:
+                results = d[_KNOWLEDGE_GRAPH][field_name]
+                for result in results:
+                    if result['value'] in self.stop_word_dicts[field_name]:
+                        result['confidence'] = 0.3
+                    new_results.append(result)
+                d[_KNOWLEDGE_GRAPH][field_name] = new_results
+        return d
+
+
+
