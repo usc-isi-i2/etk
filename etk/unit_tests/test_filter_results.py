@@ -12,6 +12,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
     def test_filter_results(self):
         doc = {
+            "url":"http:www.testurl.com",
             "doc_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E",
             "knowledge_graph": {
                 "name": [
@@ -44,11 +45,12 @@ class TestExtractionsFilterResults(unittest.TestCase):
                 ]
             }
         }
+        stop_words_path = os.path.join(os.path.dirname(__file__), "resources/stop_word_names.json")
         e_config = {
             "document_id":"doc_id",
             "resources": {
                 "stop_word_dictionaries": {
-                    "name": "resources/stop_word_names.json"
+                    "name": stop_words_path
                 }
             },
             "kg_enhancement": {

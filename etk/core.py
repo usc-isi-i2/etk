@@ -907,6 +907,11 @@ class Core(object):
 
     @staticmethod
     def check_if_run_extraction(d, field_name, method_name, extraction_policy):
+        try: # do not run anything over 1 MB
+            if _TEXT in d and len(d[_TEXT]) > 1000000:
+                return False
+        except:
+            pass
         if _DATA_EXTRACTION not in d:
             return True
         if field_name not in d[_DATA_EXTRACTION]:
