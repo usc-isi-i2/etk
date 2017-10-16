@@ -4,7 +4,14 @@ import datetime
 
 def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_parsing=True):
     try:
-        str_date = str_date[:100] if len(str_date) > 100 else str_date
+        if len(str_date) > 100:
+            return None
+
+        str_date = str_date[:20] if len(str_date) > 20 else str_date
+        str_date = str_date.replace('\r', '')
+        str_date = str_date.replace('\n', '')
+        str_date = str_date.replace('<', '')
+        str_date = str_date.replace('>', '')
         if strict_parsing:
             parsed_date = dateparser.parse(str_date, settings={'STRICT_PARSING': True})
         else:

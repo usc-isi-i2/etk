@@ -122,6 +122,7 @@ _EXTRACT_AGE = "extract_age"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
+_STOP_WORD_DICTIONARIES = "stop_word_dictionaries"
 _INFERLINK = "inferlink"
 _HTML = "html"
 
@@ -158,6 +159,19 @@ _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
 
+ten = '\n \n \n \n \n \n \n \n \n \n'
+nine = '\n \n \n \n \n \n \n \n \n'
+eight = '\n \n \n \n \n \n \n \n'
+seven =  '\n \n \n \n \n \n \n'
+six =     '\n \n \n \n \n \n'
+five =     '\n \n \n \n \n '
+four =      '\n \n \n \n'
+three =      '\n \n \n'
+two =         '\n \n'
+one =          '\n'
+
+ns = [ten, nine, eight, seven, six, five, four, three, two, one]
+
 
 class TimeoutException(Exception):  # Custom exception class
     pass
@@ -169,6 +183,7 @@ class Core(object):
         self.debug = debug
         self.html_title_regex = r'<title>(.*?)</title>'
         self.tries = dict()
+        self.stop_word_dicts = dict()
         self.pickles = dict()
         self.jobjs = dict()
         self.global_extraction_policy = None
@@ -239,6 +254,9 @@ class Core(object):
 
     def process(self, doc, create_knowledge_graph=False, html_description=True):
         start_time = time.time()
+        function_name = ''
+        time_taken_f = -1
+        field_of_fields = ''
         try:
             if self.extraction_config:
                 doc_id = None
@@ -428,9 +446,15 @@ class Core(object):
                                                                             if self.check_if_run_extraction(match.value, field,
                                                                                                             extractor,
                                                                                                             ep):
+                                                                                start_time_sp = time.time()
 
                                                                                 results = foo(doc,
                                                                                               extractors[extractor][_CONFIG], selected_field=inferlink_field)
+                                                                                tk = time.time() - start_time_sp
+                                                                                if tk > time_taken_f:
+                                                                                    field_of_fields = field
+                                                                                    function_name = extractor
+                                                                                    time_taken_f = tk
                                                                                 if results:
                                                                                     self.add_data_extraction_results(
                                                                                         match.value,
@@ -452,10 +476,16 @@ class Core(object):
                                                                                                         field,
                                                                                                         extractor,
                                                                                                         ep):
+                                                                            start_time_sp = time.time()
 
                                                                             results = foo(doc,
                                                                                           extractors[extractor][
                                                                                               _CONFIG])
+                                                                            tk = time.time() - start_time_sp
+                                                                            if tk > time_taken_f:
+                                                                                field_of_fields = field
+                                                                                function_name = extractor
+                                                                                time_taken_f = tk
                                                                             if results:
                                                                                 self.add_data_extraction_results(
                                                                                     match.value,
@@ -593,7 +623,8 @@ class Core(object):
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                     results = foo(match.value, extractors[extractor][_CONFIG])
                                                     if results:
-                                                        self.create_knowledge_graph(doc, field, results)
+                                                        if not extractor == 'filter_results':
+                                                            self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -613,9 +644,11 @@ class Core(object):
         if time_taken > 5:
             extra = dict()
             extra['time_taken'] = time_taken
-            print 'Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken))
+            print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
+            print 'Max time spent in extractor: {}, field:{}, time: {}'.format(function_name, field_of_fields, time_taken_f)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
+
         return doc
 
     def convert_json_content(self, doc, json_content_extractor):
@@ -668,6 +701,18 @@ class Core(object):
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
 
     @staticmethod
+    def remove_line_breaks(x):
+        try:
+            x = x.replace('\r', '')
+            x = ' '.join(x.split(' '))
+            x = re.sub('\\n+', '\n', x)
+            for n in ns:
+                x = re.sub(n, '<br/>', x)
+        except:
+            return x
+        return x
+
+    @staticmethod
     def rearrange_description(doc, html_description=True):
         method = 'rearrange_description'
         description = None
@@ -689,12 +734,7 @@ class Core(object):
 
             if description and description != '':
                 if html_description:
-                    try:
-                        new_description = re.sub('\\n+','<br>', description)
-                        new_description = re.sub('\\r+', '<br>', new_description)
-                    except:
-                        new_description = None
-                    description = new_description if new_description else description
+                    description = Core.remove_line_breaks(description)
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
                 doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
@@ -868,6 +908,11 @@ class Core(object):
 
     @staticmethod
     def check_if_run_extraction(d, field_name, method_name, extraction_policy):
+        try: # do not run anything over 1 MB
+            if _TEXT in d and len(d[_TEXT]) > 1000000:
+                return False
+        except:
+            pass
         if _DATA_EXTRACTION not in d:
             return True
         if field_name not in d[_DATA_EXTRACTION]:
@@ -948,7 +993,11 @@ class Core(object):
                                 new_key = key
 
                             o[new_key] = dict()
-                            o[new_key]['text'] = ifl_extractions[key]
+                            if 'date' in key:
+                                o[new_key]['text'] = ifl_extractions[key][:30] if len(ifl_extractions[key]) > 30 else \
+                                ifl_extractions[key]
+                            else:
+                                o[new_key]['text'] = ifl_extractions[key]
                             content_extraction[field_name].update(o)
                 if description:
                     content_extraction[field_name][_INFERLINK_DESCRIPTION][_TEXT] = description
@@ -994,6 +1043,14 @@ class Core(object):
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES))
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
+
+
+    def get_stop_word_dictionary_name_from_config(self, dict_name):
+        if _RESOURCES in self.extraction_config:
+            if _STOP_WORD_DICTIONARIES in self.extraction_config[_RESOURCES]:
+                if dict_name in self.extraction_config[_RESOURCES][_STOP_WORD_DICTIONARIES]:
+                    return self.extraction_config[_RESOURCES][_STOP_WORD_DICTIONARIES][dict_name]
+        return None
 
     def get_pickle_file_name_from_config(self, pickle_name):
         if _RESOURCES in self.extraction_config:
@@ -1159,6 +1216,12 @@ class Core(object):
     def load_dictionary(self, field_name, dict_name, case_sensitive):
         if field_name not in self.tries:
             self.tries[field_name] = self.load_trie(self.get_dict_file_name_from_config(dict_name), case_sensitive)
+
+    def load_stop_words(self, field_name, dict_name):
+        if field_name not in self.stop_word_dicts:
+            dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
+            if dict_name:
+                self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
@@ -1972,3 +2035,26 @@ class Core(object):
     @staticmethod
     def print_p(x):
         print json.dumps(x, indent=2)
+
+    def filter_results(self, d, config):
+        if _KNOWLEDGE_GRAPH not in d:
+            return d
+        if _STOP_WORD_DICTIONARIES not in config:
+            return d
+
+        new_results = list()
+
+        field_name = config[_FIELD_NAME]
+        self.load_stop_words(field_name, config[_STOP_WORD_DICTIONARIES])
+        if field_name in self.stop_word_dicts:
+            if field_name in d[_KNOWLEDGE_GRAPH]:
+                results = d[_KNOWLEDGE_GRAPH][field_name]
+                for result in results:
+                    if result['value'].lower() in self.stop_word_dicts[field_name]:
+                        result['confidence'] = 0.3
+                    new_results.append(result)
+                d[_KNOWLEDGE_GRAPH][field_name] = new_results
+        return d
+
+
+
