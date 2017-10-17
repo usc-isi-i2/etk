@@ -1,7 +1,17 @@
 {
-  "document_id": "_id",
+  "document_id": "doc_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
+  "etk_version": "2",
+  "logging": {
+    "logstash": {
+      "host": "localhost",
+      "port": 5959,
+      "version": 2,
+      "level": 20
+    }
+  },
+  "prefer_inferlink_description": false,
   "resources": {
     "dictionaries": {
       "women_name": "/Users/amandeep/Github/dig-dictionaries/person-names/female-names-trimmed.json.gz",
@@ -13,11 +23,18 @@
       "service": "/Users/amandeep/Github/dig-dictionaries/escort-service-words/consolidated-services.json.gz",
       "country_code": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/country_codes_dict.json",
       "country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/countries.json.gz",
-      "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz"
+      "stop_words": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/stop_words.json.gz",
+      "state_to_country": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/state_country_dict.json",
+      "geonames": "/Users/amandeep/Github/dig-dictionaries/geonames-populated-places/city_dict_alt_15000.json",
+      "state_to_codes_lower": "/Users/amandeep/Github/dig3-resources/builtin_resources/states_to_codes_lower.json",
+      "populated_cities": "/Users/amandeep/Github/dig3-resources/builtin_resources/populated_cities.json"
     },
     "landmark": [
-      "/Users/amandeep/Github/dig3-extractions/resources/consolidated_rules.json"
-    ]
+      "/Users/amandeep/Github/etk/etk/resources/consolidated_rules.json"
+    ],
+    "spacy_field_rules": {
+      "name": "/Users/amandeep/Github/etk/etk/resources/spacy_field_rules.json"
+    }
   },
   "content_extraction": {
     "input_path": "raw_content",
@@ -148,7 +165,7 @@
             }
           }
         },
-        "city": {
+        "city_name": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
@@ -231,6 +248,11 @@
                 ]
               },
               "extraction_policy": "replace"
+            },
+            "extract_using_custom_spacy": {
+              "config": {
+                "spacy_field_rules": "name"
+              }
             }
           }
         },
@@ -378,7 +400,7 @@
             }
           }
         },
-        "city": {
+        "city_name": {
           "extractors": {
             "extract_using_dictionary": {
               "config": {
@@ -403,5 +425,26 @@
         }
       }
     }
-  ]
+  ],
+  "kg_enhancement": {
+    "fields": {
+      "city": {
+        "priority": 1,
+        "extractors": {
+          "create_city_state_country_triple": {
+            "config": {}
+          }
+        }
+      },
+      "populated_places": {
+        "priority": 0,
+        "extractors": {
+          "geonames_lookup": {
+            "config": {}
+          }
+        }
+      }
+    },
+    "input_path": "knowledge_graph.`parent`"
+  }
 }

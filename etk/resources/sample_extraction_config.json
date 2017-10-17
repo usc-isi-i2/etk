@@ -2,6 +2,14 @@
   "document_id": "doc_id",
   "extraction_policy": "keep_existing|replace",
   "error_handling": "ignore_extraction|ignore_document|raise_error",
+  "logging": {
+    "logstash": {
+      "host": "localhost",
+      "port": 5959,
+      "version": 1,
+      "level": 40
+    }
+  },
   "resources": {
     "dictionaries": {
       "women_name": "names.json"
