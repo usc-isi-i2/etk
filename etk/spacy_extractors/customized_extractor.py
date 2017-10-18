@@ -295,7 +295,7 @@ class Pattern(object):
             this_token = {spacy.attrs.IS_DIGIT: True}
             if token_d["length"]:
                 for length in token_d["length"]:
-                    this_token[spacy.attrs.LENGTH] = length
+                    this_token[spacy.attrs.LENGTH] = int(length)
                     token_to_rule.append(copy.deepcopy(this_token))
             else:
                 token_to_rule = [this_token]
@@ -493,7 +493,7 @@ def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in
             while spacy.attrs.LENGTH not in token_l[0]:
                 token = token_l.pop(0)
                 for length in length_l:
-                    token[spacy.attrs.LENGTH] = length
+                    token[spacy.attrs.LENGTH] = int(length)
                     token_l.append(copy.deepcopy(token))
     # if user enter multiple words, use flag set before
     else:
