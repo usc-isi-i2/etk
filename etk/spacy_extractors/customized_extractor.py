@@ -295,7 +295,7 @@ class Pattern(object):
             this_token = {spacy.attrs.IS_DIGIT: True}
             if token_d["length"]:
                 for length in token_d["length"]:
-                    this_token[spacy.attrs.LENGTH] = length
+                    this_token[spacy.attrs.LENGTH] = int(length)
                     token_to_rule.append(copy.deepcopy(this_token))
             else:
                 token_to_rule = [this_token]
