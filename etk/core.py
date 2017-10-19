@@ -650,7 +650,7 @@ class Core(object):
                     doc = Core.rearrange_title(doc)
 
         except Exception as e:
-            self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL])
+            self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None)
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             print ''.join(lines)
@@ -665,7 +665,7 @@ class Core(object):
             print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             # print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
-                     doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
+                     doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
 
         return doc
 
@@ -684,15 +684,16 @@ class Core(object):
             for val in values:
                 if isinstance(val, basestring) or isinstance(val, numbers.Number):
                     o = dict()
-                    o[_TEXT] = val
+                    o[_TEXT] = str(val)
                     val_list.append(o)
                 else:
-                    msg = 'Error while extracting json content, input path: {} is not a leaf node in the json ' \
+                    if val:
+                        msg = 'Error while extracting json content, input path: {} is not a leaf node in the json ' \
                           'document'.format(input_path)
-                    self.log(msg, _ERROR)
-                    print msg
-                    if self.global_error_handling == _RAISE_ERROR:
-                        raise ValueError(msg)
+                        self.log(msg, _ERROR)
+                        print msg
+                        if self.global_error_handling == _RAISE_ERROR:
+                            raise ValueError(msg)
         if len(val_list) > 0:
             if _CONTENT_EXTRACTION not in doc:
                 doc[_CONTENT_EXTRACTION] = dict()
