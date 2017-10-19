@@ -253,10 +253,7 @@ class Core(object):
         raise TimeoutException
 
     def process(self, doc, create_knowledge_graph=False, html_description=True):
-        start_time = time.time()
-        function_name = ''
-        time_taken_f = -1
-        field_of_fields = ''
+        start_time_process = time.time()
         try:
             if self.extraction_config:
                 doc_id = None
@@ -327,12 +324,14 @@ class Core(object):
                             start_time = time.time()
                             self.content_extraction_path = parse(html_path)
                             time_taken = time.time() - start_time
+                            # print 'LOG: {},{},{},{}'.format(doc_id, 'Json path parser', 'parse', time_taken)
                             if self.debug:
                                 self.log('time taken to process parse %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
                                          url=doc[_URL])
                         start_time = time.time()
                         matches = self.content_extraction_path.find(doc)
                         time_taken = time.time() - start_time
+                        # print 'LOG: {},{},{},{}'.format(doc_id, 'Json path parser', 'find', time_taken)
                         if self.debug:
                             self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
                                      url=doc[_URL])
@@ -341,12 +340,16 @@ class Core(object):
                         for index in range(len(matches)):
                             for extractor in extractors.keys():
                                 if extractor == _LANDMARK:
+                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
                                                                                  matches[index].value,
                                                                                  extractors[extractor], doc[_URL])
+                                    e = time.time()-s
+
                                     landmark_config = extractors[extractor]
                                     landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
                                         else _INFERLINK_EXTRACTIONS
+                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, landmark_field_name, e)
                                     if self.prefer_inferlink_description:
                                         if landmark_field_name in doc[_CONTENT_EXTRACTION]:
                                             if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
@@ -358,6 +361,7 @@ class Core(object):
 
                                 elif extractor == _READABILITY:
                                     if run_readability:
+                                        s = time.time()
                                         re_extractors = extractors[extractor]
                                         if isinstance(re_extractors, dict):
                                             re_extractors = [re_extractors]
@@ -366,16 +370,23 @@ class Core(object):
                                             doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
                                                                                             matches[index].value,
                                                                                             re_extractor)
-
+                                        e = time.time() - s
+                                        # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'readability', e)
                                 elif extractor == _TITLE:
+                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                               matches[index].value,
                                                                               extractors[extractor])
+                                    e = time.time() - s
+                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'title', e)
 
                                 elif extractor == _TABLE:
+                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                                         matches[index].value,
                                                                                         extractors[extractor])
+                                    e = time.time() - s
+                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'table', e)
 
                     # Add the url as segment as well
                     if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
@@ -450,11 +461,6 @@ class Core(object):
 
                                                                                 results = foo(doc,
                                                                                               extractors[extractor][_CONFIG], selected_field=inferlink_field)
-                                                                                tk = time.time() - start_time_sp
-                                                                                if tk > time_taken_f:
-                                                                                    field_of_fields = field
-                                                                                    function_name = extractor
-                                                                                    time_taken_f = tk
                                                                                 if results:
                                                                                     self.add_data_extraction_results(
                                                                                         match.value,
@@ -469,6 +475,10 @@ class Core(object):
                                                                                     if create_knowledge_graph:
                                                                                         self.create_knowledge_graph(doc, field,
                                                                                                                     results)
+                                                                                end_e = time.time() - start_time_sp
+                                                                                # if end_e > 0:
+                                                                                    # print 'LOG: {},{},{},{}'.format(
+                                                                                    #     doc_id, extractor, field, end_e)
                                                                 else:
                                                                     if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
                                                                         method = _METHOD_INFERLINK
@@ -481,11 +491,6 @@ class Core(object):
                                                                             results = foo(doc,
                                                                                           extractors[extractor][
                                                                                               _CONFIG])
-                                                                            tk = time.time() - start_time_sp
-                                                                            if tk > time_taken_f:
-                                                                                field_of_fields = field
-                                                                                function_name = extractor
-                                                                                time_taken_f = tk
                                                                             if results:
                                                                                 self.add_data_extraction_results(
                                                                                     match.value,
@@ -501,6 +506,12 @@ class Core(object):
                                                                                     self.create_knowledge_graph(doc,
                                                                                                                 field,
                                                                                                                 results)
+                                                                            end_e = time.time() - start_time_sp
+                                                                            # if end_e > 0:
+                                                                            #     print 'LOG: {},{},{},{}'.format(doc_id,
+                                                                            #                                     extractor,
+                                                                            #                                     field,
+                                                                            #                                     end_e)
                                                             else:
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
@@ -522,11 +533,15 @@ class Core(object):
                                                                                                              segment,
                                                                                                              score,
                                                                                                              doc_id))
-                                                                        end_e = time.time() - start_e
-                                                                        #print 'LOG: {},{},{},{}'.format(doc_id, extractor, field, end_e)
+
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
+                                                                    # end_e = time.time() - start_e
+                                                                    # if end_e > 0:
+                                                                    #     print 'LOG: {},{},{},{}'.format(doc_id,
+                                                                    #                                     extractor,
+                                                                    #                                     field, end_e)
                                         else:  # extract whatever you can!
                                             if _EXTRACTORS in fields[field]:
                                                 extractors = fields[field][_EXTRACTORS]
@@ -621,10 +636,13 @@ class Core(object):
                                                     if _CONFIG not in extractors[extractor]:
                                                         extractors[extractor][_CONFIG] = dict()
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                    start_t = time.time()
                                                     results = foo(match.value, extractors[extractor][_CONFIG])
                                                     if results:
                                                         if not extractor == 'filter_results':
                                                             self.create_knowledge_graph(doc, field, results)
+                                                    end_e = time.time() - start_t
+                                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, field, end_e)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -640,12 +658,12 @@ class Core(object):
                 raise e
             else:
                 return None
-        time_taken = time.time() - start_time
-        if time_taken > 5:
+        time_taken_process = time.time() - start_time_process
+        if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken
-            print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
-            print 'Max time spent in extractor: {}, field:{}, time: {}'.format(function_name, field_of_fields, time_taken_f)
+            print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
+            # print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL], extra=extra)
 
@@ -1353,7 +1371,7 @@ class Core(object):
             self.prep_spacy()
 
         # call the custom spacy extractor
-        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE], parse=False)
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
@@ -1364,7 +1382,7 @@ class Core(object):
         if not self.nlp:
             self.prep_spacy()
 
-        nlp_doc = self.nlp(d[_SIMPLE_TOKENS])
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
         self.load_matchers(field_name)
         results = None
         if field_name == _AGE:
@@ -1426,20 +1444,20 @@ class Core(object):
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
         if selected_field:
-                if selected_field in inferlink_extraction:
-                    d = inferlink_extraction[selected_field]
-                    if pre_filters:
-                        # Assumption all pre_filters are lambdas
-                        d[_TEXT] = self.run_user_filters(d, pre_filters, config[_FIELD_NAME])
-                    result = None
-                    if post_filters:
-                        post_result = self.run_user_filters(d, post_filters, config[_FIELD_NAME])
-                        if post_result:
-                            result = self.handle_text_or_results(post_result)
-                    else:
-                        result = self.handle_text_or_results(d[_TEXT])
-                    if result:
-                        results.extend(result)
+            if selected_field in inferlink_extraction:
+                d = inferlink_extraction[selected_field]
+                if pre_filters:
+                    # Assumption all pre_filters are lambdas
+                    d[_TEXT] = self.run_user_filters(d, pre_filters, config[_FIELD_NAME])
+                result = None
+                if post_filters:
+                    post_result = self.run_user_filters(d, post_filters, config[_FIELD_NAME])
+                    if post_result:
+                        result = self.handle_text_or_results(post_result)
+                else:
+                    result = self.handle_text_or_results(d[_TEXT])
+                if result:
+                    results.extend(result)
         else:
             for field in inferlink_extraction.keys():
                 # The logic below: if the inferlink rules do not have semantic information in the field names returned,
@@ -1703,7 +1721,7 @@ class Core(object):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
 
     def prep_spacy(self):
-        self.nlp = spacy.load('en')
+        self.nlp = spacy.load('en', entity=False)
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
 
@@ -1851,13 +1869,18 @@ class Core(object):
                     city_country_together_count = 0
                     city_country_separate_count = 0
                     city = place["value"]
+
+
                     state = place['provenance'][0]['qualifiers'][_STATE] if _STATE in place['provenance'][0][
-                        'qualifiers'] else ""
+                            'qualifiers'] else ""
+
                     # in some cases, place['provenance'][0]['qualifiers'][_STATE] might be None
                     if not state:
                         state = ''
+
                     country = place['provenance'][0]['qualifiers'][_COUNTRY] if _COUNTRY in place['provenance'][0][
                         'qualifiers'] else ""
+
                     # in some cases, place['provenance'][0]['qualifiers'][_COUNTRY] might be None
                     if not country:
                         country = ''
