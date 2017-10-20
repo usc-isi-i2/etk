@@ -31,7 +31,7 @@ def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_
 
 def convert_to_iso_format(date):
     try:
-        return date.isoformat() if date else None
+        return date.date.isoformat() if date else None
     except Exception as e:
         print 'Exception: {}, failed to convert {} to isoformat '.format(e, date)
         return None
