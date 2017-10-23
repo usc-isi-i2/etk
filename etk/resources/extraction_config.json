@@ -35,6 +35,9 @@
     "spacy_field_rules": {
       "name": "/Users/amandeep/Github/etk/etk/resources/name.json",
       "phone": "/Users/amandeep/Github/etk/etk/resources/phone.json"
+    },
+    "stop_word_dictionaries": {
+      "name": "some_path"
     }
   },
   "content_extraction": {
@@ -280,7 +283,7 @@
         },
         "phone": {
           "extractors": {
-             "extract_using_custom_spacy": {
+            "extract_using_custom_spacy": {
               "extraction_policy": "keep_existing",
               "config": {
                 "spacy_field_rules": "phone"
@@ -436,6 +439,16 @@
   ],
   "kg_enhancement": {
     "fields": {
+      "name": {
+        "priority": 2,
+        "extractors": {
+          "filter_results": {
+            "config": {
+              "stop_word_dictionaries": "name"
+            }
+          }
+        }
+      },
       "city": {
         "priority": 1,
         "extractors": {

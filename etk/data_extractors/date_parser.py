@@ -4,6 +4,14 @@ import datetime
 
 def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_parsing=True):
     try:
+        if len(str_date) > 100:
+            return None
+
+        str_date = str_date[:20] if len(str_date) > 20 else str_date
+        str_date = str_date.replace('\r', '')
+        str_date = str_date.replace('\n', '')
+        str_date = str_date.replace('<', '')
+        str_date = str_date.replace('>', '')
         if strict_parsing:
             parsed_date = dateparser.parse(str_date, settings={'STRICT_PARSING': True})
         else:
@@ -23,7 +31,10 @@ def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_
 
 def convert_to_iso_format(date):
     try:
-        return date.isoformat() if date else None
+        if date:
+            dt = date.replace(minute=0, hour=0, second=0, microsecond=0)
+            return dt.isoformat()
     except Exception as e:
         print 'Exception: {}, failed to convert {} to isoformat '.format(e, date)
         return None
+    return None

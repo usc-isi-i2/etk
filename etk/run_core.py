@@ -96,7 +96,11 @@ def run_serial(input, output, core, prefix='', indexing=True):
         start_time_doc = time.time()
         jl = json.loads(line)
         jl.pop('knowledge_graph', None)
-        jl.pop('content_extraction', None)
+        if 'content_extraction' in jl:
+            ce = jl['content_extraction']
+            if 'inferlink_extractions' in ce:
+                ce.pop('inferlink_extractions')
+            jl['content_extraction'] = ce
         jl.pop('indexed', None)
         result = core.process(jl, create_knowledge_graph=True)
         if indexing:
@@ -104,8 +108,8 @@ def run_serial(input, output, core, prefix='', indexing=True):
         if result:
             output.write(json.dumps(result) + '\n')
             time_taken_doc = time.time() - start_time_doc
-            if time_taken_doc > 5:
-                print prefix, "Took", str(time_taken_doc), " seconds"
+            # if time_taken_doc > 5:
+            #     print prefix, "Took", str(time_taken_doc), " seconds"
         else:
             print 'Failed line number:', index
         index += 1
@@ -225,7 +229,7 @@ if __name__ == "__main__":
                 config_path=c_options.configPath,
                 processes=c_options.threadCount)
         else:
-            print "processing serially"
+            # print "processing serially"
             c = core.Core(json.load(codecs.open(c_options.configPath, 'r')))
             run_serial(c_options.inputPath, c_options.outputPath, c)
         print('The script took {0} second !'.format(time.time() - start_time))
