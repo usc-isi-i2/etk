@@ -845,7 +845,7 @@ def compare_shape(token, shape):
     return counting_stars(str(token_shape)) != counting_stars(shape)
 
 
-def extract(field_rules, nlp_doc, nlp):
+def extract(field_rules, nlp_doc, nlp, dd):
     pattern_description = field_rules
     # for tok in nlp_doc:
     #     print tok.lower_
@@ -857,73 +857,111 @@ def extract(field_rules, nlp_doc, nlp):
     value_lst_neg = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
-            if "polarity" not in line:
-                line["polarity"] = "true"
-            if "dependencies" not in line:
-                line["dependencies"] = []
-            rule.init_matcher()
-            rule.init_flag()
-            new_pattern = Pattern()
-            flagnum = 17
-
-            for token_id, token_d in enumerate(line["pattern"]):
-                if "match_all_forms" not in token_d:
-                    token_d["match_all_forms"] = "false"
-                if token_d["type"] == "word":
-                    if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
-                        # set flag for multiply words
-                        flagnum += 1
-                        rule.set_flag(token_d["token"], flagnum)
-                    new_pattern.add_word_token(token_d, flagnum, token_id, nlp)
-
-                if token_d["type"] == "shape":
-                    new_pattern.add_shape_token(token_d, token_id)
-
-                if token_d["type"] == "number":
-                    if len(token_d["numbers"]) >= 2:
-                        flagnum += 1
-                        rule.set_num_flag(token_d["numbers"], flagnum)
-                    new_pattern.add_number_token(token_d, flagnum, token_id)
-
-                if token_d["type"] == "punctuation":
-                    if len(token_d["token"]) >= 2:
-                        # set flag for multiply punctuations
-                        flagnum += 1
-                        rule.set_flag(token_d["token"], flagnum)
-                    new_pattern.add_punctuation_token(token_d, flagnum, token_id)
-
-                if token_d["type"] == "linebreak":
-                    new_pattern.add_linebreak_token(token_d, token_id)
-
-            tl = new_pattern.token_lst[0]
-            ps_inf = new_pattern.token_lst[1]
-
-            for i in range(len(tl)):
-                # rule_num += 1
-                if tl[i]:
-                    tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"], ps_inf[i]["output_idx"])
-                    rule_to_print = create_print(tl_add_dep)
-                    # print rule_to_print
-                    rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
-                    m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"], nlp_doc)
-                    matches = filter(nlp_doc, m, ps_inf[i])
-                    output_infs = []
-                    for e in ps_inf[i]:
-                        if e != "output_idx":
-                            output_infs.append((e, ps_inf[i][e]["is_in_output"]))
-                    output_infs.sort()
-                    output_inf = [p[1] for p in output_infs]
-
-                    for (ent_id, label, start, end) in matches:
-                        value = get_value(nlp_doc, start, end, output_inf, label)
-                        filtered_value = filter_value(value, line["output_format"])
-                        filtered_value = filtered_value + (line["identifier"],)
-                        if line["polarity"] != "false":
-                            value_lst_pos.append(filtered_value)
+            entity_token = [x for x in line["pattern"] if x["type"] == "entity"]
+            construct_rule = True
+            if entity_token:
+                if "knowledge_graph" not in dd:
+                    this_extract = (-2, -1, "NO KNOWLEDGE GRAPH", -1, line["identifier"])
+                    value_lst_pos.append(this_extract)
+                    construct_rule = False
+                else:
+                    kg_entities = [x.lower() for x in dd["knowledge_graph"].keys()]
+                    for ii, a_pattern in enumerate(entity_token):
+                        intersec_entities = list(set(kg_entities).intersection(a_pattern["numbers"]))
+                        if not intersec_entities:
+                            this_extract = (
+                            -3, -2, "NO COMMON ENTITY EXTRACTED FOR NO." + str(ii + 1) + " ENTITY TOKEN", -2,
+                            line["identifier"])
+                            value_lst_pos.append(this_extract)
+                            construct_rule = False
+                            break
                         else:
-                            value_lst_neg.append(filtered_value)
-                    rule.init_matcher()
-            rule.init_flag()
+                            a_pattern["numbers"] = intersec_entities
+
+            if construct_rule:
+                if "polarity" not in line:
+                    line["polarity"] = "true"
+                if "dependencies" not in line:
+                    line["dependencies"] = []
+                rule.init_matcher()
+                rule.init_flag()
+                new_pattern = Pattern()
+                flagnum = 17
+
+                pattern_line = copy.deepcopy(line["pattern"])
+                token_id = 0
+                for current_token_idx in range(len(line["pattern"])):
+                    token_d = line["pattern"][current_token_idx]
+                    if "match_all_forms" not in token_d:
+                        token_d["match_all_forms"] = "false"
+                    if token_d["type"] == "word":
+                        if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
+                            # set flag for multiply words
+                            flagnum += 1
+                            rule.set_flag(token_d["token"], flagnum)
+                        new_pattern.add_word_token(token_d, flagnum, token_id, nlp)
+                        token_id += 1
+
+                    if token_d["type"] == "shape":
+                        new_pattern.add_shape_token(token_d, token_id)
+                        token_id += 1
+
+                    if token_d["type"] == "number":
+                        if len(token_d["numbers"]) >= 2:
+                            flagnum += 1
+                            rule.set_num_flag(token_d["numbers"], flagnum)
+                        new_pattern.add_number_token(token_d, flagnum, token_id)
+                        token_id += 1
+
+                    if token_d["type"] == "punctuation":
+                        if len(token_d["token"]) >= 2:
+                            # set flag for multiply punctuations
+                            flagnum += 1
+                            rule.set_flag(token_d["token"], flagnum)
+                        new_pattern.add_punctuation_token(token_d, flagnum, token_id)
+                        token_id += 1
+
+                    if token_d["type"] == "linebreak":
+                        new_pattern.add_linebreak_token(token_d, token_id)
+                        token_id += 1
+
+                    if token_d["type"] == "entity":
+                        for an_entity in token_d["numbers"]:
+                            elements = [x["value"] for x in dd["knowledge_graph"][an_entity]]
+                        pass
+
+
+                tl = new_pattern.token_lst[0]
+                ps_inf = new_pattern.token_lst[1]
+
+                for i in range(len(tl)):
+                    # rule_num += 1
+                    if tl[i]:
+                        tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"],
+                                             ps_inf[i]["output_idx"])
+                        rule_to_print = create_print(tl_add_dep)
+                        # print rule_to_print
+                        rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
+                        m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"],
+                                       nlp_doc)
+                        matches = filter(nlp_doc, m, ps_inf[i])
+                        output_infs = []
+                        for e in ps_inf[i]:
+                            if e != "output_idx":
+                                output_infs.append((e, ps_inf[i][e]["is_in_output"]))
+                        output_infs.sort()
+                        output_inf = [p[1] for p in output_infs]
+
+                        for (ent_id, label, start, end) in matches:
+                            value = get_value(nlp_doc, start, end, output_inf, label)
+                            filtered_value = filter_value(value, line["output_format"])
+                            filtered_value = filtered_value + (line["identifier"],)
+                            if line["polarity"] != "false":
+                                value_lst_pos.append(filtered_value)
+                            else:
+                                value_lst_neg.append(filtered_value)
+                        rule.init_matcher()
+                rule.init_flag()
 
     if value_lst_pos:
         longest_lst_pos = get_longest(value_lst_pos)
@@ -944,7 +982,7 @@ def extract(field_rules, nlp_doc, nlp):
             }
             extracted_lst.append(result)
 
-    # print json.dumps(extracted_lst, indent=2)
+    print json.dumps(extracted_lst, indent=2)
 
     # print "total rule num:"
     # print rule_num

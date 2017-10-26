@@ -1374,7 +1374,7 @@ class Core(object):
         # call the custom spacy extractor
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE], parse=False)
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
-                                                   custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
+                                                   custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp, d),
                                                    config[_FIELD_NAME])
         return results
 
