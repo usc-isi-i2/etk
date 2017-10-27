@@ -992,8 +992,8 @@ def extract(field_rules, nlp_doc, nlp, dd):
                 tl = new_pattern.token_lst[0]
                 ps_inf = new_pattern.token_lst[1]
 
-                print tl
-                print ps_inf
+                # print tl
+                # print ps_inf
 
                 for i in range(len(tl)):
                     # rule_num += 1
