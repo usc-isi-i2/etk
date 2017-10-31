@@ -725,8 +725,8 @@ class Core(object):
     @staticmethod
     def remove_line_breaks(x):
         try:
-            x_1 = re.sub(remove_break_html_1, '<br>', x)
-            x_2 = re.sub(remove_break_html_2, '<br><br>', x_1)
+            x_1 = re.sub(remove_break_html_1, ' \n ', x)
+            x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
         except:
             return x
         return x_2
