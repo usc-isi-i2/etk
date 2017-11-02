@@ -169,6 +169,8 @@ four =      '\n \n \n \n'
 three =      '\n \n \n'
 two =         '\n \n'
 one =          '\n'
+remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
+remove_break_html_1 = re.compile("[\r\n][\s]*")
 
 ns = [ten, nine, eight, seven, six, five, four, three, two, one]
 
@@ -252,7 +254,7 @@ class Core(object):
     def timeout_handler(signum, frame):  # Custom signal handler
         raise TimeoutException
 
-    def process(self, doc, create_knowledge_graph=False, html_description=True):
+    def process(self, doc, create_knowledge_graph=False, html_description=False):
         start_time_process = time.time()
         try:
             if self.extraction_config:
@@ -418,6 +420,8 @@ class Core(object):
                                     # First rule of DATA Extraction club: Get tokens
                                     # Get the crf tokens
                                     if _TEXT in match.value:
+                                        cleaned_text = self.remove_line_breaks(match.value[_TEXT])
+                                        match.value[_TEXT] = cleaned_text
                                         if _SIMPLE_TOKENS_ORIGINAL_CASE not in match.value:
                                             match.value[_SIMPLE_TOKENS_ORIGINAL_CASE] = self.extract_crftokens(
                                                 match.value[_TEXT],
@@ -721,17 +725,16 @@ class Core(object):
     @staticmethod
     def remove_line_breaks(x):
         try:
-            x = x.replace('\r', '')
-            x = ' '.join(x.split(' '))
-            x = re.sub('\\n+', '\n', x)
-            for n in ns:
-                x = re.sub(n, '<br/>', x)
+            x_1 = re.sub(remove_break_html_1, ' \n ', x)
+            x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
         except:
             return x
-        return x
+        return x_2
+
+
 
     @staticmethod
-    def rearrange_description(doc, html_description=True):
+    def rearrange_description(doc, html_description=False):
         method = 'rearrange_description'
         description = None
         segment = ''
