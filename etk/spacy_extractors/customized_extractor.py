@@ -1593,7 +1593,7 @@ def infer_rule(nlp_doc, nlp, positive_extractions):
         dependency_rule_lst += add_dependency(base_rule, longest_positive_docs)
 
     for a_rule in dependency_rule_lst:
-        extractions = extract(a_rule, nlp_doc, nlp)
+        extractions = extract(a_rule, nlp_doc, nlp, {})
         new_score = get_score(a_rule)
         new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
         if rr[0] < new_r[0]:
