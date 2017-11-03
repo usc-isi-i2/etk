@@ -1508,10 +1508,10 @@ def longest_docs(l):
     return result
 
 
-def infer_rule(nlp_doc, nlp, positive_extractions):
-    t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-    p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
-    positive_docs = [nlp(i) for i in p]
+def infer_rule(nlp_doc, nlp, p):
+    # t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+    # p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
+    positive_docs = [nlp(i.decode('string_escape')) for i in p]
     longest_positive_docs = longest_docs(positive_docs)
     pos_strings = [str(i) for i in positive_docs]
     match_length_lst = sorted(list(set([len(x) for x in positive_docs])))
@@ -1610,3 +1610,5 @@ def infer_rule(nlp_doc, nlp, positive_extractions):
     print json.dumps(best_rule_lst_whole[0][1], indent=2)
     print rr
     print best_rule_lst_whole[0][0]
+
+    return best_rule_lst_whole[0][1]
