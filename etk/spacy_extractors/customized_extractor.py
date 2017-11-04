@@ -1607,8 +1607,8 @@ def infer_rule(nlp_doc, nlp, p):
                 best_rule_lst_whole.append((new_score, copy.deepcopy(a_rule)))
 
     best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0], reverse=True)[:TOP_N]
-    print json.dumps(best_rule_lst_whole[0][1], indent=2)
-    print rr
-    print best_rule_lst_whole[0][0]
+    # print json.dumps(best_rule_lst_whole[0][1], indent=2)
+    # print rr
+    # print best_rule_lst_whole[0][0]
 
     return best_rule_lst_whole[0][1]
