@@ -129,6 +129,7 @@ _HTML = "html"
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
 _SEGMENT_OTHER = "other_segment"
+_SEGMENT_NAME = "segment_name"
 
 _METHOD_INFERLINK = "inferlink"
 
@@ -675,7 +676,7 @@ class Core(object):
 
     def convert_json_content(self, doc, json_content_extractor):
         input_path = json_content_extractor[_INPUT_PATH]
-        field_name = json_content_extractor[_FIELD_NAME]
+        segment_name = json_content_extractor[_SEGMENT_NAME]
         val_list = list()
 
         if input_path not in self.json_content_paths:
@@ -701,9 +702,9 @@ class Core(object):
         if len(val_list) > 0:
             if _CONTENT_EXTRACTION not in doc:
                 doc[_CONTENT_EXTRACTION] = dict()
-            if field_name not in doc[_CONTENT_EXTRACTION]:
-                doc[_CONTENT_EXTRACTION][field_name] = list()
-            doc[_CONTENT_EXTRACTION][field_name].extend(val_list)
+            if segment_name not in doc[_CONTENT_EXTRACTION]:
+                doc[_CONTENT_EXTRACTION][segment_name] = list()
+            doc[_CONTENT_EXTRACTION][segment_name].extend(val_list)
         return doc
 
     def extract_as_is(self, d, config=None):
@@ -758,13 +759,14 @@ class Core(object):
                     description = Core.remove_line_breaks(description)
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
-                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
-                o = dict()
-                o['value'] = description
-                o['key'] = 'description'
-                o['confidence'] = 1
-                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
-                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
+                if _DESCRIPTION not in doc[_KNOWLEDGE_GRAPH]:
+                    doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
+                    o = dict()
+                    o['value'] = description
+                    o['key'] = 'description'
+                    o['confidence'] = 1
+                    o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                    doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
         return doc
 
     @staticmethod
@@ -811,13 +813,14 @@ class Core(object):
             if title and title != '':
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
-                doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
-                o = dict()
-                o['value'] = title
-                o['key'] = 'title'
-                o['confidence'] = 1
-                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
-                doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
+                if _TITLE not in doc[_KNOWLEDGE_GRAPH]:
+                    doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
+                    o = dict()
+                    o['value'] = title
+                    o['key'] = 'title'
+                    o['confidence'] = 1
+                    o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                    doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
 
         return doc
 
