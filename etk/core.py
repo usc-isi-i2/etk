@@ -47,6 +47,9 @@ import logging
 import logstash
 import signal
 
+_KEY = 'key'
+_VALUE = 'value'
+_QUALIFIERS = 'qualifiers'
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
@@ -691,10 +694,20 @@ class Core(object):
                     o = dict()
                     o[_TEXT] = str(val)
                     val_list.append(o)
+                elif isinstance(val, dict):
+                    if _VALUE in val:
+                        o = dict()
+                        o[_TEXT] = val[_VALUE]
+                        if [_KEY] in val:
+                            o[_KEY] = val[_KEY]
+                        if _QUALIFIERS in val:
+                            o[_QUALIFIERS] = val[_QUALIFIERS]
+                        val_list.append(o)
                 else:
                     if val:
-                        msg = 'Error while extracting json content, input path: {} is not a leaf node in the json ' \
-                          'document'.format(input_path)
+                        msg = 'Error while extracting json content, input path: {} is either not a leaf node in ' \
+                              'the json or not a dict with keys \'value\', \'key\' and/or \'qualifiers\'  ' \
+                              'document'.format(input_path)
                         self.log(msg, _ERROR)
                         print msg
                         if self.global_error_handling == _RAISE_ERROR:
@@ -708,7 +721,13 @@ class Core(object):
         return doc
 
     def extract_as_is(self, d, config=None):
-        return self._relevant_text_from_context(d[_TEXT], {"value": d[_TEXT]}, config[_FIELD_NAME])
+        result = dict()
+        result[_VALUE] = d[_TEXT]
+        if _KEY in d:
+            result[_KEY] = d[_KEY]
+        if _QUALIFIERS in d:
+            result[_QUALIFIERS] = d[_QUALIFIERS]
+        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
         results = list()
