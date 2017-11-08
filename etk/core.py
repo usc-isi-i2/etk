@@ -1381,6 +1381,16 @@ class Core(object):
                                                    config[_FIELD_NAME])
         return results
 
+    def infer_rule_using_custom_spacy(self, d, positive_eg):
+        t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+        if not self.nlp:
+            self.prep_spacy()
+
+        # call the custom spacy inferer
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE], parse=False)
+        results = custom_spacy_extractor.infer_rule(nlp_doc, self.nlp, positive_eg, t)
+        return results
+
     def extract_using_spacy(self, d, config):
         field_name = config[_FIELD_NAME]
         if not self.nlp:

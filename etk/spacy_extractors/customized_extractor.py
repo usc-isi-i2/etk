@@ -893,7 +893,10 @@ def check_head(m_lst, output_lst, def_inf, doc):
 
 
 def find_lexeme_base(word, nlp):
-    return nlp([word])[0].lemma_
+    if any(x.isupper() for x in nlp([word])[0].lemma_):
+        return nlp([word])[0].lower_
+    else:
+        return nlp([word])[0].lemma_
 
 
 def compare_shape(token, shape):
@@ -1137,42 +1140,45 @@ def calc_ratio(extracts, pos_lst, neg_lst, tokenizer, nlp):
     r = ((len(positive_intersection) - len(negative_intersection)) / float(num_extracts)
                                                                           ) if extracted_lst else 0
 
-    return tuple((r, num_extracts))
+    return tuple((len(positive_intersection), r, num_extracts))
 
 
 def get_score(a_rule):
     score = 0
     consider_fields = {
         "length": 3,
-        "capitalization": 1,
+        "capitalization": 0.2,
         "part_of_speech": 2,
-        "shapes": 2,
-        "prefix": 4,
-        "numbers": 2,
-        "token": 2,
-        "suffix": 4
+        "shapes": 3,
+        "prefix": 3,
+        "numbers": 3,
+        "token": 3,
+        "suffix": 3
     }
     for pattern in a_rule["rules"][0]["pattern"]:
         this_score = 1
         for field in consider_fields:
             if pattern[field]:
+                this_score += 1
                 if field == "capitalization":
                     if len(pattern[field]) >= 4:
                         this_score += 20
                     else:
-                        this_score += len(pattern[field])
+                        this_score += (consider_fields[field] * (len(pattern[field]) - 1))
                 elif field == "token" or field == "number" or field == "shapes":
-                    if len(pattern[field]) > 1:
-                        this_score += math.pow(len(pattern[field]), consider_fields[field])
+                    if len(pattern[field]) >= 1:
+                        this_score += math.pow(len(pattern[field])+1, consider_fields[field])
+                elif field == "prefix" or field == "suffix":
+                    this_score += math.pow(len(pattern[field]), consider_fields[field])
                 elif isinstance(pattern[field], list):
-                    if len(pattern[field]) > 1:
-                        this_score += math.pow(len(pattern[field]), consider_fields[field])
+                    if len(pattern[field]) >= 1:
+                        this_score += math.pow(len(pattern[field])+1, consider_fields[field])
                     else:
                         this_score += consider_fields[field]
                 else:
                     this_score += consider_fields[field]
-        score += (float(1) / this_score)
-    score -= len(a_rule["rules"][0]["dependencies"])
+        score += this_score
+    # score -= len(a_rule["rules"][0]["dependencies"])
     return score
 
 
@@ -1270,8 +1276,12 @@ def add_word_constrain(rule, p_id, docs):
     for doc in docs:
         if doc[p_id].orth_ not in token_orth_lst:
             token_orth_lst.append(doc[p_id].orth_)
-        if doc[p_id].lemma_ not in token_lemma_lst:
-            token_lemma_lst.append(doc[p_id].lemma_)
+        if any(x.isupper() for x in doc[p_id].lemma_):
+            if doc[p_id].lower_ not in token_lemma_lst:
+                token_lemma_lst.append(doc[p_id].lower_)
+        else:
+            if doc[p_id].lemma_ not in token_lemma_lst:
+                token_lemma_lst.append(doc[p_id].lemma_)
     this_rule["rules"][0]["pattern"][p_id]["token"] = token_lemma_lst
     result.append(copy.deepcopy(this_rule))
     this_rule["rules"][0]["pattern"][p_id]["is_required"] = "false"
@@ -1508,10 +1518,10 @@ def longest_docs(l):
     return result
 
 
-def infer_rule(nlp_doc, nlp, p):
+def infer_rule(nlp_doc, nlp, p, t):
     # t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
     # p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
-    positive_docs = [nlp(i.decode('string_escape')) for i in p]
+    positive_docs = [nlp(i) for i in p]
     longest_positive_docs = longest_docs(positive_docs)
     pos_strings = [str(i) for i in positive_docs]
     match_length_lst = sorted(list(set([len(x) for x in positive_docs])))
@@ -1525,7 +1535,7 @@ def infer_rule(nlp_doc, nlp, p):
                 negative_docs.append(sub_doc)
 
     # print negative_docs
-
+    # print positive_docs
     positive_instances = random.sample(longest_positive_docs, 3) if len(
         longest_positive_docs) > 3 else longest_positive_docs
     base_rule_results = list()
@@ -1533,7 +1543,7 @@ def infer_rule(nlp_doc, nlp, p):
     field_rules_lst = create_rule_lst(positive_instances)
 
     for field_rules in field_rules_lst:
-        extractions = extract(field_rules, nlp_doc, nlp)
+        extractions = extract(field_rules, nlp_doc, nlp, {})
 
         r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
 
@@ -1549,7 +1559,7 @@ def infer_rule(nlp_doc, nlp, p):
 
     for p_id, pattern in enumerate(pattern_lst):
         new_rule_lst = list()
-        best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0], reverse=True)[:TOP_N]
+        best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
         best_rule_lst = [d[1] for d in best_rule_lst_whole]
         if pattern["type"] == "punctuation":
             for base_rule in best_rule_lst:
@@ -1570,7 +1580,7 @@ def infer_rule(nlp_doc, nlp, p):
 
         if new_rule_lst:
             for new_rule in new_rule_lst:
-                extractions = extract(new_rule, nlp_doc, nlp)
+                extractions = extract(new_rule, nlp_doc, nlp, {})
                 new_score = get_score(new_rule)
                 new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
                 if rr[0] < new_r[0]:
@@ -1581,34 +1591,40 @@ def infer_rule(nlp_doc, nlp, p):
                         best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
                         rr = new_r
                     elif rr[1] == new_r[1]:
-                        best_rule_lst_whole.append((new_score, copy.deepcopy(new_rule)))
+                        if rr[2] < new_r[2]:
+                            best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
+                            rr = new_r
+                        elif rr[2] == new_r[2]:
+                            best_rule_lst_whole.append((new_score, copy.deepcopy(new_rule)))
 
         else:
             print "empty rule list"
 
-    dependency_rule_lst = list()
-    best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0], reverse=True)[:TOP_N]
-    best_rule_lst = [d[1] for d in best_rule_lst_whole]
-    for base_rule in best_rule_lst:
-        dependency_rule_lst += add_dependency(base_rule, longest_positive_docs)
+    # dependency_rule_lst = list()
+    # best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
+    # best_rule_lst = [d[1] for d in best_rule_lst_whole]
+    # for base_rule in best_rule_lst:
+    #     dependency_rule_lst += add_dependency(base_rule, longest_positive_docs)
 
-    for a_rule in dependency_rule_lst:
-        extractions = extract(a_rule, nlp_doc, nlp, {})
-        new_score = get_score(a_rule)
-        new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
-        if rr[0] < new_r[0]:
-            best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
-            rr = new_r
-        elif rr[0] == new_r[0]:
-            if rr[1] < new_r[1]:
-                best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
-                rr = new_r
-            elif rr[1] == new_r[1]:
-                best_rule_lst_whole.append((new_score, copy.deepcopy(a_rule)))
+    # for a_rule in dependency_rule_lst:
+    #     extractions = extract(a_rule, nlp_doc, nlp, {})
+    #     new_score = get_score(a_rule)
+    #     new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+    #     if rr[0] < new_r[0]:
+    #         best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
+    #         rr = new_r
+    #     elif rr[0] == new_r[0]:
+    #         if rr[1] < new_r[1]:
+    #             best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
+    #             rr = new_r
+    #         elif rr[1] == new_r[1]:
+    #             best_rule_lst_whole.append((new_score, copy.deepcopy(a_rule)))
 
-    best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0], reverse=True)[:TOP_N]
-    # print json.dumps(best_rule_lst_whole[0][1], indent=2)
+    best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
+    # print json.dumps(best_rule_lst_whole[1], indent=2)
+
     # print rr
     # print best_rule_lst_whole[0][0]
 
-    return best_rule_lst_whole[0][1]
+    return best_rule_lst_whole[0][1]["rules"][0]
+    # return "dsada"
