@@ -49,12 +49,12 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
     # high level api will handle batch thing
     # will exit once timeout
     for msg in consumer:
+        cdr = msg.value
         cdr['@execution_profile'] = {'worker_id': worker_id}
         cdr['@execution_profile']['doc_arrived_time'] = time.time()
-        cdr['@execution_profile']['doc_wait_time'] = \
-            cdr['@execution_profile']['doc_arrived_time'] - prev_doc_sent_time
+        cdr['@execution_profile']['doc_wait_time'] = 0 if not prev_doc_sent_time \
+            else cdr['@execution_profile']['doc_arrived_time'] - prev_doc_sent_time
 
-        cdr = msg.value
         if 'doc_id' not in cdr:
             cdr['doc_id'] = cdr.get('_id', cdr.get('document_id', ''))
         if len(cdr['doc_id']) == 0:
