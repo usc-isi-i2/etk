@@ -42,23 +42,41 @@ def run_serial(input, output, core, prefix='', kafka_server=None, kafka_topic=No
     if kafka_producer is None:
         output.close()
 
-def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False):
+
+def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False, worker_id=0):
+    prev_doc_sent_time = None
+
     # high level api will handle batch thing
     # will exit once timeout
     for msg in consumer:
+        cdr['@execution_profile'] = {'worker_id': worker_id}
+        cdr['@execution_profile']['doc_arrived_time'] = time.time()
+        cdr['@execution_profile']['doc_wait_time'] = \
+            cdr['@execution_profile']['doc_arrived_time'] - prev_doc_sent_time
+
         cdr = msg.value
         if 'doc_id' not in cdr:
             cdr['doc_id'] = cdr.get('_id', cdr.get('document_id', ''))
         if len(cdr['doc_id']) == 0:
             print 'invalid cdr: unknown doc_id'
         print 'processing', cdr['doc_id']
+
         try:
+            start_run_core_time = time.time()
+            # run core
             result = etk_core.process(cdr, create_knowledge_graph=True)
             if not result:
                 raise Exception('run core error')
+
             # indexing
             if indexing:
                 result = index_knowledge_graph_fields(result)
+            cdr['@execution_profile']['run_core_time'] = time.time() - start_run_core_time
+
+            cdr['@execution_profile']['doc_sent_time'] = time.time()
+            prev_doc_sent_time = cdr['@execution_profile']['doc_sent_time']
+            cdr['@execution_profile']['doc_processed_time'] = \
+                cdr['@execution_profile']['doc_sent_time'] - cdr['@execution_profile']['doc_arrived_time']
             # dumping result
             if result:
                 r = producer.send(producer_topic, result)
@@ -66,6 +84,7 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
             else:
                 etk_core.log('fail to indexing doc {}'.format(cdr['doc_id']), core._ERROR)
             print 'done'
+
         except Exception as e:
             # print e
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -169,6 +188,8 @@ if __name__ == "__main__":
     parser.add_argument("--kafka-output-args", action="store", type=str, dest="kafkaOutputArgs")
     parser.add_argument("--indexing", action="store_true", dest="indexing")
 
+    parser.add_argument("--worker-id", action="store", type=str, dest="workerId")
+
     c_options, args = parser.parse_known_args()
 
     if not c_options.configPath and \
@@ -177,6 +198,8 @@ if __name__ == "__main__":
        not (c_options.outputPath or (c_options.kafkaOutputServer or c_options.kafkaOutputTopic)):
         usage()
         sys.exit()
+
+    worker_id = int(c_options.workerId) if c_options.workerId is not None else 0
 
     # kafka input
     if c_options.kafkaInputServer is not None:
@@ -208,7 +231,8 @@ if __name__ == "__main__":
                 value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                 **output_args
             )
-            run_serial_cdrs(c, consumer, producer, c_options.kafkaOutputTopic, indexing=c_options.indexing)
+            run_serial_cdrs(c, consumer, producer, c_options.kafkaOutputTopic, indexing=c_options.indexing,
+                            worker_id=worker_id)
 
         except Exception as e:
             # print e
