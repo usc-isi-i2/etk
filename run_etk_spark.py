@@ -25,6 +25,15 @@ def remove_if_no_html(x):
         return False
     return True
 
+
+def remove_landmark_extractions(x):
+    if 'content_extraction' in x:
+        ce = x['content_extraction']
+        if 'inferlink_extractions' in ce:
+            ce.pop('inferlink_extractions')
+        x['content_extraction'] = ce
+    return x
+
 def remove_extra_fields(x):
     if 'content_extraction' in x:
         ce = x['content_extraction']
@@ -61,8 +70,7 @@ if __name__ == '__main__':
 
     input_rdd = sc.sequenceFile(input_path)#.partitionBy(partitions)
 
-    output_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id)\
-        .mapValues(lambda x: c.process(x, create_knowledge_graph=True))
+    output_rdd = input_rdd.mapValues(json.loads).filter(lambda x: remove_if_no_html(x[1])).mapValues(add_doc_id).mapValues(remove_landmark_extractions).mapValues(lambda x: c.process(x, create_knowledge_graph=True))
 
     output_rdd = output_rdd.filter(lambda x: x[1] is not None).mapValues(remove_extra_fields).mapValues(json.dumps)
     output_rdd.saveAsSequenceFile(output_path, compressionCodecClass=compression)
