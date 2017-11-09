@@ -46,6 +46,7 @@ import traceback
 import logging
 import logstash
 import signal
+import datetime
 
 _KEY = 'key'
 _VALUE = 'value'
@@ -666,7 +667,13 @@ class Core(object):
                 raise e
             else:
                 return None
-        time_taken_process = time.time() - start_time_process
+        end_time_process = time.time()
+        time_taken_process = end_time_process - start_time_process
+        if '@execution_profile' not in doc:
+            doc['@execution_profile'] = dict()
+        doc['@etk_start_time'] = datetime.datetime.utcfromtimestamp(start_time_process).isoformat()
+        doc['@etk_end_time'] = datetime.datetime.utcfromtimestamp(end_time_process).isoformat()
+        doc['@etk_process_time'] = end_time_process - start_time_process
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken
