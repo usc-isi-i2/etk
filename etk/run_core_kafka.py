@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import json
 import codecs
 import sys
@@ -51,9 +52,10 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
     for msg in consumer:
         cdr = msg.value
         cdr['@execution_profile'] = {'worker_id': worker_id}
-        cdr['@execution_profile']['doc_arrived_time'] = time.time()
+        doc_arrived_time = time.time()
+        cdr['@execution_profile']['doc_arrived_time'] = datetime.utcfromtimestamp(doc_arrived_time).isoformat()
         cdr['@execution_profile']['doc_wait_time'] = 0 if not prev_doc_sent_time \
-            else cdr['@execution_profile']['doc_arrived_time'] - prev_doc_sent_time
+            else doc_arrived_time - prev_doc_sent_time
 
         if 'doc_id' not in cdr:
             cdr['doc_id'] = cdr.get('_id', cdr.get('document_id', ''))
@@ -73,10 +75,10 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
                 result = index_knowledge_graph_fields(result)
             cdr['@execution_profile']['run_core_time'] = time.time() - start_run_core_time
 
-            cdr['@execution_profile']['doc_sent_time'] = time.time()
-            prev_doc_sent_time = cdr['@execution_profile']['doc_sent_time']
-            cdr['@execution_profile']['doc_processed_time'] = \
-                cdr['@execution_profile']['doc_sent_time'] - cdr['@execution_profile']['doc_arrived_time']
+            doc_sent_time = time.time()
+            cdr['@execution_profile']['doc_sent_time'] = datetime.utcfromtimestamp(doc_sent_time).isoformat()
+            prev_doc_sent_time = doc_sent_time
+            cdr['@execution_profile']['doc_processed_time'] = doc_sent_time - doc_arrived_time
             # dumping result
             if result:
                 r = producer.send(producer_topic, result)
