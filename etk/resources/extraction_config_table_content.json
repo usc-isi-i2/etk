@@ -9,27 +9,14 @@
     "landmark": [
     ],
     "pickle": {
-      "table_classifier": "/Users/majid/DIG/my_etk/etk/unit_tests/table_data_extraction/table_cl_model.bin",
-      "sem_labels": "/Users/majid/DIG/my_etk/etk/unit_tests/table_data_extraction/HT-attribute-labels.json",
-      "sem_labels_mapping": "/Users/majid/DIG/dig-table-extractor/experiments/ui/temp.jl"
     }
   },
   "content_extraction": {
     "input_path": "raw_content",
     "extractors": {
-      "readability": [
-        {
-          "strict": "yes",
-          "extraction_policy": "keep_existing",
-          "field_name": "content_strict"
-        }
-      ],
       "table": {
         "field_name": "table",
         "config": {
-          "classify_tables": "no",
-          "classification_model": "table_classifier",
-          "sem_types": "sem_labels"
         },
         "extraction_policy": "replace"
       }
