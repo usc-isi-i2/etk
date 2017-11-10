@@ -699,7 +699,7 @@ class Core(object):
             for val in values:
                 if isinstance(val, basestring) or isinstance(val, numbers.Number):
                     o = dict()
-                    o[_TEXT] = str(val)
+                    o[_TEXT] = unicode(val) 
                     val_list.append(o)
                 elif isinstance(val, dict):
                     if _VALUE in val:
@@ -1415,9 +1415,7 @@ class Core(object):
         if not self.nlp:
             self.prep_spacy()
 
-        simple_tokens_unicode = [unicode(item) for item in d[_SIMPLE_TOKENS]]
-
-        nlp_doc = self.nlp(simple_tokens_unicode, parse=False)
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
         self.load_matchers(field_name)
         results = None
         if field_name == _AGE:
