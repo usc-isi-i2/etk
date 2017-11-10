@@ -705,7 +705,7 @@ class Core(object):
                     if _VALUE in val:
                         o = dict()
                         o[_TEXT] = val[_VALUE]
-                        if [_KEY] in val:
+                        if _KEY in val:
                             o[_KEY] = val[_KEY]
                         if _QUALIFIERS in val:
                             o[_QUALIFIERS] = val[_QUALIFIERS]
@@ -1415,7 +1415,9 @@ class Core(object):
         if not self.nlp:
             self.prep_spacy()
 
-        nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
+        simple_tokens_unicode = [unicode(item) for item in d[_SIMPLE_TOKENS]]
+
+        nlp_doc = self.nlp(simple_tokens_unicode, parse=False)
         self.load_matchers(field_name)
         results = None
         if field_name == _AGE:
