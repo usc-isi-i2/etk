@@ -54,8 +54,9 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
         cdr['@execution_profile'] = {'@worker_id': worker_id}
         doc_arrived_time = time.time()
         cdr['@execution_profile']['@doc_arrived_time'] = datetime.utcfromtimestamp(doc_arrived_time).isoformat()
-        cdr['@execution_profile']['@doc_wait_time'] = 0 if not prev_doc_sent_time \
-            else doc_arrived_time - prev_doc_sent_time
+        cdr['@execution_profile']['@doc_wait_time'] = 0.0 if not prev_doc_sent_time \
+            else float(doc_arrived_time - prev_doc_sent_time)
+        cdr['@execution_profile']['@doc_length'] = len(json.dumps(cdr))
 
         if 'doc_id' not in cdr:
             cdr['doc_id'] = cdr.get('_id', cdr.get('document_id', ''))
@@ -73,12 +74,12 @@ def run_serial_cdrs(etk_core, consumer, producer, producer_topic, indexing=False
             # indexing
             if indexing:
                 result = index_knowledge_graph_fields(result)
-            cdr['@execution_profile']['@run_core_time'] = time.time() - start_run_core_time
+            cdr['@execution_profile']['@run_core_time'] = float(time.time() - start_run_core_time)
 
             doc_sent_time = time.time()
             cdr['@execution_profile']['@doc_sent_time'] = datetime.utcfromtimestamp(doc_sent_time).isoformat()
             prev_doc_sent_time = doc_sent_time
-            cdr['@execution_profile']['@doc_processed_time'] = doc_sent_time - doc_arrived_time
+            cdr['@execution_profile']['@doc_processed_time'] = float(doc_sent_time - doc_arrived_time)
             # dumping result
             if result:
                 r = producer.send(producer_topic, result)
