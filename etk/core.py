@@ -673,7 +673,7 @@ class Core(object):
             doc['@execution_profile'] = dict()
         doc['@execution_profile']['@etk_start_time'] = datetime.datetime.utcfromtimestamp(start_time_process).isoformat()
         doc['@execution_profile']['@etk_end_time'] = datetime.datetime.utcfromtimestamp(end_time_process).isoformat()
-        doc['@execution_profile']['@etk_process_time'] = end_time_process - start_time_process
+        doc['@execution_profile']['@etk_process_time'] = float(end_time_process - start_time_process)
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken
