@@ -699,13 +699,13 @@ class Core(object):
             for val in values:
                 if isinstance(val, basestring) or isinstance(val, numbers.Number):
                     o = dict()
-                    o[_TEXT] = str(val)
+                    o[_TEXT] = unicode(val) 
                     val_list.append(o)
                 elif isinstance(val, dict):
                     if _VALUE in val:
                         o = dict()
                         o[_TEXT] = val[_VALUE]
-                        if [_KEY] in val:
+                        if _KEY in val:
                             o[_KEY] = val[_KEY]
                         if _QUALIFIERS in val:
                             o[_QUALIFIERS] = val[_QUALIFIERS]
