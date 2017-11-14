@@ -46,6 +46,7 @@ import traceback
 import logging
 import logstash
 import signal
+import datetime
 
 _KEY = 'key'
 _VALUE = 'value'
@@ -666,7 +667,13 @@ class Core(object):
                 raise e
             else:
                 return None
-        time_taken_process = time.time() - start_time_process
+        end_time_process = time.time()
+        time_taken_process = end_time_process - start_time_process
+        if '@execution_profile' not in doc:
+            doc['@execution_profile'] = dict()
+        doc['@execution_profile']['@etk_start_time'] = datetime.datetime.utcfromtimestamp(start_time_process).isoformat()
+        doc['@execution_profile']['@etk_end_time'] = datetime.datetime.utcfromtimestamp(end_time_process).isoformat()
+        doc['@execution_profile']['@etk_process_time'] = float(end_time_process - start_time_process)
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken
@@ -692,13 +699,13 @@ class Core(object):
             for val in values:
                 if isinstance(val, basestring) or isinstance(val, numbers.Number):
                     o = dict()
-                    o[_TEXT] = str(val)
+                    o[_TEXT] = unicode(val) 
                     val_list.append(o)
                 elif isinstance(val, dict):
                     if _VALUE in val:
                         o = dict()
                         o[_TEXT] = val[_VALUE]
-                        if [_KEY] in val:
+                        if _KEY in val:
                             o[_KEY] = val[_KEY]
                         if _QUALIFIERS in val:
                             o[_QUALIFIERS] = val[_QUALIFIERS]
