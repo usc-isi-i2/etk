@@ -955,7 +955,7 @@ def extract(field_rules, nlp_doc, nlp, dd):
                 new_pattern = Pattern()
                 flagnum = 17
 
-                pattern_line = copy.deepcopy(line["pattern"])
+                # pattern_line = copy.deepcopy(line["pattern"])
                 # token_id = 0
                 for current_token_idx in range(len(line["pattern"])):
                     token_d = line["pattern"][current_token_idx]
@@ -1627,4 +1627,3 @@ def infer_rule(nlp_doc, nlp, p, t):
     # print best_rule_lst_whole[0][0]
 
     return best_rule_lst_whole[0][1]["rules"][0]
-    # return "dsada"
