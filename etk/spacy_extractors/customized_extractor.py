@@ -55,7 +55,7 @@ FLAG_DICT = {
     "63": spacy.attrs.FLAG63
 }
 
-TOP_N = 10
+TOP_N = 3
 
 POS_MAP = {
     "noun": "NOUN",
@@ -1147,12 +1147,12 @@ def get_score(a_rule):
     score = 0
     consider_fields = {
         "length": 3,
-        "capitalization": 0.2,
+        "capitalization": 1,
         "part_of_speech": 2,
-        "shapes": 3,
+        "shapes": 2,
         "prefix": 3,
-        "numbers": 3,
-        "token": 3,
+        "numbers": 2,
+        "token": 2,
         "suffix": 3
     }
     for pattern in a_rule["rules"][0]["pattern"]:
