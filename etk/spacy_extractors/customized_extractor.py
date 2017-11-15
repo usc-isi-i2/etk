@@ -1490,8 +1490,6 @@ def infer_rule(nlp_doc, nlp, p, t):
                             elif rr[2] == new_r[2]:
                                 best_rule_lst_whole.append((new_score, copy.deepcopy(new_rule)))
 
-            else:
-                print "empty rule list"
         result_lst += best_rule_lst_whole
 
     best_rule_lst_whole = sorted(result_lst, key=lambda x: x[0])[:TOP_N]
