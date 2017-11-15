@@ -98,7 +98,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                     "start": 10,
                                     "end": 11,
                                     "input": "tokens",
-                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -112,10 +112,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "start": 58,
-                                    "end": 75,
+                                    "start": 41,
+                                    "end": 58,
                                     "input": "text",
-                                    "text": " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -132,7 +132,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                     "start": 10,
                                     "end": 11,
                                     "input": "tokens",
-                                    "text": "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -146,10 +146,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "start": 56,
-                                    "end": 73,
+                                    "start": 41,
+                                    "end": 58,
                                     "input": "text",
-                                    "text": " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -173,7 +173,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                     "start": 136,
                                     "end": 137,
                                     "input": "tokens",
-                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -190,7 +190,7 @@ class TestExtractionsInputPaths(unittest.TestCase):
                                     "start": 136,
                                     "end": 137,
                                     "input": "tokens",
-                                    "text": "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -228,14 +228,14 @@ class TestExtractionsInputPaths(unittest.TestCase):
                     "provenance": [
                         {
                             "source": {
-                                "segment": "content_relaxed",
+                                "segment": "inferlink",
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
                             "method": "rearrange_description"
                         }
                     ],
                     "key": "description",
-                    "value": "\n \n \n \n \n \n \n smoothlegs24  28 \n \n \n chrissy391  27 \n \n \n My name is Helena height 160cms weight 55 kilos  contact me at escort.here@gmail.com           jefferson ave         age: 23 HrumpMeNow  28 \n \n \n xxtradition  24 \n \n \n jumblyjumb  26 \n \n \n claudia77  26 \n \n \n gushinPuss  28 \n \n \n Littlexdit  25 \n \n \n PinkSweets2  28 \n \n \n withoutlimit  27 \n \n \n bothOfUs3  28 \n \n \n lovelylips  27 \n \n \n killerbod  27 \n \n \n Littlexdit  27 \n \n \n azneyes  23 \n \n \n \n \n \n Escort's Phone: \n \n \n323-452-2013  \n \n Escort's Location: \nLos Angeles, California  \n Escort's Age:   23   Date of Escort Post:   Jan 02nd 6:46am \n REVIEWS:   \n READ AND CREATE REVIEWS FOR THIS ESCORT   \n \n \n \n \n \nThere are  50  girls looking in  .\n VIEW GIRLS \n \nHey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy  % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text   Fetish friendly   Fantasy friendly   Party friendly 140 Hr SPECIALS 3234522013.\u00a0Call  323-452-2013 .  Me and my friends are on EZsex  soooo you can find us all on there if you want... skittlegirl \n \u00a0\u00a0\n \n \u00a0\u00a0\n \n \u00a0\u00a0\n Call me on my cell at 323-452-2013. Date of ad: 2017-01-02 06:46:00 \n \n \n \n"
+                    "value": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013"
                 }
             ]
         }

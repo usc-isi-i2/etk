@@ -112,16 +112,38 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
             "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
 
-        ex = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11,
-                         'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
-                                 "weight 55 kilos ",
-                         'start': 10, 'input': 'tokens'}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137,
-                         'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
-                         'start': 136, 'input': 'tokens'}, 'value': u'luna'}]}
+        ex = {
+            "results": [
+                {
+                    "origin": {
+                        "score": 1.0,
+                        "segment": "content_strict",
+                        "method": "extract_using_dictionary"
+                    },
+                    "context": {
+                        "start": 10,
+                        "end": 11,
+                        "input": "tokens",
+                        "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                    },
+                    "value": "helena"
+                },
+                {
+                    "origin": {
+                        "score": 1.0,
+                        "segment": "content_strict",
+                        "method": "extract_using_dictionary"
+                    },
+                    "context": {
+                        "start": 136,
+                        "end": 137,
+                        "input": "tokens",
+                        "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                    },
+                    "value": "luna"
+                }
+            ]
+        }
         self.assertEqual(extraction, ex)
 
     def test_empty_tokens(self):
@@ -195,23 +217,23 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
             "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
         expected_extraction = {
-                  "results": [
-                    {
-                      "origin": {
+            "results": [
+                {
+                    "origin": {
                         "score": 1.0,
                         "segment": "content_strict",
                         "method": "extract_using_dictionary"
-                      },
-                      "context": {
+                    },
+                    "context": {
                         "end": 4,
                         "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test ",
                         "start": 3,
                         "input": "tokens"
-                      },
-                      "value": "Margie"
-                    }
-                  ]
+                    },
+                    "value": "Margie"
                 }
+            ]
+        }
         self.assertEqual(extraction, expected_extraction)
 
     def test_negative_case_sensitive(self):
@@ -267,6 +289,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
+
 
 if __name__ == '__main__':
     unittest.main()

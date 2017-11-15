@@ -1404,7 +1404,8 @@ class Core(object):
             self.prep_spacy()
 
         # call the custom spacy extractor
-        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE], parse=False)
+        # nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE], parse=False)
+        nlp_doc = self.nlp(d[_SIMPLE_TOKENS_ORIGINAL_CASE])
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
@@ -1764,7 +1765,8 @@ class Core(object):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
 
     def prep_spacy(self):
-        self.nlp = spacy.load('en', entity=False)
+        # self.nlp = spacy.load('en', entity=True)
+        self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
 
