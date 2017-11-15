@@ -90,9 +90,9 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_regex"]
 
         ex = {'results': [{'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_regex'},
-                           'context': {'start': 56, 'end': 73, 'input': 'text',
-                                       'text': " 27 \n \n \n  <etk 'attribute' = 'name'>My name is Helena</etk> "
-                                               " height 16"},
+                           'context': {'start': 41, 'end': 58, 'input': 'text',
+                                       'text': "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height "
+                                               "16"},
                            'value': u'Helena'}]}
         self.assertEqual(extraction, ex)
 
