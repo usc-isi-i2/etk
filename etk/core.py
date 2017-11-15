@@ -164,20 +164,8 @@ _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
 
-ten = '\n \n \n \n \n \n \n \n \n \n'
-nine = '\n \n \n \n \n \n \n \n \n'
-eight = '\n \n \n \n \n \n \n \n'
-seven =  '\n \n \n \n \n \n \n'
-six =     '\n \n \n \n \n \n'
-five =     '\n \n \n \n \n '
-four =      '\n \n \n \n'
-three =      '\n \n \n'
-two =         '\n \n'
-one =          '\n'
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
-
-ns = [ten, nine, eight, seven, six, five, four, three, two, one]
 
 
 class TimeoutException(Exception):  # Custom exception class
@@ -328,20 +316,9 @@ class Core(object):
                         raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
                     if html_path and _EXTRACTORS in ce_config:
                         if not self.content_extraction_path:
-                            start_time = time.time()
                             self.content_extraction_path = parse(html_path)
-                            time_taken = time.time() - start_time
-                            # print 'LOG: {},{},{},{}'.format(doc_id, 'Json path parser', 'parse', time_taken)
-                            if self.debug:
-                                self.log('time taken to process parse %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
-                                         url=doc[_URL])
-                        start_time = time.time()
                         matches = self.content_extraction_path.find(doc)
-                        time_taken = time.time() - start_time
-                        # print 'LOG: {},{},{},{}'.format(doc_id, 'Json path parser', 'find', time_taken)
-                        if self.debug:
-                            self.log('time taken to process matches %s' % time_taken, _DEBUG, doc_id=doc[_DOCUMENT_ID],
-                                     url=doc[_URL])
+
                         extractors = ce_config[_EXTRACTORS]
                         run_readability = True
                         for index in range(len(matches)):
@@ -466,8 +443,6 @@ class Core(object):
                                                                             if self.check_if_run_extraction(match.value, field,
                                                                                                             extractor,
                                                                                                             ep):
-                                                                                start_time_sp = time.time()
-
                                                                                 results = foo(doc,
                                                                                               extractors[extractor][_CONFIG], selected_field=inferlink_field)
                                                                                 if results:
@@ -484,10 +459,6 @@ class Core(object):
                                                                                     if create_knowledge_graph:
                                                                                         self.create_knowledge_graph(doc, field,
                                                                                                                     results)
-                                                                                end_e = time.time() - start_time_sp
-                                                                                # if end_e > 0:
-                                                                                    # print 'LOG: {},{},{},{}'.format(
-                                                                                    #     doc_id, extractor, field, end_e)
                                                                 else:
                                                                     if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
                                                                         method = _METHOD_INFERLINK
@@ -495,7 +466,6 @@ class Core(object):
                                                                                                         field,
                                                                                                         extractor,
                                                                                                         ep):
-                                                                            start_time_sp = time.time()
 
                                                                             results = foo(doc,
                                                                                           extractors[extractor][
@@ -515,12 +485,6 @@ class Core(object):
                                                                                     self.create_knowledge_graph(doc,
                                                                                                                 field,
                                                                                                                 results)
-                                                                            end_e = time.time() - start_time_sp
-                                                                            # if end_e > 0:
-                                                                            #     print 'LOG: {},{},{},{}'.format(doc_id,
-                                                                            #                                     extractor,
-                                                                            #                                     field,
-                                                                            #                                     end_e)
                                                             else:
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
@@ -529,7 +493,6 @@ class Core(object):
                                                                 if self.check_if_run_extraction(match.value, field,
                                                                                                 extractor,
                                                                                                 ep):
-                                                                    start_e = time.time()
                                                                     results = foo(match.value,
                                                                                   extractors[extractor][_CONFIG])
                                                                     if results:
@@ -546,11 +509,6 @@ class Core(object):
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
-                                                                    # end_e = time.time() - start_e
-                                                                    # if end_e > 0:
-                                                                    #     print 'LOG: {},{},{},{}'.format(doc_id,
-                                                                    #                                     extractor,
-                                                                    #                                     field, end_e)
                                         else:  # extract whatever you can!
                                             if _EXTRACTORS in fields[field]:
                                                 extractors = fields[field][_EXTRACTORS]
@@ -645,13 +603,10 @@ class Core(object):
                                                     if _CONFIG not in extractors[extractor]:
                                                         extractors[extractor][_CONFIG] = dict()
                                                     extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                    start_t = time.time()
                                                     results = foo(match.value, extractors[extractor][_CONFIG])
                                                     if results:
                                                         if not extractor == 'filter_results':
                                                             self.create_knowledge_graph(doc, field, results)
-                                                    end_e = time.time() - start_t
-                                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, field, end_e)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -676,10 +631,9 @@ class Core(object):
         doc['@execution_profile']['@etk_process_time'] = float(end_time_process - start_time_process)
         if time_taken_process > 5:
             extra = dict()
-            extra['time_taken'] = time_taken
+            extra['time_taken'] = time_taken_process
             print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
-            # print 'Document: {}, url: {} took {} seconds'.format(doc[_DOCUMENT_ID], doc[_URL], str(time_taken))
-            self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken)), _INFO,
+            self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
 
         return doc
