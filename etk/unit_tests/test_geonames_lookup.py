@@ -468,7 +468,7 @@ class TestGeonamesLookup(unittest.TestCase):
                 "value": "or"
             }
         ]
-        
+
         self.assertEqual(r['knowledge_graph']['populated_places'], json.loads(ex_populated_places))
 
         ex_city_name = json.loads(json.JSONEncoder().encode(ex_city_name_gt))
