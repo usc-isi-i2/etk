@@ -114,59 +114,59 @@ class TestGeonamesLookup(unittest.TestCase):
         self.assertTrue('populated_places' in r['knowledge_graph'])
 
         ex_populated_places = """[
-          {
-            "confidence": 1,
-            "provenance": [
-              {
-                "qualifiers": {
-                  "country": "chile",
-                  "longitude": -72.35365999999999,
-                  "geoname_id": 3882428,
-                  "state": "biob\u00edo",
-                  "latitude": -37.46973,
-                  "population": 125430
-                },
-                "source": {
-                  "segment": "post_process",
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "geonames_lookup",
-                "extracted_value": "los angeles"
-              }
-            ],
-            "key": "los angeles-country:chile-geoname_id:3882428-latitude:-37.46973-longitude:-72.35366-population:125430-state:biob\u00edo",
-            "value": "los angeles"
-          },
-          {
-            "confidence": 1,
-            "provenance": [
-              {
-                "qualifiers": {
-                  "country": "united states",
-                  "longitude": -118.24368,
-                  "geoname_id": 5368361,
-                  "state": "california",
-                  "latitude": 34.05223,
-                  "population": 3792621
-                },
-                "source": {
-                  "segment": "post_process",
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "geonames_lookup",
-                "extracted_value": "los angeles"
-              }
-            ],
-            "key": "los angeles-country:united states-geoname_id:5368361-latitude:34.05223-longitude:-118.24368-population:3792621-state:california",
-            "value": "los angeles"
-          }
-        ]"""
+                      {
+                        "confidence": 1,
+                        "provenance": [
+                          {
+                            "qualifiers": {
+                              "country": "chile",
+                              "longitude": -72.35365999999999,
+                              "geoname_id": 3882428,
+                              "state": "biob\u00edo",
+                              "latitude": -37.46973,
+                              "population": 125430
+                            },
+                            "source": {
+                              "segment": "post_process",
+                              "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                            },
+                            "confidence": {
+                              "extraction": 1.0
+                            },
+                            "method": "geonames_lookup",
+                            "extracted_value": "los angeles"
+                          }
+                        ],
+                        "key": "los angeles-country:chile-geoname_id:3882428-latitude:-37.46973-longitude:-72.35366-population:125430-state:biob\u00edo",
+                        "value": "los angeles"
+                      },
+                      {
+                        "confidence": 1,
+                        "provenance": [
+                          {
+                            "qualifiers": {
+                              "country": "united states",
+                              "longitude": -118.24368,
+                              "geoname_id": 5368361,
+                              "state": "california",
+                              "latitude": 34.05223,
+                              "population": 3792621
+                            },
+                            "source": {
+                              "segment": "post_process",
+                              "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                            },
+                            "confidence": {
+                              "extraction": 1.0
+                            },
+                            "method": "geonames_lookup",
+                            "extracted_value": "los angeles"
+                          }
+                        ],
+                        "key": "los angeles-country:united states-geoname_id:5368361-latitude:34.05223-longitude:-118.24368-population:3792621-state:california",
+                        "value": "los angeles"
+                      }
+                    ]"""
         ex_city_name_gt = [
             {
                 "confidence": 1,
@@ -175,10 +175,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "end": 90,
-                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' ",
                                 "start": 88,
-                                "input": "tokens"
+                                "end": 90,
+                                "input": "tokens",
+                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -192,10 +192,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "end": 90,
-                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' ",
                                 "start": 88,
-                                "input": "tokens"
+                                "end": 90,
+                                "input": "tokens",
+                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -206,8 +206,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "extracted_value": "los angeles"
                     }
                 ],
-                "value": "los angeles",
-                "key": "los angeles"
+                "key": "los angeles",
+                "value": "los angeles"
             }
         ]
         ex_city_gt = """[
@@ -242,232 +242,233 @@ class TestGeonamesLookup(unittest.TestCase):
                 }
             ]"""
         ex_states_usa_codes_gt = [
-          {
-            "confidence": 1,
-            "provenance": [
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 17,
-                    "end": 18,
-                    "input": "tokens",
-                    "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              },
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 193,
-                    "end": 194,
-                    "input": "tokens",
-                    "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              },
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 217,
-                    "end": 218,
-                    "input": "tokens",
-                    "text": ". . skittlegirl \n\n\n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 17,
-                    "end": 18,
-                    "input": "tokens",
-                    "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 193,
-                    "end": 194,
-                    "input": "tokens",
-                    "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 217,
-                    "end": 218,
-                    "input": "tokens",
-                    "text": ". . skittlegirl \n\n\n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "me"
-              }
-            ],
-            "key": "me",
-            "value": "me"
-          },
-          {
-            "confidence": 1,
-            "provenance": [
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 126,
-                    "end": 127,
-                    "input": "tokens",
-                    "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n\n "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "in"
-              },
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 146,
-                    "end": 147,
-                    "input": "tokens",
-                    "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "in"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 126,
-                    "end": 127,
-                    "input": "tokens",
-                    "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n\n "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "in"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 146,
-                    "end": 147,
-                    "input": "tokens",
-                    "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "in"
-              }
-            ],
-            "key": "in",
-            "value": "in"
-          },
-          {
-            "confidence": 1,
-            "provenance": [
-              {
-                "source": {
-                  "segment": "content_strict",
-                  "context": {
-                    "start": 173,
-                    "end": 174,
-                    "input": "tokens",
-                    "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "or"
-              },
-              {
-                "source": {
-                  "segment": "content_relaxed",
-                  "context": {
-                    "start": 173,
-                    "end": 174,
-                    "input": "tokens",
-                    "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
-                  },
-                  "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                },
-                "confidence": {
-                  "extraction": 1.0
-                },
-                "method": "extract_using_dictionary",
-                "extracted_value": "or"
-              }
-            ],
-            "key": "or",
-            "value": "or"
-          }
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 17,
+                                "end": 18,
+                                "input": "tokens",
+                                "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 193,
+                                "end": 194,
+                                "input": "tokens",
+                                "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 217,
+                                "end": 218,
+                                "input": "tokens",
+                                "text": ". . skittlegirl \n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 17,
+                                "end": 18,
+                                "input": "tokens",
+                                "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 193,
+                                "end": 194,
+                                "input": "tokens",
+                                "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 217,
+                                "end": 218,
+                                "input": "tokens",
+                                "text": ". . skittlegirl \n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "me"
+                    }
+                ],
+                "key": "me",
+                "value": "me"
+            },
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 126,
+                                "end": 127,
+                                "input": "tokens",
+                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "in"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 146,
+                                "end": 147,
+                                "input": "tokens",
+                                "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "in"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 126,
+                                "end": 127,
+                                "input": "tokens",
+                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "in"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 146,
+                                "end": 147,
+                                "input": "tokens",
+                                "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "in"
+                    }
+                ],
+                "key": "in",
+                "value": "in"
+            },
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 173,
+                                "end": 174,
+                                "input": "tokens",
+                                "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "or"
+                    },
+                    {
+                        "source": {
+                            "segment": "content_relaxed",
+                            "context": {
+                                "start": 173,
+                                "end": 174,
+                                "input": "tokens",
+                                "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "or"
+                    }
+                ],
+                "key": "or",
+                "value": "or"
+            }
         ]
+        
         self.assertEqual(r['knowledge_graph']['populated_places'], json.loads(ex_populated_places))
 
         ex_city_name = json.loads(json.JSONEncoder().encode(ex_city_name_gt))
