@@ -324,16 +324,13 @@ class Core(object):
                         for index in range(len(matches)):
                             for extractor in extractors.keys():
                                 if extractor == _LANDMARK:
-                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
                                                                                  matches[index].value,
                                                                                  extractors[extractor], doc[_URL])
-                                    e = time.time()-s
 
                                     landmark_config = extractors[extractor]
                                     landmark_field_name = landmark_config[_FIELD_NAME] if _FIELD_NAME in landmark_config \
                                         else _INFERLINK_EXTRACTIONS
-                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, landmark_field_name, e)
                                     if self.prefer_inferlink_description:
                                         if landmark_field_name in doc[_CONTENT_EXTRACTION]:
                                             if _INFERLINK_DESCRIPTION in doc[_CONTENT_EXTRACTION][landmark_field_name]:
@@ -345,7 +342,6 @@ class Core(object):
 
                                 elif extractor == _READABILITY:
                                     if run_readability:
-                                        s = time.time()
                                         re_extractors = extractors[extractor]
                                         if isinstance(re_extractors, dict):
                                             re_extractors = [re_extractors]
@@ -354,23 +350,15 @@ class Core(object):
                                             doc[_CONTENT_EXTRACTION] = self.run_readability(doc[_CONTENT_EXTRACTION],
                                                                                             matches[index].value,
                                                                                             re_extractor)
-                                        e = time.time() - s
-                                        # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'readability', e)
                                 elif extractor == _TITLE:
-                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_title(doc[_CONTENT_EXTRACTION],
                                                                               matches[index].value,
                                                                               extractors[extractor])
-                                    e = time.time() - s
-                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'title', e)
 
                                 elif extractor == _TABLE:
-                                    s = time.time()
                                     doc[_CONTENT_EXTRACTION] = self.run_table_extractor(doc[_CONTENT_EXTRACTION],
                                                                                         matches[index].value,
                                                                                         extractors[extractor])
-                                    e = time.time() - s
-                                    # print 'LOG: {},{},{},{}'.format(doc_id, extractor, 'table', e)
 
                     # Add the url as segment as well
                     if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
