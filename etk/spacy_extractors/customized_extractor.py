@@ -1,10 +1,8 @@
-import json
 import spacy
 import copy
 import itertools
 import random
 import math
-from tokenizer_extractor import TokenizerExtractor
 
 FLAG_DICT = {
     "18": spacy.attrs.FLAG18,
@@ -55,7 +53,7 @@ FLAG_DICT = {
     "63": spacy.attrs.FLAG63
 }
 
-TOP_N = 3
+TOP_N = 5
 
 POS_MAP = {
     "noun": "NOUN",
@@ -391,13 +389,9 @@ class Pattern(object):
             for i in range(num_break):
                 s += '\n'
             token_to_rule = [{spacy.attrs.LOWER: s.decode('utf-8')}]
-            token_inf = create_inf("", "", False, False)
+            token_inf = create_inf("", "", False, token_d["is_in_output"])
             self.token_lst = add_token_tolist(self.token_lst, token_to_rule,
                                               token_d["is_required"], token_inf)
-
-    def add_entity_token(self, token_d, elements):
-        token_to_rule = create_entity_token(elements)
-        self.token_lst = add_entity_token_tolist(self.token_lst, token_to_rule)
 
 
 # Check if prefix matches
@@ -423,7 +417,7 @@ def check_suffix(s, suffix):
         return True
 
 
-def create_inf(p, s, a, is_in_output):
+def create_inf(p, s, a, is_in_output=False):
     label = {}
     if a:
         if p:
@@ -436,48 +430,6 @@ def create_inf(p, s, a, is_in_output):
         label["is_in_output"] = False
 
     return label
-
-
-def add_entity_token_tolist(t_lst, token_l):
-    result = []
-    result_lst = []
-    result_dict = t_lst[1]
-    new_result_dict = {}
-    lst = t_lst[0]
-    if lst:
-        c = -1
-        for s_id, token in enumerate(token_l):
-            for idx, each_lst in enumerate(lst):
-                each_copy = copy.deepcopy(each_lst)
-                each_copy += token
-                result.append(each_copy)
-                c += 1
-                current_t_id = len(each_lst)
-                new_result_dict[c] = copy.deepcopy(result_dict[idx])
-                for le in range(len(token)):
-                    t_id = current_t_id + le
-                    new_result_dict[c].update({t_id:{"is_in_output": True}})
-                    if t_id not in new_result_dict[c]["output_idx"]:
-                        new_result_dict[c]["output_idx"].append(t_id)
-    else:
-        c = -1
-        new_result_dict = copy.deepcopy(result_dict)
-        for s_id, token in enumerate(token_l):
-            c += 1
-            result.append(token)
-            if c not in new_result_dict:
-                new_result_dict[c] = {"output_idx": []}
-                for le in range(len(token)):
-                    new_result_dict[c][le] = {"is_in_output": True}
-                    new_result_dict[c]["output_idx"].append(le)
-            else:
-                for le in range(len(token)):
-                    result_dict[c][le] = {"is_in_output": True}
-                    result_dict[c]["output_idx"].append(le)
-
-    result_lst.append(result)
-    result_lst.append(copy.deepcopy(new_result_dict))
-    return result_lst
 
 
 # Add each token to list to be processed by matcher
@@ -577,22 +529,6 @@ def add_pos_totoken(pos_l, this_token, token_to_rule):
         token_to_rule.append(copy.deepcopy(this_token))
 
     return token_to_rule
-
-
-def create_entity_token(elements):
-    token_l = []
-    for a_element in elements:
-        this_e_lst = a_element.split()
-        if len(this_e_lst) == 1:
-            token = {spacy.attrs.LOWER: this_e_lst[0].lower()}
-            this_lst = [token]
-        else:
-            this_lst = []
-            for an_e in this_e_lst:
-                token = {spacy.attrs.LOWER: an_e.lower()}
-                this_lst.append(copy.deepcopy(token))
-        token_l.append(this_lst)
-    return token_l
 
 
 # create word token according to user input
@@ -912,120 +848,84 @@ def compare_shape(token, shape):
     return counting_stars(str(token_shape)) != counting_stars(shape)
 
 
-def extract(field_rules, nlp_doc, nlp, dd):
+def extract(field_rules, nlp_doc, nlp):
     pattern_description = field_rules
-    # for tok in nlp_doc:
-    #     print tok.lower_
-    #     print tok.dep_
     rule = Rule(nlp)
-    # rule_num = 0
     extracted_lst = []
     value_lst_pos = []
     value_lst_neg = []
     for index, line in enumerate(pattern_description["rules"]):
         if line["is_active"] == "true":
-            entity_token = [x for x in line["pattern"] if x["type"] == "entity"]
-            construct_rule = True
-            if entity_token:
-                if "knowledge_graph" not in dd:
-                    this_extract = (-2, -1, "NO KNOWLEDGE GRAPH", -1, line["identifier"])
-                    value_lst_pos.append(this_extract)
-                    construct_rule = False
-                else:
-                    kg_entities = dd["knowledge_graph"].keys()
-                    for ii, a_pattern in enumerate(entity_token):
-                        intersec_entities = [x for x in kg_entities if x.lower() in a_pattern["numbers"]]
-                        if not intersec_entities:
-                            this_extract = (
-                            -3, -2, "NO COMMON ENTITY EXTRACTED FOR NO." + str(ii + 1) + " ENTITY TOKEN", -2,
-                            line["identifier"])
-                            value_lst_pos.append(this_extract)
-                            construct_rule = False
-                            break
+
+            if "polarity" not in line:
+                line["polarity"] = "true"
+            if "dependencies" not in line:
+                line["dependencies"] = []
+            rule.init_matcher()
+            rule.init_flag()
+            new_pattern = Pattern()
+            flagnum = 17
+
+            for current_token_idx in range(len(line["pattern"])):
+                token_d = line["pattern"][current_token_idx]
+                if "match_all_forms" not in token_d:
+                    token_d["match_all_forms"] = "false"
+                if token_d["type"] == "word":
+                    if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
+                        # set flag for multiply words
+                        flagnum += 1
+                        rule.set_flag(token_d["token"], flagnum)
+                    new_pattern.add_word_token(token_d, flagnum, nlp)
+
+                if token_d["type"] == "shape":
+                    new_pattern.add_shape_token(token_d)
+
+                if token_d["type"] == "number":
+                    if len(token_d["numbers"]) >= 2:
+                        flagnum += 1
+                        rule.set_num_flag(token_d["numbers"], flagnum)
+                    new_pattern.add_number_token(token_d, flagnum)
+
+                if token_d["type"] == "punctuation":
+                    if len(token_d["token"]) >= 2:
+                        # set flag for multiply punctuations
+                        flagnum += 1
+                        rule.set_flag(token_d["token"], flagnum)
+                    new_pattern.add_punctuation_token(token_d, flagnum)
+
+                if token_d["type"] == "linebreak":
+                    new_pattern.add_linebreak_token(token_d)
+
+            tl = new_pattern.token_lst[0]
+            ps_inf = new_pattern.token_lst[1]
+
+            for i in range(len(tl)):
+                # rule_num += 1
+                if tl[i]:
+                    tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"],
+                                         ps_inf[i]["output_idx"])
+                    rule_to_print = create_print(tl_add_dep)
+                    rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
+                    m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"],
+                                   nlp_doc)
+                    matches = filter(nlp_doc, m, ps_inf[i])
+                    output_infs = []
+                    for e in ps_inf[i]:
+                        if e != "output_idx":
+                            output_infs.append((e, ps_inf[i][e]["is_in_output"]))
+                    output_infs.sort()
+                    output_inf = [p[1] for p in output_infs]
+
+                    for (ent_id, label, start, end) in matches:
+                        value = get_value(nlp_doc, start, end, output_inf, label)
+                        filtered_value = filter_value(value, line["output_format"])
+                        filtered_value = filtered_value + (line["identifier"],)
+                        if line["polarity"] != "false":
+                            value_lst_pos.append(filtered_value)
                         else:
-                            a_pattern["numbers"] = intersec_entities
-
-            if construct_rule:
-                if "polarity" not in line:
-                    line["polarity"] = "true"
-                if "dependencies" not in line:
-                    line["dependencies"] = []
-                rule.init_matcher()
-                rule.init_flag()
-                new_pattern = Pattern()
-                flagnum = 17
-
-                # pattern_line = copy.deepcopy(line["pattern"])
-                # token_id = 0
-                for current_token_idx in range(len(line["pattern"])):
-                    token_d = line["pattern"][current_token_idx]
-                    if "match_all_forms" not in token_d:
-                        token_d["match_all_forms"] = "false"
-                    if token_d["type"] == "word":
-                        if len(token_d["token"]) >= 2 and token_d["match_all_forms"] == "false":
-                            # set flag for multiply words
-                            flagnum += 1
-                            rule.set_flag(token_d["token"], flagnum)
-                        new_pattern.add_word_token(token_d, flagnum, nlp)
-
-                    if token_d["type"] == "shape":
-                        new_pattern.add_shape_token(token_d)
-
-                    if token_d["type"] == "number":
-                        if len(token_d["numbers"]) >= 2:
-                            flagnum += 1
-                            rule.set_num_flag(token_d["numbers"], flagnum)
-                        new_pattern.add_number_token(token_d, flagnum)
-
-                    if token_d["type"] == "punctuation":
-                        if len(token_d["token"]) >= 2:
-                            # set flag for multiply punctuations
-                            flagnum += 1
-                            rule.set_flag(token_d["token"], flagnum)
-                        new_pattern.add_punctuation_token(token_d, flagnum)
-
-                    if token_d["type"] == "linebreak":
-                        new_pattern.add_linebreak_token(token_d)
-
-                    if token_d["type"] == "entity":
-                        for an_entity in token_d["numbers"]:
-                            elements = [x["value"] for x in dd["knowledge_graph"][an_entity]]
-                        new_pattern.add_entity_token(token_d, elements)
-
-                tl = new_pattern.token_lst[0]
-                ps_inf = new_pattern.token_lst[1]
-
-                # print tl
-                # print ps_inf
-
-                for i in range(len(tl)):
-                    # rule_num += 1
-                    if tl[i]:
-                        tl_add_dep = add_dep(copy.deepcopy(tl[i]), line["dependencies"],
-                                             ps_inf[i]["output_idx"])
-                        rule_to_print = create_print(tl_add_dep)
-                        # print rule_to_print
-                        rule.matcher.add_pattern(str(rule_to_print), tl_add_dep, label=index)
-                        m = check_head(rule.matcher(nlp_doc), ps_inf[i]["output_idx"], line["dependencies"],
-                                       nlp_doc)
-                        matches = filter(nlp_doc, m, ps_inf[i])
-                        output_infs = []
-                        for e in ps_inf[i]:
-                            if e != "output_idx":
-                                output_infs.append((e, ps_inf[i][e]["is_in_output"]))
-                        output_infs.sort()
-                        output_inf = [p[1] for p in output_infs]
-
-                        for (ent_id, label, start, end) in matches:
-                            value = get_value(nlp_doc, start, end, output_inf, label)
-                            filtered_value = filter_value(value, line["output_format"])
-                            filtered_value = filtered_value + (line["identifier"],)
-                            if line["polarity"] != "false":
-                                value_lst_pos.append(filtered_value)
-                            else:
-                                value_lst_neg.append(filtered_value)
-                        rule.init_matcher()
-                rule.init_flag()
+                            value_lst_neg.append(filtered_value)
+                    rule.init_matcher()
+            rule.init_flag()
 
     if value_lst_pos:
         longest_lst_pos = get_longest(value_lst_pos)
@@ -1046,10 +946,6 @@ def extract(field_rules, nlp_doc, nlp, dd):
             }
             extracted_lst.append(result)
 
-    # print json.dumps(extracted_lst, indent=2)
-
-    # print "total rule num:"
-    # print rule_num
     return extracted_lst
 
 
@@ -1131,9 +1027,6 @@ def calc_ratio(extracts, pos_lst, neg_lst, tokenizer, nlp):
     extracted_docs = [nlp(i).text for i in extracted_lst]
 
     positive_intersection = [x.text for x in pos_lst if x.text in extracted_docs]
-    # print positive_intersection
-    # print extracted_docs
-    # print pos_lst
     negative_intersection = [x.text for x in neg_lst if x.text in extracted_docs]
 
     num_extracts = len(extracted_lst)
@@ -1159,7 +1052,7 @@ def get_score(a_rule):
         this_score = 1
         for field in consider_fields:
             if pattern[field]:
-                this_score += 1
+                this_score += 2
                 if field == "capitalization":
                     if len(pattern[field]) >= 4:
                         this_score += 20
@@ -1178,7 +1071,6 @@ def get_score(a_rule):
                 else:
                     this_score += consider_fields[field]
         score += this_score
-    # score -= len(a_rule["rules"][0]["dependencies"])
     return score
 
 
@@ -1262,7 +1154,6 @@ def add_number_constrain(rule, p_id, docs):
         this_rule["rules"][0]["pattern"][p_id]["numbers"] = number_lst
         result.append(copy.deepcopy(this_rule))
 
-    # add max min constrains ??
     return result
 
 
@@ -1519,8 +1410,6 @@ def longest_docs(l):
 
 
 def infer_rule(nlp_doc, nlp, p, t):
-    # t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-    # p = [[k["value"].decode("utf-8") for k in t.extract(i, lowercase=False)] for i in positive_extractions]
     positive_docs = [nlp(i) for i in p]
     longest_positive_docs = longest_docs(positive_docs)
     pos_strings = [str(i) for i in positive_docs]
@@ -1534,96 +1423,77 @@ def infer_rule(nlp_doc, nlp, p, t):
             if str(sub_doc) not in pos_strings:
                 negative_docs.append(sub_doc)
 
-    # print negative_docs
-    # print positive_docs
     positive_instances = random.sample(longest_positive_docs, 3) if len(
         longest_positive_docs) > 3 else longest_positive_docs
     base_rule_results = list()
 
     field_rules_lst = create_rule_lst(positive_instances)
 
-    for field_rules in field_rules_lst:
-        extractions = extract(field_rules, nlp_doc, nlp, {})
+    result_lst = []
+    for iter_num in range(3):
+        for field_rules in field_rules_lst:
+            extractions = extract(field_rules, nlp_doc, nlp)
 
-        r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+            r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
 
-        base_rule_results.append((r, field_rules))
+            base_rule_results.append((r, field_rules))
 
-    base_rule_results.sort(key=lambda t: t[0], reverse=True)
-    base_rule_r = base_rule_results[0][0]
-    base_rule = base_rule_results[0][1]
-    best_rule_lst_whole = [(get_score(base_rule), base_rule)]
-    # print json.dumps(base_rule, indent=2)
-    rr = base_rule_r
-    pattern_lst = copy.deepcopy(base_rule["rules"][0]["pattern"])
+        base_rule_results.sort(key=lambda t: t[0], reverse=True)
+        base_rule_r = base_rule_results[0][0]
+        base_rule = base_rule_results[0][1]
+        best_rule_lst_whole = [(get_score(base_rule), base_rule)]
 
-    for p_id, pattern in enumerate(pattern_lst):
-        new_rule_lst = list()
-        best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
-        best_rule_lst = [d[1] for d in best_rule_lst_whole]
-        if pattern["type"] == "punctuation":
-            for base_rule in best_rule_lst:
-                new_rule_lst += add_punct_constrain(base_rule, p_id, longest_positive_docs)
+        rr = base_rule_r
+        pattern_lst = copy.deepcopy(base_rule["rules"][0]["pattern"])
 
-        if pattern["type"] == "number":
-            for base_rule in best_rule_lst:
-                new_rule_lst += add_number_constrain(base_rule, p_id, longest_positive_docs)
+        p_id_lst = range(len(pattern_lst))
+        random.shuffle(p_id_lst)
+        for p_id in p_id_lst:
+            pattern = pattern_lst[p_id]
+            new_rule_lst = list()
+            best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
+            random.shuffle(best_rule_lst_whole)
+            best_rule_lst = [d[1] for d in best_rule_lst_whole]
+            if pattern["type"] == "punctuation":
+                for base_rule in best_rule_lst:
+                    new_rule_lst += add_punct_constrain(base_rule, p_id, longest_positive_docs)
 
-        if pattern["type"] == "word" and pattern["contain_digit"] == "true":
-            for base_rule in best_rule_lst:
-                new_rule_lst += add_shape_constrain(base_rule, p_id, longest_positive_docs)
-                new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
+            if pattern["type"] == "number":
+                for base_rule in best_rule_lst:
+                    new_rule_lst += add_number_constrain(base_rule, p_id, longest_positive_docs)
 
-        if pattern["type"] == "word" and pattern["contain_digit"] != "true":
-            for base_rule in best_rule_lst:
-                new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
+            if pattern["type"] == "word" and pattern["contain_digit"] == "true":
+                for base_rule in best_rule_lst:
+                    new_rule_lst += add_shape_constrain(base_rule, p_id, longest_positive_docs)
+                    new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
 
-        if new_rule_lst:
-            for new_rule in new_rule_lst:
-                extractions = extract(new_rule, nlp_doc, nlp, {})
-                new_score = get_score(new_rule)
-                new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
-                if rr[0] < new_r[0]:
-                    best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
-                    rr = new_r
-                elif rr[0] == new_r[0]:
-                    if rr[1] < new_r[1]:
+            if pattern["type"] == "word" and pattern["contain_digit"] != "true":
+                for base_rule in best_rule_lst:
+                    new_rule_lst += add_word_constrain(base_rule, p_id, longest_positive_docs)
+
+            if new_rule_lst:
+                for new_rule in new_rule_lst:
+                    extractions = extract(new_rule, nlp_doc, nlp)
+                    new_score = get_score(new_rule)
+                    new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
+                    if rr[0] < new_r[0]:
                         best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
                         rr = new_r
-                    elif rr[1] == new_r[1]:
-                        if rr[2] < new_r[2]:
+                    elif rr[0] == new_r[0]:
+                        if rr[1] < new_r[1]:
                             best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
                             rr = new_r
-                        elif rr[2] == new_r[2]:
-                            best_rule_lst_whole.append((new_score, copy.deepcopy(new_rule)))
+                        elif rr[1] == new_r[1]:
+                            if rr[2] < new_r[2]:
+                                best_rule_lst_whole = [(new_score, copy.deepcopy(new_rule))]
+                                rr = new_r
+                            elif rr[2] == new_r[2]:
+                                best_rule_lst_whole.append((new_score, copy.deepcopy(new_rule)))
 
-        else:
-            print "empty rule list"
+            else:
+                print "empty rule list"
+        result_lst += best_rule_lst_whole
 
-    # dependency_rule_lst = list()
-    # best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
-    # best_rule_lst = [d[1] for d in best_rule_lst_whole]
-    # for base_rule in best_rule_lst:
-    #     dependency_rule_lst += add_dependency(base_rule, longest_positive_docs)
-
-    # for a_rule in dependency_rule_lst:
-    #     extractions = extract(a_rule, nlp_doc, nlp, {})
-    #     new_score = get_score(a_rule)
-    #     new_r = calc_ratio(extractions, positive_docs, negative_docs, t, nlp)
-    #     if rr[0] < new_r[0]:
-    #         best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
-    #         rr = new_r
-    #     elif rr[0] == new_r[0]:
-    #         if rr[1] < new_r[1]:
-    #             best_rule_lst_whole = [(new_score, copy.deepcopy(a_rule))]
-    #             rr = new_r
-    #         elif rr[1] == new_r[1]:
-    #             best_rule_lst_whole.append((new_score, copy.deepcopy(a_rule)))
-
-    best_rule_lst_whole = sorted(best_rule_lst_whole, key=lambda x: x[0])[:TOP_N]
-    # print json.dumps(best_rule_lst_whole[1], indent=2)
-
-    # print rr
-    # print best_rule_lst_whole[0][0]
-
+    best_rule_lst_whole = sorted(result_lst, key=lambda x: x[0])[:TOP_N]
+    random.shuffle(best_rule_lst_whole)
     return best_rule_lst_whole[0][1]["rules"][0]
