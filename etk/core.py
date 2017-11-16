@@ -46,11 +46,7 @@ import traceback
 import logging
 import logstash
 import signal
-import datetime
 
-_KEY = 'key'
-_VALUE = 'value'
-_QUALIFIERS = 'qualifiers'
 _KNOWLEDGE_GRAPH = "knowledge_graph"
 _EXTRACTION_POLICY = 'extraction_policy'
 _KEEP_EXISTING = 'keep_existing'
@@ -133,7 +129,6 @@ _HTML = "html"
 _SEGMENT_TITLE = "title"
 _SEGMENT_INFERLINK_DESC = "inferlink_description"
 _SEGMENT_OTHER = "other_segment"
-_SEGMENT_NAME = "segment_name"
 
 _METHOD_INFERLINK = "inferlink"
 
@@ -667,13 +662,7 @@ class Core(object):
                 raise e
             else:
                 return None
-        end_time_process = time.time()
-        time_taken_process = end_time_process - start_time_process
-        if '@execution_profile' not in doc:
-            doc['@execution_profile'] = dict()
-        doc['@execution_profile']['@etk_start_time'] = datetime.datetime.utcfromtimestamp(start_time_process).isoformat()
-        doc['@execution_profile']['@etk_end_time'] = datetime.datetime.utcfromtimestamp(end_time_process).isoformat()
-        doc['@execution_profile']['@etk_process_time'] = end_time_process - start_time_process
+        time_taken_process = time.time() - start_time_process
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken
@@ -686,7 +675,7 @@ class Core(object):
 
     def convert_json_content(self, doc, json_content_extractor):
         input_path = json_content_extractor[_INPUT_PATH]
-        segment_name = json_content_extractor[_SEGMENT_NAME]
+        field_name = json_content_extractor[_FIELD_NAME]
         val_list = list()
 
         if input_path not in self.json_content_paths:
@@ -701,20 +690,10 @@ class Core(object):
                     o = dict()
                     o[_TEXT] = str(val)
                     val_list.append(o)
-                elif isinstance(val, dict):
-                    if _VALUE in val:
-                        o = dict()
-                        o[_TEXT] = val[_VALUE]
-                        if [_KEY] in val:
-                            o[_KEY] = val[_KEY]
-                        if _QUALIFIERS in val:
-                            o[_QUALIFIERS] = val[_QUALIFIERS]
-                        val_list.append(o)
                 else:
                     if val:
-                        msg = 'Error while extracting json content, input path: {} is either not a leaf node in ' \
-                              'the json or not a dict with keys \'value\', \'key\' and/or \'qualifiers\'  ' \
-                              'document'.format(input_path)
+                        msg = 'Error while extracting json content, input path: {} is not a leaf node in the json ' \
+                          'document'.format(input_path)
                         self.log(msg, _ERROR)
                         print msg
                         if self.global_error_handling == _RAISE_ERROR:
@@ -722,19 +701,13 @@ class Core(object):
         if len(val_list) > 0:
             if _CONTENT_EXTRACTION not in doc:
                 doc[_CONTENT_EXTRACTION] = dict()
-            if segment_name not in doc[_CONTENT_EXTRACTION]:
-                doc[_CONTENT_EXTRACTION][segment_name] = list()
-            doc[_CONTENT_EXTRACTION][segment_name].extend(val_list)
+            if field_name not in doc[_CONTENT_EXTRACTION]:
+                doc[_CONTENT_EXTRACTION][field_name] = list()
+            doc[_CONTENT_EXTRACTION][field_name].extend(val_list)
         return doc
 
     def extract_as_is(self, d, config=None):
-        result = dict()
-        result[_VALUE] = d[_TEXT]
-        if _KEY in d:
-            result[_KEY] = d[_KEY]
-        if _QUALIFIERS in d:
-            result[_QUALIFIERS] = d[_QUALIFIERS]
-        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        return self._relevant_text_from_context(d[_TEXT], {"value": d[_TEXT]}, config[_FIELD_NAME])
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
         results = list()
@@ -785,14 +758,13 @@ class Core(object):
                     description = Core.remove_line_breaks(description)
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
-                if _DESCRIPTION not in doc[_KNOWLEDGE_GRAPH]:
-                    doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
-                    o = dict()
-                    o['value'] = description
-                    o['key'] = 'description'
-                    o['confidence'] = 1
-                    o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
-                    doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION] = list()
+                o = dict()
+                o['value'] = description
+                o['key'] = 'description'
+                o['confidence'] = 1
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_DESCRIPTION].append(o)
         return doc
 
     @staticmethod
@@ -839,14 +811,13 @@ class Core(object):
             if title and title != '':
                 if _KNOWLEDGE_GRAPH not in doc:
                     doc[_KNOWLEDGE_GRAPH] = dict()
-                if _TITLE not in doc[_KNOWLEDGE_GRAPH]:
-                    doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
-                    o = dict()
-                    o['value'] = title
-                    o['key'] = 'title'
-                    o['confidence'] = 1
-                    o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
-                    doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
+                doc[_KNOWLEDGE_GRAPH][_TITLE] = list()
+                o = dict()
+                o['value'] = title
+                o['key'] = 'title'
+                o['confidence'] = 1
+                o['provenance'] = [Core.custom_provenance_object(method, segment, doc[_DOCUMENT_ID])]
+                doc[_KNOWLEDGE_GRAPH][_TITLE].append(o)
 
         return doc
 
@@ -1735,18 +1706,9 @@ class Core(object):
         return ft.filter_tokens(config)
 
     def extract_table(self, d, config):
-        cl_tables = False
-        model = None,
-        sem_types = []
         if _CONFIG in config:
             config = config[_CONFIG]
-            if config['classify_tables'] == 'yes':
-                cl_tables = True
-                model = config['classification_model']
-                sem_types = config['sem_types']
-                sem_types = self.load_json(sem_types)
-                model = self.load_pickle(model)
-        te = table_extractor.TableExtraction(cl_tables, sem_types, model)
+        te = table_extractor.TableExtraction()
         return te.extract(d)
 
     @staticmethod
