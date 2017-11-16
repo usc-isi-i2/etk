@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from bs4 import BeautifulSoup
+from bs4.element import Comment
 import json
 import re
 
@@ -137,150 +138,147 @@ class TableExtraction:
 
     def extract(self, html_doc, min_data_rows = 1):
         soup = BeautifulSoup(html_doc, 'html.parser')
+        result_tables = list()
+        tables = soup.findAll('table')
+        for table in tables:
+            tdcount = 0
+            max_tdcount = 0
+            img_count = 0
+            href_count = 0
+            inp_count = 0
+            sel_count = 0
+            colspan_count = 0
+            colon_count = 0
+            len_row = 0
+            table_data = ""
+            data_table = dict()
+            row_list = list()
+            rows = TableExtraction.is_data_table(table, min_data_rows)
+            if rows != False:
+                features = dict()
+                row_len_list = list()
+                avg_cell_len = 0
+                avg_row_len_dev = 0
+                for index_row, row in enumerate(rows):
+                    row_dict = dict()
+                    soup_row = BeautifulSoup(row, 'html.parser')
+                    row_data = ''.join(soup_row.stripped_strings)
+                    row_data = row_data.replace("\\t", "").replace("\\r", "").replace("\\n", "")
+                    if row_data != '':
+                        row_len_list.append(len(row_data))
+                        row_tdcount = len(soup_row.findAll('td')) + len(soup_row.findAll('th'))
+                        if row_tdcount > max_tdcount:
+                            max_tdcount = row_tdcount
+                        tdcount += row_tdcount
+                        img_count += len(soup_row.findAll('img'))
+                        href_count += len(soup_row.findAll('a'))
+                        inp_count += len(soup_row.findAll('input'))
+                        sel_count += len(soup_row.findAll('select'))
+                        colspan_count += row_data.count("colspan")
+                        colon_count += row_data.count(":")
+                        len_row += 1
+                        table_data += row
+                        # row_dict["row"] = str(row)
+                        cell_list = list()
+                        for index_col, td in enumerate(soup_row.findAll('th')):
+                            cell_dict = dict()
+                            cell_dict["cell"] = str(td)
+                            # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
+                            cell_dict["text"] = ''.join(td.stripped_strings)
+                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            avg_cell_len += len(cell_dict["text"])
+                            cell_list.append(cell_dict)
+                        for index_col, td in enumerate(soup_row.findAll('td')):
+                            cell_dict = dict()
+                            cell_dict["cell"] = str(td)
+                            # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
+                            cell_dict["text"] = ''.join(td.stripped_strings)
+                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            avg_cell_len += len(cell_dict["text"])
+                            cell_list.append(cell_dict)
+                        avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) for x in cell_list])
+                        row_dict["cells"] = cell_list
+                        row_list.append(row_dict)
 
-        if soup.table == None:
-            return None
-        else:
-            result_tables = list()
-            tables = soup.findAll('table')
-            for table in tables:
-                tdcount = 0
-                max_tdcount = 0
-                img_count = 0
-                href_count = 0
-                inp_count = 0
-                sel_count = 0
-                colspan_count = 0
-                colon_count = 0
-                len_row = 0
-                table_data = ""
-                data_table = dict()
-                row_list = list()
-                rows = TableExtraction.is_data_table(table, min_data_rows)
-                if rows != False:
-                    features = dict()
-                    row_len_list = list()
-                    avg_cell_len = 0
-                    avg_row_len_dev = 0
-                    for index_row, row in enumerate(rows):
-                        row_dict = dict()
-                        soup_row = BeautifulSoup(row, 'html.parser')
-                        row_data = ''.join(soup_row.stripped_strings)
-                        row_data = row_data.replace("\\t", "").replace("\\r", "").replace("\\n", "")
-                        if row_data != '':
-                            row_len_list.append(len(row_data))
-                            row_tdcount = len(soup_row.findAll('td')) + len(soup_row.findAll('th'))
-                            if row_tdcount > max_tdcount:
-                                max_tdcount = row_tdcount
-                            tdcount += row_tdcount
-                            img_count += len(soup_row.findAll('img'))
-                            href_count += len(soup_row.findAll('a'))
-                            inp_count += len(soup_row.findAll('input'))
-                            sel_count += len(soup_row.findAll('select'))
-                            colspan_count += row_data.count("colspan")
-                            colon_count += row_data.count(":")
-                            len_row += 1
-                            table_data += row
-                            # row_dict["row"] = str(row)
-                            cell_list = list()
-                            for index_col, td in enumerate(soup_row.findAll('th')):
-                                cell_dict = dict()
-                                cell_dict["cell"] = str(td)
-                                # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                                cell_dict["text"] = ''.join(td.stripped_strings)
-                                # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
-                                avg_cell_len += len(cell_dict["text"])
-                                cell_list.append(cell_dict)
-                            for index_col, td in enumerate(soup_row.findAll('td')):
-                                cell_dict = dict()
-                                cell_dict["cell"] = str(td)
-                                # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                                cell_dict["text"] = ''.join(td.stripped_strings)
-                                # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
-                                avg_cell_len += len(cell_dict["text"])
-                                cell_list.append(cell_dict)
-                            avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) for x in cell_list])
-                            row_dict["cells"] = cell_list
-                            row_list.append(row_dict)
+                # To avoid division by zero
+                if len_row == 0:
+                    tdcount = 1
+                features["no_of_rows"] = len_row
+                features["no_of_cells"] = tdcount
+                features["max_cols_in_a_row"] = max_tdcount
+                features["ratio_of_img_tags_to_cells"] = img_count*1.0/tdcount
+                features["ratio_of_href_tags_to_cells"] = href_count*1.0/tdcount
+                features["ratio_of_input_tags_to_cells"] = inp_count*1.0/tdcount
+                features["ratio_of_select_tags_to_cells"] = sel_count*1.0/tdcount
+                features["ratio_of_colspan_tags_to_cells"] = colspan_count*1.0/tdcount
+                features["ratio_of_colons_to_cells"] = colon_count*1.0/tdcount
+                features["avg_cell_len"] = avg_cell_len*1.0/tdcount
+                features["avg_row_len"] = TableExtraction.mean(row_len_list)
+                features["avg_row_len_dev"] = avg_row_len_dev*1.0/max(len_row, 1)
 
-                    # To avoid division by zero
-                    if len_row == 0:
-                        tdcount = 1
-                    features["no_of_rows"] = len_row
-                    features["no_of_cells"] = tdcount
-                    features["max_cols_in_a_row"] = max_tdcount
-                    features["ratio_of_img_tags_to_cells"] = img_count*1.0/tdcount
-                    features["ratio_of_href_tags_to_cells"] = href_count*1.0/tdcount
-                    features["ratio_of_input_tags_to_cells"] = inp_count*1.0/tdcount
-                    features["ratio_of_select_tags_to_cells"] = sel_count*1.0/tdcount
-                    features["ratio_of_colspan_tags_to_cells"] = colspan_count*1.0/tdcount
-                    features["ratio_of_colons_to_cells"] = colon_count*1.0/tdcount
-                    features["avg_cell_len"] = avg_cell_len*1.0/tdcount
-                    features["avg_row_len"] = TableExtraction.mean(row_len_list)
-                    features["avg_row_len_dev"] = avg_row_len_dev*1.0/max(len_row, 1)
+                avg_col_len = 0
+                avg_col_len_dev = 0
+                no_of_cols_containing_num = 0
+                no_of_cols_empty = 0
 
-                    avg_col_len = 0
-                    avg_col_len_dev = 0
-                    no_of_cols_containing_num = 0
-                    no_of_cols_empty = 0
-
-                    if colspan_count == 0.0 and \
-                        len_row != 0 and \
-                        (tdcount/(len_row * 1.0)) == max_tdcount:
-                        col_data = dict()
-                        for i in range(max_tdcount):
-                            col_data['c_{0}'.format(i)] = []
-                        soup_col = BeautifulSoup(table_data, 'html.parser')
-                        for row in soup_col.findAll('tr'):
-                            h_index = 0
-                            h_bool = True
-                            for col in row.findAll('th'):
-                                col_content = ''.join(col.stripped_strings)
-                                h_bool = False
-                                if col_content is None:
-                                    continue
-                                else:
-                                    col_data['c_{0}'.format(h_index)].append(col_content)
-                                h_index += 1
-                            d_index = 0
-                            if(h_index == 1 and h_bool == False):
-                                d_index = 1
-                            for col in row.findAll('td'):
-                                col_content = ''.join(col.stripped_strings)
-                                if col_content is None:
-                                    d_index += 1
-                                    continue
-                                else:
-                                    col_data['c_{0}'.format(d_index)].append(col_content)
+                if colspan_count == 0.0 and \
+                    len_row != 0 and \
+                    (tdcount/(len_row * 1.0)) == max_tdcount:
+                    col_data = dict()
+                    for i in range(max_tdcount):
+                        col_data['c_{0}'.format(i)] = []
+                    soup_col = BeautifulSoup(table_data, 'html.parser')
+                    for row in soup_col.findAll('tr'):
+                        h_index = 0
+                        h_bool = True
+                        for col in row.findAll('th'):
+                            col_content = ''.join(col.stripped_strings)
+                            h_bool = False
+                            if col_content is None:
+                                continue
+                            else:
+                                col_data['c_{0}'.format(h_index)].append(col_content)
+                            h_index += 1
+                        d_index = 0
+                        if(h_index == 1 and h_bool == False):
+                            d_index = 1
+                        for col in row.findAll('td'):
+                            col_content = ''.join(col.stripped_strings)
+                            if col_content is None:
                                 d_index += 1
+                                continue
+                            else:
+                                col_data['c_{0}'.format(d_index)].append(col_content)
+                            d_index += 1
 
-                        for key, value in col_data.iteritems():
-                            whole_col = ''.join(value)
-                            # avg_cell_len += float("%.2f" % mean([len(x) for x in value]))
-                            avg_col_len += sum([len(x) for x in value])
-                            avg_col_len_dev += TableExtraction.pstdev([len(x) for x in value])
-                            no_of_cols_containing_num += 1 if TableExtraction.contains_digits(whole_col) is True else 0
-                            # features["column_" + str(key) + "_is_only_num"] = whole_col.isdigit()
-                            no_of_cols_empty += 1 if (whole_col == '') is True else 0
-                    # To avoid division by zero
-                    if max_tdcount == 0:
-                        max_tdcount = 1
-                    features["avg_col_len"] = avg_col_len*1.0/max_tdcount
-                    features["avg_col_len_dev"] = avg_col_len_dev/max_tdcount
-                    features["no_of_cols_containing_num"] = no_of_cols_containing_num
-                    features["no_of_cols_empty"] = no_of_cols_empty
-                    data_table["features"] = features
-                    data_table["rows"] = row_list
-                    context_before = ' '.join(TableExtraction.gen_context(table.find_all_previous(string=True)))
-                    context_after = ' '.join(TableExtraction.gen_context(table.find_all_next(string=True)))
-                    table_rep = TableExtraction.gen_html(row_list)
-                    fingerprint = TableExtraction.create_fingerprint(table_rep)
-                    data_table["context_before"] = context_before
-                    data_table["context_after"] = context_after
-                    data_table["fingerprint"] = fingerprint
-                    data_table['html'] = table_rep
-                    result_tables.append(data_table)
-            return result_tables
+                    for key, value in col_data.iteritems():
+                        whole_col = ''.join(value)
+                        # avg_cell_len += float("%.2f" % mean([len(x) for x in value]))
+                        avg_col_len += sum([len(x) for x in value])
+                        avg_col_len_dev += TableExtraction.pstdev([len(x) for x in value])
+                        no_of_cols_containing_num += 1 if TableExtraction.contains_digits(whole_col) is True else 0
+                        # features["column_" + str(key) + "_is_only_num"] = whole_col.isdigit()
+                        no_of_cols_empty += 1 if (whole_col == '') is True else 0
+                # To avoid division by zero
+                if max_tdcount == 0:
+                    max_tdcount = 1
+                features["avg_col_len"] = avg_col_len*1.0/max_tdcount
+                features["avg_col_len_dev"] = avg_col_len_dev/max_tdcount
+                features["no_of_cols_containing_num"] = no_of_cols_containing_num
+                features["no_of_cols_empty"] = no_of_cols_empty
+                data_table["features"] = features
+                data_table["rows"] = row_list
+                context_before = ' '.join(TableExtraction.gen_context(table.find_all_previous(string=True)))
+                context_after = ' '.join(TableExtraction.gen_context(table.find_all_next(string=True)))
+                table_rep = TableExtraction.gen_html(row_list)
+                fingerprint = TableExtraction.create_fingerprint(table_rep)
+                data_table["context_before"] = context_before
+                data_table["context_after"] = context_after
+                data_table["fingerprint"] = fingerprint
+                data_table['html'] = table_rep
+                result_tables.append(data_table)
+                table.decompose()
+        return dict(tables=result_tables, html_text=self.text_from_html(soup))
 
     @staticmethod
     def create_fingerprint(table):
@@ -313,3 +311,15 @@ class TableExtraction:
                 table.decompose()
 
         return soup
+
+    def tag_visible(self, element):
+        if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+            return False
+        if isinstance(element, Comment):
+            return False
+        return True
+
+    def text_from_html(self, soup):
+        texts = soup.findAll(text=True)
+        visible_texts = filter(self.tag_visible, texts)
+        return u" ".join(t.strip() for t in visible_texts)
