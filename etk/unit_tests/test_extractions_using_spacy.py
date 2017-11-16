@@ -70,6 +70,29 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 for test_case in test_data:
                     self.ground_truth[extractor].append(json.loads(test_case))
 
+    @staticmethod
+    def create_list_from_kg(extractions):
+        results = list()
+        for e in extractions:
+            ps = e['provenance']
+            if not isinstance(ps, list):
+                ps = [ps]
+            for p in ps:
+                results.append(p['extracted_value'])
+        return results
+
+    @staticmethod
+    def create_list_from_social_media(extractions):
+        results = dict()
+        for e in extractions:
+            ps = e['provenance']
+            if not isinstance(ps, list):
+                ps = [ps]
+            for p in ps:
+                    x = p['qualifiers']['social_network']
+                    results[x] = [p['extracted_value']]
+        return results
+
     def test_spacy_extractions(self):
 
         # Date extractor
@@ -159,12 +182,11 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
         # Date extractor
         for t in self.ground_truth['date']:
             r = self.c.process(t)
-            if 'data_extraction' in r:
-                extracted_dates = [x['value'] for x in r['data_extraction'][
-                    'posting_date']['extract_using_spacy']['results']]
+            if 'knowledge_graph' in r:
+                extracted_dates = self.create_list_from_kg(r["knowledge_graph"]['posting_date'])
             else:
                 extracted_dates = []
-
+                
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
@@ -172,9 +194,8 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
         # Age extractor
         for t in self.ground_truth['age']:
             r = self.c.process(t)
-            if 'data_extraction' in r:
-                extracted_ages = [x['value'] for x in r['data_extraction'][
-                    'age']['extract_using_spacy']['results']]
+            if 'knowledge_graph' in r:
+                extracted_ages = self.create_list_from_kg(r["knowledge_graph"]['age'])
             else:
                 extracted_ages = []
 
@@ -185,41 +206,27 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             for social_media in t['correct']:
                 t['correct'][social_media] = [h.lower()
                                               for h in t['correct'][social_media]]
-
             extracted_social_media_handles = self.c.process(t)
-
-            if 'data_extraction' in extracted_social_media_handles:
-                extracted_social_media_handles = [x for x in extracted_social_media_handles['data_extraction'][
-                    'social_media']['extract_using_spacy']['results']]
+            if 'knowledge_graph' in extracted_social_media_handles:
+                extracted_social_media_handles = self.create_list_from_social_media(
+                    extracted_social_media_handles["knowledge_graph"]['social_media'])
             else:
-                extracted_social_media_handles = []
-
-            extracted_handles = dict()
-
-            for match in extracted_social_media_handles:
-                social_network = match['metadata']['social_network']
-                if social_network not in extracted_handles:
-                    extracted_handles[social_network] = [match['value']]
-                else:
-                    extracted_handles[social_network].append(match['value'])
+                extracted_social_media_handles = {}
 
             if len(extracted_social_media_handles) == 0 and len(t['correct']) == 0:
                 self.assertFalse(extracted_social_media_handles)
-
-            self.assertEquals(extracted_handles, t['correct'])
+            self.assertEquals(extracted_social_media_handles, t['correct'])
 
         # Address extractor
         for t in self.ground_truth['address']:
             r = self.c.process(t)
-            if 'data_extraction' in r:
-                extracted_addresses = [x['value'] for x in r['data_extraction'][
-                    'address']['extract_using_spacy']['results']]
+            if 'knowledge_graph' in r:
+                extracted_addresses = self.create_list_from_kg(r["knowledge_graph"]['address'])
             else:
                 extracted_addresses = []
 
             correct_addresses = t['extracted']
-
-            self.assertEquals(extracted_addresses, correct_addresses)
+            self.assertEquals(extracted_addresses.sort(), correct_addresses.sort())
         
 
 if __name__ == '__main__':

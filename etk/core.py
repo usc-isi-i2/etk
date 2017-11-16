@@ -247,7 +247,7 @@ class Core(object):
     def timeout_handler(signum, frame):  # Custom signal handler
         raise TimeoutException
 
-    def process(self, doc, create_knowledge_graph=False, html_description=False):
+    def process(self, doc, create_knowledge_graph=True, html_description=False):
         start_time_process = time.time()
         try:
             if self.extraction_config:
@@ -434,16 +434,21 @@ class Core(object):
                                                                                 results = foo(doc,
                                                                                               extractors[extractor][_CONFIG], selected_field=inferlink_field)
                                                                                 if results:
-                                                                                    self.add_data_extraction_results(
-                                                                                        match.value,
-                                                                                        field,
-                                                                                        extractor,
-                                                                                        self.add_origin_info(
-                                                                                            results,
-                                                                                            method,
-                                                                                            segment,
-                                                                                            score,
-                                                                                            doc_id))
+                                                                                    results = self.add_origin_info(
+                                                                                        results, method,
+                                                                                        segment,
+                                                                                        score,
+                                                                                        doc_id)
+                                                                                    # self.add_data_extraction_results(
+                                                                                    #     match.value,
+                                                                                    #     field,
+                                                                                    #     extractor,
+                                                                                    #     self.add_origin_info(
+                                                                                    #         results,
+                                                                                    #         method,
+                                                                                    #         segment,
+                                                                                    #         score,
+                                                                                    #         doc_id))
                                                                                     if create_knowledge_graph:
                                                                                         self.create_knowledge_graph(doc, field,
                                                                                                                     results)
@@ -459,16 +464,22 @@ class Core(object):
                                                                                           extractors[extractor][
                                                                                               _CONFIG])
                                                                             if results:
-                                                                                self.add_data_extraction_results(
-                                                                                    match.value,
-                                                                                    field,
-                                                                                    extractor,
-                                                                                    self.add_origin_info(
-                                                                                        results,
-                                                                                        method,
-                                                                                        segment,
-                                                                                        score,
-                                                                                        doc_id))
+                                                                                results = self.add_origin_info(
+                                                                                    results,
+                                                                                    method,
+                                                                                    segment,
+                                                                                    score,
+                                                                                    doc_id)
+                                                                                # self.add_data_extraction_results(
+                                                                                #     match.value,
+                                                                                #     field,
+                                                                                #     extractor,
+                                                                                #     self.add_origin_info(
+                                                                                #         results,
+                                                                                #         method,
+                                                                                #         segment,
+                                                                                #         score,
+                                                                                #         doc_id))
                                                                                 if create_knowledge_graph:
                                                                                     self.create_knowledge_graph(doc,
                                                                                                                 field,
@@ -484,15 +495,21 @@ class Core(object):
                                                                     results = foo(match.value,
                                                                                   extractors[extractor][_CONFIG])
                                                                     if results:
-                                                                        self.add_data_extraction_results(match.value,
-                                                                                                         field,
-                                                                                                         extractor,
-                                                                                                         self.add_origin_info(
-                                                                                                             results,
-                                                                                                             method,
-                                                                                                             segment,
-                                                                                                             score,
-                                                                                                             doc_id))
+                                                                        results = self.add_origin_info(
+                                                                            results,
+                                                                            method,
+                                                                            segment,
+                                                                            score,
+                                                                            doc_id)
+                                                                        # self.add_data_extraction_results(match.value,
+                                                                        #                                  field,
+                                                                        #                                  extractor,
+                                                                        #                                  self.add_origin_info(
+                                                                        #                                      results,
+                                                                        #                                      method,
+                                                                        #                                      segment,
+                                                                        #                                      score,
+                                                                        #                                      doc_id))
 
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
@@ -521,15 +538,20 @@ class Core(object):
 
                                                                     results = foo(doc, extractors[extractor][_CONFIG])
                                                                     if results:
-                                                                        self.add_data_extraction_results(match.value,
-                                                                                                         field,
-                                                                                                         extractor,
-                                                                                                         self.add_origin_info(
-                                                                                                             results,
-                                                                                                             method,
-                                                                                                             segment,
-                                                                                                             score,
-                                                                                                             doc_id))
+                                                                        results = self.add_origin_info(results,
+                                                                                                     method,
+                                                                                                     segment,
+                                                                                                     score,
+                                                                                                     doc_id)
+                                                                        # self.add_data_extraction_results(match.value,
+                                                                        #                                  field,
+                                                                        #                                  extractor,
+                                                                        #                                  self.add_origin_info(
+                                                                        #                                      results,
+                                                                        #                                      method,
+                                                                        #                                      segment,
+                                                                        #                                      score,
+                                                                        #                                      doc_id))
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
@@ -538,13 +560,17 @@ class Core(object):
                                                                           extractors[extractor][_CONFIG])
                                                             if results:
                                                                 for f, res in results.items():
-                                                                    self.add_data_extraction_results(match.value, f,
-                                                                                                     extractor,
-                                                                                                     self.add_origin_info(
-                                                                                                         res,
-                                                                                                         method,
-                                                                                                         segment,
-                                                                                                         score, doc_id))
+                                                                    res = self.add_origin_info(res,
+                                                                                             method,
+                                                                                             segment,
+                                                                                             score, doc_id)
+                                                                    # self.add_data_extraction_results(match.value, f,
+                                                                    #                                  extractor,
+                                                                    #                                  self.add_origin_info(
+                                                                    #                                      res,
+                                                                    #                                      method,
+                                                                    #                                      segment,
+                                                                    #                                      score, doc_id))
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(doc, f, res)
                                                     else:
