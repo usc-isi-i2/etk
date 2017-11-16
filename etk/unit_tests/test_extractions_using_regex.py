@@ -48,6 +48,7 @@ class TestExtractionsUsingRegex(unittest.TestCase):
 
     def test_extractor_regex(self):
         e_config = {
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": ["content_extraction.content_strict.text.`parent`"]
@@ -81,19 +82,36 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.assertTrue("content_extraction" in r)
         self.assertTrue("content_strict" in r["content_extraction"])
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
-        # self.assertTrue("tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
-        self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
-        self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
-        self.assertTrue("extract_using_regex" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
-        extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_regex"]
-
-        ex = {'results': [{'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_regex'},
-                           'context': {'start': 41, 'end': 58, 'input': 'text',
-                                       'text': "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height "
-                                               "16"},
-                           'value': u'Helena'}]}
+        self.assertTrue("knowledge_graph" in r)
+        self.assertTrue("name" in r['knowledge_graph'])
+        self.assertTrue(len(r['knowledge_graph']["name"]) == 1)
+        extraction = r['knowledge_graph']["name"][0]
+        ex = {
+            "confidence": 1,
+            "provenance": [
+                {
+                    "source": {
+                        "segment": "content_strict",
+                        "context": {
+                            "start": 41,
+                            "end": 58,
+                            "input": "text",
+                            "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                        },
+                        "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                    },
+                    "confidence": {
+                        "extraction": 1.0
+                    },
+                    "method": "extract_using_regex",
+                    "extracted_value": "Helena"
+                }
+            ],
+            "key": "helena",
+            "value": "Helena"
+        }
         self.assertEqual(extraction, ex)
 
 
