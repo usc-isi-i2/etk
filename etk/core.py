@@ -47,6 +47,7 @@ import logging
 import logstash
 import signal
 import datetime
+import hashlib
 
 _KEY = 'key'
 _VALUE = 'value'
@@ -123,6 +124,7 @@ _EXTRACT_HEIGHT = "extract_height"
 _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
+_CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -163,6 +165,7 @@ _CONVERT_TO_KG = "convert_to_kg"
 _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
+_PARENT_DOC_ID = 'parent_doc_id'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
@@ -2080,6 +2083,39 @@ class Core(object):
                     new_results.append(result)
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
         return d
+
+
+    def create_kg_node_extractor(self, d, config, doc, parent_doc_id, doc_id=None, url=None):
+        """
+        :param d: this is the matched part of doc using input_path
+        :param config: config, field_name and segment_name
+        :param doc: the input doc, need to add a field called nested_docs
+        :param parent_doc_id: doc id of the doc
+        :param doc_id: doc_id of the resulting nested doc
+        :param url: optional, same as url of the doc
+        :return: doc with a field called nested_docs
+        """
+        if _SEGMENT_NAME not in config:
+            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
+        segment_name = config[_SEGMENT_NAME]
+
+        if not doc_id:
+            doc_id = hashlib.sha256('{}{}'.format(d[_TEXT], str(datetime.datetime.now()))).hexdigest().upper()
+
+
+        result = dict()
+        result[_DOCUMENT_ID] = doc_id
+        result['doc_id'] = doc_id
+
+        result[_PARENT_DOC_ID] = parent_doc_id
+        if url:
+            result[_URL] = url
+
+        result[_CONTENT_EXTRACTION] = dict()
+        result[_CONTENT_EXTRACTION][segment_name] = dict()
+        result[_CONTENT_EXTRACTION][segment_name][_TEXT] = d[_TEXT]
+        return result
+
 
 
 

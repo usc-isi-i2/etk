@@ -186,7 +186,7 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 extracted_dates = self.create_list_from_kg(r["knowledge_graph"]['posting_date'])
             else:
                 extracted_dates = []
-                
+
             correct_dates = t['extracted']
 
             self.assertEquals(extracted_dates, correct_dates)
