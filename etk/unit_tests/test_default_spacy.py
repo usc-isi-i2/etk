@@ -26,11 +26,13 @@ class TestTableExtractions(unittest.TestCase):
 
     def test_extraction_from_default_spacy(self):
         c = Core(extraction_config=self.e_config, load_spacy=True)
-
+        dd = codecs.open('temp','w')
         for i in range(len(self.ground_truth_input)):
+
             r = c.process(self.ground_truth_input[
                           i], create_knowledge_graph=True, html_description=False)
-
+            # dd.write(json.dumps(r))
+            # dd.write('\n')
             self.assertEquals(self.ground_truth_output[i][
                               'knowledge_graph'], r['knowledge_graph'])
 

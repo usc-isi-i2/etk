@@ -254,11 +254,11 @@ class TestExtractions(unittest.TestCase):
                 "json_content": [
                     {
                         "input_path": "@graph[*].\"bioc:text\"",
-                        "field_name": "bioc_text"
+                        "segment_name": "bioc_text"
                     },
                     {
                         "input_path": "@graph[*].random_field",
-                        "field_name": "random_field"
+                        "segment_name": "random_field"
                     }
                 ]
             },

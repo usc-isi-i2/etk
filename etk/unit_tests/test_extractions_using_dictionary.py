@@ -68,6 +68,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                     "women_name": women_name_file_path
                 }
             },
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": "content_extraction.content_strict.text.`parent`"
@@ -106,22 +107,60 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue("text" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens_original_case" in r["content_extraction"]["content_strict"])
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
-        self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
-        self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
-        self.assertTrue(
-            "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
-        extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
-
-        ex = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 11,
-                         'text': "27 \n\n\n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms "
-                                 "weight 55 kilos ",
-                         'start': 10, 'input': 'tokens'}, 'value': u'helena'},
-            {'origin': {'score': 1.0, 'segment': 'content_strict', 'method': 'extract_using_dictionary'},
-             'context': {'end': 137,
-                         'text': "\n\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore ",
-                         'start': 136, 'input': 'tokens'}, 'value': u'luna'}]}
+        self.assertTrue("knowledge_graph" in r)
+        self.assertTrue("name" in r["knowledge_graph"])
+        self.assertTrue(len(r["knowledge_graph"]["name"]) == 2)
+        extraction = r["knowledge_graph"]["name"]
+        ex = [
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 10,
+                                "end": 11,
+                                "input": "tokens",
+                                "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "helena"
+                    }
+                ],
+                "key": "helena",
+                "value": "helena"
+            },
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 136,
+                                "end": 137,
+                                "input": "tokens",
+                                "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                            },
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "luna"
+                    }
+                ],
+                "key": "luna",
+                "value": "luna"
+            }
+        ]
         self.assertEqual(extraction, ex)
 
     def test_empty_tokens(self):
@@ -155,6 +194,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                     "women_name": women_name_file_path
                 }
             },
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": "content_extraction.content_strict.text.`parent`"
@@ -186,32 +226,34 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(doc)
-
-        self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
-        self.assertTrue("data_extraction" in r["content_extraction"]["content_strict"])
-        self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
-        self.assertTrue("name" in r["content_extraction"]["content_strict"]["data_extraction"])
-        self.assertTrue(
-            "extract_using_dictionary" in r["content_extraction"]["content_strict"]["data_extraction"]["name"])
-        extraction = r["content_extraction"]["content_strict"]["data_extraction"]["name"]["extract_using_dictionary"]
-        expected_extraction = {
-                  "results": [
+        self.assertTrue("knowledge_graph" in r)
+        extraction = r["knowledge_graph"]["name"]
+        expected_extraction = [
+            {
+                "confidence": 1,
+                "provenance": [
                     {
-                      "origin": {
-                        "score": 1.0,
-                        "segment": "content_strict",
-                        "method": "extract_using_dictionary"
-                      },
-                      "context": {
-                        "end": 4,
-                        "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test ",
-                        "start": 3,
-                        "input": "tokens"
-                      },
-                      "value": "Margie"
+                        "source": {
+                            "segment": "content_strict",
+                            "context": {
+                                "start": 3,
+                                "end": 4,
+                                "input": "tokens",
+                                "text": "My name is <etk 'attribute' = 'name'>Margie</etk> and this is a test "
+                            },
+                            "document_id": "id"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "extract_using_dictionary",
+                        "extracted_value": "Margie"
                     }
-                  ]
-                }
+                ],
+                "key": "margie",
+                "value": "Margie"
+            }
+        ]
         self.assertEqual(extraction, expected_extraction)
 
     def test_negative_case_sensitive(self):
@@ -232,6 +274,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
                     "women_name": women_name_file_path
                 }
             },
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": "content_extraction.content_strict.text.`parent`"
@@ -267,6 +310,7 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue("simple_tokens" in r["content_extraction"]["content_strict"])
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
+
 
 if __name__ == '__main__':
     unittest.main()
