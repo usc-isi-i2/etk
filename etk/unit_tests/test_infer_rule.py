@@ -7,7 +7,7 @@ from etk.core import Core
 import json
 import codecs
 
-class TestExtractionsInputPaths(unittest.TestCase):
+class TestInferRulePaths(unittest.TestCase):
     def setUp(self):
         file_path = os.path.join(os.path.dirname(__file__), "resources/infer_rule_input.json")
         self.obj = json.load(codecs.open(file_path))
