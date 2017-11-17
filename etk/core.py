@@ -2086,7 +2086,6 @@ class Core(object):
         if not doc_id:
             doc_id = hashlib.sha256('{}{}'.format(d[_TEXT], str(datetime.datetime.now()))).hexdigest().upper()
 
-
         result = dict()
         result[_DOCUMENT_ID] = doc_id
         result['doc_id'] = doc_id
