@@ -1,0 +1,31 @@
+{
+  "document_id": "cdr_id",
+  "extraction_policy": "replace",
+  "error_handling": "raise_error",
+  "resources": {
+    "dictionaries": {
+
+    },
+    "landmark": [
+    ],
+    "pickle": {
+    }
+  },
+  "content_extraction": {
+    "input_path": "raw_content",
+    "extractors": {
+      "table": {
+        "field_name": "table",
+        "config": {
+        },
+        "extraction_policy": "replace"
+      }
+    }
+  },
+  "data_extraction": [
+
+  ],
+  "kg_enhancement": [
+
+  ]
+}

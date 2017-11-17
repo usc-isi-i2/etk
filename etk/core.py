@@ -1717,18 +1717,9 @@ class Core(object):
         return ft.filter_tokens(config)
 
     def extract_table(self, d, config):
-        cl_tables = False
-        model = None,
-        sem_types = []
         if _CONFIG in config:
             config = config[_CONFIG]
-            if config['classify_tables'] == 'yes':
-                cl_tables = True
-                model = config['classification_model']
-                sem_types = config['sem_types']
-                sem_types = self.load_json(sem_types)
-                model = self.load_pickle(model)
-        te = table_extractor.TableExtraction(cl_tables, sem_types, model)
+        te = table_extractor.TableExtraction()
         return te.extract(d)
 
     @staticmethod
