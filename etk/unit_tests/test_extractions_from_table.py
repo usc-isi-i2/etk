@@ -81,7 +81,7 @@ class TestTableExtractions(unittest.TestCase):
         c = Core(extraction_config=self.e_config)
         r = c.process(self.no_table)
         self.assertTrue("content_extraction" in r)
-        self.assertTrue("table" not in r["content_extraction"])
+        self.assertEqual(len(r["content_extraction"]["table"]["tables"]), 0)
 
 
 if __name__ == '__main__':
