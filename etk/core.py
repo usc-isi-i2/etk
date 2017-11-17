@@ -1236,23 +1236,6 @@ class Core(object):
             self.pickles[pickle_name] = self.load_pickle_file(self.get_pickle_file_name_from_config(pickle_name))
         return self.pickles[pickle_name]
 
-    def table_data_extractor(self, d, config):
-        result = self.table_data_extractor_(d, config)
-        # return self._relevant_text_from_context([], result, config[_FIELD_NAME])
-        return result
-
-    def table_data_extractor_(self, d, config):
-        sem_types = config['sem_types']
-        sem_types = self.load_json(sem_types)
-        method = config['method']
-        model = config['model']
-        if method == 'rule_based':
-            model = self.load_json(model)
-        else:
-            model = self.load_pickle(model)
-        tie = table_extractor.InformationExtraction(sem_types, method, model)
-        results = tie.extract(d)
-        return results
 
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
@@ -1701,18 +1684,9 @@ class Core(object):
         return ft.filter_tokens(config)
 
     def extract_table(self, d, config):
-        cl_tables = False
-        model = None,
-        sem_types = []
         if _CONFIG in config:
             config = config[_CONFIG]
-            if config['classify_tables'] == 'yes':
-                cl_tables = True
-                model = config['classification_model']
-                sem_types = config['sem_types']
-                sem_types = self.load_json(sem_types)
-                model = self.load_pickle(model)
-        te = table_extractor.TableExtraction(cl_tables, sem_types, model)
+        te = table_extractor.TableExtraction()
         return te.extract(d)
 
     @staticmethod

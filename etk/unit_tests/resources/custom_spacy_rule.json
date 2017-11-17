@@ -112,7 +112,7 @@
           "is_in_vocabulary": "",
           "is_out_of_vocabulary": "",
           "is_required": "true",
-          "length": [],
+          "length": ["3"],
           "maximum": "",
           "minimum": "",
           "numbers": [],
@@ -121,8 +121,7 @@
           "shapes": [],
           "suffix": "",
           "token": [],
-          "type": "linebreak",
-          "quantity": 3
+          "type": "linebreak"
         },
         {
           "capitalization": [],
