@@ -1236,7 +1236,6 @@ class Core(object):
             self.pickles[pickle_name] = self.load_pickle_file(self.get_pickle_file_name_from_config(pickle_name))
         return self.pickles[pickle_name]
 
-
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
 
@@ -2051,7 +2050,7 @@ class Core(object):
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
         return d
 
-    def create_kg_node_extractor(self, d, config, doc, parent_doc_id, doc_id=None, url=None):
+    def create_kg_node_extractor(self, ds, config, doc, parent_doc_id, doc_id=None, url=None):
         """
         :param d: this is the matched part of doc using input_path
         :param config: config, field_name and segment_name
@@ -2066,43 +2065,51 @@ class Core(object):
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
         segment_name = config[_SEGMENT_NAME]
 
-        class_type = None
-        if '@type' in config:
-            class_type = config['@type']
-
-        timestamp_created = str(datetime.datetime.now())
-
-        result = dict()
-        result['@timestamp_created'] = timestamp_created
-
-        result[_PARENT_DOC_ID] = parent_doc_id
-        if url:
-            result[_URL] = url
-
-        result[_CONTENT_EXTRACTION] = dict()
-
-        if not doc_id:
-            if isinstance(d, basestring) or isinstance(d, numbers.Number):
-                if isinstance(d, numbers.Number):
-                    d = str(d)
-                doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
-            elif isinstance(d, dict):
-                doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
-                if '@type' in d:
-                    class_type = d['@type']
-            else:
-                raise ValueError('cannot process a list of lists: {}, in the method: {}', d, _CREATE_KG_NODE_EXTRACTOR)
-
-        result[_DOCUMENT_ID] = doc_id
-        result['doc_id'] = doc_id
-
-        if class_type:
-            result['@type'] = class_type
-
-        result[_CONTENT_EXTRACTION][segment_name] = d
-
         if doc:
             if 'nested_docs' not in doc:
                 doc['nested_docs'] = list()
+
+        if not isinstance(ds, list):
+            ds = [ds]
+
+        extractions = list()
+        for d in ds:
+            class_type = None
+            if '@type' in config:
+                class_type = config['@type']
+
+            timestamp_created = str(datetime.datetime.now())
+
+            result = dict()
+            result['@timestamp_created'] = timestamp_created
+
+            result[_PARENT_DOC_ID] = parent_doc_id
+            if url:
+                result[_URL] = url
+
+            result[_CONTENT_EXTRACTION] = dict()
+
+            if not doc_id:
+                if isinstance(d, basestring) or isinstance(d, numbers.Number):
+                    if isinstance(d, numbers.Number):
+                        d = str(d)
+                    doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
+                elif isinstance(d, dict):
+                    doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    if '@type' in d:
+                        class_type = d['@type']
+                else:
+                    raise ValueError('cannot process a list of lists: {}, in the method: {}', d,
+                                     _CREATE_KG_NODE_EXTRACTOR)
+
+            result[_DOCUMENT_ID] = doc_id
+            result['doc_id'] = doc_id
+
+            if class_type:
+                result['@type'] = class_type
+
+            result[_CONTENT_EXTRACTION][segment_name] = d
+
             doc['nested_docs'].append(result)
-        return {'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}}
+            extractions.append({'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+        return extractions
