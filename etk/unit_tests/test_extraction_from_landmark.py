@@ -15,6 +15,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
 
     def test_extraction_from_landmark_fields(self):
         e_config = {
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": [
@@ -69,27 +70,54 @@ class TestExtractionFromLandmark(unittest.TestCase):
         inferlink_extractions = r["content_extraction"]["inferlink_extractions"]
 
         self.assertTrue("inferlink_location" in inferlink_extractions)
-        self.assertTrue("data_extraction" in inferlink_extractions["inferlink_location"])
-        self.assertTrue("location" in inferlink_extractions["inferlink_location"]["data_extraction"])
-        self.assertTrue(
-            "extract_from_landmark" in inferlink_extractions["inferlink_location"]["data_extraction"]["location"])
-
-        ex_location = inferlink_extractions["inferlink_location"]["data_extraction"]["location"][
-            "extract_from_landmark"]
-
-        ifl_location = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': u'Los Angeles, California'}]}
+        self.assertTrue("knowledge_graph" in r)
+        ex_location = r["knowledge_graph"]["location"]
+        ifl_location = [
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "html",
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "inferlink",
+                        "extracted_value": "Los Angeles, California"
+                    }
+                ],
+                "key": "los angeles, california",
+                "value": "Los Angeles, California"
+            }
+        ]
         self.assertEqual(ex_location, ifl_location)
 
         self.assertTrue("inferlink_age" in inferlink_extractions)
-        self.assertTrue("data_extraction" in inferlink_extractions["inferlink_age"])
-        self.assertTrue("age" in inferlink_extractions["inferlink_age"]["data_extraction"])
-        self.assertTrue(
-            "extract_from_landmark" in inferlink_extractions["inferlink_age"]["data_extraction"]["age"])
-        ex_age = inferlink_extractions["inferlink_age"]["data_extraction"]["age"]["extract_from_landmark"]
 
-        ifl_age = {
-            'results': [{'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': '23'}]}
+        ex_age = r["knowledge_graph"]["age"]
+
+        ifl_age = [
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "html",
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "inferlink",
+                        "extracted_value": "23"
+                    }
+                ],
+                "key": "23",
+                "value": "23"
+            }
+        ]
 
         self.assertEqual(ex_age, ifl_age)
 
@@ -97,6 +125,7 @@ class TestExtractionFromLandmark(unittest.TestCase):
 
     def test_extract_landmark_no_fields(self):
         e_config = {
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": [
@@ -118,22 +147,35 @@ class TestExtractionFromLandmark(unittest.TestCase):
 
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        inferlink_extractions = r["content_extraction"]["inferlink_extractions"]
-        self.assertTrue("data_extraction" in inferlink_extractions["inferlink_posting-date"])
-        self.assertTrue("posting-date" in inferlink_extractions["inferlink_posting-date"]["data_extraction"])
-        self.assertTrue("extract_from_landmark" in inferlink_extractions["inferlink_posting-date"]["data_extraction"][
-            "posting-date"])
+        self.assertTrue("knowledge_graph" in r)
+        ex_posting_date = r["knowledge_graph"]["posting-date"]
 
-        ex_posting_date = inferlink_extractions["inferlink_posting-date"]["data_extraction"]["posting-date"][
-            "extract_from_landmark"]
-
-        ifl_posting_date = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'value': u'2017-01-02 06:46'}]}
+        ifl_posting_date = [
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "segment": "html",
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "inferlink",
+                        "extracted_value": "2017-01-02 06:46"
+                    }
+                ],
+                "key": "2017-01-02 06:46",
+                "value": "2017-01-02 06:46"
+            }
+        ]
 
         self.assertEqual(ex_posting_date, ifl_posting_date)
 
     def test_extract_landmark_post_filter(self):
         e_config = {
+            "document_id": "doc_id",
             "data_extraction": [
                 {
                     "input_path": [
@@ -161,16 +203,32 @@ class TestExtractionFromLandmark(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(self.doc)
-        inferlink_extractions = r["content_extraction"]["inferlink_extractions"]
+        self.assertTrue("knowledge_graph" in r)
+        ex_phone = r["knowledge_graph"]["phone"]
 
-        self.assertTrue("data_extraction" in inferlink_extractions["inferlink_phone"])
-        self.assertTrue("phone" in inferlink_extractions["inferlink_phone"]["data_extraction"])
-        self.assertTrue("extract_from_landmark" in inferlink_extractions["inferlink_phone"]["data_extraction"]["phone"])
-        ex_phone = inferlink_extractions["inferlink_phone"]["data_extraction"]["phone"]["extract_from_landmark"]
-
-        expected_phone = {'results': [
-            {'origin': {'score': 1.0, 'segment': 'html', 'method': 'inferlink'}, 'obfuscation': 'False',
-             'value': '3234522013'}]}
+        expected_phone = [
+            {
+                "confidence": 1,
+                "provenance": [
+                    {
+                        "source": {
+                            "extraction_metadata": {
+                                "obfuscation": "False"
+                            },
+                            "segment": "html",
+                            "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
+                        },
+                        "confidence": {
+                            "extraction": 1.0
+                        },
+                        "method": "inferlink",
+                        "extracted_value": "3234522013"
+                    }
+                ],
+                "key": "3234522013",
+                "value": "3234522013"
+            }
+        ]
         self.assertEqual(ex_phone, expected_phone)
 
 
