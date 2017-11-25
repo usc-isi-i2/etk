@@ -2138,7 +2138,7 @@ class Core(object):
             if '@type' in config:
                 class_type = config['@type']
 
-            timestamp_created = str(datetime.datetime.now())
+            timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
             result['@timestamp_created'] = timestamp_created
