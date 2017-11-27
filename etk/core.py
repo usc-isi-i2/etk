@@ -1226,7 +1226,10 @@ class Core(object):
         if field_name not in self.stop_word_dicts:
             dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
             if dict_name:
-                self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
+                try:
+                    self.stop_word_dicts[field_name] = json.load(gzip.open(dict_path), 'utf-8')
+                except:
+                    self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
