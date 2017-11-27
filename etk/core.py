@@ -166,6 +166,14 @@ _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
 _PARENT_DOC_ID = 'parent_doc_id'
+_FILTERS = 'filters'
+_FIELD = 'field'
+_REGEX = 'regex'
+_ACTION = 'action'
+_NO_ACTION = 'no_action'
+_KEEP = 'keep'
+_DISCARD = 'discard'
+_PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
@@ -204,6 +212,7 @@ class Core(object):
         self.logstash_logger = None
         self.etk_version = "1"
         self.prefer_inferlink_description = False
+        self.doc_filter_regexes = dict()
         self.readability_timeout = 3
         if self.extraction_config:
             if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
@@ -249,6 +258,50 @@ class Core(object):
     @staticmethod
     def timeout_handler(signum, frame):  # Custom signal handler
         raise TimeoutException
+
+    def process_doc_filters(self, doc):
+        if self.extraction_config:
+            if _FILTERS in self.extraction_config:
+                filters = self.extraction_config[_FILTERS]
+                if _URL in doc:
+                    if _TLD not in doc:
+                        doc[_TLD] = self.extract_tld(doc[_URL])
+                    tld = doc[_TLD]
+                    if tld in filters:
+                        doc_filters = filters[tld]
+
+                        if not isinstance(doc_filters, list):
+                            doc_filters = [doc_filters]
+                        for doc_filter in doc_filters:
+                            if _FIELD in doc_filter and _ACTION in doc_filter and _REGEX in doc_filter:
+                                field = doc_filter[_FIELD]
+                                action = doc_filter[_ACTION]
+                                regex = doc_filter[_REGEX]
+                                if action.lower() not in [_NO_ACTION, _KEEP, _DISCARD]:
+                                    print 'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
+                                        action, _NO_ACTION, _KEEP, _DISCARD, _NO_ACTION)
+                                    action = _NO_ACTION
+
+                                if field in doc:
+                                    if isinstance(doc[field], basestring):
+                                        if regex not in self.doc_filter_regexes:
+                                            self.doc_filter_regexes[regex] = re.compile(regex)
+                                        regex_c = self.doc_filter_regexes[regex]
+                                        match = regex_c.search(doc[field])
+                                        if match:
+                                            doc[_PREFILTER_FILTER_OUTCOME] = action
+                                            break
+                                    else:
+                                        print 'Error while filtering out docs: field - {} is not a literal in ' \
+                                              'the doc.'.format(field)
+                            else:
+                                message = 'Incomplete filter: {} for tld: {} in etk config'.format(doc_filter, tld)
+                                print message
+                                self.log(message, _INFO)
+        # if for some reason, there is no action defined: no_action is default action
+        if _PREFILTER_FILTER_OUTCOME not in doc:
+            doc[_PREFILTER_FILTER_OUTCOME] = _NO_ACTION
+        return doc
 
     def process(self, doc, create_knowledge_graph=True, html_description=False):
         start_time_process = time.time()
@@ -299,6 +352,11 @@ class Core(object):
                     self.log(warning, _WARNING)
                     error_handling = _RAISE_ERROR
                 self.global_error_handling = error_handling
+
+                # Before we process the doc, run filter docs
+                doc = self.process_doc_filters(doc)
+                if doc[_PREFILTER_FILTER_OUTCOME] == _DISCARD:
+                    return None
 
                 """Handle content extraction first aka Phase 1"""
                 if _CONTENT_EXTRACTION in self.extraction_config:
@@ -367,7 +425,8 @@ class Core(object):
                     if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                         doc[_CONTENT_EXTRACTION][_URL] = dict()
                         doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
-                        doc[_TLD] = self.extract_tld(doc[_URL])
+                        if _TLD not in doc:
+                            doc[_TLD] = self.extract_tld(doc[_URL])
 
                 """Phase 2: The Data Extraction"""
                 if _DATA_EXTRACTION in self.extraction_config:
@@ -2053,7 +2112,8 @@ class Core(object):
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
         return d
 
-    def create_kg_node_extractor(self, ds, config, doc, parent_doc_id, doc_id=None, url=None):
+    @staticmethod
+    def create_kg_node_extractor(ds, config, doc, parent_doc_id, doc_id=None, url=None):
         """
         :param d: this is the matched part of doc using input_path
         :param config: config, field_name and segment_name
@@ -2081,7 +2141,7 @@ class Core(object):
             if '@type' in config:
                 class_type = config['@type']
 
-            timestamp_created = str(datetime.datetime.now())
+            timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
             result['@timestamp_created'] = timestamp_created
