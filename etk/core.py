@@ -1,4 +1,5 @@
 import sys
+import os
 
 stdout = sys.stdout
 reload(sys)
@@ -1284,7 +1285,7 @@ class Core(object):
     def load_stop_words(self, field_name, dict_name):
         if field_name not in self.stop_word_dicts:
             dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
-            if dict_name:
+            if os.path.exists(dict_path):
                 try:
                     self.stop_word_dicts[field_name] = json.load(gzip.open(dict_path), 'utf-8')
                 except:
