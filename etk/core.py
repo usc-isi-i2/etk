@@ -175,6 +175,8 @@ _NO_ACTION = 'no_action'
 _KEEP = 'keep'
 _DISCARD = 'discard'
 _PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
+_CREATED_BY = 'created_by'
+
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
@@ -2147,7 +2149,8 @@ class Core(object):
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            result[_PARENT_DOC_ID] = parent_doc_id
+            # result[_PARENT_DOC_ID] = parent_doc_id
+            result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
