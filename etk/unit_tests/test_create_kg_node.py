@@ -128,7 +128,7 @@ class TestCreateKGExtractor(unittest.TestCase):
         # self.assertTrue('parent_doc_id' in nested_doc_1)
         # self.assertEqual(nested_doc_1['parent_doc_id'],
         #                  '19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E')
-        self.assertTrue('created_by' in nested_doc)
+        self.assertTrue('created_by' in nested_doc_1)
         self.assertTrue('@timestamp_created' in nested_doc_1)
         self.assertTrue('url' in nested_doc_1)
 
