@@ -536,7 +536,10 @@ def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in
     # if user enter one word
     if len(word_l) == 1:
         if all_forms == "true":
-            token = {spacy.attrs.LEMMA: find_lexeme_base(word_l[0], nlp)}
+            if any(x.isupper() for x in nlp([word_l[0]])[0].lemma_):
+                token = {spacy.attrs.LOWER: word_l[0].lower()}
+            else:
+                token = {spacy.attrs.LEMMA: find_lexeme_base(word_l[0], nlp)}
         else:
             token = {spacy.attrs.LOWER: word_l[0].lower()}
         token_l = speci_capi(token, capi_l, word_l)
@@ -566,7 +569,10 @@ def create_word_token(word_l, capi_l, length_l, flag, contain_num, out_vocab, in
         else:
             token_l = list()
             for word_token in word_l:
-                token = {spacy.attrs.LEMMA: find_lexeme_base(word_token, nlp)}
+                if any(x.isupper() for x in nlp([word_token])[0].lemma_):
+                    token = {spacy.attrs.LOWER: word_token.lower()}
+                else:
+                    token = {spacy.attrs.LEMMA: find_lexeme_base(word_token, nlp)}
                 token_l += speci_capi(token, capi_l, word_l)
 
     return token_l
@@ -829,10 +835,7 @@ def check_head(m_lst, output_lst, def_inf, doc):
 
 
 def find_lexeme_base(word, nlp):
-    if any(x.isupper() for x in nlp([word])[0].lemma_):
-        return nlp([word])[0].lower_
-    else:
-        return nlp([word])[0].lemma_
+    return nlp([word])[0].lemma_
 
 
 def compare_shape(token, shape):
