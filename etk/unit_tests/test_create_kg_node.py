@@ -196,6 +196,43 @@ class TestCreateKGExtractor(unittest.TestCase):
         self.assertEqual(r['knowledge_graph']['actors'][0]['provenance'][0]['qualifiers']['timestamp_created'],
                          nested_doc['@timestamp_created'])
 
+    def test_doc_id(self):
+        doc = {
+            "url": "http:www.hitman.org",
+            "doc_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E",
+            "actors": {
+                "name": "agent 47",
+                "affiliation": "International Contract Agency",
+                "doc_id": "47"
+            }
+        }
+
+        e_config = {
+            "document_id": "doc_id",
+            "data_extraction": [
+                {
+                    "input_path": [
+                        "actors"
+                    ],
+                    "fields": {
+                        "actors": {
+                            "extractors": {
+                                "create_kg_node_extractor": {
+                                    "config": {
+                                        "segment_name": "actor_information"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['actors'][0]['value'], '47')
+        self.assertEqual(r['nested_docs'][0]['doc_id'], '47')
+
 
 if __name__ == '__main__':
     unittest.main()

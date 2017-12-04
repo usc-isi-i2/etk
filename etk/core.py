@@ -145,6 +145,7 @@ _OBFUSCATION = "obfuscation"
 _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
+_DOC_ID = 'doc_id'
 _TLD = 'tld'
 _FEATURE_COMPUTATION = "feature_computation"
 _LOGGING = "logging"
@@ -2155,7 +2156,10 @@ class Core(object):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
                 elif isinstance(d, dict):
-                    doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
+                        doc_id = d[_DOC_ID]
+                    else:
+                        doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
                     if '@type' in d:
                         class_type = d['@type']
                 else:
