@@ -1,4 +1,5 @@
 import sys
+import os
 
 stdout = sys.stdout
 reload(sys)
@@ -175,6 +176,8 @@ _NO_ACTION = 'no_action'
 _KEEP = 'keep'
 _DISCARD = 'discard'
 _PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
+_CREATED_BY = 'created_by'
+
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
@@ -1285,8 +1288,11 @@ class Core(object):
     def load_stop_words(self, field_name, dict_name):
         if field_name not in self.stop_word_dicts:
             dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
-            if dict_name:
-                self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
+            if os.path.exists(dict_path):
+                try:
+                    self.stop_word_dicts[field_name] = json.load(gzip.open(dict_path), 'utf-8')
+                except:
+                    self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
@@ -2144,7 +2150,8 @@ class Core(object):
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            result[_PARENT_DOC_ID] = parent_doc_id
+            # result[_PARENT_DOC_ID] = parent_doc_id
+            result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
