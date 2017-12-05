@@ -34,7 +34,7 @@ import gzip
 import re
 import spacy
 import codecs
-from jsonpath_rw import parse
+from jsonpath_ng import parse
 import time
 import collections
 import numbers
@@ -178,12 +178,15 @@ _DISCARD = 'discard'
 _PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
 _CREATED_BY = 'created_by'
 
-
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
 
 
 class TimeoutException(Exception):  # Custom exception class
+    pass
+
+
+class InvalidJsonPathException(Exception):
     pass
 
 
@@ -329,7 +332,11 @@ class Core(object):
                     #  and value is the the json path of the input doc
                     for field_name, kgc_path in conversion_map.iteritems():
                         if kgc_path not in self.kgc_paths:
-                            self.kgc_paths[kgc_path] = parse(kgc_path)
+                            try:
+                                self.kgc_paths[kgc_path] = parse(kgc_path)
+                            except:
+                                raise InvalidJsonPathException(
+                                    '\'{}\' is not a valid json path'.format(kgc_path))
                         kg_matches = self.kgc_paths[kgc_path].find(doc)
                         for kg_match in kg_matches:
                             results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
@@ -381,7 +388,11 @@ class Core(object):
                         raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
                     if html_path and _EXTRACTORS in ce_config:
                         if not self.content_extraction_path:
-                            self.content_extraction_path = parse(html_path)
+                            try:
+                                self.content_extraction_path = parse(html_path)
+                            except:
+                                raise InvalidJsonPathException(
+                                    '\'{}\' is not a valid json path'.format(html_path))
                         matches = self.content_extraction_path.find(doc)
 
                         extractors = ce_config[_EXTRACTORS]
@@ -450,7 +461,11 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in de_config:
                                 if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
                                     # First rule of DATA Extraction club: Get tokens
@@ -644,7 +659,11 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in kg_config:
                                 if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
                                     fields = kg_config[_FIELDS]
@@ -676,6 +695,8 @@ class Core(object):
                     doc = Core.rearrange_description(doc, html_description)
                     doc = Core.rearrange_title(doc)
 
+        except InvalidJsonPathException as e:
+            raise e
         except Exception as e:
             self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID],
                      url=doc[_URL] if _URL in doc else None)
@@ -709,7 +730,11 @@ class Core(object):
         val_list = list()
 
         if input_path not in self.json_content_paths:
-            self.json_content_paths[input_path] = parse(input_path)
+            try:
+                self.json_content_paths[input_path] = parse(input_path)
+            except Exception as e:
+                raise InvalidJsonPathException(
+                    '\'{}\' is not a valid json path'.format(input_path))
         matches = self.json_content_paths[input_path].find(doc)
         for match in matches:
             values = match.value
