@@ -772,13 +772,15 @@ class Core(object):
         return doc
 
     def extract_as_is(self, d, config=None):
-        result = dict()
-        result[_VALUE] = d[_TEXT]
-        if _KEY in d:
-            result[_KEY] = d[_KEY]
-        if _QUALIFIERS in d:
-            result[_QUALIFIERS] = d[_QUALIFIERS]
-        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        if d[_TEXT].strip() != '':
+            result = dict()
+            result[_VALUE] = d[_TEXT]
+            if _KEY in d:
+                result[_KEY] = d[_KEY]
+            if _QUALIFIERS in d:
+                result[_QUALIFIERS] = d[_QUALIFIERS]
+            return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        return None
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
         results = list()
