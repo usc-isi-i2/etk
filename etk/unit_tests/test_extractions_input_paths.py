@@ -13,7 +13,6 @@ class TestExtractionsInputPaths(unittest.TestCase):
         file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
         self.doc = json.load(codecs.open(file_path))
 
-
     def test_invalid_json_path(self):
         doc = {
             "url": "http:www.hitman.org",
@@ -49,7 +48,6 @@ class TestExtractionsInputPaths(unittest.TestCase):
 
         with self.assertRaises(Exception):
             r = c.process(doc)
-
 
     def test_extraction_input_path(self):
         women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
