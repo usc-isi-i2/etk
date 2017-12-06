@@ -779,6 +779,9 @@ class Core(object):
                 result[_KEY] = d[_KEY]
             if _QUALIFIERS in d:
                 result[_QUALIFIERS] = d[_QUALIFIERS]
+            if config and _POST_FILTER in config:
+                post_filters = config[_POST_FILTER]
+                result = self.run_post_filters_results(result, post_filters)
             return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
         return None
 
@@ -793,6 +796,7 @@ class Core(object):
                 results.append(result)
             else:
                 return None
+
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
 
     @staticmethod
@@ -1703,14 +1707,20 @@ class Core(object):
             for post_filter in post_filters:
                 try:
                     f = getattr(self, post_filter)
-                except Exception as e:
-                    raise 'Exception: {}, no function {} defined in core.py'.format(e, post_filter)
-
-                for result in results:
-                    val = f(result['value'])
-                    if val:
-                        result['value'] = val
-                        out_results.append(result)
+                    if f:
+                        for result in results:
+                            val = f(result['value'])
+                            if val:
+                                result['value'] = val
+                                out_results.append(result)
+                except:
+                    print 'Warn: No function {} defined in core.py'.format(post_filter)
+                    # lets try lambda functions
+                    for result in results:
+                        val = Core.string_to_lambda(post_filter)(result['value'])
+                        if val:
+                            result['value'] = val
+                            out_results.append(result)
             return out_results if len(out_results) > 0 else None
 
     @staticmethod

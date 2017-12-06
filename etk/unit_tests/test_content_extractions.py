@@ -377,6 +377,61 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue(len(r['knowledge_graph']['actor_title']) == 1)
         self.assertTrue(r['knowledge_graph']['actor_title'][0]['key'] == 'noncombatant status not contested')
 
+    def test_extract_as_is_post_filter(self):
+        doc = {
+            "uri": "1",
+            "event_actors": [
+                {
+                    "description": "Non-State, Internal, No State Sanction",
+                    "id": "internalnononstatesanctionstate",
+                    "title": ""
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "title": "Noncombatant Status Not Contested"
+                }
+            ]
+        }
+
+        e_config = {
+            "extraction_policy": "replace",
+            "error_handling": "raise_error",
+            "document_id": "uri",
+            "content_extraction": {
+                "json_content": [
+                    {
+                        "input_path": "event_actors[*].title",
+                        "segment_name": "actor_title"
+                    }
+                ]
+            },
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.actor_title[*].text.`parent`",
+                    "fields": {
+                        "actor_title": {
+                            "extractors": {
+                                "extract_as_is": {
+                                    "extraction_policy": "keep_existing",
+                                    "config": {
+                                        "post_filter": [
+                                            "x.upper()"
+                                        ]
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue('actor_title' in r['knowledge_graph'])
+        self.assertTrue(len(r['knowledge_graph']['actor_title']) == 1)
+        self.assertTrue(r['knowledge_graph']['actor_title'][0]['value'] == 'noncombatant status not contested'.upper())
 
 if __name__ == '__main__':
     unittest.main()
