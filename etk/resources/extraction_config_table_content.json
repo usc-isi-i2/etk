@@ -1,5 +1,5 @@
 {
-  "document_id": "cdr_id",
+  "document_id": "doc_id",
   "extraction_policy": "replace",
   "error_handling": "raise_error",
   "resources": {
@@ -9,6 +9,7 @@
     "landmark": [
     ],
     "pickle": {
+      "my_dic": "/Users/majid/DIG/test_fields.txt"
     }
   },
   "content_extraction": {
@@ -23,7 +24,22 @@
     }
   },
   "data_extraction": [
-
+    {
+      "input_path": [
+        "*.table.tables[*]"
+      ],
+      "fields": {
+        "my_field": {
+          "extractors": {
+            "entity_table_extractor": {
+              "config": {
+                "dic": "my_dic"
+              }
+            }
+          }
+        }
+      }
+    }
   ],
   "kg_enhancement": [
 

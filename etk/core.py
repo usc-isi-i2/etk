@@ -387,6 +387,7 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in de_config:
                                 if input_path not in self.data_extraction_path:
+                                    print input_path
                                     self.data_extraction_path[input_path] = parse(input_path)
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
@@ -652,7 +653,7 @@ class Core(object):
             print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
-
+        print 'Correct etk!'
         return doc
 
     def convert_json_content(self, doc, json_content_extractor):
@@ -1704,6 +1705,18 @@ class Core(object):
             config = config[_CONFIG]
         te = table_extractor.TableExtraction()
         return te.extract(d)
+
+    def entity_table_extractor(self, d, config):
+        dic = set()
+        # print config
+        if 'dic' in config:
+            # config = config[_CONFIG]
+            dic = config['dic']
+            dic = self.load_json(dic)
+
+        te = table_extractor.EntityTableDataExtraction()
+        res = te.extract(d, dic)
+        return res if len(res) > 0 else None
 
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
