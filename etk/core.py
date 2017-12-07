@@ -722,7 +722,6 @@ class Core(object):
             print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
-
         return doc
 
     def convert_json_content(self, doc, json_content_extractor):
@@ -1792,6 +1791,18 @@ class Core(object):
             config = config[_CONFIG]
         te = table_extractor.TableExtraction()
         return te.extract(d)
+
+    def entity_table_extractor(self, d, config):
+        dic = set()
+        # print config
+        if 'dic' in config:
+            # config = config[_CONFIG]
+            dic = config['dic']
+            dic = self.load_json(dic)
+
+        te = table_extractor.EntityTableDataExtraction()
+        res = te.extract(d, dic)
+        return res if len(res) > 0 else None
 
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
