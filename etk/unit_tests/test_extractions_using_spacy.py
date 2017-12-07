@@ -4,13 +4,13 @@ import unittest
 import sys
 import os
 import json
+
 sys.path.append('../../')
 sys.path.append('../')
 from etk.core import Core
 
 
 class TestExtractionsUsingSpacy(unittest.TestCase):
-
     def setUp(self):
 
         e_config = {
@@ -89,8 +89,8 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             if not isinstance(ps, list):
                 ps = [ps]
             for p in ps:
-                    x = p['qualifiers']['social_network']
-                    results[x] = [p['extracted_value']]
+                x = p['qualifiers']['social_network']
+                results[x] = [p['extracted_value']]
         return results
 
     def test_spacy_extractions(self):
@@ -227,7 +227,43 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
 
             correct_addresses = t['extracted']
             self.assertEquals(extracted_addresses.sort(), correct_addresses.sort())
-        
+
+    def test_spacy_date(self):
+        doc = {
+            "url": "http://date.test.com",
+            "doc_id": "12344",
+            "content_extraction": {
+                "useful_text": {
+                    "text": u"Alert: Tue, 2006-02-07"
+                }
+            }
+        }
+        e_config = {
+            "document_id": "doc_id",
+            'data_extraction': [
+                {
+                    "fields": {
+                        "event_date": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                        "post_filter": "parse_date"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "input_path": [
+                        "content_extraction.useful_text.text.`parent`"
+                    ]
+                }
+            ]}
+        core = Core(extraction_config=e_config)
+        r = core.process(doc)
+        kg = r['knowledge_graph']
+        self.assertTrue('event_date' in kg)
+        self.assertEqual(kg['event_date'][0]['value'], '2006-02-07T00:00:00')
+
 
 if __name__ == '__main__':
     unittest.main()

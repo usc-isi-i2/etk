@@ -86,6 +86,7 @@ _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _AGE = 'age'
 _POSTING_DATE = 'posting_date'
+_DATE = 'date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
 _RESOURCES = 'resources'
@@ -1466,11 +1467,12 @@ class Core(object):
         if field_name == _AGE:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
-        elif field_name == _POSTING_DATE:
+        elif field_name == _POSTING_DATE or _DATE in field_name:
+            self.load_matchers(_POSTING_DATE)
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_date_extractor.extract(nlp_doc,
                                                                                     self.matchers[_POSTING_DATE]),
-                                                       _POSTING_DATE)
+                                                       field_name)
             if _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
                 results = self.run_post_filters_results(results, post_filters)
