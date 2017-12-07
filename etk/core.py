@@ -1,4 +1,5 @@
 import sys
+import os
 
 stdout = sys.stdout
 reload(sys)
@@ -33,7 +34,7 @@ import gzip
 import re
 import spacy
 import codecs
-from jsonpath_rw import parse
+from jsonpath_ng import parse
 import time
 import collections
 import numbers
@@ -85,6 +86,7 @@ _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _AGE = 'age'
 _POSTING_DATE = 'posting_date'
+_DATE = 'date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
 _RESOURCES = 'resources'
@@ -145,6 +147,7 @@ _OBFUSCATION = "obfuscation"
 _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
+_DOC_ID = 'doc_id'
 _TLD = 'tld'
 _FEATURE_COMPUTATION = "feature_computation"
 _LOGGING = "logging"
@@ -166,12 +169,25 @@ _PREFER_INFERLINK_DESCRIPTION = "prefer_inferlink_description"
 _TIMEOUT = "timeout"
 _JSON_CONTENT = 'json_content'
 _PARENT_DOC_ID = 'parent_doc_id'
+_FILTERS = 'filters'
+_FIELD = 'field'
+_REGEX = 'regex'
+_ACTION = 'action'
+_NO_ACTION = 'no_action'
+_KEEP = 'keep'
+_DISCARD = 'discard'
+_PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
+_CREATED_BY = 'created_by'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
 
 
 class TimeoutException(Exception):  # Custom exception class
+    pass
+
+
+class InvalidJsonPathException(Exception):
     pass
 
 
@@ -204,6 +220,7 @@ class Core(object):
         self.logstash_logger = None
         self.etk_version = "1"
         self.prefer_inferlink_description = False
+        self.doc_filter_regexes = dict()
         self.readability_timeout = 3
         if self.extraction_config:
             if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
@@ -250,6 +267,50 @@ class Core(object):
     def timeout_handler(signum, frame):  # Custom signal handler
         raise TimeoutException
 
+    def process_doc_filters(self, doc):
+        if self.extraction_config:
+            if _FILTERS in self.extraction_config:
+                filters = self.extraction_config[_FILTERS]
+                if _URL in doc:
+                    if _TLD not in doc:
+                        doc[_TLD] = self.extract_tld(doc[_URL])
+                    tld = doc[_TLD]
+                    if tld in filters:
+                        doc_filters = filters[tld]
+
+                        if not isinstance(doc_filters, list):
+                            doc_filters = [doc_filters]
+                        for doc_filter in doc_filters:
+                            if _FIELD in doc_filter and _ACTION in doc_filter and _REGEX in doc_filter:
+                                field = doc_filter[_FIELD]
+                                action = doc_filter[_ACTION]
+                                regex = doc_filter[_REGEX]
+                                if action.lower() not in [_NO_ACTION, _KEEP, _DISCARD]:
+                                    print 'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
+                                        action, _NO_ACTION, _KEEP, _DISCARD, _NO_ACTION)
+                                    action = _NO_ACTION
+
+                                if field in doc:
+                                    if isinstance(doc[field], basestring):
+                                        if regex not in self.doc_filter_regexes:
+                                            self.doc_filter_regexes[regex] = re.compile(regex)
+                                        regex_c = self.doc_filter_regexes[regex]
+                                        match = regex_c.search(doc[field])
+                                        if match:
+                                            doc[_PREFILTER_FILTER_OUTCOME] = action
+                                            break
+                                    else:
+                                        print 'Error while filtering out docs: field - {} is not a literal in ' \
+                                              'the doc.'.format(field)
+                            else:
+                                message = 'Incomplete filter: {} for tld: {} in etk config'.format(doc_filter, tld)
+                                print message
+                                self.log(message, _INFO)
+        # if for some reason, there is no action defined: no_action is default action
+        if _PREFILTER_FILTER_OUTCOME not in doc:
+            doc[_PREFILTER_FILTER_OUTCOME] = _NO_ACTION
+        return doc
+
     def process(self, doc, create_knowledge_graph=True, html_description=False):
         start_time_process = time.time()
         try:
@@ -272,7 +333,11 @@ class Core(object):
                     #  and value is the the json path of the input doc
                     for field_name, kgc_path in conversion_map.iteritems():
                         if kgc_path not in self.kgc_paths:
-                            self.kgc_paths[kgc_path] = parse(kgc_path)
+                            try:
+                                self.kgc_paths[kgc_path] = parse(kgc_path)
+                            except:
+                                raise InvalidJsonPathException(
+                                    '\'{}\' is not a valid json path'.format(kgc_path))
                         kg_matches = self.kgc_paths[kgc_path].find(doc)
                         for kg_match in kg_matches:
                             results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
@@ -300,6 +365,11 @@ class Core(object):
                     error_handling = _RAISE_ERROR
                 self.global_error_handling = error_handling
 
+                # Before we process the doc, run filter docs
+                doc = self.process_doc_filters(doc)
+                if doc[_PREFILTER_FILTER_OUTCOME] == _DISCARD:
+                    return None
+
                 """Handle content extraction first aka Phase 1"""
                 if _CONTENT_EXTRACTION in self.extraction_config:
                     if _CONTENT_EXTRACTION not in doc:
@@ -319,7 +389,11 @@ class Core(object):
                         raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
                     if html_path and _EXTRACTORS in ce_config:
                         if not self.content_extraction_path:
-                            self.content_extraction_path = parse(html_path)
+                            try:
+                                self.content_extraction_path = parse(html_path)
+                            except:
+                                raise InvalidJsonPathException(
+                                    '\'{}\' is not a valid json path'.format(html_path))
                         matches = self.content_extraction_path.find(doc)
 
                         extractors = ce_config[_EXTRACTORS]
@@ -367,7 +441,8 @@ class Core(object):
                     if _URL in doc and doc[_URL] and doc[_URL].strip() != '':
                         doc[_CONTENT_EXTRACTION][_URL] = dict()
                         doc[_CONTENT_EXTRACTION][_URL][_TEXT] = doc[_URL]
-                        doc[_TLD] = self.extract_tld(doc[_URL])
+                        if _TLD not in doc:
+                            doc[_TLD] = self.extract_tld(doc[_URL])
 
                 """Phase 2: The Data Extraction"""
                 if _DATA_EXTRACTION in self.extraction_config:
@@ -387,8 +462,11 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in de_config:
                                 if input_path not in self.data_extraction_path:
-                                    print input_path
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
                                     # First rule of DATA Extraction club: Get tokens
@@ -426,35 +504,54 @@ class Core(object):
                                                                 extractors[extractor][_CONFIG] = dict()
                                                             extractors[extractor][_CONFIG][_FIELD_NAME] = field
                                                             ep = self.determine_extraction_policy(extractors[extractor])
-                                                            if extractor == _EXTRACT_FROM_LANDMARK:
+                                                            if extractor == _CREATE_KG_NODE_EXTRACTOR:
+                                                                method = _CREATE_KG_NODE_EXTRACTOR
+                                                                # TODO Figure out how will users pass a doc_id for the
+                                                                # resulting nested kg doc
+                                                                segment = str(match.full_path)
+                                                                results = self.create_kg_node_extractor(match.value,
+                                                                                                        extractors[
+                                                                                                            extractor][
+                                                                                                            _CONFIG],
+                                                                                                        doc, doc_id,
+                                                                                                        url=doc[
+                                                                                                            _URL] if
+                                                                                                        _URL in doc
+                                                                                                        else None)
+                                                                if results:
+                                                                    results = self.add_origin_info(
+                                                                        results, method,
+                                                                        segment,
+                                                                        score,
+                                                                        doc_id)
+                                                                    if create_knowledge_graph:
+                                                                        self.create_knowledge_graph(doc,
+                                                                                                    field,
+                                                                                                    results)
+                                                            elif extractor == _EXTRACT_FROM_LANDMARK:
                                                                 if _FIELDS in extractors[extractor][_CONFIG]:
-                                                                    inferlink_fields = extractors[extractor][_CONFIG][_FIELDS]
+                                                                    inferlink_fields = extractors[extractor][_CONFIG][
+                                                                        _FIELDS]
                                                                     for inferlink_field in inferlink_fields:
                                                                         if _INFERLINK_EXTRACTIONS in full_path and inferlink_field in full_path:
                                                                             method = _METHOD_INFERLINK
-                                                                            if self.check_if_run_extraction(match.value, field,
+                                                                            if self.check_if_run_extraction(match.value,
+                                                                                                            field,
                                                                                                             extractor,
                                                                                                             ep):
                                                                                 results = foo(doc,
-                                                                                              extractors[extractor][_CONFIG], selected_field=inferlink_field)
+                                                                                              extractors[extractor][
+                                                                                                  _CONFIG],
+                                                                                              selected_field=inferlink_field)
                                                                                 if results:
                                                                                     results = self.add_origin_info(
                                                                                         results, method,
                                                                                         segment,
                                                                                         score,
                                                                                         doc_id)
-                                                                                    # self.add_data_extraction_results(
-                                                                                    #     match.value,
-                                                                                    #     field,
-                                                                                    #     extractor,
-                                                                                    #     self.add_origin_info(
-                                                                                    #         results,
-                                                                                    #         method,
-                                                                                    #         segment,
-                                                                                    #         score,
-                                                                                    #         doc_id))
                                                                                     if create_knowledge_graph:
-                                                                                        self.create_knowledge_graph(doc, field,
+                                                                                        self.create_knowledge_graph(doc,
+                                                                                                                    field,
                                                                                                                     results)
                                                                 else:
                                                                     if _INFERLINK_EXTRACTIONS in full_path and field in full_path:
@@ -474,16 +571,6 @@ class Core(object):
                                                                                     segment,
                                                                                     score,
                                                                                     doc_id)
-                                                                                # self.add_data_extraction_results(
-                                                                                #     match.value,
-                                                                                #     field,
-                                                                                #     extractor,
-                                                                                #     self.add_origin_info(
-                                                                                #         results,
-                                                                                #         method,
-                                                                                #         segment,
-                                                                                #         score,
-                                                                                #         doc_id))
                                                                                 if create_knowledge_graph:
                                                                                     self.create_knowledge_graph(doc,
                                                                                                                 field,
@@ -505,16 +592,6 @@ class Core(object):
                                                                             segment,
                                                                             score,
                                                                             doc_id)
-                                                                        # self.add_data_extraction_results(match.value,
-                                                                        #                                  field,
-                                                                        #                                  extractor,
-                                                                        #                                  self.add_origin_info(
-                                                                        #                                      results,
-                                                                        #                                      method,
-                                                                        #                                      segment,
-                                                                        #                                      score,
-                                                                        #                                      doc_id))
-
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
@@ -543,19 +620,10 @@ class Core(object):
                                                                     results = foo(doc, extractors[extractor][_CONFIG])
                                                                     if results:
                                                                         results = self.add_origin_info(results,
-                                                                                                     method,
-                                                                                                     segment,
-                                                                                                     score,
-                                                                                                     doc_id)
-                                                                        # self.add_data_extraction_results(match.value,
-                                                                        #                                  field,
-                                                                        #                                  extractor,
-                                                                        #                                  self.add_origin_info(
-                                                                        #                                      results,
-                                                                        #                                      method,
-                                                                        #                                      segment,
-                                                                        #                                      score,
-                                                                        #                                      doc_id))
+                                                                                                       method,
+                                                                                                       segment,
+                                                                                                       score,
+                                                                                                       doc_id)
                                                                         if create_knowledge_graph:
                                                                             self.create_knowledge_graph(doc, field,
                                                                                                         results)
@@ -565,16 +633,9 @@ class Core(object):
                                                             if results:
                                                                 for f, res in results.items():
                                                                     res = self.add_origin_info(res,
-                                                                                             method,
-                                                                                             segment,
-                                                                                             score, doc_id)
-                                                                    # self.add_data_extraction_results(match.value, f,
-                                                                    #                                  extractor,
-                                                                    #                                  self.add_origin_info(
-                                                                    #                                      res,
-                                                                    #                                      method,
-                                                                    #                                      segment,
-                                                                    #                                      score, doc_id))
+                                                                                               method,
+                                                                                               segment,
+                                                                                               score, doc_id)
                                                                     if create_knowledge_graph:
                                                                         self.create_knowledge_graph(doc, f, res)
                                                     else:
@@ -599,7 +660,11 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in kg_config:
                                 if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
                                     fields = kg_config[_FIELDS]
@@ -631,8 +696,11 @@ class Core(object):
                     doc = Core.rearrange_description(doc, html_description)
                     doc = Core.rearrange_title(doc)
 
+        except InvalidJsonPathException as e:
+            raise e
         except Exception as e:
-            self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None)
+            self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID],
+                     url=doc[_URL] if _URL in doc else None)
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             print ''.join(lines)
@@ -644,7 +712,8 @@ class Core(object):
         time_taken_process = end_time_process - start_time_process
         if '@execution_profile' not in doc:
             doc['@execution_profile'] = dict()
-        doc['@execution_profile']['@etk_start_time'] = datetime.datetime.utcfromtimestamp(start_time_process).isoformat()
+        doc['@execution_profile']['@etk_start_time'] = datetime.datetime.utcfromtimestamp(
+            start_time_process).isoformat()
         doc['@execution_profile']['@etk_end_time'] = datetime.datetime.utcfromtimestamp(end_time_process).isoformat()
         doc['@execution_profile']['@etk_process_time'] = float(end_time_process - start_time_process)
         if time_taken_process > 5:
@@ -662,7 +731,11 @@ class Core(object):
         val_list = list()
 
         if input_path not in self.json_content_paths:
-            self.json_content_paths[input_path] = parse(input_path)
+            try:
+                self.json_content_paths[input_path] = parse(input_path)
+            except Exception as e:
+                raise InvalidJsonPathException(
+                    '\'{}\' is not a valid json path'.format(input_path))
         matches = self.json_content_paths[input_path].find(doc)
         for match in matches:
             values = match.value
@@ -671,7 +744,7 @@ class Core(object):
             for val in values:
                 if isinstance(val, basestring) or isinstance(val, numbers.Number):
                     o = dict()
-                    o[_TEXT] = unicode(val) 
+                    o[_TEXT] = unicode(val)
                     val_list.append(o)
                 elif isinstance(val, dict):
                     if _VALUE in val:
@@ -700,13 +773,18 @@ class Core(object):
         return doc
 
     def extract_as_is(self, d, config=None):
-        result = dict()
-        result[_VALUE] = d[_TEXT]
-        if _KEY in d:
-            result[_KEY] = d[_KEY]
-        if _QUALIFIERS in d:
-            result[_QUALIFIERS] = d[_QUALIFIERS]
-        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        if d[_TEXT].strip() != '':
+            result = dict()
+            result[_VALUE] = d[_TEXT]
+            if _KEY in d:
+                result[_KEY] = d[_KEY]
+            if _QUALIFIERS in d:
+                result[_QUALIFIERS] = d[_QUALIFIERS]
+            if config and _POST_FILTER in config:
+                post_filters = config[_POST_FILTER]
+                result = self.run_post_filters_results(result, post_filters)
+            return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        return None
 
     def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
         results = list()
@@ -719,6 +797,7 @@ class Core(object):
                 results.append(result)
             else:
                 return None
+
         return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
 
     @staticmethod
@@ -729,8 +808,6 @@ class Core(object):
         except:
             return x
         return x_2
-
-
 
     @staticmethod
     def rearrange_description(doc, html_description=False):
@@ -930,7 +1007,7 @@ class Core(object):
 
     @staticmethod
     def check_if_run_extraction(d, field_name, method_name, extraction_policy):
-        try: # do not run anything over 1 MB
+        try:  # do not run anything over 1 MB
             if _TEXT in d and len(d[_TEXT]) > 1000000:
                 return False
         except:
@@ -968,6 +1045,8 @@ class Core(object):
     @staticmethod
     def add_origin_info(results, method, segment, score, doc_id=None):
         if results:
+            if not isinstance(results, list):
+                results = [results]
             for result in results:
                 o = dict()
                 o['segment'] = segment
@@ -1017,7 +1096,7 @@ class Core(object):
                             o[new_key] = dict()
                             if 'date' in key:
                                 o[new_key]['text'] = ifl_extractions[key][:30] if len(ifl_extractions[key]) > 30 else \
-                                ifl_extractions[key]
+                                    ifl_extractions[key]
                             else:
                                 o[new_key]['text'] = ifl_extractions[key]
                             content_extraction[field_name].update(o)
@@ -1065,7 +1144,6 @@ class Core(object):
                 raise KeyError('{}.{} not found in provided extraction config'.format(_RESOURCES, _DICTIONARIES))
         else:
             raise KeyError('{} not found in provided extraction config'.format(_RESOURCES))
-
 
     def get_stop_word_dictionary_name_from_config(self, dict_name):
         if _RESOURCES in self.extraction_config:
@@ -1242,8 +1320,11 @@ class Core(object):
     def load_stop_words(self, field_name, dict_name):
         if field_name not in self.stop_word_dicts:
             dict_path = self.get_stop_word_dictionary_name_from_config(dict_name)
-            if dict_name:
-                self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
+            if os.path.exists(dict_path):
+                try:
+                    self.stop_word_dicts[field_name] = json.load(gzip.open(dict_path), 'utf-8')
+                except:
+                    self.stop_word_dicts[field_name] = json.load(codecs.open(dict_path, 'r'))
 
     def load_pickle_file(self, pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
@@ -1252,7 +1333,6 @@ class Core(object):
         if pickle_name not in self.pickles:
             self.pickles[pickle_name] = self.load_pickle_file(self.get_pickle_file_name_from_config(pickle_name))
         return self.pickles[pickle_name]
-
 
     def extract_using_dictionary(self, d, config):
         field_name = config[_FIELD_NAME]
@@ -1387,11 +1467,12 @@ class Core(object):
         if field_name == _AGE:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
-        elif field_name == _POSTING_DATE:
+        elif field_name == _POSTING_DATE or _DATE in field_name:
+            self.load_matchers(_POSTING_DATE)
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_date_extractor.extract(nlp_doc,
                                                                                     self.matchers[_POSTING_DATE]),
-                                                       _POSTING_DATE)
+                                                       field_name)
             if _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
                 results = self.run_post_filters_results(results, post_filters)
@@ -1628,14 +1709,20 @@ class Core(object):
             for post_filter in post_filters:
                 try:
                     f = getattr(self, post_filter)
-                except Exception as e:
-                    raise 'Exception: {}, no function {} defined in core.py'.format(e, post_filter)
-
-                for result in results:
-                    val = f(result['value'])
-                    if val:
-                        result['value'] = val
-                        out_results.append(result)
+                    if f:
+                        for result in results:
+                            val = f(result['value'])
+                            if val:
+                                result['value'] = val
+                                out_results.append(result)
+                except:
+                    print 'Warn: No function {} defined in core.py'.format(post_filter)
+                    # lets try lambda functions
+                    for result in results:
+                        val = Core.string_to_lambda(post_filter)(result['value'])
+                        if val:
+                            result['value'] = val
+                            out_results.append(result)
             return out_results if len(out_results) > 0 else None
 
     @staticmethod
@@ -1873,9 +1960,8 @@ class Core(object):
                     city_country_separate_count = 0
                     city = place["value"]
 
-
                     state = place['provenance'][0]['qualifiers'][_STATE] if _STATE in place['provenance'][0][
-                            'qualifiers'] else ""
+                        'qualifiers'] else ""
 
                     # in some cases, place['provenance'][0]['qualifiers'][_STATE] might be None
                     if not state:
@@ -2081,8 +2167,8 @@ class Core(object):
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
         return d
 
-
-    def create_kg_node_extractor(self, d, config, doc, parent_doc_id, doc_id=None, url=None):
+    @staticmethod
+    def create_kg_node_extractor(ds, config, doc, parent_doc_id, doc_id=None, url=None):
         """
         :param d: this is the matched part of doc using input_path
         :param config: config, field_name and segment_name
@@ -2090,29 +2176,62 @@ class Core(object):
         :param parent_doc_id: doc id of the doc
         :param doc_id: doc_id of the resulting nested doc
         :param url: optional, same as url of the doc
-        :return: doc with a field called nested_docs
+        :return: doc_id of the newly created CDR doc. Since its passed by reference, doc will get updated
+                 Or not. who knows
         """
         if _SEGMENT_NAME not in config:
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
         segment_name = config[_SEGMENT_NAME]
 
-        if not doc_id:
-            doc_id = hashlib.sha256('{}{}'.format(d[_TEXT], str(datetime.datetime.now()))).hexdigest().upper()
+        if doc:
+            if 'nested_docs' not in doc:
+                doc['nested_docs'] = list()
 
+        if not isinstance(ds, list):
+            ds = [ds]
 
-        result = dict()
-        result[_DOCUMENT_ID] = doc_id
-        result['doc_id'] = doc_id
+        extractions = list()
+        for d in ds:
+            class_type = None
+            if '@type' in config:
+                class_type = config['@type']
 
-        result[_PARENT_DOC_ID] = parent_doc_id
-        if url:
-            result[_URL] = url
+            timestamp_created = str(datetime.datetime.now().isoformat())
 
-        result[_CONTENT_EXTRACTION] = dict()
-        result[_CONTENT_EXTRACTION][segment_name] = dict()
-        result[_CONTENT_EXTRACTION][segment_name][_TEXT] = d[_TEXT]
-        return result
+            result = dict()
+            result['@timestamp_created'] = timestamp_created
 
+            # result[_PARENT_DOC_ID] = parent_doc_id
+            result[_CREATED_BY] = 'etk'
+            if url:
+                result[_URL] = url
 
+            result[_CONTENT_EXTRACTION] = dict()
 
+            if not doc_id:
+                if isinstance(d, basestring) or isinstance(d, numbers.Number):
+                    if isinstance(d, numbers.Number):
+                        d = str(d)
+                    doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
+                elif isinstance(d, dict):
+                    if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
+                        doc_id = d[_DOC_ID]
+                    else:
+                        doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    if '@type' in d:
+                        class_type = d['@type']
+                else:
+                    raise ValueError('cannot process a list of lists: {}, in the method: {}', d,
+                                     _CREATE_KG_NODE_EXTRACTOR)
 
+            result[_DOCUMENT_ID] = doc_id
+            result['doc_id'] = doc_id
+
+            if class_type:
+                result['@type'] = class_type
+
+            result[_CONTENT_EXTRACTION][segment_name] = d
+
+            doc['nested_docs'].append(result)
+            extractions.append({'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+        return extractions
