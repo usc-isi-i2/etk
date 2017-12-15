@@ -581,6 +581,8 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue('actor_description' in r['knowledge_graph'])
         self.assertTrue(len(r['knowledge_graph']['actor_description']) == 1)
         self.assertTrue('key' in r['knowledge_graph']['actor_description'][0])
+        self.assertEqual('AF856B829C1B8F798948076314052F8A833845C0C1C861BEE2C242C02BE6E7DA',
+                         r['knowledge_graph']['actor_description'][0]['key'])
         self.assertTrue('value' in r['knowledge_graph']['actor_description'][0])
         self.assertTrue(len(r['knowledge_graph']['actor_description'][0]['data']) == 2)
         self.assertTrue(r['knowledge_graph']['actor_description'][0]['data'][0]['title'] in

@@ -764,7 +764,9 @@ class Core(object):
 
         # this is the case where we are going to put the input object to a field called 'data'
         if isinstance(d, dict) or isinstance(d, list):
-            result = self.pseudo_extraction_results(json.dumps(d))
+            str_d = json.dumps(d, sort_keys=True)
+            key = hashlib.sha256(str_d).hexdigest().upper()
+            result = self.pseudo_extraction_results(str_d, key=key)
             result[_DATA] = d
             return result
         # If nothing matches,
