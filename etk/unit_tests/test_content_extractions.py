@@ -487,6 +487,107 @@ class TestExtractions(unittest.TestCase):
         r = c.process(doc)
         self.assertTrue('knowledge_graph' not in r)
 
+    def test_extract_as_is_artbitrary_path(self):
+        doc = {
+            "uri": "1",
+            "event_actors": [
+                {
+                    "description": "Non-State, Internal, No State Sanction",
+                    "id": "internalnononstatesanctionstate",
+                    "title": ""
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "title": "Noncombatant Status Not Contested"
+                }
+            ]
+        }
+
+        e_config = {
+            "extraction_policy": "replace",
+            "document_id": "uri",
+            "data_extraction": [
+                {
+                    "input_path": "event_actors[*].description",
+                    "fields": {
+                        "actor_description": {
+                            "extractors": {
+                                "extract_as_is": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue('actor_description' in r['knowledge_graph'])
+        self.assertTrue(len(r['knowledge_graph']['actor_description']) == 2)
+        self.assertTrue(r['knowledge_graph']['actor_description'][0]['key'] in
+                        ['noncombatant status not contested', 'non-state, internal, no state sanction'])
+
+    def test_extract_as_is_data(self):
+        doc = {
+            "uri": "1",
+            "event_actors": [
+                {
+                    "description": "Non-State, Internal, No State Sanction",
+                    "id": "internalnononstatesanctionstate",
+                    "title": ""
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "title": "Noncombatant Status Not Contested"
+                }
+            ]
+        }
+
+        e_config = {
+            "extraction_policy": "replace",
+            "document_id": "uri",
+            "data_extraction": [
+                {
+                    "input_path": "event_actors",
+                    "fields": {
+                        "actor_description": {
+                            "extractors": {
+                                "extract_as_is": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        ex_data = [
+                      {
+                          "title": "",
+                          "description": "Non-State, Internal, No State Sanction",
+                          "id": "internalnononstatesanctionstate"
+                      },
+                      {
+                          "title": "Noncombatant Status Not Contested",
+                          "description": "Noncombatant Status Asserted",
+                          "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus"
+                      }
+                  ],
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue('actor_description' in r['knowledge_graph'])
+        self.assertTrue(len(r['knowledge_graph']['actor_description']) == 1)
+        self.assertTrue('key' in r['knowledge_graph']['actor_description'][0])
+        self.assertTrue('value' in r['knowledge_graph']['actor_description'][0])
+        self.assertTrue(len(r['knowledge_graph']['actor_description'][0]['data']) == 2)
+        self.assertTrue(r['knowledge_graph']['actor_description'][0]['data'][0]['title'] in
+                        ['', 'Noncombatant Status Not Contested'])
+        self.assertTrue(r['knowledge_graph']['actor_description'][0]['data'][0]['description'] in
+                        ['Non-State, Internal, No State Sanction', 'Noncombatant Status Asserted'])
+
 
 if __name__ == '__main__':
     unittest.main()
