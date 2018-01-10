@@ -50,6 +50,7 @@ import signal
 import datetime
 import hashlib
 
+_DATA = 'data'
 _KEY = 'key'
 _VALUE = 'value'
 _QUALIFIERS = 'qualifiers'
@@ -326,32 +327,6 @@ class Core(object):
                             doc['doc_id'] = doc_id
                     else:
                         raise KeyError('{} not found in the input document'.format(doc_id_field))
-                """Convert to knowledge_graph"""
-                if _CONVERT_TO_KG in self.extraction_config:
-                    conversion_map = self.extraction_config[_CONVERT_TO_KG]
-                    # conversion map is a dictionary where the key is field_name to be in the knowledge_graph,
-                    #  and value is the the json path of the input doc
-                    for field_name, kgc_path in conversion_map.iteritems():
-                        if kgc_path not in self.kgc_paths:
-                            try:
-                                self.kgc_paths[kgc_path] = parse(kgc_path)
-                            except:
-                                raise InvalidJsonPathException(
-                                    '\'{}\' is not a valid json path'.format(kgc_path))
-                        kg_matches = self.kgc_paths[kgc_path].find(doc)
-                        for kg_match in kg_matches:
-                            results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
-                                                                     doc_id=doc_id, score=1.0)
-                            if not results:
-                                msg = 'Error while converting to Knowledge Graph, input path: {} is not ' \
-                                      'a leaf node in the json document'.format(kgc_path)
-                                self.log(msg, _ERROR)
-                                print msg
-                                if self.global_error_handling == _RAISE_ERROR:
-                                    raise ValueError(msg)
-                            else:
-                                if create_knowledge_graph:
-                                    self.create_knowledge_graph(doc, field_name, results)
 
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
@@ -772,32 +747,40 @@ class Core(object):
         return doc
 
     def extract_as_is(self, d, config=None):
-        if d[_TEXT].strip() != '':
-            result = dict()
-            result[_VALUE] = d[_TEXT]
-            if _KEY in d:
-                result[_KEY] = d[_KEY]
-            if _QUALIFIERS in d:
-                result[_QUALIFIERS] = d[_QUALIFIERS]
-            if config and _POST_FILTER in config:
-                post_filters = config[_POST_FILTER]
-                result = self.run_post_filters_results(result, post_filters)
-            return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
-        return None
+        if isinstance(d, basestring):
+            result = self.pseudo_extraction_results(d)
+            return result
 
-    def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
-        results = list()
-        if not isinstance(values, list):
-            values = [values]
-        for val in values:
-            if isinstance(val, basestring):
-                result = dict()
-                result['value'] = val
-                results.append(result)
+        if isinstance(d, dict) and _TEXT in d:
+            if d[_TEXT].strip() != '':
+                result = self.pseudo_extraction_results(d[_TEXT], key=d[_KEY] if _KEY in d else None,
+                                                        qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
+                if config and _POST_FILTER in config:
+                    post_filters = config[_POST_FILTER]
+                    result = self.run_post_filters_results(result, post_filters)
+                return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
             else:
                 return None
 
-        return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
+        # this is the case where we are going to put the input object to a field called 'data'
+        if isinstance(d, dict) or isinstance(d, list):
+            str_d = json.dumps(d, sort_keys=True)
+            key = hashlib.sha256(str_d).hexdigest().upper()
+            result = self.pseudo_extraction_results(str_d, key=key)
+            result[_DATA] = d
+            return result
+        # If nothing matches,
+        return None
+
+    @staticmethod
+    def pseudo_extraction_results(value, key=None, qualifiers=None):
+        result = dict()
+        result[_VALUE] = value
+        if key:
+            result[_KEY] = key
+        if qualifiers:
+            result[_QUALIFIERS] = qualifiers
+        return result
 
     @staticmethod
     def remove_line_breaks(x):
@@ -968,12 +951,13 @@ class Core(object):
             if metadata:
                 provenance['qualifiers'] = metadata
             doc[_KNOWLEDGE_GRAPH][field_name] = Core.add_extraction_knowledge_graph(
-                doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value)
+                doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value, confidence if confidence else 1,
+                data=extraction[_DATA] if _DATA in extraction else None)
 
         return doc
 
     @staticmethod
-    def add_extraction_knowledge_graph(kg_extractions, provenance, key, value):
+    def add_extraction_knowledge_graph(kg_extractions, provenance, key, value, confidence=1, data=None):
         if len(kg_extractions) > 0:
             for kg_e in kg_extractions:
                 if key == kg_e['key']:
@@ -984,7 +968,9 @@ class Core(object):
         kg_extraction['provenance'] = [provenance]
         kg_extraction['value'] = value
         kg_extraction['key'] = key
-        kg_extraction['confidence'] = 1
+        kg_extraction['confidence'] = confidence
+        if data:
+            kg_extraction[_DATA] = data
         kg_extractions.append(kg_extraction)
         return kg_extractions
 
