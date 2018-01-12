@@ -53,6 +53,46 @@ class Toolkit:
                 r[i] = re.sub('\s+', ' ', r[i])
                 r[i] = r[i].strip()
 
+class EntityTableDataExtraction:
+    def wrap_context(self, text):
+        return {'value': text,
+                 'context': {'start': 0,
+                             'end': 0
+                             }
+                }
+
+    def extract(self, table, dic):
+        # print dic
+        if table['features']['max_cols_in_a_row'] != 2 and table['features']['no_of_rows'] < 2:
+            return None
+        res = []
+        for row in table['rows']:
+            if len(row['cells']) != 2:
+                continue
+            text = [row['cells'][0]['text'], row['cells'][1]['text']]
+            for x in dic:
+                # print x,text
+
+                if self.matches_cell(text[0], x):
+                    print x,text
+                    res.append(self.wrap_context(text[1]))
+                if self.matches_cell(text[1], x):
+                    print x, text
+                    res.append(self.wrap_context(text[0]))
+            # if any([self.matches_cell(text[0], x) for x in dic]):
+            #     return text[1]
+            # if any([self.matches_cell(text[0], x) for x in dic]):
+            #     return text[0]
+        return res
+
+    def matches_cell(self, cell_text, text):
+        cell_text = cell_text.lower()
+        text = text.lower()
+        if text in cell_text and float(len(cell_text))/float(len(text)) < 1.5:
+            return True
+        return False
+
+
 
 class TableExtraction:
     @staticmethod

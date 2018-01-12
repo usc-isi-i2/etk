@@ -55,9 +55,6 @@ class TestCreateKGExtractor(unittest.TestCase):
         }
 
         self.assertEqual(nested_doc['content_extraction'], ce_expected)
-        # self.assertTrue('parent_doc_id' in nested_doc)
-        # self.assertEqual(nested_doc['parent_doc_id'],
-        #                  '19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E')
         self.assertTrue('created_by' in nested_doc)
         self.assertTrue('@timestamp_created' in nested_doc)
         self.assertTrue('url' in nested_doc)
@@ -125,9 +122,6 @@ class TestCreateKGExtractor(unittest.TestCase):
         nested_doc_1 = nested_docs[0]
         nested_doc_2 = nested_docs[1]
         self.assertEqual(nested_doc_1['content_extraction'], ce_expected_1)
-        # self.assertTrue('parent_doc_id' in nested_doc_1)
-        # self.assertEqual(nested_doc_1['parent_doc_id'],
-        #                  '19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E')
         self.assertTrue('created_by' in nested_doc_1)
         self.assertTrue('@timestamp_created' in nested_doc_1)
         self.assertTrue('url' in nested_doc_1)
@@ -136,9 +130,6 @@ class TestCreateKGExtractor(unittest.TestCase):
                          nested_doc_1['@timestamp_created'])
 
         self.assertEqual(nested_doc_2['content_extraction'], ce_expected_2)
-        # self.assertTrue('parent_doc_id' in nested_doc_2)
-        # self.assertEqual(nested_doc_2['parent_doc_id'],
-        #                  '19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E')
         self.assertTrue('@timestamp_created' in nested_doc_2)
         self.assertTrue('url' in nested_doc_2)
 
@@ -189,15 +180,49 @@ class TestCreateKGExtractor(unittest.TestCase):
       }
 
         self.assertEqual(nested_doc['content_extraction'], ce_expected)
-        # self.assertTrue('parent_doc_id' in nested_doc)
-        # self.assertEqual(nested_doc['parent_doc_id'],
-        #                  '19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E')
         self.assertTrue('created_by' in nested_doc)
         self.assertTrue('@timestamp_created' in nested_doc)
         self.assertTrue('url' in nested_doc)
 
         self.assertEqual(r['knowledge_graph']['actors'][0]['provenance'][0]['qualifiers']['timestamp_created'],
                          nested_doc['@timestamp_created'])
+
+    def test_doc_id(self):
+        doc = {
+            "url": "http:www.hitman.org",
+            "doc_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E",
+            "actors": {
+                "name": "agent 47",
+                "affiliation": "International Contract Agency",
+                "doc_id": "47"
+            }
+        }
+
+        e_config = {
+            "document_id": "doc_id",
+            "data_extraction": [
+                {
+                    "input_path": [
+                        "actors"
+                    ],
+                    "fields": {
+                        "actors": {
+                            "extractors": {
+                                "create_kg_node_extractor": {
+                                    "config": {
+                                        "segment_name": "actor_information"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['actors'][0]['value'], '47')
+        self.assertEqual(r['nested_docs'][0]['doc_id'], '47')
 
 
 if __name__ == '__main__':

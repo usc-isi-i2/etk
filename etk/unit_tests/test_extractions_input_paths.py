@@ -13,6 +13,42 @@ class TestExtractionsInputPaths(unittest.TestCase):
         file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
         self.doc = json.load(codecs.open(file_path))
 
+    def test_invalid_json_path(self):
+        doc = {
+            "url": "http:www.hitman.org",
+            "doc_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E",
+            "actors": {
+                "name": "agent 47",
+                "affiliation": "International Contract Agency"
+            }
+        }
+
+        e_config = {
+            "document_id": "doc_id",
+            "data_extraction": [
+                {
+                    "input_path": [
+                        "actors["
+                    ],
+                    "fields": {
+                        "actors": {
+                            "extractors": {
+                                "create_kg_node_extractor": {
+                                    "config": {
+                                        "segment_name": "actor_information"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+
+        with self.assertRaises(Exception):
+            r = c.process(doc)
+
     def test_extraction_input_path(self):
         women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
         e_config = {"document_id": "doc_id",
