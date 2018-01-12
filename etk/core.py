@@ -1707,11 +1707,10 @@ class Core(object):
                     f = getattr(self, text_filter)
                     if f:
                         result = f(d, {_FIELD_NAME: field_name})
-                    else:
-                        result = Core.string_to_lambda(text_filter)(d[_TEXT])
                 except Exception as e:
                     result = None
-
+                if not result:
+                    result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:
             print 'Error {} in {}'.format(e, 'run_user_filters')
         return result
