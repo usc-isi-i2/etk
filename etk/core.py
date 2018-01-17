@@ -1875,6 +1875,13 @@ class Core(object):
                 return None
 
     @staticmethod
+    def parse_date_generic(d, config=dict()):
+        # TODO HACK ALERT: Find a way to merge this function and the parse_date function
+        config['ignore_past_years'] = 200
+
+        return Core.parse_date(d, config=config)
+
+    @staticmethod
     def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
         try:
             return date_parser.convert_to_iso_format(
