@@ -129,6 +129,7 @@ _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
 _GUARD = "guard"
+_STOP_VALUE = 'stop_value'
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -742,6 +743,9 @@ class Core(object):
         if _VALUE in guard:
             listb = guard[_VALUE] if isinstance(guard[_VALUE], list) else [guard[_VALUE]]
             return Core.do_lists_intersect(lista, listb)
+        if _STOP_VALUE in guard:
+            listb = guard[_STOP_VALUE] if isinstance(guard[_STOP_VALUE], list) else [guard[_STOP_VALUE]]
+            return not Core.do_lists_intersect(lista, listb)
 
         return False
 
