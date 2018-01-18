@@ -41,6 +41,34 @@ class TestExtractionsFilterResults(unittest.TestCase):
                         "value": "Very",
                         "key": "very"
                     }
+                ],
+                "fieldA": [
+                    {
+                        "provenance": [
+                            {
+                                "extracted_value": "sachin",
+                                "method": "extract_using_custom_spacy",
+                                "confidence": {
+                                    "extraction": 1
+                                },
+                                "source": {
+                                    "segment": "content_strict",
+                                    "context": {
+                                        "rule_id": 1,
+                                        "input": "tokens",
+                                        "identifier": "name_rule_02",
+                                        "start": 18,
+                                        "end": 21,
+                                        "text": ". \n Well Guess What <etk 'attribute' = 'name'>i am sachin</etk> Real \n I DON ' "
+                                    },
+                                    "document_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E"
+                                }
+                            }
+                        ],
+                        "confidence": 1.0,
+                        "value": "sachin",
+                        "key": "Sachin"
+                    }
                 ]
             }
         }
@@ -78,9 +106,9 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
     def test_guard_url_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
-                            "field": "url",
-                            "value": "http://www.testurl.com"
-                        }]
+            "field": "url",
+            "value": "http://www.testurl.com"
+        }]
         c = Core(extraction_config=self.e_config)
         r = c.process(self.doc)
 
@@ -120,6 +148,122 @@ class TestExtractionsFilterResults(unittest.TestCase):
             "field": "url",
             "regex": "^test*"
         }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+
+    def test_guard_field_value_pass(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "value": "sachin"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+
+    def test_guard_field_value_fail(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "value": "SACHIN"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+
+    def test_guard_field_value_match_pass(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "value": "Sachin",
+            "match": "key"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+
+    def test_guard_field_value_match_fail(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "value": "SAchin",
+            "match": "key"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+
+    def test_guard_field_regex_pass(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "regex": "ach"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+
+    def test_guard_field_regex_fail(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "regex": "^ach"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+
+    def test_guard_multi_pass(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "regex": "ach"
+        },
+            {
+                "field": "url",
+                "regex": "test"
+            }
+        ]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+
+    def test_guard_multi_fail(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "regex": "ach"
+        },
+            {
+                "field": "url",
+                "regex": "^test"
+            }
+        ]
         c = Core(extraction_config=self.e_config)
         r = c.process(self.doc)
 
