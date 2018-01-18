@@ -726,6 +726,8 @@ class Core(object):
 
                 values = [v[_VALUE] for v in kg_values]
                 result &= self.process_one_guard(values, guard)
+            if not result:
+                return result
         return result
 
     def process_one_guard(self, lista, guard):
