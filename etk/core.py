@@ -658,7 +658,6 @@ class Core(object):
                                         if _GUARD in fields[field]:
                                             guard_result = self.process_kg_enchancement_guards(doc,
                                                                                                fields[field][_GUARD])
-                                            print 'GG:{}'.format(guard_result)
                                         if guard_result:
                                             if _EXTRACTORS in fields[field]:
                                                 extractors = fields[field][_EXTRACTORS]
