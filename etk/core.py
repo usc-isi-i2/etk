@@ -130,6 +130,7 @@ _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
 _GUARD = "guard"
 _STOP_VALUE = 'stop_value'
+_MATCH = "match"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -649,14 +650,15 @@ class Core(object):
                                         sorted_fields = self.sort_dictionary_by_fields(fields)
                                     except:
                                         raise ValueError('Please ensure there is a priority added to every field in '
-                                                         'knowledge_graph  enhancement and the priority is an int')
+                                                         'knowledge_graph  enhancement and the priority is a number')
+
                                     for i in range(0, len(sorted_fields)):
                                         field = sorted_fields[i][0]
                                         guard_result = True
                                         if _GUARD in fields[field]:
                                             guard_result = self.process_kg_enchancement_guards(doc,
                                                                                                fields[field][_GUARD])
-
+                                            print 'GG:{}'.format(guard_result)
                                         if guard_result:
                                             if _EXTRACTORS in fields[field]:
                                                 extractors = fields[field][_EXTRACTORS]
@@ -716,18 +718,23 @@ class Core(object):
 
         result = True
         for guard in guards:
-            if _URL in guard and _URL in doc:
-                result &= self.process_one_guard(doc[_URL], guard)
-            elif _FIELD in guard:
-                kg_field = guard[_FIELD]
-                kg_values = doc[_KNOWLEDGE_GRAPH][kg_field] if kg_field in doc[_KNOWLEDGE_GRAPH] else None
-                if not kg_values:
-                    return False
+            if _FIELD in guard:
+                if guard[_FIELD] == _URL and _URL in doc:
+                    result &= self.process_one_guard(doc[_URL], guard)
+                else:
+                    kg_field = guard[_FIELD]
+                    kg_values = doc[_KNOWLEDGE_GRAPH][kg_field] if kg_field in doc[_KNOWLEDGE_GRAPH] else None
+                    if not kg_values:
+                        return False
 
-                values = [v[_VALUE] for v in kg_values]
-                result &= self.process_one_guard(values, guard)
+                    match_field = guard[_MATCH] if _MATCH in guard else _VALUE
+                    try:
+                        values = [v[match_field] for v in kg_values]
+                    except:
+                        values = [v[_VALUE] for v in kg_values]
+                    result &= self.process_one_guard(values, guard)
             if not result:
-                return result
+                break
         return result
 
     def process_one_guard(self, lista, guard):
