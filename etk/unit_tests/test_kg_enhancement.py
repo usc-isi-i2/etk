@@ -210,6 +210,32 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
 
+    def test_guard_field_stop_value_pass(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "stop_value": "sachin"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+
+    def test_guard_field_stop_value_fail(self):
+        self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
+            "field": "fieldA",
+            "stop_value": "SACHIN"
+        }]
+        c = Core(extraction_config=self.e_config)
+        r = c.process(self.doc)
+
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('name' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+
     def test_guard_field_regex_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
             "field": "fieldA",
