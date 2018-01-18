@@ -128,6 +128,7 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
+_GUARD = "guard"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -650,21 +651,27 @@ class Core(object):
                                                          'knowledge_graph  enhancement and the priority is an int')
                                     for i in range(0, len(sorted_fields)):
                                         field = sorted_fields[i][0]
-                                        if _EXTRACTORS in fields[field]:
-                                            extractors = fields[field][_EXTRACTORS]
-                                            for extractor in extractors.keys():
-                                                try:
-                                                    foo = getattr(self, extractor)
-                                                except:
-                                                    foo = None
-                                                if foo:
-                                                    if _CONFIG not in extractors[extractor]:
-                                                        extractors[extractor][_CONFIG] = dict()
-                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                    results = foo(match.value, extractors[extractor][_CONFIG])
-                                                    if results:
-                                                        if not extractor == 'filter_results':
-                                                            self.create_knowledge_graph(doc, field, results)
+                                        guard_result = True
+                                        if _GUARD in fields[field]:
+                                            guard_result = self.process_kg_enchancement_guards(doc,
+                                                                                               fields[field][_GUARD])
+
+                                        if guard_result:
+                                            if _EXTRACTORS in fields[field]:
+                                                extractors = fields[field][_EXTRACTORS]
+                                                for extractor in extractors.keys():
+                                                    try:
+                                                        foo = getattr(self, extractor)
+                                                    except:
+                                                        foo = None
+                                                    if foo:
+                                                        if _CONFIG not in extractors[extractor]:
+                                                            extractors[extractor][_CONFIG] = dict()
+                                                        extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                        results = foo(match.value, extractors[extractor][_CONFIG])
+                                                        if results:
+                                                            if not extractor == 'filter_results':
+                                                                self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -698,6 +705,50 @@ class Core(object):
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
         return doc
+
+    def process_kg_enchancement_guards(self, doc, guards):
+        if _KNOWLEDGE_GRAPH not in doc:
+            return False
+
+        if not isinstance(guards, list):
+            guards = [guards]
+
+        result = True
+        for guard in guards:
+            if _URL in guard and _URL in doc:
+                result &= self.process_one_guard(doc[_URL], guard)
+            elif _FIELD in guard:
+                kg_field = guard[_FIELD]
+                kg_values = doc[_KNOWLEDGE_GRAPH][kg_field] if kg_field in doc[_KNOWLEDGE_GRAPH] else None
+                if not kg_values:
+                    return False
+
+                values = [v[_VALUE] for v in kg_values]
+                result &= self.process_one_guard(values, guard)
+        return result
+
+    def process_one_guard(self, lista, guard):
+        if not isinstance(lista, list):
+            lista = [lista]
+        if _REGEX in guard:
+            regex = guard[_REGEX]
+            if regex not in self.doc_filter_regexes:
+                self.doc_filter_regexes[regex] = re.compile(regex)
+            regex_c = self.doc_filter_regexes[regex]
+            for val in lista:
+                match = regex_c.search(val)
+                if match:
+                    return True
+        if _VALUE in guard:
+            listb = guard[_VALUE] if isinstance(guard[_VALUE], list) else [guard[_VALUE]]
+            return Core.do_lists_intersect(lista, listb)
+
+        return False
+
+    @staticmethod
+    def do_lists_intersect(lista, listb):
+        # the following if statement is redundant, its there because of consistent return of function
+        return True if set(lista) & set(listb) else False
 
     def convert_json_content(self, doc, json_content_extractor):
         input_path = json_content_extractor[_INPUT_PATH]
