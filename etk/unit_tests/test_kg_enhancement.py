@@ -298,6 +298,32 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
 
+    def test_add_constants(self):
+        e_config = {
+            "document_id": "doc_id",
+            "kg_enhancement": {
+                "fields": {
+                    "type": {
+                        "priority": 0,
+                        "extractors": {
+                            "add_constant_kg": {
+                                "config": {
+                                    "constants": ["Type A", "Type B"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "input_path": "knowledge_graph.`parent`"
+            }}
+
+        c = Core(extraction_config=e_config)
+        r = c.process(self.doc)
+        self.assertTrue('knowledge_graph' in self.doc)
+        self.assertTrue('type' in self.doc['knowledge_graph'])
+        self.assertTrue(len(self.doc['knowledge_graph']['type']) == 2)
+        self.assertTrue(self.doc['knowledge_graph']['type'][2]['value'] in ["Type A", "Type B"])
+
 
 if __name__ == '__main__':
     unittest.main()

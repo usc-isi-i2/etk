@@ -128,9 +128,11 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
+_ADD_CONSTANT_KG  = "add_constant_kg"
 _GUARD = "guard"
 _STOP_VALUE = 'stop_value'
 _MATCH = "match"
+_CONTANTS = "constants"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
@@ -484,8 +486,6 @@ class Core(object):
                                                             ep = self.determine_extraction_policy(extractors[extractor])
                                                             if extractor == _CREATE_KG_NODE_EXTRACTOR:
                                                                 method = _CREATE_KG_NODE_EXTRACTOR
-                                                                # TODO Figure out how will users pass a doc_id for the
-                                                                # resulting nested kg doc
                                                                 segment = str(match.full_path)
                                                                 results = self.create_kg_node_extractor(match.value,
                                                                                                         extractors[
@@ -673,7 +673,14 @@ class Core(object):
                                                         results = foo(match.value, extractors[extractor][_CONFIG])
                                                         if results:
                                                             if not extractor == 'filter_results':
+                                                                if extractor == _ADD_CONSTANT_KG:
+                                                                    # add origin info
+                                                                    results = self.add_origin_info(results,
+                                                                                               extractor,
+                                                                                               _KG_ENHANCEMENT,
+                                                                                               1.0, doc_id)
                                                                 self.create_knowledge_graph(doc, field, results)
+
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -2221,6 +2228,26 @@ class Core(object):
                     new_results.append(result)
                 d[_KNOWLEDGE_GRAPH][field_name] = new_results
         return d
+
+    def add_constant_kg(self, d, config):
+        if _KNOWLEDGE_GRAPH not in d:
+            return d
+
+        if _CONTANTS not in config:
+            return d
+
+        results = list()
+        constants = config[_CONTANTS]
+        if not isinstance(constants, list):
+            constants = [constants]
+
+        for constant in constants:
+            if not (isinstance(constant, basestring) or isinstance(constant, numbers.Number)):
+                raise Exception(
+                    'Only literals can be added to knowledge_graph as constants. Failed to add constant: {}'.format(
+                        constant))
+            results.append(self.pseudo_extraction_results(constant))
+        return results
 
     @staticmethod
     def create_kg_node_extractor(ds, config, doc, parent_doc_id, doc_id=None, url=None):
