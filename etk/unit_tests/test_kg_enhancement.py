@@ -322,7 +322,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('type' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['type']) == 2)
-        self.assertTrue(self.doc['knowledge_graph']['type'][2]['value'] in ["Type A", "Type B"])
+        self.assertTrue(self.doc['knowledge_graph']['type'][0]['value'] in ["Type A", "Type B"])
 
 
 if __name__ == '__main__':
