@@ -130,6 +130,7 @@ _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
 _ADD_CONSTANT_KG  = "add_constant_kg"
 _GUARD = "guard"
+_GUARDS = "guards"
 _STOP_VALUE = 'stop_value'
 _MATCH = "match"
 _CONTANTS = "constants"
@@ -438,7 +439,8 @@ class Core(object):
 
                         if not isinstance(input_paths, list):
                             input_paths = [input_paths]
-
+                        # get user defined guards
+                        guards = de_config[_GUARDS] if _GUARDS in de_config else None
                         for input_path in input_paths:
                             if _FIELDS in de_config:
                                 if input_path not in self.data_extraction_path:
@@ -449,6 +451,8 @@ class Core(object):
                                             '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
+                                    if guards and not self.assert_data_extraction_guard(guards, doc, match.value):
+                                        continue
                                     # First rule of DATA Extraction club: Get tokens
                                     # Get the crf tokens
                                     if _TEXT in match.value:
@@ -823,7 +827,7 @@ class Core(object):
             result = self.pseudo_extraction_results(d)
             return result
 
-        if isinstance(d, dict) and _TEXT in d:
+        elif isinstance(d, dict) and _TEXT in d:
             if d[_TEXT].strip() != '':
                 result = self.pseudo_extraction_results(d[_TEXT], key=d[_KEY] if _KEY in d else None,
                                                         qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
@@ -835,7 +839,7 @@ class Core(object):
                 return None
 
         # this is the case where we are going to put the input object to a field called 'data'
-        if isinstance(d, dict) or isinstance(d, list):
+        elif isinstance(d, dict) or isinstance(d, list):
             str_d = json.dumps(d, sort_keys=True)
             key = hashlib.sha256(str_d).hexdigest().upper()
             result = self.pseudo_extraction_results(str_d, key=key)
@@ -1255,6 +1259,29 @@ class Core(object):
             if tables is not None:
                 content_extraction[field_name] = tables
         return content_extraction
+
+    def assert_data_extraction_guard(self, guards, doc, json_path_result):
+        # print 'processing guards: {}'.format(guards)
+        for guard in guards:
+            try:
+                jpath_parser = parse(guard['path'])
+                regex = guard['regex']
+                if guard['type'] == 'doc':
+                    matches = jpath_parser.find(doc)
+                elif guard['type'] == 'path':
+                    matches = jpath_parser.find(json_path_result)
+                else:
+                    print 'guard type "{}" is not a valid type.'.format(guard['type'])
+                    continue
+                if len(matches) == 0:
+                    return False
+                for match in matches:
+                    # print match.value, regex
+                    if not re.match(regex, match.value):
+                        return False
+            except Exception as e:
+                print 'could not apply guard: {}'.format(guard)
+        return True
 
     def run_readability(self, content_extraction, html, re_extractor):
         recall_priority = False
@@ -2285,12 +2312,13 @@ class Core(object):
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            # result[_PARENT_DOC_ID] = parent_doc_id
+            result[_PARENT_DOC_ID] = parent_doc_id
             result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
+            result[_RAW_CONTENT] = str(d)
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):

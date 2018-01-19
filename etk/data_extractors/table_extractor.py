@@ -329,6 +329,23 @@ class TableExtraction:
         return fingerprint
 
     @staticmethod
+    def row_to_text(cells):
+        res = ''
+        for c in cells:
+            res += c['text'] + ' | '
+        return res
+
+    @staticmethod
+    def table_to_text(rows):
+        res = ''
+        for row in rows:
+            for c in row['cells']:
+                res += c['text'] + ' | '
+            res += '\n'
+        return res
+
+
+    @staticmethod
     def gen_html(row_list):
         """ Return html table string from a list of data rows """
         table = "<table>"
