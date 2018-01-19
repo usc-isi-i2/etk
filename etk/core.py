@@ -725,11 +725,9 @@ class Core(object):
         result = True
         for guard in guards:
             if _FIELD in guard:
-                if guard[_FIELD] == _URL and _URL in doc:
-                    result &= self.process_one_guard(doc[_URL], guard)
-                else:
-                    kg_field = guard[_FIELD]
-                    kg_values = doc[_KNOWLEDGE_GRAPH][kg_field] if kg_field in doc[_KNOWLEDGE_GRAPH] else None
+                g_field = guard[_FIELD]
+                if g_field in doc[_KNOWLEDGE_GRAPH]:
+                    kg_values = doc[_KNOWLEDGE_GRAPH][g_field] if g_field in doc[_KNOWLEDGE_GRAPH] else None
                     if not kg_values:
                         return False
 
@@ -739,6 +737,10 @@ class Core(object):
                     except:
                         values = [v[_VALUE] for v in kg_values]
                     result &= self.process_one_guard(values, guard)
+                elif g_field in doc:
+                        result &= self.process_one_guard(doc[g_field], guard)
+                else:
+                    return False
             if not result:
                 break
         return result
