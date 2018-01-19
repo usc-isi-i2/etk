@@ -64,7 +64,7 @@ class EntityTableDataExtraction:
     def extract(self, table, dic):
         # print dic
         if table['features']['max_cols_in_a_row'] != 2 and table['features']['no_of_rows'] < 2:
-            return None
+            return []
         res = []
         for row in table['rows']:
             if len(row['cells']) != 2:
@@ -202,7 +202,7 @@ class TableExtraction:
                 for index_row, row in enumerate(rows):
                     row_dict = dict()
                     soup_row = BeautifulSoup(row, 'html.parser')
-                    row_data = ''.join(soup_row.stripped_strings)
+                    row_data = ' '.join(soup_row.stripped_strings)
                     row_data = row_data.replace("\\t", "").replace("\\r", "").replace("\\n", "")
                     if row_data != '':
                         row_len_list.append(len(row_data))
@@ -224,7 +224,7 @@ class TableExtraction:
                             cell_dict = dict()
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                            cell_dict["text"] = ''.join(td.stripped_strings)
+                            cell_dict["text"] = ' '.join(td.stripped_strings)
                             # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
@@ -232,7 +232,7 @@ class TableExtraction:
                             cell_dict = dict()
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                            cell_dict["text"] = ''.join(td.stripped_strings)
+                            cell_dict["text"] = ' '.join(td.stripped_strings)
                             # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
@@ -272,7 +272,7 @@ class TableExtraction:
                         h_index = 0
                         h_bool = True
                         for col in row.findAll('th'):
-                            col_content = ''.join(col.stripped_strings)
+                            col_content = ' '.join(col.stripped_strings)
                             h_bool = False
                             if col_content is None:
                                 continue
@@ -283,7 +283,7 @@ class TableExtraction:
                         if(h_index == 1 and h_bool == False):
                             d_index = 1
                         for col in row.findAll('td'):
-                            col_content = ''.join(col.stripped_strings)
+                            col_content = ' '.join(col.stripped_strings)
                             if col_content is None:
                                 d_index += 1
                                 continue
@@ -292,7 +292,7 @@ class TableExtraction:
                             d_index += 1
 
                     for key, value in col_data.iteritems():
-                        whole_col = ''.join(value)
+                        whole_col = ' '.join(value)
                         # avg_cell_len += float("%.2f" % mean([len(x) for x in value]))
                         avg_col_len += sum([len(x) for x in value])
                         avg_col_len_dev += TableExtraction.pstdev([len(x) for x in value])
@@ -327,6 +327,23 @@ class TableExtraction:
         all_tokens = sorted(all_tokens)
         fingerprint = '-'.join(all_tokens)
         return fingerprint
+
+    @staticmethod
+    def row_to_text(cells):
+        res = ''
+        for c in cells:
+            res += c['text'] + ' | '
+        return res
+
+    @staticmethod
+    def table_to_text(rows):
+        res = ''
+        for row in rows:
+            for c in row['cells']:
+                res += c['text'] + ' | '
+            res += '\n'
+        return res
+
 
     @staticmethod
     def gen_html(row_list):
