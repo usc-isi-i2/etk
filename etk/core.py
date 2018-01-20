@@ -1273,8 +1273,8 @@ class Core(object):
                 else:
                     print 'guard type "{}" is not a valid type.'.format(guard['type'])
                     continue
-                if len(matches) == 0:
-                    return False
+                # if len(matches) == 0:
+                #     return False
                 for match in matches:
                     # print match.value, regex
                     if not re.match(regex, match.value):
@@ -2318,7 +2318,7 @@ class Core(object):
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
-            result[_RAW_CONTENT] = str(d)
+            # result[_RAW_CONTENT] = str(d)
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
