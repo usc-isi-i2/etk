@@ -2267,6 +2267,8 @@ class Core(object):
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
         segment_name = config[_SEGMENT_NAME]
 
+        dataset_id = config.get("dataset_identifier")
+
         if doc:
             if 'nested_docs' not in doc:
                 doc['nested_docs'] = list()
@@ -2310,6 +2312,8 @@ class Core(object):
 
             result[_DOCUMENT_ID] = doc_id
             result['doc_id'] = doc_id
+            if dataset_id:
+                result["dataset_identifier"] = dataset_id
 
             if class_type:
                 result['@type'] = class_type

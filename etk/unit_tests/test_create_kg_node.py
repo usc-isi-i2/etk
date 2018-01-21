@@ -176,8 +176,8 @@ class TestCreateKGExtractor(unittest.TestCase):
         self.assertTrue(len(r['nested_docs']) == 1)
         nested_doc = r['nested_docs'][0]
         ce_expected = {
-        "actor_information": "agent 47"
-      }
+            "actor_information": "agent 47"
+        }
 
         self.assertEqual(nested_doc['content_extraction'], ce_expected)
         self.assertTrue('created_by' in nested_doc)
@@ -223,6 +223,49 @@ class TestCreateKGExtractor(unittest.TestCase):
         r = c.process(doc)
         self.assertEqual(r['knowledge_graph']['actors'][0]['value'], '47')
         self.assertEqual(r['nested_docs'][0]['doc_id'], '47')
+
+    def test_create_kg_node_dataset_id(self):
+        doc = {
+            "url": "http:www.hitman.org",
+            "doc_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E",
+            "actors": {
+                "name": "agent 47",
+                "affiliation": "International Contract Agency"
+            }
+        }
+
+        e_config = {
+            "document_id": "doc_id",
+            "data_extraction": [
+                {
+                    "input_path": [
+                        "actors.name"
+                    ],
+                    "fields": {
+                        "actors": {
+                            "extractors": {
+                                "create_kg_node_extractor": {
+                                    "config": {
+                                        "segment_name": "actor_information",
+                                        "dataset_identifier": "agent47"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue('knowledge_graph' in doc)
+        self.assertTrue('actors' in doc['knowledge_graph'])
+        self.assertTrue(len(doc['knowledge_graph']['actors']) == 1)
+        self.assertTrue('nested_docs' in r)
+        self.assertTrue(len(r['nested_docs']) == 1)
+        nested_doc = r['nested_docs'][0]
+        self.assertTrue('dataset_identifier' in nested_doc)
+        self.assertTrue(nested_doc["dataset_identifier"], "agent47")
 
 
 if __name__ == '__main__':
