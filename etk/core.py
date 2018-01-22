@@ -2320,18 +2320,21 @@ class Core(object):
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
-            result[_RAW_CONTENT] = str(d)
+            # result[_RAW_CONTENT] = str(d)
+            raw_content = None
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
                     if isinstance(d, numbers.Number):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
+                    raw_content = d
                 elif isinstance(d, dict):
                     if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
                         doc_id = d[_DOC_ID]
                     else:
                         doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    raw_content = json.dumps(d, indent=2, sort_keys=True)
                     if '@type' in d:
                         class_type = d['@type']
                 else:
@@ -2339,6 +2342,8 @@ class Core(object):
                                      _CREATE_KG_NODE_EXTRACTOR)
 
             result[_DOCUMENT_ID] = doc_id
+            if raw_content:
+                result[_RAW_CONTENT] = raw_content
             result['doc_id'] = doc_id
             if dataset_id:
                 result["dataset_identifier"] = dataset_id
