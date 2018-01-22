@@ -128,7 +128,7 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
-_ADD_CONSTANT_KG  = "add_constant_kg"
+_ADD_CONSTANT_KG = "add_constant_kg"
 _GUARD = "guard"
 _GUARDS = "guards"
 _STOP_VALUE = 'stop_value'
@@ -680,11 +680,10 @@ class Core(object):
                                                                 if extractor == _ADD_CONSTANT_KG:
                                                                     # add origin info
                                                                     results = self.add_origin_info(results,
-                                                                                               extractor,
-                                                                                               _KG_ENHANCEMENT,
-                                                                                               1.0, doc_id)
+                                                                                                   extractor,
+                                                                                                   _KG_ENHANCEMENT,
+                                                                                                   1.0, doc_id)
                                                                 self.create_knowledge_graph(doc, field, results)
-
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -742,7 +741,7 @@ class Core(object):
                         values = [v[_VALUE] for v in kg_values]
                     result &= self.process_one_guard(values, guard)
                 elif g_field in doc:
-                        result &= self.process_one_guard(doc[g_field], guard)
+                    result &= self.process_one_guard(doc[g_field], guard)
                 else:
                     return False
             if not result:
@@ -1273,8 +1272,8 @@ class Core(object):
                 else:
                     print 'guard type "{}" is not a valid type.'.format(guard['type'])
                     continue
-                if len(matches) == 0:
-                    return False
+                # if len(matches) == 0:
+                #     return False
                 for match in matches:
                     # print match.value, regex
                     if not re.match(regex, match.value):
@@ -2321,6 +2320,7 @@ class Core(object):
 
             result[_CONTENT_EXTRACTION] = dict()
             # result[_RAW_CONTENT] = str(d)
+
             raw_content = None
 
             if not doc_id:
