@@ -1527,6 +1527,10 @@ class Core(object):
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+            results = self.run_post_filters_results(results, post_filters)
+
         return results
 
     def infer_rule_using_custom_spacy(self, d, positive_eg):
