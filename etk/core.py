@@ -2358,5 +2358,6 @@ class Core(object):
             result[_CONTENT_EXTRACTION][segment_name] = d
 
             doc['nested_docs'].append(result)
-            extractions.append({'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            extractions.append({'value': doc_id, 'key': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            doc_id = None
         return extractions
