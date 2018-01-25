@@ -644,6 +644,63 @@ class TestExtractions(unittest.TestCase):
         self.assertTrue(r['knowledge_graph']['actor_description'][0]['data'][0]['description'] in
                         ['Non-State, Internal, No State Sanction', 'Noncombatant Status Asserted'])
 
+    def test_tld_extraction(self):
+        doc = {
+            "url": "https://www.google.com/blah/this/part/doesnt/matter",
+            'uri': "uri.1"
+        }
+        e_config = {
+
+            "document_id": "uri",
+            "content_extraction": {},
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.url.text.`parent`",
+                    "fields": {
+                        "website": {
+                            "extractors": {
+                                "extract_website_domain": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['website'][0]['value'], 'google.com')
+
+    def test_tld_extraction_from_doc(self):
+        doc = {
+            "url": "https://www.google.com/blah/this/part/doesnt/matter",
+            'uri': "uri.1",
+            "tld": "xyz.org"
+        }
+        e_config = {
+
+            "document_id": "uri",
+            "content_extraction": {},
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.url.text.`parent`",
+                    "fields": {
+                        "website": {
+                            "extractors": {
+                                "extract_website_domain": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['website'][0]['value'], 'xyz.org')
+
 
 if __name__ == '__main__':
     unittest.main()

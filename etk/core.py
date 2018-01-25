@@ -128,6 +128,7 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
+_EXTRACT_WEBSITE_DOMAIN = "extract_website_domain"
 _ADD_CONSTANT_KG = "add_constant_kg"
 _GUARD = "guard"
 _GUARDS = "guards"
@@ -558,6 +559,9 @@ class Core(object):
                                                                                                                 field,
                                                                                                                 results)
                                                             else:
+                                                                if extractor == _EXTRACT_WEBSITE_DOMAIN:
+                                                                    if _TLD in doc:
+                                                                        extractors[extractor][_CONFIG][_TLD] = doc[_TLD]
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
                                                                 else:
@@ -1479,7 +1483,7 @@ class Core(object):
     def extract_website_domain(self, d, config):
         text = d[_TEXT]
         field_name = config[_FIELD_NAME]
-        tld = self.extract_tld(text)
+        tld = config[_TLD] if _TLD in config else self.extract_tld(text)
         results = {"value": tld}
         return self._relevant_text_from_context(d[_TEXT], results, field_name)
 
