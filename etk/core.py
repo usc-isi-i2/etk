@@ -2021,11 +2021,11 @@ class Core(object):
             return None
 
         if isinstance(text, numbers.Number):
-            return float(text)
+            return str(text)
 
         try:
             text = text.strip().replace('\n', '').replace('\t', '')
-            num = float(text)
+            num = str(float(text)) if '.' in text else str(int(text))
             return num
         except:
             pass

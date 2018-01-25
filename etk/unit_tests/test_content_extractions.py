@@ -499,7 +499,12 @@ class TestExtractions(unittest.TestCase):
                 {
                     "description": "Noncombatant Status Asserted",
                     "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
-                    "size": "red34"
+                    "size": "34.0"
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "size": "redme34"
                 }
             ]
         }
@@ -539,7 +544,9 @@ class TestExtractions(unittest.TestCase):
         }
         c = Core(extraction_config=e_config)
         r = c.process(doc)
-        self.assertEqual(r['knowledge_graph']['actor_size'][0]['value'], 54.0)
+        self.assertTrue(len(r['knowledge_graph']['actor_size']) == 2)
+        self.assertEqual(r['knowledge_graph']['actor_size'][0]['value'], '54')
+        self.assertEqual(r['knowledge_graph']['actor_size'][1]['value'], '34.0')
 
     def test_extract_as_is_artbitrary_path(self):
         doc = {
