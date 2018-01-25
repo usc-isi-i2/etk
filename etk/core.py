@@ -2007,6 +2007,26 @@ class Core(object):
             pass
         return None
 
+    @staticmethod
+    def parse_number(d, config=None):
+        if isinstance(d, basestring) or isinstance(d, numbers.Number):
+            text = d
+        elif isinstance(d, dict) and _TEXT in d:
+            text = d[_TEXT]
+        else:
+            return None
+
+        if isinstance(text, numbers.Number):
+            return float(text)
+
+        try:
+            text = text.strip().replace('\n', '').replace('\t', '')
+            num = float(text)
+            return num
+        except:
+            pass
+        return None
+
     def country_from_states(self, d, config):
         if not self.state_to_country_dict:
             try:
