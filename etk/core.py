@@ -2302,23 +2302,42 @@ class Core(object):
             ds = [ds]
 
         extractions = list()
+        class_type = None
+        parent_field = _PARENT_DOC_ID
+        html_field = None
+        if _HTML in config:
+            html_field = config[_HTML]
+        if '@type' in config:
+            class_type = config['@type']
+        if 'parent_field' in config:
+            parent_field = config['parent_field']
         for d in ds:
-            class_type = None
-            if '@type' in config:
-                class_type = config['@type']
+
 
             timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            result[_PARENT_DOC_ID] = parent_doc_id
+            result[parent_field] = parent_doc_id
             result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
-            # result[_RAW_CONTENT] = str(d)
+            if html_field is not None:
+                try:
+                    result[_RAW_CONTENT] = d[html_field]
+                except:
+                    raise KeyError(
+                        '{} not found in the document for method: {}'.format(html_field, _CREATE_KG_NODE_EXTRACTOR))
+            elif 'html' in d:
+                result[_RAW_CONTENT] = d['html']
+            elif _TEXT in d:
+                result[_RAW_CONTENT] = '<html><body>{}</body></html>'.format(d[_TEXT])
+            else:
+                result[_RAW_CONTENT] = '<pre><code>{}</code></pre>'.format(json.dumps(d))
+            result['disable_default_extractors'] = 'yes'
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):

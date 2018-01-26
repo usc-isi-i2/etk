@@ -238,6 +238,8 @@ class TableExtraction:
                             cell_list.append(cell_dict)
                         avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) for x in cell_list])
                         row_dict["cells"] = cell_list
+                        row_dict["text"] = self.row_to_text(cell_list)
+                        row_dict["html"] = self.row_to_html(cell_list)
                         row_list.append(row_dict)
 
                 # To avoid division by zero
@@ -316,6 +318,7 @@ class TableExtraction:
                 data_table["context_after"] = context_after
                 data_table["fingerprint"] = fingerprint
                 data_table['html'] = table_rep
+                data_table['text'] = self.table_to_text(row_list)
                 result_tables.append(data_table)
                 table.decompose()
         return dict(tables=result_tables, html_text=self.text_from_html(soup))
@@ -329,18 +332,30 @@ class TableExtraction:
         return fingerprint
 
     @staticmethod
+    def row_to_html(cells):
+        res = '<html><body><table>'
+        for i, c in enumerate(cells):
+            res += c['cell'] + '\n'
+        res += '</table></body></html>'
+        return res
+
+    @staticmethod
     def row_to_text(cells):
         res = ''
-        for c in cells:
-            res += c['text'] + ' | '
+        for i, c in enumerate(cells):
+            res += c['text']
+            if i < len(cells)-1:
+                res += ' | '
         return res
 
     @staticmethod
     def table_to_text(rows):
         res = ''
         for row in rows:
-            for c in row['cells']:
-                res += c['text'] + ' | '
+            for i, c in enumerate(row['cells']):
+                res += c['text']
+                if i < len(row['cells']) - 1:
+                    res += ' | '
             res += '\n'
         return res
 
