@@ -128,7 +128,8 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
-_ADD_CONSTANT_KG  = "add_constant_kg"
+_EXTRACT_WEBSITE_DOMAIN = "extract_website_domain"
+_ADD_CONSTANT_KG = "add_constant_kg"
 _GUARD = "guard"
 _GUARDS = "guards"
 _STOP_VALUE = 'stop_value'
@@ -558,6 +559,9 @@ class Core(object):
                                                                                                                 field,
                                                                                                                 results)
                                                             else:
+                                                                if extractor == _EXTRACT_WEBSITE_DOMAIN:
+                                                                    if _TLD in doc:
+                                                                        extractors[extractor][_CONFIG][_TLD] = doc[_TLD]
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
                                                                 else:
@@ -680,11 +684,10 @@ class Core(object):
                                                                 if extractor == _ADD_CONSTANT_KG:
                                                                     # add origin info
                                                                     results = self.add_origin_info(results,
-                                                                                               extractor,
-                                                                                               _KG_ENHANCEMENT,
-                                                                                               1.0, doc_id)
+                                                                                                   extractor,
+                                                                                                   _KG_ENHANCEMENT,
+                                                                                                   1.0, doc_id)
                                                                 self.create_knowledge_graph(doc, field, results)
-
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
@@ -742,7 +745,7 @@ class Core(object):
                         values = [v[_VALUE] for v in kg_values]
                     result &= self.process_one_guard(values, guard)
                 elif g_field in doc:
-                        result &= self.process_one_guard(doc[g_field], guard)
+                    result &= self.process_one_guard(doc[g_field], guard)
                 else:
                     return False
             if not result:
@@ -1480,7 +1483,7 @@ class Core(object):
     def extract_website_domain(self, d, config):
         text = d[_TEXT]
         field_name = config[_FIELD_NAME]
-        tld = self.extract_tld(text)
+        tld = config[_TLD] if _TLD in config else self.extract_tld(text)
         results = {"value": tld}
         return self._relevant_text_from_context(d[_TEXT], results, field_name)
 
@@ -1528,6 +1531,10 @@ class Core(object):
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+            results = self.run_post_filters_results(results, post_filters)
+
         return results
 
     def infer_rule_using_custom_spacy(self, d, positive_eg):
@@ -2004,6 +2011,26 @@ class Core(object):
             pass
         return None
 
+    @staticmethod
+    def parse_number(d, config=None):
+        if isinstance(d, basestring) or isinstance(d, numbers.Number):
+            text = d
+        elif isinstance(d, dict) and _TEXT in d:
+            text = d[_TEXT]
+        else:
+            return None
+
+        if isinstance(text, numbers.Number):
+            return str(text)
+
+        try:
+            text = text.strip().replace('\n', '').replace('\t', '')
+            num = str(float(text)) if '.' in text else str(int(text))
+            return num
+        except:
+            pass
+        return None
+
     def country_from_states(self, d, config):
         if not self.state_to_country_dict:
             try:
@@ -2294,6 +2321,8 @@ class Core(object):
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
         segment_name = config[_SEGMENT_NAME]
 
+        dataset_id = config.get("dataset_identifier")
+
         if doc:
             if 'nested_docs' not in doc:
                 doc['nested_docs'] = list()
@@ -2339,16 +2368,20 @@ class Core(object):
                 result[_RAW_CONTENT] = '<pre><code>{}</code></pre>'.format(json.dumps(d))
             result['disable_default_extractors'] = 'yes'
 
+            raw_content = None
+
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
                     if isinstance(d, numbers.Number):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
+                    raw_content = d
                 elif isinstance(d, dict):
                     if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
                         doc_id = d[_DOC_ID]
                     else:
                         doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    raw_content = json.dumps(d, indent=2, sort_keys=True)
                     if '@type' in d:
                         class_type = d['@type']
                 else:
@@ -2356,7 +2389,11 @@ class Core(object):
                                      _CREATE_KG_NODE_EXTRACTOR)
 
             result[_DOCUMENT_ID] = doc_id
+            if raw_content:
+                result[_RAW_CONTENT] = raw_content
             result['doc_id'] = doc_id
+            if dataset_id:
+                result["dataset_identifier"] = dataset_id
 
             if class_type:
                 result['@type'] = class_type
@@ -2364,5 +2401,6 @@ class Core(object):
             result[_CONTENT_EXTRACTION][segment_name] = d
 
             doc['nested_docs'].append(result)
-            extractions.append({'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            extractions.append({'value': doc_id, 'key': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            doc_id = None
         return extractions
