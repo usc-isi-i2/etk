@@ -132,6 +132,7 @@ _EXTRACT_WEBSITE_DOMAIN = "extract_website_domain"
 _ADD_CONSTANT_KG = "add_constant_kg"
 _GUARD = "guard"
 _GUARDS = "guards"
+_DISABLE_DEFAULT_EXT = "disable_default_extractors"
 _STOP_VALUE = 'stop_value'
 _MATCH = "match"
 _CONTANTS = "constants"
@@ -2318,7 +2319,16 @@ class Core(object):
                  Or not. who knows
         """
         if _SEGMENT_NAME not in config:
-            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
+            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME,
+                                                                              _CREATE_KG_NODE_EXTRACTOR))
+        if _DISABLE_DEFAULT_EXT in config and \
+                        config[_DISABLE_DEFAULT_EXT] != _NO and \
+                        config[_DISABLE_DEFAULT_EXT] != _YES:
+            raise KeyError('{} not acceptable for {} in the config for method: {}'.format(config[_DISABLE_DEFAULT_EXT],
+                                                                                          _DISABLE_DEFAULT_EXT,
+                                                                                          _CREATE_KG_NODE_EXTRACTOR))
+        disable_default_ext = config[_DISABLE_DEFAULT_EXT] if _DISABLE_DEFAULT_EXT in config else _YES
+
         segment_name = config[_SEGMENT_NAME]
 
         dataset_id = config.get("dataset_identifier")
@@ -2331,38 +2341,54 @@ class Core(object):
             ds = [ds]
 
         extractions = list()
+        class_type = None
+        parent_field = _PARENT_DOC_ID
+        html_field = None
+        if _HTML in config:
+            html_field = config[_HTML]
+        if '@type' in config:
+            class_type = config['@type']
+        if 'parent_field' in config:
+            parent_field = config['parent_field']
         for d in ds:
-            class_type = None
-            if '@type' in config:
-                class_type = config['@type']
-
             timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            result[_PARENT_DOC_ID] = parent_doc_id
+            result[parent_field] = parent_doc_id
             result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
-            # result[_RAW_CONTENT] = str(d)
+            result[_DISABLE_DEFAULT_EXT] = disable_default_ext
 
             raw_content = None
+
+            if html_field is not None:
+                try:
+                    raw_content = d[html_field]
+                except:
+                    raise KeyError(
+                        '{} not found in the document for method: {}'.format(html_field, _CREATE_KG_NODE_EXTRACTOR))
+            elif 'html' in d:
+                raw_content = d['html']
+            elif _TEXT in d:
+                raw_content = '<html><body>{}</body></html>'.format(d[_TEXT])
+            else:
+                raw_content = '<pre><code>{}</code></pre>'.format(json.dumps(d))
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
                     if isinstance(d, numbers.Number):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
-                    raw_content = d
                 elif isinstance(d, dict):
                     if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
                         doc_id = d[_DOC_ID]
                     else:
                         doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
-                    raw_content = json.dumps(d, indent=2, sort_keys=True)
                     if '@type' in d:
                         class_type = d['@type']
                 else:
