@@ -132,6 +132,7 @@ _EXTRACT_WEBSITE_DOMAIN = "extract_website_domain"
 _ADD_CONSTANT_KG = "add_constant_kg"
 _GUARD = "guard"
 _GUARDS = "guards"
+_DISABLE_DEFAULT_EXT = "disable_default_extractors"
 _STOP_VALUE = 'stop_value'
 _MATCH = "match"
 _CONTANTS = "constants"
@@ -2318,7 +2319,16 @@ class Core(object):
                  Or not. who knows
         """
         if _SEGMENT_NAME not in config:
-            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
+            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME,
+                                                                              _CREATE_KG_NODE_EXTRACTOR))
+        if _DISABLE_DEFAULT_EXT in config and \
+                        config[_DISABLE_DEFAULT_EXT] != _NO and \
+                        config[_DISABLE_DEFAULT_EXT] != _YES:
+            raise KeyError('{} not acceptable for {} in the config for method: {}'.format(config[_DISABLE_DEFAULT_EXT],
+                                                                                          _DISABLE_DEFAULT_EXT,
+                                                                                          _CREATE_KG_NODE_EXTRACTOR))
+        disable_default_ext = config[_DISABLE_DEFAULT_EXT] if _DISABLE_DEFAULT_EXT in config else _YES
+
         segment_name = config[_SEGMENT_NAME]
 
         dataset_id = config.get("dataset_identifier")
@@ -2341,8 +2351,6 @@ class Core(object):
         if 'parent_field' in config:
             parent_field = config['parent_field']
         for d in ds:
-
-
             timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
@@ -2366,7 +2374,7 @@ class Core(object):
                 result[_RAW_CONTENT] = '<html><body>{}</body></html>'.format(d[_TEXT])
             else:
                 result[_RAW_CONTENT] = '<pre><code>{}</code></pre>'.format(json.dumps(d))
-            result['disable_default_extractors'] = 'yes'
+            result[_DISABLE_DEFAULT_EXT] = disable_default_ext
 
             raw_content = None
 
