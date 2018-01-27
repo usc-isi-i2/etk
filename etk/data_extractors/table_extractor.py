@@ -225,7 +225,7 @@ class TableExtraction:
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ' '.join(td.stripped_strings)
-                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
                         for index_col, td in enumerate(soup_row.findAll('td')):
@@ -233,13 +233,14 @@ class TableExtraction:
                             cell_dict["cell"] = str(td)
                             # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
                             cell_dict["text"] = ' '.join(td.stripped_strings)
-                            # cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
+                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
                             avg_cell_len += len(cell_dict["text"])
                             cell_list.append(cell_dict)
                         avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) for x in cell_list])
                         row_dict["cells"] = cell_list
                         row_dict["text"] = self.row_to_text(cell_list)
                         row_dict["html"] = self.row_to_html(cell_list)
+                        row_dict["id"] = "row_{}".format(index_row)
                         row_list.append(row_dict)
 
                 # To avoid division by zero
