@@ -2362,34 +2362,33 @@ class Core(object):
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
+            result[_DISABLE_DEFAULT_EXT] = disable_default_ext
+
+            raw_content = None
+
             if html_field is not None:
                 try:
-                    result[_RAW_CONTENT] = d[html_field]
+                    raw_content = d[html_field]
                 except:
                     raise KeyError(
                         '{} not found in the document for method: {}'.format(html_field, _CREATE_KG_NODE_EXTRACTOR))
             elif 'html' in d:
-                result[_RAW_CONTENT] = d['html']
+                raw_content = d['html']
             elif _TEXT in d:
-                result[_RAW_CONTENT] = '<html><body>{}</body></html>'.format(d[_TEXT])
+                raw_content = '<html><body>{}</body></html>'.format(d[_TEXT])
             else:
-                result[_RAW_CONTENT] = '<pre><code>{}</code></pre>'.format(json.dumps(d))
-            result[_DISABLE_DEFAULT_EXT] = disable_default_ext
-
-            raw_content = None
+                raw_content = '<pre><code>{}</code></pre>'.format(json.dumps(d))
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
                     if isinstance(d, numbers.Number):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
-                    raw_content = d
                 elif isinstance(d, dict):
                     if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
                         doc_id = d[_DOC_ID]
                     else:
                         doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
-                    raw_content = json.dumps(d, indent=2, sort_keys=True)
                     if '@type' in d:
                         class_type = d['@type']
                 else:
