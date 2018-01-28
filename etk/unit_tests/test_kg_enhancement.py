@@ -40,6 +40,32 @@ class TestExtractionsFilterResults(unittest.TestCase):
                         "confidence": 1.0,
                         "value": "Very",
                         "key": "very"
+                    },
+                    {
+                        "provenance": [
+                            {
+                                "extracted_value": "Aname",
+                                "method": "extract_using_custom_spacy",
+                                "confidence": {
+                                    "extraction": 1
+                                },
+                                "source": {
+                                    "segment": "content_strict",
+                                    "context": {
+                                        "rule_id": 1,
+                                        "input": "tokens",
+                                        "identifier": "name_rule_dummy",
+                                        "start": 18,
+                                        "end": 21,
+                                        "text": ". \n Well Guess What <etk 'attribute' = 'name'>i am Aname</etk> Real \n I DON ' "
+                                    },
+                                    "document_id": "19B0EAB211CD1D3C63063FAB0B2937043EA1F07B5341014A80E7473BA7318D9E"
+                                }
+                            }
+                        ],
+                        "confidence": 1.0,
+                        "value": "Aname",
+                        "key": "aname"
                     }
                 ],
                 "fieldA": [
@@ -102,7 +128,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
 
     def test_guard_url_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -115,7 +141,8 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['value'] == 'Aname')
 
     def test_guard_url_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -127,7 +154,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
 
     def test_guard_url_regex_pass(self):
@@ -141,7 +168,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['value'] == 'Aname')
 
     def test_guard_url_regex_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -153,8 +180,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
 
     def test_guard_field_value_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -167,7 +193,8 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['value'] == 'Aname')
 
     def test_guard_field_value_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -179,8 +206,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
 
     def test_guard_field_value_match_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -194,7 +220,8 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['value'] == 'Aname')
 
     def test_guard_field_value_match_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -207,8 +234,9 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][1]['confidence'] == 1.0)
 
     def test_guard_field_stop_value_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -220,8 +248,7 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
 
     def test_guard_field_stop_value_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -234,7 +261,6 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
 
     def test_guard_field_regex_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -247,7 +273,6 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
 
     def test_guard_field_regex_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -259,8 +284,9 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][1]['confidence'] == 1.0)
 
     def test_guard_multi_pass(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -278,7 +304,8 @@ class TestExtractionsFilterResults(unittest.TestCase):
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
         self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
-        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 0.3)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][0]['value'] == 'Aname')
 
     def test_guard_multi_fail(self):
         self.e_config['kg_enhancement']['fields']['name']['guard'] = [{
@@ -295,8 +322,9 @@ class TestExtractionsFilterResults(unittest.TestCase):
 
         self.assertTrue('knowledge_graph' in self.doc)
         self.assertTrue('name' in self.doc['knowledge_graph'])
-        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 1)
+        self.assertTrue(len(self.doc['knowledge_graph']['name']) == 2)
         self.assertTrue(self.doc['knowledge_graph']['name'][0]['confidence'] == 1.0)
+        self.assertTrue(self.doc['knowledge_graph']['name'][1]['confidence'] == 1.0)
 
     def test_add_constants(self):
         e_config = {

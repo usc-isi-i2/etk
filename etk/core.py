@@ -2299,10 +2299,14 @@ class Core(object):
             if field_name in d[_KNOWLEDGE_GRAPH]:
                 results = d[_KNOWLEDGE_GRAPH][field_name]
                 for result in results:
-                    if result['value'].lower() in self.stop_word_dicts[field_name]:
-                        result['confidence'] = 0.3
-                    new_results.append(result)
-                d[_KNOWLEDGE_GRAPH][field_name] = new_results
+                    if result['value'].lower()  not in self.stop_word_dicts[field_name]:
+                        new_results.append(result)
+                if len(new_results) > 0:
+                    d[_KNOWLEDGE_GRAPH][field_name] = new_results
+                else:
+                    kg = d[_KNOWLEDGE_GRAPH]
+                    kg.pop(field_name, None)
+                    d[_KNOWLEDGE_GRAPH] = kg
         return d
 
     def add_constant_kg(self, d, config):
