@@ -140,6 +140,7 @@ _CONTANTS = "constants"
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _STOP_WORD_DICTIONARIES = "stop_word_dictionaries"
+_DECODING_DICTIONARY = "decoding_dictionary"
 _INFERLINK = "inferlink"
 _HTML = "html"
 
@@ -231,6 +232,7 @@ class Core(object):
         self.prefer_inferlink_description = False
         self.doc_filter_regexes = dict()
         self.readability_timeout = 3
+        self.decoding_dict_dict = dict()
         if self.extraction_config:
             if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
                 self.prefer_inferlink_description = self.extraction_config[_PREFER_INFERLINK_DESCRIPTION]
@@ -246,6 +248,15 @@ class Core(object):
                     self.logstash_logger.addHandler(
                         logstash.LogstashHandler(host, port,
                                                  logstash_conf[_VERSION] if _VERSION in logging_conf else 1))
+
+            """
+            load the decoding dictionaries.
+            because this will be used as post filter, we'll load any decoding dictionary here
+             """
+            if _RESOURCES in self.extraction_config and _DECODING_DICTIONARY in self.extraction_config[_RESOURCES]:
+                decoding_dict = self.extraction_config[_RESOURCES][_DECODING_DICTIONARY]
+                for key in decoding_dict.keys():
+                    self.decoding_dict_dict[key] = self.load_json_file(decoding_dict[key])
 
     def log(self, message, level, doc_id=None, url=None, extra=None):
         if self.logstash_logger:
@@ -837,7 +848,7 @@ class Core(object):
                                                         qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
                 if config and _POST_FILTER in config:
                     post_filters = config[_POST_FILTER]
-                    result = self.run_post_filters_results(result, post_filters)
+                    result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
                 return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
             else:
                 return None
@@ -1534,7 +1545,7 @@ class Core(object):
                                                    config[_FIELD_NAME])
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
-            results = self.run_post_filters_results(results, post_filters)
+            results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
 
         return results
 
@@ -1567,7 +1578,7 @@ class Core(object):
                                                        field_name)
             if _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
-                results = self.run_post_filters_results(results, post_filters)
+                results = self.run_post_filters_results(results, post_filters, field_name=field_name)
 
         elif field_name == _SOCIAL_MEDIA:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
@@ -1742,7 +1753,7 @@ class Core(object):
         results = self._extract_age(text)
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
-            results = self.run_post_filters_results(results, post_filters)
+            results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
         return self._relevant_text_from_context(d[_TEXT], results, config[_FIELD_NAME])
 
     @staticmethod
@@ -1791,7 +1802,7 @@ class Core(object):
             print 'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
-    def run_post_filters_results(self, results, post_filters):
+    def run_post_filters_results(self, results, post_filters, field_name=None):
         if results:
             if not isinstance(results, list):
                 results = [results]
@@ -1803,7 +1814,7 @@ class Core(object):
                     f = getattr(self, post_filter)
                     if f:
                         for result in results:
-                            val = f(result['value'])
+                            val = f(result['value'], field_name=field_name)
                             if val:
                                 result['value'] = val
                                 out_results.append(result)
@@ -1967,10 +1978,17 @@ class Core(object):
                                                 'geonames_lookup', 'post_process', 1.0, d[_DOCUMENT_ID])
         return populated_places
 
+    def decode_value(self, d, field_name=None):
+        if field_name and field_name in self.decoding_dict_dict:
+            decoding_dict = self.decoding_dict_dict[field_name]
+            if d in decoding_dict and decoding_dict[d]:
+                return decoding_dict[d]
+        return d
+
     @staticmethod
-    def parse_date(d, config=dict()):
-        ignore_past_years = config['ignore_past_years'] if 'ignore_past_years' in config else 20
-        ignore_future_dates = config['ignore_future_dates'] if 'ignore_future_dates' in config else True
+    def parse_date(d, config=None, field_name=None):
+        ignore_past_years = config['ignore_past_years'] if config and 'ignore_past_years' in config else 20
+        ignore_future_dates = config['ignore_future_dates'] if config and 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
             return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates)
         else:
@@ -1982,8 +2000,9 @@ class Core(object):
                 return None
 
     @staticmethod
-    def parse_date_generic(d, config=dict()):
-        # TODO HACK ALERT: Find a way to merge this function and the parse_date function
+    def parse_date_generic(d, config=None, field_name=None):
+        if not config:
+            config = dict()
         config['ignore_past_years'] = 200
 
         return Core.parse_date(d, config=config)
@@ -1998,7 +2017,7 @@ class Core(object):
             return None
 
     @staticmethod
-    def filter_age(d, config=None):
+    def filter_age(d, config=None, field_name=None):
         if isinstance(d, basestring) or isinstance(d, numbers.Number):
             text = d
         else:
@@ -2013,7 +2032,7 @@ class Core(object):
         return None
 
     @staticmethod
-    def parse_number(d, config=None):
+    def parse_number(d, config=None, field_name=None):
         if isinstance(d, basestring) or isinstance(d, numbers.Number):
             text = d
         elif isinstance(d, dict) and _TEXT in d:

@@ -70,126 +70,52 @@ class TestExtractionsInputPaths(unittest.TestCase):
             custom_spacy_extracted = r['knowledge_graph']['JUNK']
         else:
             custom_spacy_extracted = []
-        # print json.dumps(custom_spacy_extracted, indent=2)
-        expected_extracted = [
-            {
-                "confidence": 1,
-                "provenance": [
-                    {
-                        "source": {
-                            "segment": "content_strict",
-                            "context": {
-                                "end": 31,
-                                "text": "looking for an extraordinary experience <etk 'attribute' = 'JUNK'>Girl</etk> with an upscale lAdy who ",
-                                "start": 30,
-                                "input": "tokens",
-                                "identifier": "rule_3",
-                                "rule_id": 2
-                            },
-                            "document_id": "EA2C1F7B20F494D0ED3A7A39FBDB22F78584509E37EACA5198B2A05A6D9A8715"
-                        },
-                        "confidence": {
-                            "extraction": 1.0
-                        },
-                        "method": "extract_using_custom_spacy",
-                        "extracted_value": "Girl"
-                    },
-                    {
-                        "source": {
-                            "segment": "content_relaxed",
-                            "context": {
-                                "end": 40,
-                                "text": "looking for an extraordinary experience <etk 'attribute' = 'JUNK'>Girl</etk> with an upscale lAdy who ",
-                                "start": 39,
-                                "input": "tokens",
-                                "identifier": "rule_3",
-                                "rule_id": 2
-                            },
-                            "document_id": "EA2C1F7B20F494D0ED3A7A39FBDB22F78584509E37EACA5198B2A05A6D9A8715"
-                        },
-                        "confidence": {
-                            "extraction": 1.0
-                        },
-                        "method": "extract_using_custom_spacy",
-                        "extracted_value": "Girl"
-                    }
-                ],
-                "key": "girl",
-                "value": "Girl"
-            },
-            {
-                "confidence": 1,
-                "provenance": [
-                    {
-                        "source": {
-                            "segment": "content_strict",
-                            "context": {
-                                "end": 70,
-                                "text": "call bA22by ! Confirmations \n\n <etk 'attribute' = 'JUNK'>i runqi \n\n\n 0321332</etk> Confirmations \n\n\n I ' ll ",
-                                "start": 66,
-                                "input": "tokens",
-                                "identifier": "rule_0",
-                                "rule_id": 0
-                            },
-                            "document_id": "EA2C1F7B20F494D0ED3A7A39FBDB22F78584509E37EACA5198B2A05A6D9A8715"
-                        },
-                        "confidence": {
-                            "extraction": 1.0
-                        },
-                        "method": "extract_using_custom_spacy",
-                        "extracted_value": "i runqi 0321332"
-                    },
-                    {
-                        "source": {
-                            "segment": "content_relaxed",
-                            "context": {
-                                "end": 79,
-                                "text": "call bA22by ! Confirmations \n\n <etk 'attribute' = 'JUNK'>i runqi \n\n\n 0321332</etk> Confirmations \n\n\n I ' ll ",
-                                "start": 75,
-                                "input": "tokens",
-                                "identifier": "rule_0",
-                                "rule_id": 0
-                            },
-                            "document_id": "EA2C1F7B20F494D0ED3A7A39FBDB22F78584509E37EACA5198B2A05A6D9A8715"
-                        },
-                        "confidence": {
-                            "extraction": 1.0
-                        },
-                        "method": "extract_using_custom_spacy",
-                        "extracted_value": "i runqi 0321332"
-                    }
-                ],
-                "key": "i runqi 0321332",
-                "value": "i runqi 0321332"
-            },
-            {
-                "confidence": 1,
-                "provenance": [
-                    {
-                        "source": {
-                            "segment": "content_relaxed",
-                            "context": {
-                                "end": 44,
-                                "text": "experience Girl with an upscale <etk 'attribute' = 'JUNK'>lAdy</etk> who knows how to cater ",
-                                "start": 43,
-                                "input": "tokens",
-                                "identifier": "rule_3",
-                                "rule_id": 2
-                            },
-                            "document_id": "EA2C1F7B20F494D0ED3A7A39FBDB22F78584509E37EACA5198B2A05A6D9A8715"
-                        },
-                        "confidence": {
-                            "extraction": 1.0
-                        },
-                        "method": "extract_using_custom_spacy",
-                        "extracted_value": "lAdy"
-                    }
-                ],
-                "key": "lady",
-                "value": "lAdy"
+        self.assertTrue(len(custom_spacy_extracted) == 3)
+        for s in custom_spacy_extracted:
+            self.assertTrue(s['value'] in ['Girl', 'runqi', 'lAdy'])
+
+    def test_date_generic(self):
+        doc = {
+            "doc_id": "1",
+            'metadata': {
+                'edate': '1/1990'
             }
-        ]
-        # self.assertEqual(expected_extracted, custom_spacy_extracted)
+        }
+
+        e_config = {
+            "document_id": "doc_id",
+            "resources": {
+                "spacy_field_rules": {
+                    "measurement_date_rules": os.path.join(os.path.dirname(__file__),
+                                                           "resources/measurement_date_rules.json")
+                }
+            },
+            "content_extraction": {
+                "json_content": [
+                    {
+                        "input_path": "metadata.edate",
+                        "segment_name": "measurement__date"
+                    }
+                ]
+            },
+            "data_extraction": [{
+                "fields": {
+                    "event_date": {
+                        "extractors": {
+                            "extract_using_custom_spacy": {
+                                "config": {
+                                    "spacy_field_rules": "measurement_date_rules",
+                                    "post_filter": "parse_date_generic"
+                                }
+                            }
+                        }
+                    }
+                },
+                "input_path": "content_extraction.measurement__date[*]"
+            }]}
+        c = Core(extraction_config=e_config)
+        r = c.process(doc, create_knowledge_graph=True)
+        self.assertEqual(r['knowledge_graph']['event_date'][0]['value'], '1990-01-01T00:00:00')
 
 
 if __name__ == '__main__':
