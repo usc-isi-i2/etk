@@ -11,6 +11,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
 from spacy_extractors import customized_extractor as custom_spacy_extractor
+from spacy_extractors import spacy_email_extractor as spacy_email_extractor
 from spacy_extractors.default_extractor import DefaultExtractor as default_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -90,6 +91,7 @@ _POSTING_DATE = 'posting_date'
 _DATE = 'date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
+_EMAIL = "email"
 _RESOURCES = 'resources'
 _SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
@@ -221,6 +223,7 @@ class Core(object):
             self.prep_spacy()
         else:
             self.nlp = None
+            self.origin_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
         self.geonames_dict = None
@@ -1591,6 +1594,14 @@ class Core(object):
                                                        spacy_address_extractor.extract(nlp_doc,
                                                                                        self.matchers[_ADDRESS]),
                                                        _ADDRESS)
+
+        elif field_name == _EMAIL:
+            t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+            # print spacy_email_extractor.extract(d[_TEXT], self.origin_nlp, self.nlp, t)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_email_extractor.extract(d[_TEXT], self.origin_nlp,
+                                                                                       self.nlp, t),
+                                                       _EMAIL)
         return results
 
     def extract_using_default_spacy(self, d, config):
@@ -1914,6 +1925,7 @@ class Core(object):
 
     def prep_spacy(self):
         # self.nlp = spacy.load('en', entity=True)
+        self.origin_nlp = spacy.load('en')
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
