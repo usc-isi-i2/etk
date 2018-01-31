@@ -487,6 +487,67 @@ class TestExtractions(unittest.TestCase):
         r = c.process(doc)
         self.assertTrue('knowledge_graph' not in r)
 
+    def test_extract_as_is_post_filter_3(self):
+        doc = {
+            "uri": "1",
+            "event_actors": [
+                {
+                    "description": "Non-State, Internal, No State Sanction",
+                    "id": "internalnononstatesanctionstate",
+                    "size": "54"
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "size": "34.0"
+                },
+                {
+                    "description": "Noncombatant Status Asserted",
+                    "id": "assertedcontestednoncombatantnoncombatantnotstatusstatus",
+                    "size": "redme34"
+                }
+            ]
+        }
+
+        e_config = {
+            "extraction_policy": "replace",
+            "error_handling": "raise_error",
+            "document_id": "uri",
+            "content_extraction": {
+                "json_content": [
+                    {
+                        "input_path": "event_actors[*].size",
+                        "segment_name": "actor_size"
+                    }
+                ]
+            },
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.actor_size[*].text.`parent`",
+                    "fields": {
+                        "actor_size": {
+                            "extractors": {
+                                "extract_as_is": {
+                                    "extraction_policy": "keep_existing",
+                                    "config": {
+                                        "post_filter": [
+                                            "parse_number"
+                                        ]
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue(len(r['knowledge_graph']['actor_size']) == 2)
+        self.assertEqual(r['knowledge_graph']['actor_size'][0]['value'], '54')
+        self.assertEqual(r['knowledge_graph']['actor_size'][1]['value'], '34.0')
+
     def test_extract_as_is_artbitrary_path(self):
         doc = {
             "uri": "1",
@@ -589,6 +650,63 @@ class TestExtractions(unittest.TestCase):
                         ['', 'Noncombatant Status Not Contested'])
         self.assertTrue(r['knowledge_graph']['actor_description'][0]['data'][0]['description'] in
                         ['Non-State, Internal, No State Sanction', 'Noncombatant Status Asserted'])
+
+    def test_tld_extraction(self):
+        doc = {
+            "url": "https://www.google.com/blah/this/part/doesnt/matter",
+            'uri': "uri.1"
+        }
+        e_config = {
+
+            "document_id": "uri",
+            "content_extraction": {},
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.url.text.`parent`",
+                    "fields": {
+                        "website": {
+                            "extractors": {
+                                "extract_website_domain": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['website'][0]['value'], 'google.com')
+
+    def test_tld_extraction_from_doc(self):
+        doc = {
+            "url": "https://www.google.com/blah/this/part/doesnt/matter",
+            'uri': "uri.1",
+            "tld": "xyz.org"
+        }
+        e_config = {
+
+            "document_id": "uri",
+            "content_extraction": {},
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.url.text.`parent`",
+                    "fields": {
+                        "website": {
+                            "extractors": {
+                                "extract_website_domain": {
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['website'][0]['value'], 'xyz.org')
 
 
 if __name__ == '__main__':

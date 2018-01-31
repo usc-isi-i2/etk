@@ -62,6 +62,8 @@ class TestCreateKGExtractor(unittest.TestCase):
         self.assertEqual(r['knowledge_graph']['actors'][0]['provenance'][0]['qualifiers']['timestamp_created'],
                          nested_doc['@timestamp_created'])
 
+        self.assertEqual(r['knowledge_graph']['actors'][0]['key'], r['knowledge_graph']['actors'][0]['value'])
+
     def test_create_kg_multiple_node(self):
         doc = {
             "url": "http:www.hitman.org",
