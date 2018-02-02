@@ -193,6 +193,7 @@ _CREATED_BY = 'created_by'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
+seven_digits = re.compile("[0-9]{7}")
 
 
 class TimeoutException(Exception):  # Custom exception class
@@ -2017,7 +2018,20 @@ class Core(object):
             config = dict()
         config['ignore_past_years'] = 200
 
-        return Core.parse_date(d, config=config)
+        try:
+            # try the 2005344 format just in case
+            to_be_parsed_date = str(d) if isinstance(d, basestring) else d[_TEXT]
+            if seven_digits.match(to_be_parsed_date):
+                year = to_be_parsed_date[0:4]
+                day_of_year = to_be_parsed_date[4:7]
+                parsed_date = datetime.datetime.strptime('{} {}'.format(year, day_of_year), '%Y %j')
+                return parsed_date.isoformat()
+        except:
+            return None
+
+        result = Core.parse_date(d, config=config)
+
+        return result
 
     @staticmethod
     def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
@@ -2311,7 +2325,7 @@ class Core(object):
             if field_name in d[_KNOWLEDGE_GRAPH]:
                 results = d[_KNOWLEDGE_GRAPH][field_name]
                 for result in results:
-                    if result['value'].lower()  not in self.stop_word_dicts[field_name]:
+                    if result['value'].lower() not in self.stop_word_dicts[field_name]:
                         new_results.append(result)
                 if len(new_results) > 0:
                     d[_KNOWLEDGE_GRAPH][field_name] = new_results

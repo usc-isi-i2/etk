@@ -708,6 +708,57 @@ class TestExtractions(unittest.TestCase):
         r = c.process(doc)
         self.assertEqual(r['knowledge_graph']['website'][0]['value'], 'xyz.org')
 
+    def test_extract_as_is_post_filter_date(self):
+        doc = {
+            "uri": "1",
+            "event_actors": [
+                {
+                    "weird_date": "2007365",
+                },
+                {
+                    "weird_date": "2007999",
+                }
+            ]
+        }
+
+        e_config = {
+            "extraction_policy": "replace",
+            "error_handling": "raise_error",
+            "document_id": "uri",
+            "content_extraction": {
+                "json_content": [
+                    {
+                        "input_path": "event_actors[*].weird_date",
+                        "segment_name": "weird_date"
+                    }
+                ]
+            },
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.weird_date[*].text.`parent`",
+                    "fields": {
+                        "weird_date": {
+                            "extractors": {
+                                "extract_as_is": {
+                                    "extraction_policy": "keep_existing",
+                                    "config": {
+                                        "post_filter": [
+                                            "parse_date_generic"
+                                        ]
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertTrue(len(r["knowledge_graph"]["weird_date"]) == 1)
+        self.assertEqual("2007-12-31T00:00:00", r["knowledge_graph"]["weird_date"][0]["value"])
+
 
 if __name__ == '__main__':
     unittest.main()
