@@ -1,16 +1,7 @@
-# import spacy
 from spacy.matcher import Matcher
 from spacy.attrs import LIKE_EMAIL
-# from tokenizer_extractor import TokenizerExtractor
 
 filter_lst = ["noon", "no"]
-
-# nlp = spacy.load('en')
-# t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
-
-# new_nlp = spacy.load('en')
-# old_tokenizer = new_nlp.tokenizer
-# new_nlp.tokenizer = lambda tokens: old_tokenizer.tokens_from_list(tokens)
 
 
 def load_like_email_matcher(nlp):
