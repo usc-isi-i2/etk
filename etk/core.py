@@ -1982,6 +1982,7 @@ class Core(object):
     def decode_value(self, d, field_name=None):
         if field_name and field_name in self.decoding_dict_dict:
             decoding_dict = self.decoding_dict_dict[field_name]
+            d = d.strip()
             if d in decoding_dict and decoding_dict[d]:
                 return decoding_dict[d]
         return d
