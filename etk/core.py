@@ -222,6 +222,7 @@ class Core(object):
         self.json_content_paths = dict()
         if load_spacy:
             self.prep_spacy()
+            self.prep_origin_spacy()
         else:
             self.nlp = None
             self.origin_nlp = None
@@ -1567,6 +1568,8 @@ class Core(object):
         field_name = config[_FIELD_NAME]
         if not self.nlp:
             self.prep_spacy()
+        if not self.origin_nlp:
+            self.prep_origin_spacy()
 
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
         self.load_matchers(field_name)
@@ -1926,10 +1929,12 @@ class Core(object):
 
     def prep_spacy(self):
         # self.nlp = spacy.load('en', entity=True)
-        self.origin_nlp = spacy.load('en')
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_origin_spacy(self):
+        self.origin_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
