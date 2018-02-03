@@ -217,7 +217,6 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                 extracted_ages = self.create_list_from_kg(r["knowledge_graph"]['email'])
             else:
                 extracted_ages = []
-            print extracted_ages, t['correct']
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
         # Social media extractor
