@@ -107,6 +107,7 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+_POST_FILTER_S = "post_filter_s"
 _TABLE = "table"
 _STOP_WORDS = "stop_words"
 _GEONAMES = "geonames"
@@ -1475,13 +1476,17 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
-                                                                                       self.tries[
-                                                                                           field_name],
-                                                                                       pre_filter,
-                                                                                       post_filter,
-                                                                                       ngrams, joiner),
-                                                field_name)
+        results = self._extract_using_dictionary(tokens, pre_process,
+                                                 self.tries[
+                                                     field_name],
+                                                 pre_filter,
+                                                 post_filter,
+                                                 ngrams, joiner)
+        if _POST_FILTER_S in config:
+            post_filters = config[_POST_FILTER_S]
+            results = self.run_post_filters_results(results, post_filters, field_name=field_name)
+
+        return self._relevant_text_from_context(tokens, results, field_name)
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
