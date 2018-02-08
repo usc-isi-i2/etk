@@ -109,6 +109,7 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+_POST_FILTER_S = "post_filter_s"
 _TABLE = "table"
 _STOP_WORDS = "stop_words"
 _GEONAMES = "geonames"
@@ -261,7 +262,7 @@ class Core(object):
             if _RESOURCES in self.extraction_config and _DECODING_DICTIONARY in self.extraction_config[_RESOURCES]:
                 decoding_dict = self.extraction_config[_RESOURCES][_DECODING_DICTIONARY]
                 for key in decoding_dict.keys():
-                    self.decoding_dict_dict[key] = self.load_json_file(decoding_dict[key])
+                    self.decoding_dict_dict[key] = self.process_decoding_dict(self.load_json_file(decoding_dict[key]))
 
     def log(self, message, level, doc_id=None, url=None, extra=None):
         if self.logstash_logger:
@@ -1398,6 +1399,18 @@ class Core(object):
         json_x = json.load(codecs.open(file_name, 'r'))
         return json_x
 
+    @staticmethod
+    def process_decoding_dict(decoding_dict):
+        # lower the keys so that we can do a string match properly
+        new_dict = dict()
+        for k in decoding_dict.keys():
+            try:
+                new_dict[k.lower()] = decoding_dict[k]
+            except:
+                # some weird unicode probably
+                new_dict[k] = decoding_dict[k]
+        return new_dict
+
     def load_json(self, json_name):
         if json_name not in self.jobjs:
             self.jobjs[json_name] = self.load_json_file(self.get_pickle_file_name_from_config(json_name))
@@ -1479,13 +1492,17 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
-                                                                                       self.tries[
-                                                                                           field_name],
-                                                                                       pre_filter,
-                                                                                       post_filter,
-                                                                                       ngrams, joiner),
-                                                field_name)
+        results = self._extract_using_dictionary(tokens, pre_process,
+                                                 self.tries[
+                                                     field_name],
+                                                 pre_filter,
+                                                 post_filter,
+                                                 ngrams, joiner)
+        if _POST_FILTER_S in config:
+            post_filters = config[_POST_FILTER_S]
+            results = self.run_post_filters_results(results, post_filters, field_name=field_name)
+
+        return self._relevant_text_from_context(tokens, results, field_name)
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
@@ -1999,6 +2016,7 @@ class Core(object):
     def decode_value(self, d, field_name=None):
         if field_name and field_name in self.decoding_dict_dict:
             decoding_dict = self.decoding_dict_dict[field_name]
+            d = d.strip().lower()
             if d in decoding_dict and decoding_dict[d]:
                 return decoding_dict[d]
         return d

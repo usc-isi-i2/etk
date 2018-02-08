@@ -311,6 +311,64 @@ class TestExtractionsUsingDictionaries(unittest.TestCase):
         self.assertTrue('simple_tokens_original_case' in r["content_extraction"]["content_strict"])
         self.assertTrue("data_extraction" not in r["content_extraction"]["content_strict"])
 
+    def test_decode_value_dictionary(self):
+        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/case_sensitive_female_name.json")
+        name_decoding_dict_path = os.path.join(os.path.dirname(__file__), "resources/name_decode.json")
+        doc = {
+            'content_extraction': {
+                'content_strict': {
+                    'text': 'My name is Margie and this is a test for extracting this name using case sensitive '
+                            'dictionary'
+                }
+            },
+            'doc_id': 'id',
+            'url': 'http://givemeabreak.com'
+        }
+        e_config = {
+            "resources": {
+                "dictionaries": {
+                    "women_name": women_name_file_path
+                },
+
+                "decoding_dictionary": {"name": name_decoding_dict_path}
+
+            },
+            "document_id": "doc_id",
+            "data_extraction": [
+                {
+                    "input_path": "content_extraction.content_strict.text.`parent`"
+                    ,
+                    "fields": {
+                        "name": {
+                            "extractors": {
+                                "extract_using_dictionary": {
+                                    "config": {
+                                        'case_sensitive': 'True',
+                                        "dictionary": "women_name",
+                                        "ngrams": 1,
+                                        "joiner": " ",
+                                        "pre_filter": [
+                                            "x"
+                                        ],
+                                        "post_filter": [
+                                            "isinstance(x, basestring)"
+                                        ],
+                                        "post_filter_s": "decode_value"
+                                    },
+                                    "extraction_policy": "keep_existing"
+                                }
+                            }
+
+                        }
+                    }
+                }
+            ]
+        }
+        c = Core(extraction_config=e_config)
+        r = c.process(doc)
+        self.assertEqual(r['knowledge_graph']['name'][0]['value'], 'Not Margie')
+        # print json.dumps(r['knowledge_graph'], indent=2)
+
 
 if __name__ == '__main__':
     unittest.main()
