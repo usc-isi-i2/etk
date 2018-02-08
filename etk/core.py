@@ -11,6 +11,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
 from spacy_extractors import customized_extractor as custom_spacy_extractor
+from spacy_extractors import spacy_email_extractor as spacy_email_extractor
 from spacy_extractors.default_extractor import DefaultExtractor as default_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -90,6 +91,7 @@ _POSTING_DATE = 'posting_date'
 _DATE = 'date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
+_EMAIL = "email"
 _RESOURCES = 'resources'
 _SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
@@ -221,8 +223,10 @@ class Core(object):
         self.json_content_paths = dict()
         if load_spacy:
             self.prep_spacy()
+            self.prep_origin_spacy()
         else:
             self.nlp = None
+            self.origin_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
         self.geonames_dict = None
@@ -1581,6 +1585,8 @@ class Core(object):
         field_name = config[_FIELD_NAME]
         if not self.nlp:
             self.prep_spacy()
+        if not self.origin_nlp:
+            self.prep_origin_spacy()
 
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
         self.load_matchers(field_name)
@@ -1609,6 +1615,14 @@ class Core(object):
                                                        spacy_address_extractor.extract(nlp_doc,
                                                                                        self.matchers[_ADDRESS]),
                                                        _ADDRESS)
+
+        elif field_name == _EMAIL:
+            t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+            # print spacy_email_extractor.extract(d[_TEXT], self.origin_nlp, self.nlp, t)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_email_extractor.extract(d[_TEXT], self.origin_nlp,
+                                                                                       self.nlp, t),
+                                                       _EMAIL)
         return results
 
     def extract_using_default_spacy(self, d, config):
@@ -1935,6 +1949,9 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_origin_spacy(self):
+        self.origin_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:

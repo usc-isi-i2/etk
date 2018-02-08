@@ -49,6 +49,14 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
                                     }
                                 }
                             }
+                        },
+                        "email": {
+                            "extractors": {
+                                "extract_using_spacy": {
+                                    "config": {
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -60,7 +68,8 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
         ground_truth_files = {"age": os.path.join(os.path.dirname(__file__), "ground_truth/age.jl"),
                               "date": os.path.join(os.path.dirname(__file__), "ground_truth/date.jl"),
                               "social_media": os.path.join(os.path.dirname(__file__), "ground_truth/social_media.jl"),
-                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl")
+                              "address": os.path.join(os.path.dirname(__file__), "ground_truth/address.jl"),
+                              "email": os.path.join(os.path.dirname(__file__), "ground_truth/email.jl")
                               }
 
         for extractor, file_name in ground_truth_files.items():
@@ -199,6 +208,15 @@ class TestExtractionsUsingSpacy(unittest.TestCase):
             else:
                 extracted_ages = []
 
+            self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
+
+        # Email extractor
+        for t in self.ground_truth['email']:
+            r = self.c.process(t)
+            if 'knowledge_graph' in r:
+                extracted_ages = self.create_list_from_kg(r["knowledge_graph"]['email'])
+            else:
+                extracted_ages = []
             self.assertEquals(sorted(extracted_ages), sorted(t['correct']))
 
         # Social media extractor
