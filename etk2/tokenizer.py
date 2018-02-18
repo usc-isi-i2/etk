@@ -47,6 +47,7 @@ class Tokenizer(object):
 
         """
 
+        """Add custom attributes"""
         """Add full_shape attribute. Eg. 21.33 => dd.dd, esadDeweD23 => xxxxXxxxXdd"""
         def get_shape(token):
             full_shape = ""
@@ -62,8 +63,11 @@ class Tokenizer(object):
             return full_shape
         spacy_token.set_extension("full_shape", getter=get_shape)
 
-        """To Do: is_integer, is_float, length, is_linkbreak, is_month, is_following_space?, is_followed_by_space?"""
+        """To Do: is_integer, is_float, length, is_linkbreak, is_month, is_mixed(eg.xXxX), is_alphanumeric
+        is_following_space?, is_followed_by_space?
+        """
 
+        """Add custom methods"""
         """Add get_prefix method. RETURN length N prefix"""
         def n_prefix(token, n):
             return token.text[:n]
@@ -75,7 +79,11 @@ class Tokenizer(object):
         spacy_token.set_extension("N_suffix", method=n_suffix)
 
         """To Do: 
-        1. Method convert_to_number: RETURN """
+        1. Method convert_to_number: RETURN number, type integer if is integer, float if is float, else None
+        2. Method find_substring(argv): 
+            argv can be a string or a regex
+            RETURN start index of first matches if exist, else None
+        """
 
         return spacy_token
 

@@ -17,5 +17,4 @@ class ETK(object):
     def get_tokens(self, text):
         t = Tokenizer()
         tokens = t.tokenize(text)
-        print(t.reconstruct_text(tokens))
-        # return t.tokenize(text)
+        return t.tokenize(text)
