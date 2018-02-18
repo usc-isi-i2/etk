@@ -8,35 +8,39 @@ class Tokenizer(object):
     Abstract class used for all tokenizer implementations.
     """
 
+    def __init__(self):
+        """Load vocab, more vocab are available at: https://spacy.io/models/en"""
+        self.nlp = spacy.load('en_core_web_sm')
+
+        """Custom tokenizer"""
+        self.nlp.tokenizer = self.custom_tokenizer()
+
     def tokenize(self, text):
         """
-        Tokenizes the given text, returning a list of tokens.
-        Or maybe should return an iterator, this is TBD.
+        Tokenizes the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
         Args:
             text (string):
 
-        Returns:
+        Returns: [tokens]
 
         """
-        nlp = spacy.load('en_core_web_sm')
+        """Tokenize text"""
+        # spacy_tokens = nlp(re.sub(' +', ' ', text))
+        spacy_tokens = self.nlp(text)
+        tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 
+        return tokens
+
+    def custom_tokenizer(self):
         """
-        Customize tokenizer
+        Custom tokenizer
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
-
         """
         prefix_re = re.compile(r'''^[\[\(\-\."']''')
         infix_re = re.compile(r'''[\@\-\(\)]|(?![0-9])\.(?![0-9])''')
-
-        def custom_tokenizer(nlp):
-            return spacyTokenizer(nlp.vocab, prefix_search=prefix_re.search, infix_finditer=infix_re.finditer)
-
-        nlp.tokenizer = custom_tokenizer(nlp)
-        # spacy_tokens = nlp(re.sub(' +', ' ', text))
-        spacy_tokens = nlp(text)
-        tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
-        return tokens
+        return spacyTokenizer(self.nlp.vocab, rules=None, prefix_search=prefix_re.search, suffix_search=None,
+                              infix_finditer=infix_re.finditer, token_match=None)
 
     @staticmethod
     def custom_token(spacy_token):
@@ -63,36 +67,46 @@ class Tokenizer(object):
             return full_shape
         spacy_token.set_extension("full_shape", getter=get_shape)
 
-        """To Do: is_integer, is_float, length, is_linkbreak, is_month, is_mixed(eg.xXxX), is_alphanumeric
-        is_following_space?, is_followed_by_space?
+        """To Do: 
+            is_integer(boolean), 
+            is_float(boolean), 
+            length(return int), 
+            is_linkbreak(\n) (boolean), 
+            is_month(boolean), 
+            is_mixed(eg.xXxX) (boolean), 
+            is_alphanumeric(sda23d) (boolean), 
+            is_following_space?(boolean), 
+            is_followed_by_space?(boolean)
+        ...
         """
 
         """Add custom methods"""
         """Add get_prefix method. RETURN length N prefix"""
         def n_prefix(token, n):
             return token.text[:n]
-        spacy_token.set_extension("N_prefix", method=n_prefix)
+        spacy_token.set_extension("n_prefix", method=n_prefix)
 
         """Add get_suffix method. RETURN length N suffix"""
         def n_suffix(token, n):
             return token.text[-n:]
-        spacy_token.set_extension("N_suffix", method=n_suffix)
+        spacy_token.set_extension("n_suffix", method=n_suffix)
 
         """To Do: 
         1. Method convert_to_number: RETURN number, type integer if is integer, float if is float, else None
-        2. Method find_substring(argv): 
-            argv can be a string or a regex
+        2. Method find_substring(args): 
+            args can be a string or a regex
             RETURN start index of first matches if exist, else None
         """
 
         return spacy_token
 
-    def reconstruct_text(self, tokens):
+    @staticmethod
+    def reconstruct_text(tokens):
         """
         Given a list of tokens, reconstruct the original text with as much fidelity as possible.
 
         Args:
-            tokens ():
+            [tokens]:
 
         Returns: a string.
 

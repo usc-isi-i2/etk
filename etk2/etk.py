@@ -1,6 +1,10 @@
 from tokenizer import Tokenizer
 
+
 class ETK(object):
+
+    def __init__(self):
+        self.defaultTokenizer = Tokenizer()
 
     def invoke_extractor(self, extractor, doc, json_path, input_key, output_key):
 
@@ -15,6 +19,5 @@ class ETK(object):
         pass
 
     def get_tokens(self, text):
-        t = Tokenizer()
-        tokens = t.tokenize(text)
-        return t.tokenize(text)
+        tokens = self.defaultTokenizer.tokenize(text)
+        return tokens
