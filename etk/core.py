@@ -846,6 +846,9 @@ class Core(object):
     def extract_as_is(self, d, config=None):
         if isinstance(d, basestring):
             result = self.pseudo_extraction_results(d)
+            if config and _POST_FILTER in config:
+                post_filters = config[_POST_FILTER]
+                result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
             return result
 
         elif isinstance(d, dict) and _TEXT in d:
