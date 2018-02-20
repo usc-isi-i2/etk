@@ -1,2 +1,0 @@
-{"text": "yours is  \n E-mail:anna@wanadoo.fr  Ashley2", "correct": ["anna@wanadoo.fr"]}
-{"text": "upscale lAdy who knows office@fantasie-escort.at how to cater to you and make u feel like a king", "correct": ["office@fantasie-escort.at"]}
