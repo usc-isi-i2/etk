@@ -9,13 +9,15 @@ class Document(object):
         of extractors.
         """
 
-    def __init__(self, cdr_document, tokenizer=None):
+    def __init__(self, cdr_document, tokenizer=None, keep_multi_space=True, lowercase=False):
         """
         Wrapper object for CDR documents.
 
         Args:
             cdr_document (JSON): the raw CDR document received in ETK.
             tokenizer (Tokenizer): the default tokenizer for creating tokens.
+            keep_multi_space(boolean): tokenizer will preserve multiple spaces in text
+            lowercase(boolean): tokenizer will lowercase text
 
         Returns: the wrapped CDR document
 
@@ -25,7 +27,7 @@ class Document(object):
         if tokenizer:
             self.tokenizer = tokenizer
         else:
-            self.tokenizer = Tokenizer(keep_multi_space=True)
+            self.tokenizer = Tokenizer(keep_multi_space, lowercase)
 
     def select_containers(self, json_path):
         """
@@ -47,7 +49,7 @@ class Document(object):
 
     def get_tokens(self, segment, tokenizer=None):
         """
-        Tokenizes the given segment.
+        Tokenize the given segment.
 
         1. If the segment is a string, it returns the tokenized version of the string.
         2. If the segment is a List, it recursively tokenizes each element of the list.

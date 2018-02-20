@@ -1,5 +1,6 @@
 import json
 
+
 class ETK(object):
 
     def __init__(self):
@@ -17,7 +18,7 @@ class ETK(object):
             segment = containers.get(input_key)
             tokens = doc.get_tokens(segment)
 
-        fake_extraction = doc.tokenizer.reconstruct_text(tokens)
+        fake_extraction = [i.text for i in tokens]
         doc.store_extraction(extractor, fake_extraction, containers, output_key)
         print(json.dumps(doc.cdr_document, indent=2))
             # if extractor.requires_tokens():
