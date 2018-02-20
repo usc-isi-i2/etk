@@ -19,11 +19,10 @@ class Tokenizer(object):
 
     def tokenize(self, text):
         """
-        Tokenizes the given text, returning a list of tokens. Type token: class spacy.tokens.Token
+        Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
         Args:
             text (string):
-            keep_multi_space(boolean): keep multiple spaces as token or not
 
         Returns: [tokens]
 

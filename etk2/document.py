@@ -66,7 +66,7 @@ class Document(object):
             segment (JSON): any part of a JSON document
             tokenizer (Tokenizer): used if provided, otherwise the default tokenizer of the document will be used.
 
-        Returns: a seqeuence of tokens.
+        Returns: a sequence of tokens.
         """
         if not tokenizer:
             tokenizer = self.tokenizer
