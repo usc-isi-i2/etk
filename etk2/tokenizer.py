@@ -8,12 +8,13 @@ class Tokenizer(object):
     Abstract class used for all tokenizer implementations.
     """
 
-    def __init__(self):
+    def __init__(self, keep_multi_space = True):
         """Load vocab, more vocab are available at: https://spacy.io/models/en"""
         self.nlp = spacy.load('en_core_web_sm')
 
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
+        self.keep_multi_space = keep_multi_space
 
     def tokenize(self, text):
         """
@@ -21,12 +22,14 @@ class Tokenizer(object):
 
         Args:
             text (string):
+            keep_multi_space(boolean): keep multiple spaces as token or not
 
         Returns: [tokens]
 
         """
         """Tokenize text"""
-        # spacy_tokens = nlp(re.sub(' +', ' ', text))
+        if not self.keep_multi_space:
+            text = re.sub(' +', ' ', text)
         spacy_tokens = self.nlp(text)
         tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 
