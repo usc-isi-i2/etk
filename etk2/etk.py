@@ -13,13 +13,9 @@ class ETK(object):
             for c in containers:
                 segment = c.get(input_key)
                 tokens = doc.get_tokens(segment)
-                for i in tokens:
-                    print(i.orth_)
         else:
             segment = containers.get(input_key)
             tokens = doc.get_tokens(segment)
-            for i in tokens:
-                print(i.orth_)
 
         fake_extraction = doc.tokenizer.reconstruct_text(tokens)
         doc.store_extraction(extractor, fake_extraction, containers, output_key)
