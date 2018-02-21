@@ -24,7 +24,7 @@ class Document(Extractable):
         """
         Extractable.__init__(self)
         self.cdr_document = json.loads(cdr_document)
-        self.path_value = self.cdr_document
+        self._value = self.cdr_document
         if tokenizer:
             self.tokenizer = tokenizer
         self.segments = None
