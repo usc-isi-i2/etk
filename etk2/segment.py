@@ -1,6 +1,6 @@
 from etk_extraction import Extractable, ExtractableCollection
 import json
-
+import copy
 
 class Segment(Extractable):
     """
@@ -52,7 +52,7 @@ class Segment(Extractable):
         self._extractions = extractions
         extractions_list = list()
         for a_extraction in extractions.items():
-            extractions_list.append(a_extraction.value)
+            extractions_list.append(copy.deepcopy(a_extraction.value))
         if isinstance(self._value, dict):
             self._value[attribute] = extractions_list
         else:
@@ -84,7 +84,7 @@ class SegmentCollection(ExtractableCollection):
         Args:
             segment (Segment):
         """
-        segment_str = json.dumps(segment.value)
+        segment_str = json.dumps(segment.value, sort_keys=True)
         if segment_str not in self.collection_set:
             self.collection_set.add(segment_str)
             self.collection_list.append(segment)
@@ -98,7 +98,7 @@ class SegmentCollection(ExtractableCollection):
         Returns: self, to allow chaining
         """
         for a_segment in segment_collection.collection_list:
-            segment_str = json.dumps(a_segment.value)
+            segment_str = json.dumps(a_segment.value, sort_keys=True)
             if segment_str not in self.collection_set:
                 self.collection_set.add(segment_str)
                 self.collection_list.append(a_segment)

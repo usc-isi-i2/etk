@@ -63,14 +63,16 @@ class Extractable(ExtractableBase):
 
         if not tokenizer:
             tokenizer = self.tokenizer
-        segment_value = self.value
-        if (segment_value, tokenizer) in self.tokenize_results:
-            return self.tokenize_results[(segment_value, tokenizer)]
+        segment_value = self._value
+        segment_value_str = json.dumps(segment_value, sort_keys=True)
+        if (segment_value_str, tokenizer) in self.tokenize_results:
+            return self.tokenize_results[(segment_value_str, tokenizer)]
         else:
             """Tokenize a string"""
             if isinstance(segment_value, str):
                 tokens = self.tokenize_string(segment_value, tokenizer)
-                self.tokenize_results[(segment_value, tokenizer)] = tokens
+                segment_value_str = json.dumps(segment_value, sort_keys=True)
+                self.tokenize_results[(segment_value_str, tokenizer)] = tokens
                 return tokens
             """TODO: tokenize other segment types"""
 
@@ -163,7 +165,7 @@ class ExtractionCollection(ExtractableCollection):
         Args:
             extraction (Extraction):
         """
-        extraction_str = json.dumps(extraction.value)
+        extraction_str = json.dumps(extraction.value, sort_keys=True)
         if extraction_str not in self.collection_set:
             self.collection_set.add(extraction_str)
             self.collection_list.append(extraction)
@@ -177,7 +179,7 @@ class ExtractionCollection(ExtractableCollection):
         Returns: self, to allow chaining
         """
         for a_extraction in extraction_collection.collection_list:
-            extraction_str = json.dumps(a_extraction.value)
+            extraction_str = json.dumps(a_extraction.value, sort_keys=True)
             if extraction_str not in self.collection_set:
                 self.collection_set.add(extraction_str)
                 self.collection_list.append(a_extraction)
