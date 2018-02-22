@@ -1,11 +1,11 @@
 language: python
 python:
-- 2.7.11
+- 3.6.3
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]]; then wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh; else wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -16,7 +16,7 @@ install:
   - conda-env create .
   - source activate etk_env
 script:
-  - python -m spacy download en
+  - python -m spacy download en_core_web_sm
   - python -m unittest discover
 notifications:
   slack:

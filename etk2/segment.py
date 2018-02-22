@@ -2,6 +2,7 @@ from etk_extraction import Extractable, ExtractableCollection
 import json
 import copy
 
+
 class Segment(Extractable):
     """
     An individual segment in a document.
@@ -32,7 +33,7 @@ class Segment(Extractable):
         """
         pass
 
-    def add_extractions(self, extractions, attribute):
+    def store_extractions(self, extractions, attribute):
         """
         Records extractions in the container, and for each individual extraction inserts a
         ProvenanceRecord to record where the extraction is stored.
