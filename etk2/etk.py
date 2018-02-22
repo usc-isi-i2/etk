@@ -1,12 +1,22 @@
 import json
 
-
 class ETK(object):
 
     def __init__(self):
         pass
 
+    def get_glossary(self, file_path):
+        res = dict()
+        with open(file_path) as fp:
+            line = fp.readline().rstrip('\n')
+            while line:
+                res[line] = line
+                line = fp.readline().rstrip('\n')
+        return res
+
+
     def invoke_extractor(self, extractor=None, doc=None, json_path=None, input_key=None, output_key=None):
+        # cache parsed json_path, not a string, globally
 
         containers = doc.cdr_document['__content_strict']
         # containers = doc.select_containers(json_path)

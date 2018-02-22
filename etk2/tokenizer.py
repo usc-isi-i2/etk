@@ -44,7 +44,7 @@ class Tokenizer(object):
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
         """
         prefix_re = re.compile(r'''^[\[\(\-\."']''')
-        infix_re = re.compile(r'''[\@\-\(\)]|(?![0-9])\.(?![0-9])''')
+        infix_re = re.compile(r'''[\@\-\(\)]|(?![0-9])\.(?![0-9])|\n''')
         return spacyTokenizer(self.nlp.vocab, rules=None, prefix_search=prefix_re.search, suffix_search=None,
                               infix_finditer=infix_re.finditer, token_match=None)
 
@@ -73,6 +73,19 @@ class Tokenizer(object):
             return full_shape
         spacy_token.set_extension("full_shape", getter=get_shape)
 
+        def is_integer(token):
+            pattern = re.compile('^[-+]?[0-9]+$')
+            return bool(pattern.match(token.text))
+        spacy_token.set_extension("is_integer", getter=is_integer)
+
+        def is_decimal(token):
+            pattern = re.compile('^[-+]?[0-9]+\.[0-9]+$')
+            return bool(pattern.match(token.text))
+        spacy_token.set_extension("is_decimal", getter=is_decimal)
+
+        # def is_linebreak(token):
+
+
         """To Do: 
             is_integer(boolean), 
             is_float(boolean), 
@@ -81,7 +94,8 @@ class Tokenizer(object):
             is_mixed(eg.xXxX) (boolean), 
             is_alphanumeric(sda23d) (boolean), 
             is_following_space?(boolean), 
-            is_followed_by_space?(boolean)
+            is_followed_by_space?(boolean),
+            is_space?(boolean)
         ...
         """
 

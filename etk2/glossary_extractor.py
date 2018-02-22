@@ -1,4 +1,4 @@
-from extractor_api import Extractor
+from extractor import Extractor
 from etk_extraction import ExtractionCollection, Extraction
 from tokenizer import Tokenizer
 from segment import Segment, SegmentCollection
