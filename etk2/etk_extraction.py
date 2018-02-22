@@ -19,7 +19,7 @@ class ExtractableBase(object):
         return self._value
 
     # def get_string(self, list_joiner: str = ", ") -> str:
-    def get_string(self):
+    def get_string(self, list_joiner=","):
         """
         Returns: the value of the segment as a string, using a default method to convert
         objects to strings.
@@ -158,7 +158,7 @@ class ExtractionCollection(ExtractableCollection):
         self.collection_set = set([])
         self.collection_list = list()
 
-    def add(self, extraction):
+    def add_extraction(self, extraction):
         """
         Adds a new Extraction
 
@@ -170,7 +170,7 @@ class ExtractionCollection(ExtractableCollection):
             self.collection_set.add(extraction_str)
             self.collection_list.append(extraction)
 
-    def union(self, extraction_collection):
+    def union_extractions(self, extraction_collection):
         """
         Update this collection to include all the segments passed
         Args:
@@ -197,5 +197,3 @@ class ExtractionCollection(ExtractableCollection):
         Returns: all the Extraction objects as a Python list
         """
         return self.collection_list
-
-    # must implement add_extractions

@@ -47,7 +47,7 @@ class Document(Extractable):
         else:
             segments = SegmentCollection()
             for a_match in matches:
-                this_segment = Segment(json_path, a_match.value)
+                this_segment = Segment(str(a_match.full_path), a_match.value)
                 segments.add(this_segment)
 
         self.segments = segments
