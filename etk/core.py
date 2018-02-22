@@ -11,6 +11,7 @@ from spacy_extractors import social_media_extractor as spacy_social_media_extrac
 from spacy_extractors import date_extractor as spacy_date_extractor
 from spacy_extractors import address_extractor as spacy_address_extractor
 from spacy_extractors import customized_extractor as custom_spacy_extractor
+from spacy_extractors import spacy_email_extractor as spacy_email_extractor
 from spacy_extractors.default_extractor import DefaultExtractor as default_spacy_extractor
 from data_extractors import landmark_extraction
 from data_extractors import dictionary_extractor
@@ -34,7 +35,7 @@ import gzip
 import re
 import spacy
 import codecs
-from jsonpath_rw import parse
+from jsonpath_ng import parse
 import time
 import collections
 import numbers
@@ -50,6 +51,7 @@ import signal
 import datetime
 import hashlib
 
+_DATA = 'data'
 _KEY = 'key'
 _VALUE = 'value'
 _QUALIFIERS = 'qualifiers'
@@ -86,8 +88,10 @@ _LANDMARK_RULES = 'landmark_rules'
 _URL = 'url'
 _AGE = 'age'
 _POSTING_DATE = 'posting_date'
+_DATE = 'date'
 _SOCIAL_MEDIA = 'social_media'
 _ADDRESS = 'address'
+_EMAIL = "email"
 _RESOURCES = 'resources'
 _SPACY_FIELD_RULES = "spacy_field_rules"
 _DATA_EXTRACTION = 'data_extraction'
@@ -105,6 +109,7 @@ _JOINER = 'joiner'
 _PRE_FILTER = 'pre_filter'
 _POST_FILTER = 'post_filter'
 _PRE_PROCESS = "pre_process"
+_POST_FILTER_S = "post_filter_s"
 _TABLE = "table"
 _STOP_WORDS = "stop_words"
 _GEONAMES = "geonames"
@@ -126,10 +131,19 @@ _EXTRACT_WEIGHT = "extract_weight"
 _EXTRACT_ADDRESS = "extract_address"
 _EXTRACT_AGE = "extract_age"
 _CREATE_KG_NODE_EXTRACTOR = "create_kg_node_extractor"
+_EXTRACT_WEBSITE_DOMAIN = "extract_website_domain"
+_ADD_CONSTANT_KG = "add_constant_kg"
+_GUARD = "guard"
+_GUARDS = "guards"
+_DISABLE_DEFAULT_EXT = "disable_default_extractors"
+_STOP_VALUE = 'stop_value'
+_MATCH = "match"
+_CONTANTS = "constants"
 
 _CONFIG = "config"
 _DICTIONARIES = "dictionaries"
 _STOP_WORD_DICTIONARIES = "stop_word_dictionaries"
+_DECODING_DICTIONARY = "decoding_dictionary"
 _INFERLINK = "inferlink"
 _HTML = "html"
 
@@ -146,6 +160,7 @@ _OBFUSCATION = "obfuscation"
 _INCLUDE_CONTEXT = "include_context"
 _KG_ENHANCEMENT = "kg_enhancement"
 _DOCUMENT_ID = "document_id"
+_DOC_ID = 'doc_id'
 _TLD = 'tld'
 _FEATURE_COMPUTATION = "feature_computation"
 _LOGGING = "logging"
@@ -177,12 +192,16 @@ _DISCARD = 'discard'
 _PREFILTER_FILTER_OUTCOME = 'prefilter_filter_outcome'
 _CREATED_BY = 'created_by'
 
-
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
+seven_digits = re.compile("[0-9]{7}")
 
 
 class TimeoutException(Exception):  # Custom exception class
+    pass
+
+
+class InvalidJsonPathException(Exception):
     pass
 
 
@@ -204,8 +223,10 @@ class Core(object):
         self.json_content_paths = dict()
         if load_spacy:
             self.prep_spacy()
+            self.prep_origin_spacy()
         else:
             self.nlp = None
+            self.origin_nlp = None
         self.country_code_dict = None
         self.matchers = dict()
         self.geonames_dict = None
@@ -217,6 +238,7 @@ class Core(object):
         self.prefer_inferlink_description = False
         self.doc_filter_regexes = dict()
         self.readability_timeout = 3
+        self.decoding_dict_dict = dict()
         if self.extraction_config:
             if _PREFER_INFERLINK_DESCRIPTION in self.extraction_config:
                 self.prefer_inferlink_description = self.extraction_config[_PREFER_INFERLINK_DESCRIPTION]
@@ -232,6 +254,15 @@ class Core(object):
                     self.logstash_logger.addHandler(
                         logstash.LogstashHandler(host, port,
                                                  logstash_conf[_VERSION] if _VERSION in logging_conf else 1))
+
+            """
+            load the decoding dictionaries.
+            because this will be used as post filter, we'll load any decoding dictionary here
+             """
+            if _RESOURCES in self.extraction_config and _DECODING_DICTIONARY in self.extraction_config[_RESOURCES]:
+                decoding_dict = self.extraction_config[_RESOURCES][_DECODING_DICTIONARY]
+                for key in decoding_dict.keys():
+                    self.decoding_dict_dict[key] = self.process_decoding_dict(self.load_json_file(decoding_dict[key]))
 
     def log(self, message, level, doc_id=None, url=None, extra=None):
         if self.logstash_logger:
@@ -321,28 +352,6 @@ class Core(object):
                             doc['doc_id'] = doc_id
                     else:
                         raise KeyError('{} not found in the input document'.format(doc_id_field))
-                """Convert to knowledge_graph"""
-                if _CONVERT_TO_KG in self.extraction_config:
-                    conversion_map = self.extraction_config[_CONVERT_TO_KG]
-                    # conversion map is a dictionary where the key is field_name to be in the knowledge_graph,
-                    #  and value is the the json path of the input doc
-                    for field_name, kgc_path in conversion_map.iteritems():
-                        if kgc_path not in self.kgc_paths:
-                            self.kgc_paths[kgc_path] = parse(kgc_path)
-                        kg_matches = self.kgc_paths[kgc_path].find(doc)
-                        for kg_match in kg_matches:
-                            results = self.pseudo_extraction_results(kg_match.value, _CONVERT_TO_KG, kgc_path,
-                                                                     doc_id=doc_id, score=1.0)
-                            if not results:
-                                msg = 'Error while converting to Knowledge Graph, input path: {} is not ' \
-                                      'a leaf node in the json document'.format(kgc_path)
-                                self.log(msg, _ERROR)
-                                print msg
-                                if self.global_error_handling == _RAISE_ERROR:
-                                    raise ValueError(msg)
-                            else:
-                                if create_knowledge_graph:
-                                    self.create_knowledge_graph(doc, field_name, results)
 
                 if _EXTRACTION_POLICY in self.extraction_config:
                     self.global_extraction_policy = self.extraction_config[_EXTRACTION_POLICY]
@@ -380,7 +389,11 @@ class Core(object):
                         raise KeyError('{} not found in extraction_config'.format(_INPUT_PATH))
                     if html_path and _EXTRACTORS in ce_config:
                         if not self.content_extraction_path:
-                            self.content_extraction_path = parse(html_path)
+                            try:
+                                self.content_extraction_path = parse(html_path)
+                            except:
+                                raise InvalidJsonPathException(
+                                    '\'{}\' is not a valid json path'.format(html_path))
                         matches = self.content_extraction_path.find(doc)
 
                         extractors = ce_config[_EXTRACTORS]
@@ -445,13 +458,20 @@ class Core(object):
 
                         if not isinstance(input_paths, list):
                             input_paths = [input_paths]
-
+                        # get user defined guards
+                        guards = de_config[_GUARDS] if _GUARDS in de_config else None
                         for input_path in input_paths:
                             if _FIELDS in de_config:
                                 if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
+                                    if guards and not self.assert_data_extraction_guard(guards, doc, match.value):
+                                        continue
                                     # First rule of DATA Extraction club: Get tokens
                                     # Get the crf tokens
                                     if _TEXT in match.value:
@@ -489,8 +509,6 @@ class Core(object):
                                                             ep = self.determine_extraction_policy(extractors[extractor])
                                                             if extractor == _CREATE_KG_NODE_EXTRACTOR:
                                                                 method = _CREATE_KG_NODE_EXTRACTOR
-                                                                # TODO Figure out how will users pass a doc_id for the
-                                                                # resulting nested kg doc
                                                                 segment = str(match.full_path)
                                                                 results = self.create_kg_node_extractor(match.value,
                                                                                                         extractors[
@@ -559,6 +577,9 @@ class Core(object):
                                                                                                                 field,
                                                                                                                 results)
                                                             else:
+                                                                if extractor == _EXTRACT_WEBSITE_DOMAIN:
+                                                                    if _TLD in doc:
+                                                                        extractors[extractor][_CONFIG][_TLD] = doc[_TLD]
                                                                 if extractor == _EXTRACT_AS_IS:
                                                                     segment = str(match.full_path)
                                                                 else:
@@ -643,7 +664,11 @@ class Core(object):
                         for input_path in input_paths:
                             if _FIELDS in kg_config:
                                 if input_path not in self.data_extraction_path:
-                                    self.data_extraction_path[input_path] = parse(input_path)
+                                    try:
+                                        self.data_extraction_path[input_path] = parse(input_path)
+                                    except:
+                                        raise InvalidJsonPathException(
+                                            '\'{}\' is not a valid json path'.format(input_path))
                                 matches = self.data_extraction_path[input_path].find(doc)
                                 for match in matches:
                                     fields = kg_config[_FIELDS]
@@ -651,30 +676,44 @@ class Core(object):
                                         sorted_fields = self.sort_dictionary_by_fields(fields)
                                     except:
                                         raise ValueError('Please ensure there is a priority added to every field in '
-                                                         'knowledge_graph  enhancement and the priority is an int')
+                                                         'knowledge_graph  enhancement and the priority is a number')
+
                                     for i in range(0, len(sorted_fields)):
                                         field = sorted_fields[i][0]
-                                        if _EXTRACTORS in fields[field]:
-                                            extractors = fields[field][_EXTRACTORS]
-                                            for extractor in extractors.keys():
-                                                try:
-                                                    foo = getattr(self, extractor)
-                                                except:
-                                                    foo = None
-                                                if foo:
-                                                    if _CONFIG not in extractors[extractor]:
-                                                        extractors[extractor][_CONFIG] = dict()
-                                                    extractors[extractor][_CONFIG][_FIELD_NAME] = field
-                                                    results = foo(match.value, extractors[extractor][_CONFIG])
-                                                    if results:
-                                                        if not extractor == 'filter_results':
-                                                            self.create_knowledge_graph(doc, field, results)
+                                        guard_result = True
+                                        if _GUARD in fields[field]:
+                                            guard_result = self.process_kg_enchancement_guards(doc,
+                                                                                               fields[field][_GUARD])
+                                        if guard_result:
+                                            if _EXTRACTORS in fields[field]:
+                                                extractors = fields[field][_EXTRACTORS]
+                                                for extractor in extractors.keys():
+                                                    try:
+                                                        foo = getattr(self, extractor)
+                                                    except:
+                                                        foo = None
+                                                    if foo:
+                                                        if _CONFIG not in extractors[extractor]:
+                                                            extractors[extractor][_CONFIG] = dict()
+                                                        extractors[extractor][_CONFIG][_FIELD_NAME] = field
+                                                        results = foo(match.value, extractors[extractor][_CONFIG])
+                                                        if results:
+                                                            if not extractor == 'filter_results':
+                                                                if extractor == _ADD_CONSTANT_KG:
+                                                                    # add origin info
+                                                                    results = self.add_origin_info(results,
+                                                                                                   extractor,
+                                                                                                   _KG_ENHANCEMENT,
+                                                                                                   1.0, doc_id)
+                                                                self.create_knowledge_graph(doc, field, results)
 
                 if _KNOWLEDGE_GRAPH in doc and doc[_KNOWLEDGE_GRAPH]:
                     """ Add title and description as fields in the knowledge graph as well"""
                     doc = Core.rearrange_description(doc, html_description)
                     doc = Core.rearrange_title(doc)
 
+        except InvalidJsonPathException as e:
+            raise e
         except Exception as e:
             self.log('ETK process() Exception', _EXCEPTION, doc_id=doc[_DOCUMENT_ID],
                      url=doc[_URL] if _URL in doc else None)
@@ -699,8 +738,63 @@ class Core(object):
             print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
-
         return doc
+
+    def process_kg_enchancement_guards(self, doc, guards):
+        if _KNOWLEDGE_GRAPH not in doc:
+            return False
+
+        if not isinstance(guards, list):
+            guards = [guards]
+
+        result = True
+        for guard in guards:
+            if _FIELD in guard:
+                g_field = guard[_FIELD]
+                if g_field in doc[_KNOWLEDGE_GRAPH]:
+                    kg_values = doc[_KNOWLEDGE_GRAPH][g_field] if g_field in doc[_KNOWLEDGE_GRAPH] else None
+                    if not kg_values:
+                        return False
+
+                    match_field = guard[_MATCH] if _MATCH in guard else _VALUE
+                    try:
+                        values = [v[match_field] for v in kg_values]
+                    except:
+                        values = [v[_VALUE] for v in kg_values]
+                    result &= self.process_one_guard(values, guard)
+                elif g_field in doc:
+                    result &= self.process_one_guard(doc[g_field], guard)
+                else:
+                    return False
+            if not result:
+                break
+        return result
+
+    def process_one_guard(self, lista, guard):
+        if not isinstance(lista, list):
+            lista = [lista]
+        if _REGEX in guard:
+            regex = guard[_REGEX]
+            if regex not in self.doc_filter_regexes:
+                self.doc_filter_regexes[regex] = re.compile(regex)
+            regex_c = self.doc_filter_regexes[regex]
+            for val in lista:
+                match = regex_c.search(val)
+                if match:
+                    return True
+        if _VALUE in guard:
+            listb = guard[_VALUE] if isinstance(guard[_VALUE], list) else [guard[_VALUE]]
+            return Core.do_lists_intersect(lista, listb)
+        if _STOP_VALUE in guard:
+            listb = guard[_STOP_VALUE] if isinstance(guard[_STOP_VALUE], list) else [guard[_STOP_VALUE]]
+            return not Core.do_lists_intersect(lista, listb)
+
+        return False
+
+    @staticmethod
+    def do_lists_intersect(lista, listb):
+        # the following if statement is redundant, its there because of consistent return of function
+        return True if set(lista) & set(listb) else False
 
     def convert_json_content(self, doc, json_content_extractor):
         input_path = json_content_extractor[_INPUT_PATH]
@@ -708,7 +802,11 @@ class Core(object):
         val_list = list()
 
         if input_path not in self.json_content_paths:
-            self.json_content_paths[input_path] = parse(input_path)
+            try:
+                self.json_content_paths[input_path] = parse(input_path)
+            except Exception as e:
+                raise InvalidJsonPathException(
+                    '\'{}\' is not a valid json path'.format(input_path))
         matches = self.json_content_paths[input_path].find(doc)
         for match in matches:
             values = match.value
@@ -746,26 +844,43 @@ class Core(object):
         return doc
 
     def extract_as_is(self, d, config=None):
-        result = dict()
-        result[_VALUE] = d[_TEXT]
-        if _KEY in d:
-            result[_KEY] = d[_KEY]
-        if _QUALIFIERS in d:
-            result[_QUALIFIERS] = d[_QUALIFIERS]
-        return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
+        if isinstance(d, basestring):
+            result = self.pseudo_extraction_results(d)
+            if config and _POST_FILTER in config:
+                post_filters = config[_POST_FILTER]
+                result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
+            return result
 
-    def pseudo_extraction_results(self, values, method, segment, doc_id=None, score=1.0):
-        results = list()
-        if not isinstance(values, list):
-            values = [values]
-        for val in values:
-            if isinstance(val, basestring):
-                result = dict()
-                result['value'] = val
-                results.append(result)
+        elif isinstance(d, dict) and _TEXT in d:
+            if d[_TEXT].strip() != '':
+                result = self.pseudo_extraction_results(d[_TEXT], key=d[_KEY] if _KEY in d else None,
+                                                        qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
+                if config and _POST_FILTER in config:
+                    post_filters = config[_POST_FILTER]
+                    result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
+                return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
             else:
                 return None
-        return self.add_origin_info(results, method, segment, score, doc_id=doc_id)
+
+        # this is the case where we are going to put the input object to a field called 'data'
+        elif isinstance(d, dict) or isinstance(d, list):
+            str_d = json.dumps(d, sort_keys=True)
+            key = hashlib.sha256(str_d).hexdigest().upper()
+            result = self.pseudo_extraction_results(str_d, key=key)
+            result[_DATA] = d
+            return result
+        # If nothing matches,
+        return None
+
+    @staticmethod
+    def pseudo_extraction_results(value, key=None, qualifiers=None):
+        result = dict()
+        result[_VALUE] = value
+        if key:
+            result[_KEY] = key
+        if qualifiers:
+            result[_QUALIFIERS] = qualifiers
+        return result
 
     @staticmethod
     def remove_line_breaks(x):
@@ -936,12 +1051,13 @@ class Core(object):
             if metadata:
                 provenance['qualifiers'] = metadata
             doc[_KNOWLEDGE_GRAPH][field_name] = Core.add_extraction_knowledge_graph(
-                doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value)
+                doc[_KNOWLEDGE_GRAPH][field_name], provenance, key, value, confidence if confidence else 1,
+                data=extraction[_DATA] if _DATA in extraction else None)
 
         return doc
 
     @staticmethod
-    def add_extraction_knowledge_graph(kg_extractions, provenance, key, value):
+    def add_extraction_knowledge_graph(kg_extractions, provenance, key, value, confidence=1, data=None):
         if len(kg_extractions) > 0:
             for kg_e in kg_extractions:
                 if key == kg_e['key']:
@@ -952,7 +1068,9 @@ class Core(object):
         kg_extraction['provenance'] = [provenance]
         kg_extraction['value'] = value
         kg_extraction['key'] = key
-        kg_extraction['confidence'] = 1
+        kg_extraction['confidence'] = confidence
+        if data:
+            kg_extraction[_DATA] = data
         kg_extractions.append(kg_extraction)
         return kg_extractions
 
@@ -1166,6 +1284,29 @@ class Core(object):
                 content_extraction[field_name] = tables
         return content_extraction
 
+    def assert_data_extraction_guard(self, guards, doc, json_path_result):
+        # print 'processing guards: {}'.format(guards)
+        for guard in guards:
+            try:
+                jpath_parser = parse(guard['path'])
+                regex = guard['regex']
+                if guard['type'] == 'doc':
+                    matches = jpath_parser.find(doc)
+                elif guard['type'] == 'path':
+                    matches = jpath_parser.find(json_path_result)
+                else:
+                    print 'guard type "{}" is not a valid type.'.format(guard['type'])
+                    continue
+                # if len(matches) == 0:
+                #     return False
+                for match in matches:
+                    # print match.value, regex
+                    if not re.match(regex, match.value):
+                        return False
+            except Exception as e:
+                print 'could not apply guard: {}'.format(guard)
+        return True
+
     def run_readability(self, content_extraction, html, re_extractor):
         recall_priority = False
         field_name = None
@@ -1261,6 +1402,18 @@ class Core(object):
         json_x = json.load(codecs.open(file_name, 'r'))
         return json_x
 
+    @staticmethod
+    def process_decoding_dict(decoding_dict):
+        # lower the keys so that we can do a string match properly
+        new_dict = dict()
+        for k in decoding_dict.keys():
+            try:
+                new_dict[k.lower()] = decoding_dict[k]
+            except:
+                # some weird unicode probably
+                new_dict[k] = decoding_dict[k]
+        return new_dict
+
     def load_json(self, json_name):
         if json_name not in self.jobjs:
             self.jobjs[json_name] = self.load_json_file(self.get_pickle_file_name_from_config(json_name))
@@ -1342,13 +1495,17 @@ class Core(object):
 
         joiner = config[_JOINER] if _JOINER in config else ' '
 
-        return self._relevant_text_from_context(tokens, self._extract_using_dictionary(tokens, pre_process,
-                                                                                       self.tries[
-                                                                                           field_name],
-                                                                                       pre_filter,
-                                                                                       post_filter,
-                                                                                       ngrams, joiner),
-                                                field_name)
+        results = self._extract_using_dictionary(tokens, pre_process,
+                                                 self.tries[
+                                                     field_name],
+                                                 pre_filter,
+                                                 post_filter,
+                                                 ngrams, joiner)
+        if _POST_FILTER_S in config:
+            post_filters = config[_POST_FILTER_S]
+            results = self.run_post_filters_results(results, post_filters, field_name=field_name)
+
+        return self._relevant_text_from_context(tokens, results, field_name)
 
     @staticmethod
     def _extract_using_dictionary(tokens, pre_process, trie, pre_filter, post_filter, ngrams, joiner):
@@ -1363,7 +1520,7 @@ class Core(object):
     def extract_website_domain(self, d, config):
         text = d[_TEXT]
         field_name = config[_FIELD_NAME]
-        tld = self.extract_tld(text)
+        tld = config[_TLD] if _TLD in config else self.extract_tld(text)
         results = {"value": tld}
         return self._relevant_text_from_context(d[_TEXT], results, field_name)
 
@@ -1411,6 +1568,10 @@ class Core(object):
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
+        if _POST_FILTER in config:
+            post_filters = config[_POST_FILTER]
+            results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
+
         return results
 
     def infer_rule_using_custom_spacy(self, d, positive_eg):
@@ -1427,6 +1588,8 @@ class Core(object):
         field_name = config[_FIELD_NAME]
         if not self.nlp:
             self.prep_spacy()
+        if not self.origin_nlp:
+            self.prep_origin_spacy()
 
         nlp_doc = self.nlp(d[_SIMPLE_TOKENS], parse=False)
         self.load_matchers(field_name)
@@ -1434,14 +1597,15 @@ class Core(object):
         if field_name == _AGE:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_age_extractor.extract(nlp_doc, self.matchers[_AGE]), _AGE)
-        elif field_name == _POSTING_DATE:
+        elif field_name == _POSTING_DATE or _DATE in field_name:
+            self.load_matchers(_POSTING_DATE)
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_date_extractor.extract(nlp_doc,
                                                                                     self.matchers[_POSTING_DATE]),
-                                                       _POSTING_DATE)
+                                                       field_name)
             if _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
-                results = self.run_post_filters_results(results, post_filters)
+                results = self.run_post_filters_results(results, post_filters, field_name=field_name)
 
         elif field_name == _SOCIAL_MEDIA:
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
@@ -1454,6 +1618,14 @@ class Core(object):
                                                        spacy_address_extractor.extract(nlp_doc,
                                                                                        self.matchers[_ADDRESS]),
                                                        _ADDRESS)
+
+        elif field_name == _EMAIL:
+            t = TokenizerExtractor(recognize_linebreaks=True, create_structured_tokens=True)
+            # print spacy_email_extractor.extract(d[_TEXT], self.origin_nlp, self.nlp, t)
+            results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
+                                                       spacy_email_extractor.extract(d[_TEXT], self.origin_nlp,
+                                                                                       self.nlp, t),
+                                                       _EMAIL)
         return results
 
     def extract_using_default_spacy(self, d, config):
@@ -1616,7 +1788,7 @@ class Core(object):
         results = self._extract_age(text)
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
-            results = self.run_post_filters_results(results, post_filters)
+            results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
         return self._relevant_text_from_context(d[_TEXT], results, config[_FIELD_NAME])
 
     @staticmethod
@@ -1665,7 +1837,7 @@ class Core(object):
             print 'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
-    def run_post_filters_results(self, results, post_filters):
+    def run_post_filters_results(self, results, post_filters, field_name=None):
         if results:
             if not isinstance(results, list):
                 results = [results]
@@ -1675,14 +1847,20 @@ class Core(object):
             for post_filter in post_filters:
                 try:
                     f = getattr(self, post_filter)
-                except Exception as e:
-                    raise 'Exception: {}, no function {} defined in core.py'.format(e, post_filter)
-
-                for result in results:
-                    val = f(result['value'])
-                    if val:
-                        result['value'] = val
-                        out_results.append(result)
+                    if f:
+                        for result in results:
+                            val = f(result['value'], field_name=field_name)
+                            if val:
+                                result['value'] = val
+                                out_results.append(result)
+                except:
+                    print 'Warn: No function {} defined in core.py'.format(post_filter)
+                    # lets try lambda functions
+                    for result in results:
+                        val = Core.string_to_lambda(post_filter)(result['value'])
+                        if val:
+                            result['value'] = val
+                            out_results.append(result)
             return out_results if len(out_results) > 0 else None
 
     @staticmethod
@@ -1753,6 +1931,18 @@ class Core(object):
         te = table_extractor.TableExtraction()
         return te.extract(d)
 
+    def entity_table_extractor(self, d, config):
+        dic = set()
+        # print config
+        if 'dic' in config:
+            # config = config[_CONFIG]
+            dic = config['dic']
+            dic = self.load_json(dic)
+
+        te = table_extractor.EntityTableDataExtraction()
+        res = te.extract(d, dic)
+        return res if len(res) > 0 else None
+
     @staticmethod
     def extract_landmark(html, url, extraction_rules, threshold=0.5):
         return landmark_extraction.extract(html, url, extraction_rules, threshold)
@@ -1762,6 +1952,9 @@ class Core(object):
         self.nlp = spacy.load('en')
         self.old_tokenizer = self.nlp.tokenizer
         self.nlp.tokenizer = lambda tokens: self.old_tokenizer.tokens_from_list(tokens)
+
+    def prep_origin_spacy(self):
+        self.origin_nlp = spacy.load('en')
 
     def load_matchers(self, field_name=None):
         if field_name:
@@ -1823,10 +2016,18 @@ class Core(object):
                                                 'geonames_lookup', 'post_process', 1.0, d[_DOCUMENT_ID])
         return populated_places
 
+    def decode_value(self, d, field_name=None):
+        if field_name and field_name in self.decoding_dict_dict:
+            decoding_dict = self.decoding_dict_dict[field_name]
+            d = d.strip().lower()
+            if d in decoding_dict and decoding_dict[d]:
+                return decoding_dict[d]
+        return d
+
     @staticmethod
-    def parse_date(d, config=dict()):
-        ignore_past_years = config['ignore_past_years'] if 'ignore_past_years' in config else 20
-        ignore_future_dates = config['ignore_future_dates'] if 'ignore_future_dates' in config else True
+    def parse_date(d, config=None, field_name=None):
+        ignore_past_years = config['ignore_past_years'] if config and 'ignore_past_years' in config else 20
+        ignore_future_dates = config['ignore_future_dates'] if config and 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
             return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates)
         else:
@@ -1838,6 +2039,27 @@ class Core(object):
                 return None
 
     @staticmethod
+    def parse_date_generic(d, config=None, field_name=None):
+        if not config:
+            config = dict()
+        config['ignore_past_years'] = 200
+
+        try:
+            # try the 2005344 format just in case
+            to_be_parsed_date = str(d) if isinstance(d, basestring) else d[_TEXT]
+            if seven_digits.match(to_be_parsed_date):
+                year = to_be_parsed_date[0:4]
+                day_of_year = to_be_parsed_date[4:7]
+                parsed_date = datetime.datetime.strptime('{} {}'.format(year, day_of_year), '%Y %j')
+                return parsed_date.isoformat()
+        except:
+            return None
+
+        result = Core.parse_date(d, config=config)
+
+        return result
+
+    @staticmethod
     def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
         try:
             return date_parser.convert_to_iso_format(
@@ -1847,7 +2069,7 @@ class Core(object):
             return None
 
     @staticmethod
-    def filter_age(d, config=None):
+    def filter_age(d, config=None, field_name=None):
         if isinstance(d, basestring) or isinstance(d, numbers.Number):
             text = d
         else:
@@ -1857,6 +2079,26 @@ class Core(object):
             text = text.replace('\t', '')
             num = int(text)
             return num if 18 <= num <= 65 else None
+        except:
+            pass
+        return None
+
+    @staticmethod
+    def parse_number(d, config=None, field_name=None):
+        if isinstance(d, basestring) or isinstance(d, numbers.Number):
+            text = d
+        elif isinstance(d, dict) and _TEXT in d:
+            text = d[_TEXT]
+        else:
+            return None
+
+        if isinstance(text, numbers.Number):
+            return str(text)
+
+        try:
+            text = text.strip().replace('\n', '').replace('\t', '')
+            num = str(float(text)) if '.' in text else str(int(text))
+            return num
         except:
             pass
         return None
@@ -2109,11 +2351,35 @@ class Core(object):
             if field_name in d[_KNOWLEDGE_GRAPH]:
                 results = d[_KNOWLEDGE_GRAPH][field_name]
                 for result in results:
-                    if result['value'].lower() in self.stop_word_dicts[field_name]:
-                        result['confidence'] = 0.3
-                    new_results.append(result)
-                d[_KNOWLEDGE_GRAPH][field_name] = new_results
+                    if result['value'].lower() not in self.stop_word_dicts[field_name]:
+                        new_results.append(result)
+                if len(new_results) > 0:
+                    d[_KNOWLEDGE_GRAPH][field_name] = new_results
+                else:
+                    kg = d[_KNOWLEDGE_GRAPH]
+                    kg.pop(field_name, None)
+                    d[_KNOWLEDGE_GRAPH] = kg
         return d
+
+    def add_constant_kg(self, d, config):
+        if _KNOWLEDGE_GRAPH not in d:
+            return d
+
+        if _CONTANTS not in config:
+            return d
+
+        results = list()
+        constants = config[_CONTANTS]
+        if not isinstance(constants, list):
+            constants = [constants]
+
+        for constant in constants:
+            if not (isinstance(constant, basestring) or isinstance(constant, numbers.Number)):
+                raise Exception(
+                    'Only literals can be added to knowledge_graph as constants. Failed to add constant: {}'.format(
+                        constant))
+            results.append(self.pseudo_extraction_results(constant))
+        return results
 
     @staticmethod
     def create_kg_node_extractor(ds, config, doc, parent_doc_id, doc_id=None, url=None):
@@ -2128,8 +2394,19 @@ class Core(object):
                  Or not. who knows
         """
         if _SEGMENT_NAME not in config:
-            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME, _CREATE_KG_NODE_EXTRACTOR))
+            raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME,
+                                                                              _CREATE_KG_NODE_EXTRACTOR))
+        if _DISABLE_DEFAULT_EXT in config and \
+                        config[_DISABLE_DEFAULT_EXT] != _NO and \
+                        config[_DISABLE_DEFAULT_EXT] != _YES:
+            raise KeyError('{} not acceptable for {} in the config for method: {}'.format(config[_DISABLE_DEFAULT_EXT],
+                                                                                          _DISABLE_DEFAULT_EXT,
+                                                                                          _CREATE_KG_NODE_EXTRACTOR))
+        disable_default_ext = config[_DISABLE_DEFAULT_EXT] if _DISABLE_DEFAULT_EXT in config else _YES
+
         segment_name = config[_SEGMENT_NAME]
+
+        dataset_id = config.get("dataset_identifier")
 
         if doc:
             if 'nested_docs' not in doc:
@@ -2139,22 +2416,43 @@ class Core(object):
             ds = [ds]
 
         extractions = list()
+        class_type = None
+        parent_field = _PARENT_DOC_ID
+        html_field = None
+        if _HTML in config:
+            html_field = config[_HTML]
+        if '@type' in config:
+            class_type = config['@type']
+        if 'parent_field' in config:
+            parent_field = config['parent_field']
         for d in ds:
-            class_type = None
-            if '@type' in config:
-                class_type = config['@type']
-
             timestamp_created = str(datetime.datetime.now().isoformat())
 
             result = dict()
             result['@timestamp_created'] = timestamp_created
 
-            # result[_PARENT_DOC_ID] = parent_doc_id
+            result[parent_field] = parent_doc_id
             result[_CREATED_BY] = 'etk'
             if url:
                 result[_URL] = url
 
             result[_CONTENT_EXTRACTION] = dict()
+            result[_DISABLE_DEFAULT_EXT] = disable_default_ext
+
+            raw_content = None
+
+            if html_field is not None:
+                try:
+                    raw_content = d[html_field]
+                except:
+                    raise KeyError(
+                        '{} not found in the document for method: {}'.format(html_field, _CREATE_KG_NODE_EXTRACTOR))
+            elif 'html' in d:
+                raw_content = d['html']
+            elif _TEXT in d:
+                raw_content = '<html><body>{}</body></html>'.format(d[_TEXT])
+            else:
+                raw_content = '<pre><code>{}</code></pre>'.format(json.dumps(d))
 
             if not doc_id:
                 if isinstance(d, basestring) or isinstance(d, numbers.Number):
@@ -2162,7 +2460,10 @@ class Core(object):
                         d = str(d)
                     doc_id = hashlib.sha256('{}{}'.format(d, timestamp_created)).hexdigest().upper()
                 elif isinstance(d, dict):
-                    doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
+                    if _DOC_ID in d and d[_DOC_ID] and isinstance(d[_DOC_ID], basestring):
+                        doc_id = d[_DOC_ID]
+                    else:
+                        doc_id = hashlib.sha256('{}{}'.format(json.dumps(d), timestamp_created)).hexdigest().upper()
                     if '@type' in d:
                         class_type = d['@type']
                 else:
@@ -2170,7 +2471,11 @@ class Core(object):
                                      _CREATE_KG_NODE_EXTRACTOR)
 
             result[_DOCUMENT_ID] = doc_id
+            if raw_content:
+                result[_RAW_CONTENT] = raw_content
             result['doc_id'] = doc_id
+            if dataset_id:
+                result["dataset_identifier"] = dataset_id
 
             if class_type:
                 result['@type'] = class_type
@@ -2178,5 +2483,6 @@ class Core(object):
             result[_CONTENT_EXTRACTION][segment_name] = d
 
             doc['nested_docs'].append(result)
-            extractions.append({'value': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            extractions.append({'value': doc_id, 'key': doc_id, 'metadata': {'timestamp_created': timestamp_created}})
+            doc_id = None
         return extractions
