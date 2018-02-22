@@ -1,99 +1,94 @@
 import json
-from tokenizer import Tokenizer
+from etk_extraction import Extractable
+import jsonpath_rw
+from segment import SegmentCollection, Segment
 
 
-class Document(object):
+class Document(Extractable):
     """
         This class wraps raw CDR documents and provides a convenient API for ETK
         to query elements of the document and to update the document with the results
         of extractors.
         """
 
-    def __init__(self, cdr_document, tokenizer=None, keep_multi_space=True, lowercase=False):
+    def __init__(self, cdr_document, tokenizer=None):
         """
         Wrapper object for CDR documents.
 
         Args:
             cdr_document (JSON): the raw CDR document received in ETK.
             tokenizer (Tokenizer): the default tokenizer for creating tokens.
-            keep_multi_space(boolean): tokenizer will preserve multiple spaces in text
-            lowercase(boolean): tokenizer will lowercase text
 
         Returns: the wrapped CDR document
 
         """
+        Extractable.__init__(self)
         self.cdr_document = json.loads(cdr_document)
-        self.tokenization_results = dict()
+        self._value = self.cdr_document
         if tokenizer:
             self.tokenizer = tokenizer
-        else:
-            self.tokenizer = Tokenizer(keep_multi_space, lowercase)
+        self.segments = None
 
-    def select_containers(self, json_path):
+    def select_segments(self, json_path):
         """
         Dereferences the json_path inside the document and returns the selected elements.
         This method should compile and cache the compiled json_path in case the same path
         is reused by multiple extractors.
 
         Args:
-            json_path (String): a valid JSON path specification.
+            json_path (str): a valid JSON path specification.
 
-
-        Returns: the results of applying the json_path on the document if exist else None.
-
-        Eg.
-        1. "./__content_strict"   key "__content_strict" under root
-        2. "."   ROOT
+        Returns: A Segments object that contains the elements selected by the json_path.
         """
-        pass
-
-    def get_tokens(self, segment, tokenizer=None):
-        """
-        Tokenize the given segment.
-
-        1. If the segment is a string, it returns the tokenized version of the string.
-        2. If the segment is a List, it recursively tokenizes each element of the list.
-        3. If the segment is a dict, it recursively tokenizes the value of each key/value pair, inserting a
-        newline token after each key/value pair. The order should be by lexicographic order of the keys so that
-        tokenizationis repeatable.
-
-        As it is common to need the same tokens for multiple extractors, the Document should cache the
-        tokenization results, keyed by segment and tokenizer so that given the same segment and tokenizer,
-        the same results are returned. If the same segment is given, but different tokenizer, the different
-        results are cached separately.
-
-        Args:
-            segment (JSON): any part of a JSON document
-            tokenizer (Tokenizer): used if provided, otherwise the default tokenizer of the document will be used.
-
-        Returns: a sequence of tokens.
-        """
-        if not tokenizer:
-            tokenizer = self.tokenizer
-        if (segment, tokenizer) in self.tokenization_results:
-            return self.tokenization_results[(segment, tokenizer)]
+        path = jsonpath_rw.parse(json_path)
+        matches = path.find(self.cdr_document)
+        if not matches:
+            return None
         else:
-            """Tokenize a string"""
-            if isinstance(segment, str):
-                tokens = self.tokenize_string(segment, tokenizer)
-                self.tokenization_results[(segment, tokenizer)] = tokens
-                return tokens
-            """TODO: tokenize other segment types"""
+            segments = SegmentCollection()
+            for a_match in matches:
+                this_segment = Segment(json_path, a_match.value)
+                segments.add(this_segment)
 
-    def store_extraction(self, extractor, extraction, container, output_key):
+        self.segments = segments
+        return segments
+
+    def invoke_extractor(self,
+                         extractor,
+                         extractable):
+        pass
         """
-
+        Invoke the extractor for each Segment, accumulating all the extractions in an ExtractionCollection.
+    
         Args:
-            extractor():
-            extraction ():
-            container ():
-            output_key ():
-
-        Returns:
+            extractor (Extractor):
+            extractable (Extractable):
+    
+        Returns: ExtractionCollection, containing all the extractions.
 
         """
-        container[output_key] = extraction
+        # pseudo-code:
 
-    @staticmethod
-    def tokenize_string(s, tokenizer):
-        return tokenizer.tokenize(s)
+        # Need to handle the case of multiple *extractable
+        # If they are all primitive or singletons, it is simple,
+        #   just invoke once passing the arguments to the extractor.
+        # If they are not primitive or singletons, line them up inventing empty Extractable to fill the gaps:
+        #   e.g., [A B C], [K, L], [X, Y, Z] => e(A, K, X), e(B, L, Y), e(C, EMPTY, X)
+        # ec = ExtractionCollection()
+        # # Need to test for PrimitiveExtractable or ExtractableCollection as items is only defined for collections.
+        # for primitive_extractable in extractable.items():
+        #     if extractor.input_type() == Extractor.InputType.TOKENS:
+        #         tokens = self.get_tokens(primitive_extractable, tokenizer=extractor.preferred_tokenizer())
+        #         if tokens:
+        #             # put the tokens in the extractable so that the extractor can get to them.
+        #             primitive_extractable.set_tokens(tokens)
+        #     ec.add_extractions(extractor.extract(primitive_extractable))
+        #
+        # # record provenance:
+        # for e in ec.extractions():
+        #     pass
+            # add a ProvenanceRecord for the extraction
+            # the prov record for each extraction should point to all extractables:
+            # If the extractables are segments, put them in the "input_segments"
+            # If the extractables are extractions, put the prov ids of the extractions in "input_extractions"
+
