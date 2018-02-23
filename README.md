@@ -9,9 +9,12 @@ It will be built in stages to contain the following capabilities:
 * Automated experimentation to measure precision and recall of extractions
 ## Setup
 `conda-env create .`
+
 `source activate etk2_env`
+
 `python -m spacy download en_core_web_sm`
 
 ## Run Tests
 `cd etk2`
+
 `python -m unittest discover`
