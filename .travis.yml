@@ -14,7 +14,7 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - conda-env create .
-  - source activate etk_env
+  - source activate etk2_env
 script:
   - python -m spacy download en_core_web_sm
   - python -m unittest discover
