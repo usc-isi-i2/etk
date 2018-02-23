@@ -1,8 +1,8 @@
-from extractor import Extractor
-from etk_extraction import ExtractionCollection, Extraction
-from tokenizer import Tokenizer
-from segment import Segment, SegmentCollection
-from etk import ETK
+from etk2.extractor import Extractor
+from etk2.etk_extraction import ExtractionCollection, Extraction
+from etk2.tokenizer import Tokenizer
+from etk2.segment import Segment, SegmentCollection
+from etk2.etk import ETK
 
 import pygtrie as trie
 from itertools import *
@@ -81,17 +81,6 @@ class GlossaryExtractor(Extractor):
                                             ngrams_iterable_with_context)
         return chained_ngrams_iterable
 
-    def requires_tokens(self):
-        """
-        Would be nice to do this with annotations on the class, so people don't
-        have to write this method.
-
-        Returns: True because the glossary extractor requires tokens. Note that
-        tokenization of the source must match tokenization of the glossary, this is
-        left to the user to enforce.
-        """
-        return True
-    #
     def preferred_tokenizer(self):
         """
         Returns: a tokenizer object to use for tokenizing the input segment used for extraction.
@@ -101,9 +90,6 @@ class GlossaryExtractor(Extractor):
         """
         crf_tokenizer = Tokenizer()
         return crf_tokenizer
-
-
-
 
     @staticmethod
     def populate_trie(values):
