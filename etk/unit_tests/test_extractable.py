@@ -1,12 +1,14 @@
 import unittest
 from etk.etk_extraction import Extractable
+from etk.tokenizer import Tokenizer
 
 
 class TestExtractable(unittest.TestCase):
 
     def test_Extractable(self) -> None:
         e = Extractable({'extracted_value': [{1: 2, 'das': [1, 2, 3]}], 'confidence': 2.3})
-        tokens = e.get_tokens()
+        t = Tokenizer()
+        tokens = e.get_tokens(t)
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})

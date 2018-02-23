@@ -1,5 +1,5 @@
-from etk.tokenizer import Tokenizer
 from spacy.tokens import Token
+from etk.tokenizer import Tokenizer
 from typing import List, Any
 
 
@@ -10,7 +10,6 @@ class ExtractableBase(object):
 
     def __init__(self) -> None:
         self._value = None
-        self.tokenizer = None
 
     @property
     def value(self) -> Any:
@@ -44,9 +43,7 @@ class ExtractableBase(object):
                 result = result + self.list2str(item, joiner) + joiner
             elif isinstance(item, dict):
                 result = result + self.dict2str(item, joiner) + joiner
-            elif not item:
-                result = result + ""
-            else:
+            elif item:
                 result = result + str(item) + joiner
         return result
 
@@ -58,9 +55,7 @@ class ExtractableBase(object):
                 result = result + self.list2str(d[key], joiner) + joiner
             elif isinstance(d[key], dict):
                 result = result + self.dict2str(d[key], joiner) + joiner
-            elif not d[key]:
-                result = result + ""
-            else:
+            elif d[key]:
                 result = result + str(d[key]) + joiner
         return result
 
@@ -72,20 +67,15 @@ class Extractable(ExtractableBase):
 
     def __init__(self, value=None) -> None:
         ExtractableBase.__init__(self)
-        if not self.tokenizer:
-            self.tokenizer = Tokenizer()
         self.tokenize_results = dict()
         self._value = value
 
-    def get_tokens(self, tokenizer=None) -> List[Token]:
+    def get_tokens(self, tokenizer) -> List[Token]:
         """
         Tokenize this Extractable.
 
-        If the value is a string, it returns the tokenized version of the string. If the value
-        is a List, it recursively tokenizes each element of the list. If the value is a dict, it
-        recursively tokenizes the value of each key/value pair, inserting a newline token after each
-        key/value pair. The order should be by lexicographic order of the keys so that tokenization
-        is repeatable.
+        If the value is a string, it returns the tokenized version of the string. Else, convert to string with
+        get_string method
 
         As it is common to need the same tokens for multiple extractors, the Extractable should cache the
         tokenization results, keyed by segment and tokenizer so that given the same segment and tokenizer,
@@ -94,52 +84,19 @@ class Extractable(ExtractableBase):
 
         Args:
             extractable (Extractable): any part of a JSON document
-            tokenizer (Tokenizer): used if provided, otherwise the default tokenizer of
+            tokenizer (Tokenizer)
             the document will be used.
 
         Returns: a sequence of tokens.
         """
 
-        if not tokenizer:
-            tokenizer = self.tokenizer
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
             segment_value_for_tokenize = self.get_string()
-            tokens = self.tokenize_string(segment_value_for_tokenize, tokenizer)
+            tokens = tokenizer.tokenize(segment_value_for_tokenize)
             self.tokenize_results[(self, tokenizer)] = tokens
             return tokens
-
-    @staticmethod
-    def tokenize_string(s, tokenizer) -> List[Token]:
-        return tokenizer.tokenize(s)
-
-
-class ExtractableCollection(object):
-    """
-    A collection of PrimitveExtractable
-    """
-    def __init__(self) -> None:
-        self.collection_set = set([])
-        self.collection_list = list()
-
-    def items(self) -> List[Extractable]:
-        """
-        Returns a list of primitive item in collection, and should be implemented
-        by each subclass.
-
-        Returns:
-
-        """
-        return self.collection_list
-
-    def all_values(self) -> List[Any]:
-        """
-        Convenience function.
-
-        Returns: list of all values stored in all item in the collection
-        """
-        return [x.value for x in self.collection_list]
 
 
 class Extraction(Extractable):
@@ -148,30 +105,18 @@ class Extraction(Extractable):
     Note that Extractions are Extractable, so they can be used as inputs to other extractors.
     """
 
-    def __init__(self,
-                 value,
-                 extractor_name=None,
-                 confidence=None,
-                 start_token=None,
-                 end_token=None,
-                 start_char=None,
-                 end_char=None):
+    def __init__(self, extracted_result):
         Extractable.__init__(self)
         """
 
         Args:
-            value (object): the extracted value can be any JSON serializable Python object.
-            extractor_name (str):
-            confidence (float):
-            start_token (int):
-            end_token (int):
-            start_char (int):
-            end_char (int):
+            extracted_result (dict): the extracted result should be dict containing information like.
+                value, extractor_name, confidence, start_token, end_token, start_char, end_char
 
         Returns:
 
         """
-        fake_extraction = {"extracted_value": value, "confidence": confidence}
+        fake_extraction = {"extracted_value": extracted_result["value"], "confidence": extracted_result["confidence"]}
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
         #                   start_char=start_char, end_char=end_char)
@@ -192,35 +137,3 @@ class Extraction(Extractable):
         Returns: the confidence of this extraction
         """
         return self._value["confidence"]
-
-
-class ExtractionCollection(ExtractableCollection):
-    """
-    Encapsulates the results of an extractor, consisting or possibly multiple extractions
-    """
-    def __init__(self) -> None:
-        ExtractableCollection.__init__(self)
-
-    def add_extraction(self, extraction) -> None:
-        """
-        Adds a new Extraction
-
-        Args:
-            extraction (Extraction):
-        """
-        if extraction not in self.collection_set:
-            self.collection_set.add(extraction)
-            self.collection_list.append(extraction)
-
-    def union_extractions(self, extraction_collection) -> None:
-        """
-        Update this collection to include all the segments passed
-        Args:
-            extraction_collection: ExtractionCollection:
-
-        Returns: self, to allow chaining
-        """
-        for a_extraction in extraction_collection.collection_list:
-            if a_extraction not in self.collection_set:
-                self.collection_set.add(a_extraction)
-                self.collection_list.append(a_extraction)

@@ -1,5 +1,6 @@
-from etk.etk_extraction import Extractable, ExtractableCollection
+from etk.etk_extraction import Extractable, Extraction
 import copy
+from typing import List
 
 
 class Segment(Extractable):
@@ -43,58 +44,23 @@ class Segment(Extractable):
         Errors out if the segment is primitive, such as a string.
 
         Args:
-            extractions (ExtractionCollection):
+            extractions (List[Extraction]):
             attribute (str): where to store the extractions.
 
         Returns:
 
         """
         self._extractions = extractions
-        extractions_list = list()
-        for a_extraction in extractions.items():
-            extractions_list.append(copy.deepcopy(a_extraction.value))
         if isinstance(self._value, dict):
-            self._value[attribute] = extractions_list
+            self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
         else:
             print("segment is "+str(type(self._value)))
 
     @property
-    def extractions(self) -> ExtractableCollection:
+    def extractions(self) -> List[Extraction]:
         """
         Get the extractions stored in this container.
-        Returns: ExtractionCollection
+        Returns: List[Extraction]
 
         """
         return self._extractions
-
-
-class SegmentCollection(ExtractableCollection):
-    """
-    Encapsulates a collection of segments that exist inside a Document.
-    """
-    def __init__(self) -> None:
-        ExtractableCollection.__init__(self)
-
-    def add(self, segment) -> None:
-        """
-        Adds a new Segment
-
-        Args:
-            segment (Segment):
-        """
-        if segment not in self.collection_set:
-            self.collection_set.add(segment)
-            self.collection_list.append(segment)
-
-    def union(self, segment_collection) -> None:
-        """
-        Update this collection to include all the segments passed
-        Args:
-            segment_collection: SegmentCollection:
-
-        Returns: self, to allow chaining
-        """
-        for a_segment in segment_collection.collection_list:
-            if a_segment not in self.collection_set:
-                self.collection_set.add(a_segment)
-                self.collection_list.append(a_segment)

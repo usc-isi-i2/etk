@@ -15,6 +15,5 @@ It will be built in stages to contain the following capabilities:
 `python -m spacy download en_core_web_sm`
 
 ## Run Tests
-`cd etk2`
 
 `python -m unittest discover`
