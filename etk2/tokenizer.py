@@ -1,9 +1,8 @@
 import spacy
 import re
 from spacy.tokenizer import Tokenizer as spacyTokenizer
-
-
-nlp = spacy.load('en_core_web_sm')
+from spacy.tokens import Token
+from typing import List
 
 
 class Tokenizer(object):
@@ -11,14 +10,16 @@ class Tokenizer(object):
     Abstract class used for all tokenizer implementations.
     """
 
-    def __init__(self):
+    def __init__(self, nlp=None) -> None:
         """Load vocab, more vocab are available at: https://spacy.io/models/en"""
+        if not nlp:
+            nlp = spacy.load('en_core_web_sm')
         self.nlp = nlp
 
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text):
+    def tokenize(self, text) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
@@ -38,7 +39,7 @@ class Tokenizer(object):
 
         return tokens
 
-    def custom_tokenizer(self):
+    def custom_tokenizer(self) -> spacyTokenizer:
         """
         Custom tokenizer
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
@@ -49,7 +50,7 @@ class Tokenizer(object):
                               infix_finditer=infix_re.finditer, token_match=None)
 
     @staticmethod
-    def custom_token(spacy_token):
+    def custom_token(spacy_token) -> Token:
         """
         Function for token attributes extension, methods extension
         Use set_extension method.
@@ -120,7 +121,7 @@ class Tokenizer(object):
         return spacy_token
 
     @staticmethod
-    def reconstruct_text(tokens):
+    def reconstruct_text(tokens) -> str:
         """
         Given a list of tokens, reconstruct the original text with as much fidelity as possible.
 

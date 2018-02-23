@@ -1,10 +1,10 @@
 import unittest
-from tokenizer import Tokenizer
+from etk2.tokenizer import Tokenizer
 
 
 class TestTokenizer(unittest.TestCase):
 
-    def test_tokenizer(self):
+    def test_tokenizer(self) -> None:
         text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, \n \n   "
         t = Tokenizer()
         tokens = t.tokenize(text)
