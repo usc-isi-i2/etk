@@ -1,7 +1,7 @@
 import json
-from etk_extraction import Extractable
+from etk2.etk_extraction import Extractable
 import jsonpath_rw
-from segment import SegmentCollection, Segment
+from etk2.segment import SegmentCollection, Segment
 
 
 class Document(Extractable):
