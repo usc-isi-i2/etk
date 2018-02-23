@@ -16,10 +16,14 @@ doc = etk.create_document(sample_input)
 
 name_extractor = GlossaryExtractor(etk.load_glossary("./names.txt"))
 
-descriptions = doc.select_segments("projects[*].description")
-projects = doc.select_segments("projects[*]")
+descriptions_path = etk.parser("projects[*].description")
+projects_path = etk.parser("projects[*]")
+
+descriptions = doc.select_segments(descriptions_path)
+projects = doc.select_segments(projects_path)
+
 for d, p in zip(descriptions, projects):
-    names = doc.invoke_extractor(name_extractor, input)
+    names = doc.invoke_extractor(name_extractor, d)
     p.store_extractions(names, "members")
 
 print(json.dumps(sample_input, indent=2))

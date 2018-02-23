@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from etk.etk_extraction import ExtractionCollection, Extractable
+from typing import List
 
 
 class Extractor(object):
@@ -14,7 +14,7 @@ class Extractor(object):
         OBJECT: value can be anything
         """
         TEXT = auto()
-        TOKENS = auto()
+        TOKENS = List
         OBJECT = auto()
 
     @property
@@ -46,13 +46,13 @@ class Extractor(object):
         """
         pass
 
-    def extract(self, *extractable: Extractable) -> ExtractionCollection:
+    def extract(self, input_value) -> List:
         """
 
         Args:
-            extractable (Extractable): some extractors may want multiple arguments, for example, to
+            input_value (): some extractors may want multiple arguments, for example, to
             concatenate them together
 
-        Returns: an ExtractionCollection containing all extractions
+        Returns: list of extracted_result
         """
         pass

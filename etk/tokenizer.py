@@ -5,15 +5,12 @@ from spacy.tokens import Token
 from typing import List
 
 
-nlp = spacy.load('en_core_web_sm')
-
-
 class Tokenizer(object):
     """
     Abstract class used for all tokenizer implementations.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, nlp=spacy.load('en_core_web_sm')) -> None:
         """Load vocab, more vocab are available at: https://spacy.io/models/en"""
         self.nlp = nlp
 

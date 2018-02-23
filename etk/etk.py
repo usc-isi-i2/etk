@@ -1,11 +1,18 @@
 from typing import List
-import json
+import jsonpath_rw
+import spacy
+from etk.tokenizer import Tokenizer
+from etk.document import Document
 
 
 class ETK(object):
 
     def __init__(self):
-        pass
+        self.parser = jsonpath_rw.parse
+        self.default_tokenizer = Tokenizer(nlp=spacy.load('en_core_web_sm'))
+
+    def create_document(self, doc):
+        return Document(doc, self.default_tokenizer)
 
     def load_glossary(self, file_path) -> List[str]:
         """
@@ -25,24 +32,3 @@ class ETK(object):
                 line = fp.readline().rstrip('\n')
         return res
 
-    def invoke_extractor(self, extractor=None, doc=None, json_path=None, input_key=None, output_key=None):
-        # cache parsed json_path, not a string, globally
-
-        containers = doc.cdr_document['__content_strict']
-        # containers = doc.select_containers(json_path)
-        if isinstance(containers, list):
-            for c in containers:
-                segment = c.get(input_key)
-                tokens = doc.get_tokens(segment)
-        else:
-            segment = containers.get(input_key)
-            tokens = doc.get_tokens(segment)
-
-        fake_extraction = [i.text for i in tokens]
-        doc.store_extraction(extractor, fake_extraction, containers, output_key)
-        print(json.dumps(doc.cdr_document, indent=2))
-            # if extractor.requires_tokens():
-            #     tokens = doc.get_tokens(segment, tokenizer=extractor.preferred_tokenizer())
-            #     if tokens:
-            #         extraction = extractor.extract(tokens, doc)
-            #         doc.store_extraction(extractor, extraction, c, output_key)
