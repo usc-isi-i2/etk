@@ -2,6 +2,7 @@ from etk2.tokenizer import Tokenizer
 from spacy.tokens import Token
 from typing import List, Any
 
+
 class ExtractableBase(object):
     """
     Encapsulates a value that can be used as an input to an Extractor
@@ -18,9 +19,12 @@ class ExtractableBase(object):
         """
         return self._value
 
-    # def get_string(self, list_joiner: str = ", ") -> str:
     def get_string(self, list_joiner="  ") -> str:
         """
+        Args:
+            list_joiner(str): if the value of an extractable is a list, join the elements
+            using this string to separate them.
+
         Returns: the value of the segment as a string, using a default method to convert
         objects to strings.
         """
@@ -119,7 +123,7 @@ class ExtractableCollection(object):
         self.collection_set = set([])
         self.collection_list = list()
 
-    def items(self) -> List:
+    def items(self) -> List[Extractable]:
         """
         Returns a list of primitive item in collection, and should be implemented
         by each subclass.
@@ -129,7 +133,7 @@ class ExtractableCollection(object):
         """
         return self.collection_list
 
-    def all_values(self) -> List:
+    def all_values(self) -> List[Any]:
         """
         Convenience function.
 

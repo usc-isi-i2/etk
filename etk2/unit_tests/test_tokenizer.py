@@ -5,7 +5,7 @@ from etk2.tokenizer import Tokenizer
 class TestTokenizer(unittest.TestCase):
 
     def test_tokenizer(self) -> None:
-        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, \n \n   "
+        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, #1  \n \n   "
         t = Tokenizer()
         tokens = t.tokenize(text)
         token_attrs = []
@@ -26,10 +26,15 @@ class TestTokenizer(unittest.TestCase):
             {'orth': '-', 'offset': 28, 'full_shape': '-'},
             {'orth': '345', 'offset': 29, 'full_shape': 'ddd'},
             {'orth': '-', 'offset': 32, 'full_shape': '-'},
-            {'orth': '6789,', 'offset': 33, 'full_shape': 'dddd,'},
-            {'orth': '\n ', 'offset': 39, 'full_shape': '\n '},
-            {'orth': '\n', 'offset': 41, 'full_shape': '\n'},
-            {'orth': '   ', 'offset': 42, 'full_shape': '   '}
+            {'orth': '6789', 'offset': 33, 'full_shape': 'dddd'},
+            {'orth': ',', 'offset': 37, 'full_shape': ','},
+            {'orth': '#', 'offset': 39, 'full_shape': '#'},
+            {'orth': '1', 'offset': 40, 'full_shape': 'd'},
+            {'orth': ' ', 'offset': 42, 'full_shape': ' '},
+            {'orth': '\n', 'offset': 43, 'full_shape': '\n'},
+            {'orth': ' ', 'offset': 44, 'full_shape': ' '},
+            {'orth': '\n', 'offset': 45, 'full_shape': '\n'},
+            {'orth': '   ', 'offset': 46, 'full_shape': '   '}
         ]
 
         self.assertEqual(token_attrs, expected)

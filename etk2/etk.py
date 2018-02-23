@@ -1,3 +1,4 @@
+from typing import List
 import json
 
 
@@ -6,7 +7,16 @@ class ETK(object):
     def __init__(self):
         pass
 
-    def get_glossary(self, file_path):
+    def load_glossary(self, file_path) -> List[str]:
+        """
+        A glossary is a text file, one entry per line.
+
+        Args:
+            file_path (str): path to a text file containing a glossary.
+
+        Returns: List of the strings in the glossary.
+        """
+        #to-do: this should be a list, not a dict
         res = dict()
         with open(file_path) as fp:
             line = fp.readline().rstrip('\n')
@@ -14,7 +24,6 @@ class ETK(object):
                 res[line] = line
                 line = fp.readline().rstrip('\n')
         return res
-
 
     def invoke_extractor(self, extractor=None, doc=None, json_path=None, input_key=None, output_key=None):
         # cache parsed json_path, not a string, globally
