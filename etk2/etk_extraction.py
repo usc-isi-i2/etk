@@ -70,10 +70,10 @@ class Extractable(ExtractableBase):
     A single extraction or a single segment
     """
 
-    def __init__(self, value=None, nlp=None) -> None:
+    def __init__(self, value=None) -> None:
         ExtractableBase.__init__(self)
         if not self.tokenizer:
-            self.tokenizer = Tokenizer(nlp)
+            self.tokenizer = Tokenizer()
         self.tokenize_results = dict()
         self._value = value
 

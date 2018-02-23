@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from etk_extraction import ExtractionCollection, Extractable
+from etk2.etk_extraction import ExtractionCollection, Extractable
 
 
 class Extractor(object):
