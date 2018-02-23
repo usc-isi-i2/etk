@@ -1,6 +1,6 @@
 import json
-from etk2.etk_extraction import Extractable
-from etk2.segment import SegmentCollection, Segment
+from etk.etk_extraction import Extractable
+from etk.segment import SegmentCollection, Segment
 import jsonpath_rw
 
 

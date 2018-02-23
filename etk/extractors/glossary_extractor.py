@@ -1,8 +1,8 @@
-from etk2.extractor import Extractor
-from etk2.etk_extraction import ExtractionCollection, Extraction
-from etk2.tokenizer import Tokenizer
-from etk2.segment import Segment, SegmentCollection
-from etk2.etk import ETK
+from etk.extractor import Extractor
+from etk.etk_extraction import ExtractionCollection, Extraction
+from etk.tokenizer import Tokenizer
+from etk.segment import Segment, SegmentCollection
+from etk.etk import ETK
 
 import pygtrie as trie
 from itertools import *

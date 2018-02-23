@@ -1,5 +1,5 @@
 import unittest
-from etk2.tokenizer import Tokenizer
+from etk.tokenizer import Tokenizer
 
 
 class TestTokenizer(unittest.TestCase):

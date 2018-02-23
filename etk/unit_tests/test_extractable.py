@@ -1,5 +1,5 @@
 import unittest
-from etk2.etk_extraction import Extractable
+from etk.etk_extraction import Extractable
 
 
 class TestExtractable(unittest.TestCase):

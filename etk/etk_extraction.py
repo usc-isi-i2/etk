@@ -1,4 +1,4 @@
-from etk2.tokenizer import Tokenizer
+from etk.tokenizer import Tokenizer
 from spacy.tokens import Token
 from typing import List, Any
 

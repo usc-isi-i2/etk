@@ -1,4 +1,4 @@
-from etk2.etk_extraction import Extractable, ExtractableCollection
+from etk.etk_extraction import Extractable, ExtractableCollection
 import copy
 
 

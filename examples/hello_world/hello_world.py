@@ -1,6 +1,6 @@
 import json
-from etk2.etk import ETK
-from etk2.extractors.glossary_extractor import GlossaryExtractor
+from etk.etk import ETK
+from etk.extractors.glossary_extractor import GlossaryExtractor
 
 sample_input = {
     "projects": [
