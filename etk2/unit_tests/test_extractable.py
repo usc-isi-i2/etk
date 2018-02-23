@@ -1,18 +1,19 @@
 import unittest
-from etk_extraction import Extractable
+from etk2.etk_extraction import Extractable
 
 
 class TestExtractable(unittest.TestCase):
 
-    def test_Extractable(self):
+    def test_Extractable(self) -> None:
         e = Extractable({'extracted_value': [{1: 2, 'das': [1, 2, 3]}], 'confidence': 2.3})
         tokens = e.get_tokens()
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})
-
         expected_token = [
-            {'orth': 'extracted_value', 'offset': 0, 'full_shape': 'xxxxxxxxx_xxxxx'},
+            {'orth': 'extracted', 'offset': 0, 'full_shape': 'xxxxxxxxx'},
+            {'orth': '_', 'offset': 9, 'full_shape': '_'},
+            {'orth': 'value', 'offset': 10, 'full_shape': 'xxxxx'},
             {'orth': ':', 'offset': 16, 'full_shape': ':'},
             {'orth': '1', 'offset': 18, 'full_shape': 'd'},
             {'orth': ':', 'offset': 20, 'full_shape': ':'},

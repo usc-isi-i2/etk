@@ -1,7 +1,7 @@
 import json
 from etk2.etk_extraction import Extractable
-import jsonpath_rw
 from etk2.segment import SegmentCollection, Segment
+import jsonpath_rw
 
 
 class Document(Extractable):
@@ -11,7 +11,7 @@ class Document(Extractable):
         of extractors.
         """
 
-    def __init__(self, cdr_document, tokenizer=None):
+    def __init__(self, cdr_document, tokenizer=None) -> None:
         """
         Wrapper object for CDR documents.
 
@@ -29,7 +29,7 @@ class Document(Extractable):
             self.tokenizer = tokenizer
         self.segments = None
 
-    def select_segments(self, json_path):
+    def select_segments(self, json_path) -> SegmentCollection or None:
         """
         Dereferences the json_path inside the document and returns the selected elements.
         This method should compile and cache the compiled json_path in case the same path

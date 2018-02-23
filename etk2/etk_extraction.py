@@ -1,5 +1,6 @@
-from typing import List
 from etk2.tokenizer import Tokenizer
+from spacy.tokens import Token
+from typing import List, Any
 
 
 class ExtractableBase(object):
@@ -7,19 +8,18 @@ class ExtractableBase(object):
     Encapsulates a value that can be used as an input to an Extractor
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._value = None
         self.tokenizer = None
 
     @property
-    def value(self):
+    def value(self) -> Any:
         """
         Returns: Whatever value is returned by JSONPath
         """
         return self._value
 
-    # def get_string(self, list_joiner: str = ", ") -> str:
-    def get_string(self, list_joiner=", "):
+    def get_string(self, list_joiner="  ") -> str:
         """
         Args:
             list_joiner(str): if the value of an extractable is a list, join the elements
@@ -37,7 +37,7 @@ class ExtractableBase(object):
         else:
             return str(self._value)
 
-    def list2str(self, l, joiner):
+    def list2str(self, l, joiner) -> str:
         result = str()
         for item in l:
             if isinstance(item, list):
@@ -50,7 +50,7 @@ class ExtractableBase(object):
                 result = result + str(item) + joiner
         return result
 
-    def dict2str(self, d, joiner):
+    def dict2str(self, d, joiner) -> str:
         result = str()
         for key in d:
             result = result + str(key) + " : "
@@ -70,14 +70,14 @@ class Extractable(ExtractableBase):
     A single extraction or a single segment
     """
 
-    def __init__(self, value=None):
+    def __init__(self, value=None) -> None:
         ExtractableBase.__init__(self)
         if not self.tokenizer:
             self.tokenizer = Tokenizer()
         self.tokenize_results = dict()
         self._value = value
 
-    def get_tokens(self, tokenizer=None):
+    def get_tokens(self, tokenizer=None) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -111,7 +111,7 @@ class Extractable(ExtractableBase):
             return tokens
 
     @staticmethod
-    def tokenize_string(s, tokenizer):
+    def tokenize_string(s, tokenizer) -> List[Token]:
         return tokenizer.tokenize(s)
 
 
@@ -119,7 +119,7 @@ class ExtractableCollection(object):
     """
     A collection of PrimitveExtractable
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.collection_set = set([])
         self.collection_list = list()
 
@@ -133,7 +133,7 @@ class ExtractableCollection(object):
         """
         return self.collection_list
 
-    def all_values(self):
+    def all_values(self) -> List[Any]:
         """
         Convenience function.
 
@@ -187,7 +187,7 @@ class Extraction(Extractable):
         return self._value
 
     @property
-    def confidence(self):
+    def confidence(self) -> float:
         """
         Returns: the confidence of this extraction
         """
@@ -198,10 +198,10 @@ class ExtractionCollection(ExtractableCollection):
     """
     Encapsulates the results of an extractor, consisting or possibly multiple extractions
     """
-    def __init__(self):
+    def __init__(self) -> None:
         ExtractableCollection.__init__(self)
 
-    def add_extraction(self, extraction):
+    def add_extraction(self, extraction) -> None:
         """
         Adds a new Extraction
 
@@ -212,7 +212,7 @@ class ExtractionCollection(ExtractableCollection):
             self.collection_set.add(extraction)
             self.collection_list.append(extraction)
 
-    def union_extractions(self, extraction_collection):
+    def union_extractions(self, extraction_collection) -> None:
         """
         Update this collection to include all the segments passed
         Args:

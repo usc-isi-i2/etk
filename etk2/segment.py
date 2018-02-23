@@ -1,4 +1,4 @@
-from etk_extraction import Extractable, ExtractableCollection
+from etk2.etk_extraction import Extractable, ExtractableCollection
 import copy
 
 
@@ -9,14 +9,14 @@ class Segment(Extractable):
     to record segments within a text doc, e.g., by start and end char, or segments within
     a token list with start and end tokens.
     """
-    def __init__(self, json_path, _value):
+    def __init__(self, json_path, _value) -> None:
         Extractable.__init__(self)
         self.json_path = json_path
         self._value = _value
         self._extractions = None
 
     @property
-    def full_path(self):
+    def full_path(self) -> str:
         """
         Returns: The full path of a JSONPath match
         """
@@ -32,7 +32,7 @@ class Segment(Extractable):
         """
         pass
 
-    def store_extractions(self, extractions, attribute):
+    def store_extractions(self, extractions, attribute) -> None:
         """
         Records extractions in the container, and for each individual extraction inserts a
         ProvenanceRecord to record where the extraction is stored.
@@ -59,7 +59,7 @@ class Segment(Extractable):
             print("segment is "+str(type(self._value)))
 
     @property
-    def extractions(self):
+    def extractions(self) -> ExtractableCollection:
         """
         Get the extractions stored in this container.
         Returns: ExtractionCollection
@@ -72,10 +72,10 @@ class SegmentCollection(ExtractableCollection):
     """
     Encapsulates a collection of segments that exist inside a Document.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         ExtractableCollection.__init__(self)
 
-    def add(self, segment):
+    def add(self, segment) -> None:
         """
         Adds a new Segment
 
@@ -86,7 +86,7 @@ class SegmentCollection(ExtractableCollection):
             self.collection_set.add(segment)
             self.collection_list.append(segment)
 
-    def union(self, segment_collection):
+    def union(self, segment_collection) -> None:
         """
         Update this collection to include all the segments passed
         Args:
