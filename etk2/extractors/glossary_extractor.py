@@ -8,6 +8,7 @@ import pygtrie as trie
 from itertools import *
 from functools import reduce
 
+
 class GlossaryExtractor(Extractor):
     def __init__(self, glossary, ngrams=2, case_sensitive=False):
         self.glossary = glossary
