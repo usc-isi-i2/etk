@@ -50,45 +50,4 @@ class Document(Extractable):
                 this_segment = Segment(str(a_match.full_path), a_match.value)
                 segments.add(this_segment)
 
-        self.segments = segments
         return segments
-
-    def invoke_extractor(self,
-                         extractor,
-                         extractable):
-        pass
-        """
-        Invoke the extractor for each Segment, accumulating all the extractions in an ExtractionCollection.
-    
-        Args:
-            extractor (Extractor):
-            extractable (Extractable):
-    
-        Returns: ExtractionCollection, containing all the extractions.
-
-        """
-        # pseudo-code:
-
-        # Need to handle the case of multiple *extractable
-        # If they are all primitive or singletons, it is simple,
-        #   just invoke once passing the arguments to the extractor.
-        # If they are not primitive or singletons, line them up inventing empty Extractable to fill the gaps:
-        #   e.g., [A B C], [K, L], [X, Y, Z] => e(A, K, X), e(B, L, Y), e(C, EMPTY, X)
-        # ec = ExtractionCollection()
-        # # Need to test for PrimitiveExtractable or ExtractableCollection as items is only defined for collections.
-        # for primitive_extractable in extractable.items():
-        #     if extractor.input_type() == Extractor.InputType.TOKENS:
-        #         tokens = self.get_tokens(primitive_extractable, tokenizer=extractor.preferred_tokenizer())
-        #         if tokens:
-        #             # put the tokens in the extractable so that the extractor can get to them.
-        #             primitive_extractable.set_tokens(tokens)
-        #     ec.add_extractions(extractor.extract(primitive_extractable))
-        #
-        # # record provenance:
-        # for e in ec.extractions():
-        #     pass
-            # add a ProvenanceRecord for the extraction
-            # the prov record for each extraction should point to all extractables:
-            # If the extractables are segments, put them in the "input_segments"
-            # If the extractables are extractions, put the prov ids of the extractions in "input_extractions"
-

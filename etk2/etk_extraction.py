@@ -1,5 +1,4 @@
 from tokenizer import Tokenizer
-import json
 
 
 class ExtractableBase(object):
@@ -19,12 +18,46 @@ class ExtractableBase(object):
         return self._value
 
     # def get_string(self, list_joiner: str = ", ") -> str:
-    def get_string(self, list_joiner=","):
+    def get_string(self, list_joiner="  "):
         """
         Returns: the value of the segment as a string, using a default method to convert
         objects to strings.
         """
-        pass
+        if not self._value:
+            return ""
+        elif isinstance(self._value, list):
+            return self.list2str(self._value, list_joiner)
+        elif isinstance(self._value, dict):
+            return self.dict2str(self._value, list_joiner)
+        else:
+            return str(self._value)
+
+    def list2str(self, l, joiner):
+        result = str()
+        for item in l:
+            if isinstance(item, list):
+                result = result + self.list2str(item, joiner) + joiner
+            elif isinstance(item, dict):
+                result = result + self.dict2str(item, joiner) + joiner
+            elif not item:
+                result = result + ""
+            else:
+                result = result + str(item) + joiner
+        return result
+
+    def dict2str(self, d, joiner):
+        result = str()
+        for key in d:
+            result = result + str(key) + " : "
+            if isinstance(d[key], list):
+                result = result + self.list2str(d[key], joiner) + joiner
+            elif isinstance(d[key], dict):
+                result = result + self.dict2str(d[key], joiner) + joiner
+            elif not d[key]:
+                result = result + ""
+            else:
+                result = result + str(d[key]) + joiner
+        return result
 
 
 class Extractable(ExtractableBase):
@@ -63,38 +96,44 @@ class Extractable(ExtractableBase):
 
         if not tokenizer:
             tokenizer = self.tokenizer
-        segment_value = self._value
-        segment_value_str = json.dumps(segment_value, sort_keys=True)
-        if (segment_value_str, tokenizer) in self.tokenize_results:
-            return self.tokenize_results[(segment_value_str, tokenizer)]
+        if (self, tokenizer) in self.tokenize_results:
+            return self.tokenize_results[(self, tokenizer)]
         else:
-            """Tokenize a string"""
-            if isinstance(segment_value, str):
-                tokens = self.tokenize_string(segment_value, tokenizer)
-                segment_value_str = json.dumps(segment_value, sort_keys=True)
-                self.tokenize_results[(segment_value_str, tokenizer)] = tokens
-                return tokens
-            """TODO: tokenize other segment types"""
+            segment_value_for_tokenize = self.get_string()
+            tokens = self.tokenize_string(segment_value_for_tokenize, tokenizer)
+            self.tokenize_results[(self, tokenizer)] = tokens
+            return tokens
 
     @staticmethod
     def tokenize_string(s, tokenizer):
         return tokenizer.tokenize(s)
 
 
-class ExtractableCollection(Extractable):
+class ExtractableCollection(object):
     """
     A collection of PrimitveExtractable
     """
+    def __init__(self):
+        self.collection_set = set([])
+        self.collection_list = list()
 
     def items(self):
         """
-        Abstract method, returns a list of primitive Extractable, and should be implemented
+        Returns a list of primitive item in collection, and should be implemented
         by each subclass.
 
         Returns:
 
         """
-        pass
+        return self.collection_list
+
+    def all_values(self):
+        """
+        Convenience function.
+
+        Returns: list of all values stored in all item in the collection
+        """
+        return [x.value for x in self.collection_list]
 
 
 class Extraction(Extractable):
@@ -155,8 +194,6 @@ class ExtractionCollection(ExtractableCollection):
     """
     def __init__(self):
         ExtractableCollection.__init__(self)
-        self.collection_set = set([])
-        self.collection_list = list()
 
     def add_extraction(self, extraction):
         """
@@ -165,9 +202,8 @@ class ExtractionCollection(ExtractableCollection):
         Args:
             extraction (Extraction):
         """
-        extraction_str = json.dumps(extraction.value, sort_keys=True)
-        if extraction_str not in self.collection_set:
-            self.collection_set.add(extraction_str)
+        if extraction not in self.collection_set:
+            self.collection_set.add(extraction)
             self.collection_list.append(extraction)
 
     def union_extractions(self, extraction_collection):
@@ -179,21 +215,6 @@ class ExtractionCollection(ExtractableCollection):
         Returns: self, to allow chaining
         """
         for a_extraction in extraction_collection.collection_list:
-            extraction_str = json.dumps(a_extraction.value, sort_keys=True)
-            if extraction_str not in self.collection_set:
-                self.collection_set.add(extraction_str)
+            if a_extraction not in self.collection_set:
+                self.collection_set.add(a_extraction)
                 self.collection_list.append(a_extraction)
-
-    def all_values(self):
-        """
-        Convenience function.
-
-        Returns: all values stored in all extractions in the collection
-        """
-        return [x.value for x in self.collection_list]
-
-    def items(self):
-        """
-        Returns: all the Extraction objects as a Python list
-        """
-        return self.collection_list
