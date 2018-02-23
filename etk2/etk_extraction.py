@@ -1,4 +1,5 @@
-from tokenizer import Tokenizer
+from typing import List
+from etk2.tokenizer import Tokenizer
 
 
 class ExtractableBase(object):
@@ -18,8 +19,12 @@ class ExtractableBase(object):
         return self._value
 
     # def get_string(self, list_joiner: str = ", ") -> str:
-    def get_string(self, list_joiner="  "):
+    def get_string(self, list_joiner=", "):
         """
+        Args:
+            list_joiner(str): if the value of an extractable is a list, join the elements
+            using this string to separate them.
+
         Returns: the value of the segment as a string, using a default method to convert
         objects to strings.
         """
@@ -118,7 +123,7 @@ class ExtractableCollection(object):
         self.collection_set = set([])
         self.collection_list = list()
 
-    def items(self):
+    def items(self) -> List[Extractable]:
         """
         Returns a list of primitive item in collection, and should be implemented
         by each subclass.
