@@ -2,7 +2,7 @@ import unittest
 from tokenizer import Tokenizer
 
 
-class TestTokenizerExtractor(unittest.TestCase):
+class TestTokenizer(unittest.TestCase):
 
     def test_tokenizer(self):
         text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, \n \n   "
@@ -11,7 +11,6 @@ class TestTokenizerExtractor(unittest.TestCase):
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})
-        print(token_attrs)
         expected = [
             {'orth': 'dsa', 'offset': 0, 'full_shape': 'xxx'},
             {'orth': '@', 'offset': 3, 'full_shape': '@'},

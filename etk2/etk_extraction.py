@@ -65,11 +65,12 @@ class Extractable(ExtractableBase):
     A single extraction or a single segment
     """
 
-    def __init__(self):
+    def __init__(self, value=None):
         ExtractableBase.__init__(self)
         if not self.tokenizer:
             self.tokenizer = Tokenizer()
         self.tokenize_results = dict()
+        self._value = value
 
     def get_tokens(self, tokenizer=None):
         """
