@@ -5,12 +5,13 @@ from tokenizer import Tokenizer
 class TestTokenizerExtractor(unittest.TestCase):
 
     def test_tokenizer(self):
-        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789,"
+        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, \n \n   "
         t = Tokenizer()
         tokens = t.tokenize(text)
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})
+        print(token_attrs)
         expected = [
             {'orth': 'dsa', 'offset': 0, 'full_shape': 'xxx'},
             {'orth': '@', 'offset': 3, 'full_shape': '@'},
@@ -26,8 +27,14 @@ class TestTokenizerExtractor(unittest.TestCase):
             {'orth': '-', 'offset': 28, 'full_shape': '-'},
             {'orth': '345', 'offset': 29, 'full_shape': 'ddd'},
             {'orth': '-', 'offset': 32, 'full_shape': '-'},
-            {'orth': '6789,', 'offset': 33, 'full_shape': 'dddd,'}]
+            {'orth': '6789,', 'offset': 33, 'full_shape': 'dddd,'},
+            {'orth': '\n ', 'offset': 39, 'full_shape': '\n '},
+            {'orth': '\n', 'offset': 41, 'full_shape': '\n'},
+            {'orth': '   ', 'offset': 42, 'full_shape': '   '}
+        ]
+
         self.assertEqual(token_attrs, expected)
+        self.assertEqual(t.reconstruct_text(tokens), text)
 
 if __name__ == '__main__':
     unittest.main()
