@@ -1,5 +1,4 @@
 from etk_extraction import Extractable, ExtractableCollection
-import json
 import copy
 
 
@@ -75,8 +74,6 @@ class SegmentCollection(ExtractableCollection):
     """
     def __init__(self):
         ExtractableCollection.__init__(self)
-        self.collection_set = set([])
-        self.collection_list = list()
 
     def add(self, segment):
         """
@@ -85,9 +82,8 @@ class SegmentCollection(ExtractableCollection):
         Args:
             segment (Segment):
         """
-        segment_str = json.dumps(segment.value, sort_keys=True)
-        if segment_str not in self.collection_set:
-            self.collection_set.add(segment_str)
+        if segment not in self.collection_set:
+            self.collection_set.add(segment)
             self.collection_list.append(segment)
 
     def union(self, segment_collection):
@@ -99,21 +95,6 @@ class SegmentCollection(ExtractableCollection):
         Returns: self, to allow chaining
         """
         for a_segment in segment_collection.collection_list:
-            segment_str = json.dumps(a_segment.value, sort_keys=True)
-            if segment_str not in self.collection_set:
-                self.collection_set.add(segment_str)
+            if a_segment not in self.collection_set:
+                self.collection_set.add(a_segment)
                 self.collection_list.append(a_segment)
-
-    def items(self):
-        """
-        Returns: all the Segment objects as a Python list
-        """
-        return self.collection_list
-
-    def all_values(self):
-        """
-        Convenience function.
-
-        Returns: all values stored in all segments in the collection
-        """
-        return [x.value for x in self.collection_list]
