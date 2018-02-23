@@ -6,7 +6,7 @@ class ETK(object):
     def __init__(self):
         pass
 
-    def get_glossary(self, file_path) -> List[str]:
+    def load_glossary(self, file_path) -> List[str]:
         """
         A glossary is a text file, one entry per line.
 
