@@ -33,11 +33,7 @@ class ETK(object):
         Returns: List of the strings in the glossary.
         """
         #to-do: this should be a list, not a dict
-        res = dict()
         with open(file_path) as fp:
-            line = fp.readline().rstrip('\n')
-            while line:
-                res[line] = line
-                line = fp.readline().rstrip('\n')
-        return res
+            return fp.read.splitlines()
+        return []
 
