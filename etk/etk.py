@@ -23,7 +23,8 @@ class ETK(object):
         """
         return Document(self, doc)
 
-    def load_glossary(self, file_path) -> List[str]:
+    @staticmethod
+    def load_glossary(file_path) -> List[str]:
         """
         A glossary is a text file, one entry per line.
 
@@ -32,8 +33,7 @@ class ETK(object):
 
         Returns: List of the strings in the glossary.
         """
-        #to-do: this should be a list, not a dict
         with open(file_path) as fp:
-            return fp.read.splitlines()
+            return fp.read().splitlines()
         return []
 

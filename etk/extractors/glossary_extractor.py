@@ -1,20 +1,19 @@
 from typing import List
 from etk.extractor import Extractor
-from etk.etk_extraction import Extraction, Extractable
 from etk.tokenizer import Tokenizer
-from etk.segment import Segment
-from etk.etk import ETK
-
-import pygtrie as trie
+from spacy.tokens import Token
+from pygtrie import CharTrie
 from itertools import *
 from functools import reduce
 
 
 class GlossaryExtractor(Extractor):
-    def __init__(self, glossary, ngrams=2, case_sensitive=False):
-        self.glossary = glossary
+    def __init__(self, glossary, ngrams=2, case_sensitive=False, tokenizer=Tokenizer()) -> None:
         self.ngrams = ngrams
         self.case_sensitive = case_sensitive
+        self.default_tokenizer = tokenizer
+        self.joiner = " "
+        self.glossary = self.populate_trie(glossary)
 
     @property
     def input_type(self):
@@ -24,116 +23,79 @@ class GlossaryExtractor(Extractor):
         """
         return self.InputType.TEXT
 
-    # @property
-    def name(self):
-        if self.glossary.name is None:
-            return "unknown glossary extractor"
-        return self.glossary.name + " extractor"
-
-    # @property
-    def category(self):
+    @property
+    def category(self) -> str:
+        """Category of this subclass of Extractor"""
         return "glossary"
 
-    def extract(self, extractables: List[Extractable]) -> List[Extraction]:
-        preferred_tokenizer = self.preferred_tokenizer()
-        pre_process = lambda x: x
-        pre_filter = lambda x: x
-        post_filter = lambda x: isinstance(x, str)
-        trie = self.glossary
-        ngrams = self.ngrams
-        joiner = ' '
+    def extract(self, extractable: str) -> List[dict]:
+        """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""
+        tokens = self.default_tokenizer.tokenize(extractable)
+        results = list()
 
-        print(self.glossary)
-
-        for item in extractables.items():
-            tokens = item.get_tokens(tokenizer=preferred_tokenizer)
-            results = ExtractionCollection()
-
-            if len(tokens) > 0:
+        if len(tokens) > 0:
+            if self.case_sensitive:
                 tokens = [x.orth_ for x in tokens]
-            try:
-                ngrams_iterable = self.generate_ngrams_with_context(tokens, ngrams)
-                temp_res = map(lambda ngrams_context: self.wrap_value_with_context(ngrams_context[0], ngrams_context[1],
-                                                                       ngrams_context[2]),
-                        filter(lambda ngrams_context: post_filter(ngrams_context[0]),
-                               map(lambda ngrams_context: (
-                                   trie.get(ngrams_context[0]), ngrams_context[1], ngrams_context[2]),
-                                   filter(lambda ngrams_context: pre_filter(ngrams_context[0]),
-                                          map(lambda ngrams_context: (
-                                              pre_process(ngrams_context[0]), ngrams_context[1], ngrams_context[2]),
-                                              map(lambda ngrams_context: (
-                                                  self.combine_ngrams(ngrams_context[0], joiner), ngrams_context[1],
-                                                  ngrams_context[2]), ngrams_iterable))))))
-                for x in temp_res:
-                    results.add(x)
-            except Exception as inst:
-                print("error operator")
-                continue
+            else:
+                tokens = [x.lower_ for x in tokens]
+
+        try:
+            ngrams_iter = self.generate_ngrams_with_context(tokens)
+            results.extend(map(lambda term: self.wrap_value_with_context(term[0], term[1], term[2]),
+                               filter(lambda term: isinstance(term[0], str),
+                                      map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
+                                          map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
+        except Exception as e:
+            print("error operator")
+            print(e)
+            return []
         return results
 
-    def generate_ngrams_with_context(self, tokens: List[Token], ngrams: int):
-        chained_ngrams_iterable = self.generate_ngrams_with_context_helper(iter(tokens), 1)
-        for n in range(2, ngrams + 1):
-            ngrams_iterable = tee(tokens, n)
+    def generate_ngrams_with_context(self, tokens: List[Token]) -> chain:
+        """Generates the 1-gram to n-grams tuples of the list of tokens"""
+        chained_ngrams_iter = self.generate_ngrams_with_context_helper(iter(tokens), 1)
+        for n in range(2, self.ngrams + 1):
+            ngrams_iter = tee(tokens, n)
             for j in range(1, n):
                 for k in range(j):
-                    next(ngrams_iterable[j], None)
-            ngrams_iterable_with_context = self.generate_ngrams_with_context_helper(zip(*ngrams_iterable), n)
-            chained_ngrams_iterable = chain(chained_ngrams_iterable,
-                                            ngrams_iterable_with_context)
-        return chained_ngrams_iterable
+                    next(ngrams_iter[j], None)
+            ngrams_iter_with_context = self.generate_ngrams_with_context_helper(zip(*ngrams_iter), n)
+            chained_ngrams_iter = chain(chained_ngrams_iter, ngrams_iter_with_context)
+        return chained_ngrams_iter
 
-    def preferred_tokenizer(self) -> Tokenizer:
-        """
-        Returns: a tokenizer object to use for tokenizing the input segment used for extraction.
-        The same tokenizer should be used during initialization to tokenize the glossary entries
-        so that there is no mismatch on how text is tokenized when fed to the glossary extractor.
-
-        """
-        crf_tokenizer = Tokenizer()
-        return crf_tokenizer
-
-    @staticmethod
-    def populate_trie(values):
+    def populate_trie(self, values: List[str]) -> CharTrie:
         """Takes a list and inserts its elements into a new trie and returns it"""
-        def __populate_trie_reducer(trie_accumulator=trie.CharTrie(), value=""):
-            """Adds value to trie accumulator"""
-            trie_accumulator[value] = value
-            return trie_accumulator
-        return reduce(__populate_trie_reducer, iter(values), trie.CharTrie())
+        return reduce(self.__populate_trie_reducer, iter(values), CharTrie())
+
+    def __populate_trie_reducer(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
+        """Adds value to trie accumulator"""
+        if self.case_sensitive:
+            key = self.joiner.join([x.orth_ for x in self.default_tokenizer.tokenize(value)])
+        else:
+            key = self.joiner.join([x.lower_ for x in self.default_tokenizer.tokenize(value)])
+        trie_accumulator[key] = value
+        return trie_accumulator
 
     @staticmethod
-    def wrap_value_with_context(value, start, end):
-        return Extraction({'value': value,
+    def wrap_value_with_context(value: str, start: int, end: int) -> dict:
+        """Wraps the final result"""
+        return {'value': value,
                 'context': {'start': start,
                             'end': end
-                            }
-                })
+                            },
+                'confidence': 1.0
+                }
 
     @staticmethod
-    def generate_ngrams_with_context_helper(ngrams_iterable,
-                                            ngrams_length):
-        return map(lambda ngrams_with_index: (ngrams_with_index[1],
-                                              ngrams_with_index[0],
-                                              ngrams_with_index[0] +
-                                              ngrams_length),
-                   enumerate(ngrams_iterable))
+    def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:
+        """Updates the end index"""
+        return map(lambda term: (term[1], term[0], term[0] + ngrams_len), enumerate(ngrams_iter))
 
     @staticmethod
-    def combine_ngrams(ngrams, joiner):
+    def combine_ngrams(ngrams, joiner) -> str:
+        """Construct keys for checking in trie"""
         if isinstance(ngrams, str):
             return ngrams
         else:
             combined = joiner.join(ngrams)
             return combined
-
-
-# ==== for test only ====
-doc = SegmentCollection()
-doc.add(Segment('*', 'i live in shanghai'))
-
-etk = ETK()
-
-aaa = GlossaryExtractor(glossary=etk.get_glossary('cities.txt'), ngrams=2)
-bbb = aaa.extract(doc)
-print(bbb.all_values())
