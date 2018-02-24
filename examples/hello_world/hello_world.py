@@ -21,7 +21,7 @@ sample_input = {
 etk = ETK()
 doc = etk.create_document(sample_input)
 
-name_extractor = GlossaryExtractor(etk.load_glossary("./names.txt"), case_sensitive=False, ngrams=1)
+name_extractor = GlossaryExtractor(etk.load_glossary("./names.txt"), "name_extractor", case_sensitive=False, ngrams=1)
 
 descriptions_path = etk.parser("projects[*].description")
 projects_path = etk.parser("projects[*]")

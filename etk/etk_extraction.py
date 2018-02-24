@@ -135,7 +135,7 @@ class Extraction(Extractable):
         Returns:
 
         """
-        fake_extraction = {"extracted_value": extracted_result["value"], "confidence": extracted_result["confidence"]}
+        fake_extraction = {"extracted_value": extracted_result["value"], "confidence": extracted_result["confidence"], "context": extracted_result["context"]}
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
         #                   start_char=start_char, end_char=end_char)
