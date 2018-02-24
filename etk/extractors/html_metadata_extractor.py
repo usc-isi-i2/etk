@@ -5,11 +5,15 @@ from etk.etk_extraction import Extraction, Extractable
 
 class HTMLMetadataExtractor(Extractor):
     """
-    Extracts microdata, JSON-LD and RDFa from HTML pages
+    Extracts META, microdata, JSON-LD and RDFa from HTML pages.
+
+    Uses https://stackoverflow.com/questions/36768068/get-meta-tag-content-property-with-beautifulsoup-and-python to
+    extract the META tags
+
+    Uses https://github.com/scrapinghub/extruct to extract metadata from HTML pages
     """
 
     def __init__(self):
-        "consider parameterizing as in extruct, to select only specific types of metadata."
         pass
 
     @property
@@ -28,13 +32,22 @@ class HTMLMetadataExtractor(Extractor):
     def category(self):
         return "HTML extractor"
 
-    def extract(self, extractables: List[Extractable]) -> List[Extraction]:
+    def extract(self, extractables: List[Extractable],
+                extract_meta: bool = True,
+                extract_microdata: bool = True,
+                extract_json_ld: bool = True,
+                extract_rdfa: bool = True) \
+            -> List[Extraction]:
         """
-        Uses https://github.com/scrapinghub/extruct to extract metadata from HTML pages
-        Args:
-            extractables (List[Extractable]): each extractable is expected to contain an HTML string.
 
-        Returns: List[Extraction], where each extraction contains the dict returned by extruct
+        Args:
+            extractables ():
+            extract_meta ():
+            extract_microdata ():
+            extract_json_ld ():
+            extract_rdfa ():
+
+        Returns: List[Extraction], where each extraction contains a dict with each type of metadata.
 
         """
         pass
