@@ -90,7 +90,7 @@ class Extractable(ExtractableBase):
         self.tokenize_results = dict()
         self._value = value
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = False, lowercase: bool = False) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = False) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -105,7 +105,6 @@ class Extractable(ExtractableBase):
         Args:
             tokenizer (Tokenizer)
             keep_multi_space
-            lowercase
 
         Returns: a sequence of tokens.
         """
@@ -114,7 +113,7 @@ class Extractable(ExtractableBase):
             return self.tokenize_results[(self, tokenizer)]
         else:
             segment_value_for_tokenize = self.get_string()
-            tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space, lowercase)
+            tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens
             return tokens
 
