@@ -22,7 +22,7 @@ class HTMLMetadataExtractor(Extractor):
         The type of input that an extractor wants
         Returns: HTML text
         """
-        return self.InputType.TEXT
+        return self.InputType.HTML
 
     # @property
     def name(self):

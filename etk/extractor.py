@@ -10,10 +10,12 @@ class Extractor(object):
     class InputType(Enum):
         """
         TEXT: value must be a string
+        HTML: the value is HTML text
         TOKENS: value must first be tokenized
         OBJECT: value can be anything
         """
         TEXT = auto()
+        HTML = auto()
         TOKENS = List
         OBJECT = auto()
 
