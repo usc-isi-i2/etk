@@ -33,11 +33,11 @@ class HTMLMetadataExtractor(Extractor):
         return "HTML extractor"
 
     def extract(self, extractables: List[Extractable],
-                extract_title: bool = True,
-                extract_meta: bool = True,
-                extract_microdata: bool = True,
-                extract_json_ld: bool = True,
-                extract_rdfa: bool = True) \
+                extract_title: bool = False,
+                extract_meta: bool = False,
+                extract_microdata: bool = False,
+                extract_json_ld: bool = False,
+                extract_rdfa: bool = False) \
             -> List[Extraction]:
         """
 

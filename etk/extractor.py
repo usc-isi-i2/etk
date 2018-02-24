@@ -6,6 +6,9 @@ class Extractor(object):
     """
     All extractors extend this abstract class.
     """
+    def __init__(self):
+        self._category = None
+        self._name = None
 
     class InputType(Enum):
         """
@@ -36,7 +39,7 @@ class Extractor(object):
 
         Returns: string, the name of an extractor.
         """
-        pass
+        return self._name
 
     @property
     def category(self) -> str:
@@ -46,7 +49,7 @@ class Extractor(object):
 
         Returns: string, a label to identify the category of an extractor.
         """
-        pass
+        return self._category
 
     def extract(self, *input_value) -> List[Dict]:
         """

@@ -8,12 +8,15 @@ from functools import reduce
 
 
 class GlossaryExtractor(Extractor):
-    def __init__(self, glossary, ngrams=2, case_sensitive=False, tokenizer=Tokenizer()) -> None:
+    def __init__(self, glossary, extractor_name, ngrams=2, case_sensitive=False, tokenizer=Tokenizer()) -> None:
+        Extractor.__init__(self)
         self.ngrams = ngrams
         self.case_sensitive = case_sensitive
         self.default_tokenizer = tokenizer
         self.joiner = " "
         self.glossary = self.populate_trie(glossary)
+        self._category = "glossary"
+        self._name = extractor_name
 
     @property
     def input_type(self):
@@ -22,11 +25,6 @@ class GlossaryExtractor(Extractor):
         Returns: InputType
         """
         return self.InputType.TEXT
-
-    @property
-    def category(self) -> str:
-        """Category of this subclass of Extractor"""
-        return "glossary"
 
     def extract(self, extractable: str) -> List[dict]:
         """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""

@@ -14,7 +14,7 @@ class Document(Extractable):
         of extractors.
         """
 
-    def __init__(self, etk, cdr_document: Dict) -> None:
+    def __init__(self, etk, cdr_document: object) -> None:
         """
         Wrapper object for CDR documents.
 
