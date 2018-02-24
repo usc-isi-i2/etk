@@ -1,25 +1,40 @@
-class GlossaryExtractor(Extractor):
-    def __init__(self, glossary, ngrams=2, case_sensitive=False):
-        self.glossary = glossary
-        self.ngrams = ngrams
-        self.case_sensitive = case_sensitive
+from typing import List
+from etk.extractor import Extractor
+from etk.etk_extraction import Extraction, Extractable
+
+
+class HTMLMetadataExtractor(Extractor):
+    """
+    Extracts microdata, JSON-LD and RDFa from HTML pages
+    """
+
+    def __init__(self):
+        "consider parameterizing as in extruct, to select only specific types of metadata."
+        pass
 
     @property
     def input_type(self):
         """
         The type of input that an extractor wants
-        Returns: InputType
+        Returns: HTML text
         """
         return self.InputType.TEXT
 
     # @property
     def name(self):
-        if self.glossary.name is None:
-            return "unknown glossary extractor"
-        return self.glossary.name + " extractor"
+        return "HTML metadata extractor"
 
     # @property
     def category(self):
-        return "glossary"
+        return "HTML extractor"
 
-    def extract(self, extractables):
+    def extract(self, extractables: List[Extractable]) -> List[Extraction]:
+        """
+        Uses https://github.com/scrapinghub/extruct to extract metadata from HTML pages
+        Args:
+            extractables (List[Extractable]): each extractable is expected to contain an HTML string.
+
+        Returns: List[Extraction], where each extraction contains the dict returned by extruct
+
+        """
+        pass
