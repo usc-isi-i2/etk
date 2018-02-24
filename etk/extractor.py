@@ -16,7 +16,7 @@ class Extractor(object):
         """
         TEXT = auto()
         HTML = auto()
-        TOKENS = List
+        TOKENS = auto()
         OBJECT = auto()
 
     @property
