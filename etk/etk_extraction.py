@@ -1,6 +1,6 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
-from typing import List, Any
+from typing import List, Any, Dict, AnyStr
 
 
 class ExtractableBase(object):
@@ -18,10 +18,10 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, list_joiner: str  ="  ") -> str:
+    def get_string(self, joiner: AnyStr ="  ") -> str:
         """
         Args:
-            list_joiner(str): if the value of an extractable is a list, join the elements
+            joiner(str): if the value of an extractable is not a string, join the elements
             using this string to separate them.
 
         Returns: the value of the segment as a string, using a default method to convert
@@ -30,21 +30,21 @@ class ExtractableBase(object):
         if not self._value:
             return ""
         elif isinstance(self._value, list):
-            return self.list2str(self._value, list_joiner)
+            return self.list2str(self._value, joiner)
         elif isinstance(self._value, dict):
-            return self.dict2str(self._value, list_joiner)
+            return self.dict2str(self._value, joiner)
         else:
             return str(self._value)
 
-    def list2str(self, l: list, joiner: str) -> str:
+    def list2str(self, l: List, joiner: AnyStr) -> str:
         """
-        to-do: add documentation of why this method exists
+        Convert list to str as input for tokenizer
 
         Args:
-            l ():
-            joiner ():
+            l (list): list for converting
+            joiner (str): join the elements using this string to separate them.
 
-        Returns:
+        Returns: the value of the list as a string
 
         """
         result = str()
@@ -57,15 +57,15 @@ class ExtractableBase(object):
                 result = result + str(item) + joiner
         return result
 
-    def dict2str(self, d: dict, joiner: str) -> str:
+    def dict2str(self, d: Dict, joiner: AnyStr) -> str:
         """
-        to-do: add documentation of why this method exists
+        Convert dict to str as input for tokenizer
 
         Args:
-            d ():
-            joiner ():
+            d (dict): dict for converting
+            joiner (str): join the elements using this string to separate them.
 
-        Returns:
+        Returns: the value of the dict as a string
 
         """
         result = str()
@@ -125,7 +125,7 @@ class Extraction(Extractable):
     Note that Extractions are Extractable, so they can be used as inputs to other extractors.
     """
 
-    def __init__(self, extracted_result: object):
+    def __init__(self, extracted_result: Dict):
         Extractable.__init__(self)
         """
 

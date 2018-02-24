@@ -21,7 +21,7 @@ class ETK(object):
         Returns: wrapped Document
 
         """
-        return Document(self, doc, self.default_tokenizer)
+        return Document(self, doc)
 
     def load_glossary(self, file_path) -> List[str]:
         """

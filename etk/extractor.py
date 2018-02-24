@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List
+from typing import List, Dict
 
 
 class Extractor(object):
@@ -46,7 +46,7 @@ class Extractor(object):
         """
         pass
 
-    def extract(self, *input_value) -> List:
+    def extract(self, *input_value) -> List[Dict]:
         """
 
         Args:
