@@ -1,4 +1,7 @@
 import json
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.glossary_extractor import GlossaryExtractor
 

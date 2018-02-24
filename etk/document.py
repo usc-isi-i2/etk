@@ -1,7 +1,6 @@
-import json
-from typing import List
+from jsonpath_rw import jsonpath
+from typing import List, AnyStr, Dict
 
-from etk import ETK
 from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor
 from etk.segment import Segment
@@ -15,25 +14,24 @@ class Document(Extractable):
         of extractors.
         """
 
-    def __init__(self, etk: ETK, cdr_document, tokenizer: Tokenizer) -> None:
+    def __init__(self, etk, cdr_document: Dict) -> None:
         """
         Wrapper object for CDR documents.
 
         Args:
             etk (ETK): embed the etk object so that docs have access to global info.
             cdr_document (JSON): the raw CDR document received in ETK.
-            tokenizer (Tokenizer): the default tokenizer for creating tokens.
 
         Returns: the wrapped CDR document
 
         """
         Extractable.__init__(self)
         self.etk = etk
-        self.cdr_document = json.loads(cdr_document)
-        self._value = self.cdr_document
-        self.default_tokenizer = tokenizer
+        self.cdr_document = cdr_document
+        self._value = cdr_document
+        self.default_tokenizer = etk.default_tokenizer
 
-    def select_segments(self, path: str) -> List[Segment]:
+    def select_segments(self, path: jsonpath.Child) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
         This method should compile and cache the compiled json_path in case the same path
@@ -52,29 +50,43 @@ class Document(Extractable):
 
         return segments
 
-    def invoke_extractor(self, extractor: Extractor, extractable: Extractable, tokenizer: Tokenizer = None) \
-            -> List[Extraction]:
+    def invoke_extractor(self, extractor: Extractor, extractable: Extractable, tokenizer: Tokenizer = None,
+                         joiner: AnyStr = "  ") -> List[Extraction]:
+
         """
         Invoke the extractor on the given extractable, accumulating all the extractions in a list.
 
         Args:
             extractor (Extractor):
             extractable (extractable):
-            tokenizer: user can pass custom tokenizer
+            tokenizer: user can pass custom tokenizer if extractor wants token
+            joiner: user can pass joiner if extractor wants text
 
         Returns: List of Extraction, containing all the extractions.
 
         """
         if not tokenizer:
             tokenizer = self.default_tokenizer
-        extractions = []
+
+        extractions = list()
+        extracted_results = list()
+
         if extractor.input_type == Extractor.InputType.TOKENS:
             tokens = extractable.get_tokens(tokenizer)
             if tokens:
                 extracted_results = extractor.extract(tokens)
-                for a_result in extracted_results:
-                    this_extraction = Extraction(a_result)
-                    extractions.append(this_extraction)
+
+        elif extractor.input_type == Extractor.InputType.TEXT:
+            text = extractable.get_string(joiner)
+            if text:
+                extracted_results = extractor.extract(text)
+
+        elif extractor.input_type == Extractor.InputType.OBJECT:
+            extracted_results = extractor.extract(extractable.value)
+
+        for a_result in extracted_results:
+            this_extraction = Extraction(a_result)
+            extractions.append(this_extraction)
 
         return extractions
         # record provenance:
