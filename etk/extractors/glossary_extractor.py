@@ -1,5 +1,6 @@
+from typing import List
 from etk.extractor import Extractor
-from etk.etk_extraction import Extraction
+from etk.etk_extraction import Extraction, Extractable
 from etk.tokenizer import Tokenizer
 from etk.segment import Segment
 from etk.etk import ETK
@@ -33,7 +34,7 @@ class GlossaryExtractor(Extractor):
     def category(self):
         return "glossary"
 
-    def extract(self, extractables):
+    def extract(self, extractables: List[Extractable]) -> List[Extraction]:
         preferred_tokenizer = self.preferred_tokenizer()
         pre_process = lambda x: x
         pre_filter = lambda x: x
@@ -70,7 +71,7 @@ class GlossaryExtractor(Extractor):
                 continue
         return results
 
-    def generate_ngrams_with_context(self, tokens, ngrams):
+    def generate_ngrams_with_context(self, tokens: List[Token], ngrams: int):
         chained_ngrams_iterable = self.generate_ngrams_with_context_helper(iter(tokens), 1)
         for n in range(2, ngrams + 1):
             ngrams_iterable = tee(tokens, n)
@@ -82,7 +83,7 @@ class GlossaryExtractor(Extractor):
                                             ngrams_iterable_with_context)
         return chained_ngrams_iterable
 
-    def preferred_tokenizer(self):
+    def preferred_tokenizer(self) -> Tokenizer:
         """
         Returns: a tokenizer object to use for tokenizing the input segment used for extraction.
         The same tokenizer should be used during initialization to tokenize the glossary entries
