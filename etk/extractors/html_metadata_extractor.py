@@ -22,7 +22,7 @@ class HTMLMetadataExtractor(Extractor):
         The type of input that an extractor wants
         Returns: HTML text
         """
-        return self.InputType.TEXT
+        return self.InputType.HTML
 
     # @property
     def name(self):
@@ -33,19 +33,21 @@ class HTMLMetadataExtractor(Extractor):
         return "HTML extractor"
 
     def extract(self, extractables: List[Extractable],
-                extract_meta: bool = True,
-                extract_microdata: bool = True,
-                extract_json_ld: bool = True,
-                extract_rdfa: bool = True) \
+                extract_title: bool = False,
+                extract_meta: bool = False,
+                extract_microdata: bool = False,
+                extract_json_ld: bool = False,
+                extract_rdfa: bool = False) \
             -> List[Extraction]:
         """
 
         Args:
             extractables ():
-            extract_meta ():
-            extract_microdata ():
-            extract_json_ld ():
-            extract_rdfa ():
+            extract_title (): extract the <title> tag from the HTML page, return as { "title": "..." }
+            extract_meta (): extract the meta tags, return as { "meta": { "author": "...", ...}}
+            extract_microdata (): extract microdata, returns as { "microdata": [...] }
+            extract_json_ld (): extract JSON-LD, return as { "json-ld": [...] }
+            extract_rdfa (): extract rdfa, returns as { "rdfa": [...] }
 
         Returns: List[Extraction], where each extraction contains a dict with each type of metadata.
 
