@@ -10,7 +10,7 @@ class Segment(Extractable):
     to record segments within a text doc, e.g., by start and end char, or segments within
     a token list with start and end tokens.
     """
-    def __init__(self, json_path, _value) -> None:
+    def __init__(self, json_path: str, _value: object) -> None:
         Extractable.__init__(self)
         self.json_path = json_path
         self._value = _value
@@ -33,7 +33,7 @@ class Segment(Extractable):
         """
         pass
 
-    def store_extractions(self, extractions, attribute) -> None:
+    def store_extractions(self, extractions: List[Extraction], attribute: str) -> None:
         """
         Records extractions in the container, and for each individual extraction inserts a
         ProvenanceRecord to record where the extraction is stored.

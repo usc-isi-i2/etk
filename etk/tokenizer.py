@@ -17,7 +17,7 @@ class Tokenizer(object):
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text) -> List[Token]:
+    def tokenize(self, text: str) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
@@ -119,7 +119,7 @@ class Tokenizer(object):
         return spacy_token
 
     @staticmethod
-    def reconstruct_text(tokens) -> str:
+    def reconstruct_text(tokens: List[Token]) -> str:
         """
         Given a list of tokens, reconstruct the original text with as much fidelity as possible.
 

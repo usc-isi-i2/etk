@@ -1,8 +1,11 @@
 import json
-from etk.etk_extraction import Extractable, Extraction
-from etk.segment import Segment
-from etk.extractor import Extractor
 from typing import List
+
+from etk import ETK
+from etk.etk_extraction import Extractable, Extraction
+from etk.extractor import Extractor
+from etk.segment import Segment
+from etk.tokenizer import Tokenizer
 
 
 class Document(Extractable):
@@ -12,11 +15,12 @@ class Document(Extractable):
         of extractors.
         """
 
-    def __init__(self, cdr_document, tokenizer) -> None:
+    def __init__(self, etk: ETK, cdr_document, tokenizer: Tokenizer) -> None:
         """
         Wrapper object for CDR documents.
 
         Args:
+            etk (ETK): embed the etk object so that docs have access to global info.
             cdr_document (JSON): the raw CDR document received in ETK.
             tokenizer (Tokenizer): the default tokenizer for creating tokens.
 
@@ -24,11 +28,12 @@ class Document(Extractable):
 
         """
         Extractable.__init__(self)
+        self.etk = etk
         self.cdr_document = json.loads(cdr_document)
         self._value = self.cdr_document
         self.default_tokenizer = tokenizer
 
-    def select_segments(self, path) -> List[Segment]:
+    def select_segments(self, path: str) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
         This method should compile and cache the compiled json_path in case the same path
@@ -47,9 +52,10 @@ class Document(Extractable):
 
         return segments
 
-    def invoke_extractor(self, extractor, extractable, tokenizer=None) -> List[Extraction]:
+    def invoke_extractor(self, extractor: Extractor, extractable: Extractable, tokenizer: Tokenizer = None) \
+            -> List[Extraction]:
         """
-        Invoke the extractor for each Segment, accumulating all the extractions in an ExtractionCollection.
+        Invoke the extractor on the given extractable, accumulating all the extractions in a list.
 
         Args:
             extractor (Extractor):

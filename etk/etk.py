@@ -11,8 +11,17 @@ class ETK(object):
         self.parser = jsonpath_rw.parse
         self.default_tokenizer = Tokenizer(nlp=spacy.load('en_core_web_sm'))
 
-    def create_document(self, doc):
-        return Document(doc, self.default_tokenizer)
+    def create_document(self, doc: dict) -> Document:
+        """
+        Factory method to wrap input JSON docs in an ETK Document object.
+
+        Args:
+            doc (dict): a JSON object containing a document in CDR format.
+
+        Returns: wrapped Document
+
+        """
+        return Document(self, doc, self.default_tokenizer)
 
     def load_glossary(self, file_path) -> List[str]:
         """

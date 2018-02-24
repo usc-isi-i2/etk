@@ -46,7 +46,7 @@ class Extractor(object):
         """
         pass
 
-    def extract(self, input_value) -> List:
+    def extract(self, *input_value) -> List:
         """
 
         Args:

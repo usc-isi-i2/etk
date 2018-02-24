@@ -18,7 +18,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, list_joiner="  ") -> str:
+    def get_string(self, list_joiner: str  ="  ") -> str:
         """
         Args:
             list_joiner(str): if the value of an extractable is a list, join the elements
@@ -36,7 +36,17 @@ class ExtractableBase(object):
         else:
             return str(self._value)
 
-    def list2str(self, l, joiner) -> str:
+    def list2str(self, l: list, joiner: str) -> str:
+        """
+        to-do: add documentation of why this method exists
+
+        Args:
+            l ():
+            joiner ():
+
+        Returns:
+
+        """
         result = str()
         for item in l:
             if isinstance(item, list):
@@ -47,7 +57,17 @@ class ExtractableBase(object):
                 result = result + str(item) + joiner
         return result
 
-    def dict2str(self, d, joiner) -> str:
+    def dict2str(self, d: dict, joiner: str) -> str:
+        """
+        to-do: add documentation of why this method exists
+
+        Args:
+            d ():
+            joiner ():
+
+        Returns:
+
+        """
         result = str()
         for key in d:
             result = result + str(key) + " : "
@@ -70,7 +90,7 @@ class Extractable(ExtractableBase):
         self.tokenize_results = dict()
         self._value = value
 
-    def get_tokens(self, tokenizer) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -105,7 +125,7 @@ class Extraction(Extractable):
     Note that Extractions are Extractable, so they can be used as inputs to other extractors.
     """
 
-    def __init__(self, extracted_result):
+    def __init__(self, extracted_result: object):
         Extractable.__init__(self)
         """
 
@@ -125,7 +145,7 @@ class Extraction(Extractable):
         self._value = fake_extraction
 
     @property
-    def value(self):
+    def value(self) -> object:
         """
         Returns: the value produced by an extractor
         """
