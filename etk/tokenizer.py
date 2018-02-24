@@ -17,21 +17,23 @@ class Tokenizer(object):
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text: str) -> List[Token]:
+    def tokenize(self, text: str, keep_multi_space: bool = False, lowercase: bool = False) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
         Args:
             text (string):
+            keep_multi_space
+            lowercase
 
         Returns: [tokens]
 
         """
         """Tokenize text"""
-        # if not self.keep_multi_space:
-        #     text = re.sub(' +', ' ', text)
-        # if self.lowercase:
-        #     text = text.lower()
+        if not keep_multi_space:
+            text = re.sub(' +', ' ', text)
+        if lowercase:
+            text = text.lower()
         spacy_tokens = self.nlp(text)
         tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 

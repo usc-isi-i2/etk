@@ -2,7 +2,6 @@ import unittest
 from etk.etk_extraction import Extractable
 from etk.tokenizer import Tokenizer
 
-
 class TestExtractable(unittest.TestCase):
 
     def test_Extractable(self) -> None:
@@ -20,25 +19,20 @@ class TestExtractable(unittest.TestCase):
             {'orth': '1', 'offset': 18, 'full_shape': 'd'},
             {'orth': ':', 'offset': 20, 'full_shape': ':'},
             {'orth': '2', 'offset': 22, 'full_shape': 'd'},
-            {'orth': ' ', 'offset': 24, 'full_shape': ' '},
-            {'orth': 'das', 'offset': 25, 'full_shape': 'xxx'},
-            {'orth': ':', 'offset': 29, 'full_shape': ':'},
-            {'orth': '1', 'offset': 31, 'full_shape': 'd'},
-            {'orth': ' ', 'offset': 33, 'full_shape': ' '},
-            {'orth': '2', 'offset': 34, 'full_shape': 'd'},
-            {'orth': ' ', 'offset': 36, 'full_shape': ' '},
-            {'orth': '3', 'offset': 37, 'full_shape': 'd'},
-            {'orth': '       ', 'offset': 39, 'full_shape': '       '},
-            {'orth': 'confidence', 'offset': 46, 'full_shape': 'xxxxxxxxxx'},
-            {'orth': ':', 'offset': 57, 'full_shape': ':'},
-            {'orth': '2.3', 'offset': 59, 'full_shape': 'd.d'},
-            {'orth': ' ', 'offset': 63, 'full_shape': ' '}
+            {'orth': 'das', 'offset': 24, 'full_shape': 'xxx'},
+            {'orth': ':', 'offset': 28, 'full_shape': ':'},
+            {'orth': '1', 'offset': 30, 'full_shape': 'd'},
+            {'orth': '2', 'offset': 32, 'full_shape': 'd'},
+            {'orth': '3', 'offset': 34, 'full_shape': 'd'},
+            {'orth': 'confidence', 'offset': 36, 'full_shape': 'xxxxxxxxxx'},
+            {'orth': ':', 'offset': 47, 'full_shape': ':'},
+            {'orth': '2.3', 'offset': 49, 'full_shape': 'd.d'}
         ]
 
         self.assertEqual(token_attrs, expected_token)
-
-        expected_str = "extracted_value : 1 : 2  das : 1  2  3        confidence : 2.3  "
         text = e.get_string()
+        expected_str = "extracted_value : 1 : 2  das : 1  2  3        confidence : 2.3  "
+
         self.assertEqual(text, expected_str)
 
 if __name__ == '__main__':
