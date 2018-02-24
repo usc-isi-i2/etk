@@ -4,7 +4,7 @@ from etk.extractor import Extractor
 from etk.etk_extraction import Extraction, Extractable
 
 
-class HTMLMetadataExtractor(Extractor):
+class HTMLContentExtractor(Extractor):
     """
     Extracts text from HTML pages.
 
