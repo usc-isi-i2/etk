@@ -1,30 +1,33 @@
 from typing import List
-from etk.extractor import Extractor
+from etk.extractor import Extractor, InputType
 from etk.tokenizer import Tokenizer
 from spacy.tokens import Token
 from pygtrie import CharTrie
 from itertools import *
 from functools import reduce
 
+# TODO: the InputType should be TOKENS, as we want the invoke_extractor to tokenize the text so
+# that it is possible to tokenize a long text once and reuse the tokens.
+# invoke_extractor will use default_tokenizer to know how to tokenize before calling the
+# GlossaryExtractor
 
 class GlossaryExtractor(Extractor):
-    def __init__(self, glossary, extractor_name, ngrams=2, case_sensitive=False, tokenizer=Tokenizer()) -> None:
-        Extractor.__init__(self)
+    def __init__(self,
+                 glossary, #TODO: what is the type of glossary?
+                 extractor_name: str,
+                 ngrams: int=2,
+                 case_sensitive=False,
+                 tokenizer: Tokenizer=Tokenizer()) -> None:
+        Extractor.__init__(self,
+                           input_type=InputType.TEXT,
+                           category="glossary",
+                           name=extractor_name)
         self.ngrams = ngrams
         self.case_sensitive = case_sensitive
         self.default_tokenizer = tokenizer
         self.joiner = " "
         self.glossary = self.populate_trie(glossary)
         self._category = "glossary"
-        self._name = extractor_name
-
-    @property
-    def input_type(self):
-        """
-        The type of input that an extractor wants
-        Returns: InputType
-        """
-        return self.InputType.TEXT
 
     def extract(self, extractable: str) -> List[dict]:
         """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""

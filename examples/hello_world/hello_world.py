@@ -23,6 +23,7 @@ doc = etk.create_document(sample_input)
 
 name_extractor = GlossaryExtractor(etk.load_glossary("./names.txt"), "name_extractor", case_sensitive=False, ngrams=1)
 
+# TODO: Pedro thinks this is ugly, and we should allow users to pass in strings to select_segments
 descriptions_path = etk.parser("projects[*].description")
 projects_path = etk.parser("projects[*]")
 
