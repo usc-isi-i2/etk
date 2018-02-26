@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import List, Dict
+from typing import List
 
 
 class InputType(Enum):
