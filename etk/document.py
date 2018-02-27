@@ -1,11 +1,10 @@
 from jsonpath_rw import jsonpath
-from typing import List, AnyStr
+from typing import List, Dict
 
 from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-# from etk.etk import ETK
 
 
 class Document(Extractable):
@@ -14,8 +13,8 @@ class Document(Extractable):
         to query elements of the document and to update the document with the results
         of extractors.
         """
+    def __init__(self, etk, cdr_document: Dict) -> None:
 
-    def __init__(self, etk, cdr_document: object) -> None:
         """
         Wrapper object for CDR documents.
 
@@ -32,17 +31,18 @@ class Document(Extractable):
         self._value = cdr_document
         self.default_tokenizer = etk.default_tokenizer
 
-    def select_segments(self, path: jsonpath.Child) -> List[Segment]:
+    def select_segments(self, jsonpath: str) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
         This method should compile and cache the compiled json_path in case the same path
         is reused by multiple extractors.
 
         Args:
-            path (jsonpath_expr): a valid parsed JSON path.
+            jsonpath (str): a valid JSON path.
 
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
+        path = self.etk.invoke_parser(jsonpath)
         matches = path.find(self.cdr_document)
         segments = []
         for a_match in matches:
@@ -52,7 +52,7 @@ class Document(Extractable):
         return segments
 
     def invoke_extractor(self, extractor: Extractor, extractable: Extractable, tokenizer: Tokenizer = None,
-                         joiner: AnyStr = "  ") -> List[Extraction]:
+                         joiner: str = "  ") -> List[Extraction]:
 
         """
         Invoke the extractor on the given extractable, accumulating all the extractions in a list.
