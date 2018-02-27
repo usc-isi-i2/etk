@@ -12,9 +12,10 @@ from functools import reduce
 # invoke_extractor will use default_tokenizer to know how to tokenize before calling the
 # GlossaryExtractor
 
+
 class GlossaryExtractor(Extractor):
     def __init__(self,
-                 glossary: List[str], #TODO: what is the type of glossary?
+                 glossary: List[str],
                  extractor_name: str,
                  tokenizer: Tokenizer,
                  ngrams: int=2,
