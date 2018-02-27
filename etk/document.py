@@ -5,7 +5,7 @@ from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.etk import ETK
+# from etk.etk import ETK
 
 
 class Document(Extractable):
@@ -15,7 +15,7 @@ class Document(Extractable):
         of extractors.
         """
 
-    def __init__(self, etk: ETK, cdr_document: object) -> None:
+    def __init__(self, etk, cdr_document: object) -> None:
         """
         Wrapper object for CDR documents.
 
@@ -69,7 +69,6 @@ class Document(Extractable):
         if not tokenizer:
             tokenizer = self.default_tokenizer
 
-        extractions = list()
         extracted_results = list()
 
         if extractor.input_type == InputType.TOKENS:
@@ -90,11 +89,8 @@ class Document(Extractable):
 
         # TODO: the reason that extractors must return Extraction objects is so that
         # they can communicate back the provenance.
-        for a_result in extracted_results:
-            this_extraction = Extraction(a_result)
-            extractions.append(this_extraction)
 
-        return extractions
+        return extracted_results
         # record provenance:
         #  add a ProvenanceRecord for the extraction
         #  the prov record for each extraction should point to all extractables:
