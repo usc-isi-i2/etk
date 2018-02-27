@@ -1,5 +1,6 @@
 from typing import List
 from etk.extractor import Extractor, InputType
+from etk.etk_extraction import Extraction
 from etk.tokenizer import Tokenizer
 from spacy.tokens import Token
 from pygtrie import CharTrie
@@ -13,13 +14,13 @@ from functools import reduce
 
 class GlossaryExtractor(Extractor):
     def __init__(self,
-                 glossary, #TODO: what is the type of glossary?
+                 glossary: List[str], #TODO: what is the type of glossary?
                  extractor_name: str,
+                 tokenizer: Tokenizer,
                  ngrams: int=2,
-                 case_sensitive=False,
-                 tokenizer: Tokenizer=Tokenizer()) -> None:
+                 case_sensitive=False) -> None:
         Extractor.__init__(self,
-                           input_type=InputType.TEXT,
+                           input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
         self.ngrams = ngrams
@@ -29,9 +30,8 @@ class GlossaryExtractor(Extractor):
         self.glossary = self.populate_trie(glossary)
         self._category = "glossary"
 
-    def extract(self, extractable: str) -> List[dict]:
+    def extract(self, tokens: List[Token]) -> List[dict]:
         """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""
-        tokens = self.default_tokenizer.tokenize(extractable)
         results = list()
 
         if len(tokens) > 0:
@@ -78,14 +78,14 @@ class GlossaryExtractor(Extractor):
         return trie_accumulator
 
     @staticmethod
-    def wrap_value_with_context(value: str, start: int, end: int) -> dict:
+    def wrap_value_with_context(value: str, start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return {'value': value,
+        return Extraction({'value': value,
                 'context': {'start': start,
                             'end': end
                             },
                 'confidence': 1.0
-                }
+                })
 
     @staticmethod
     def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:
