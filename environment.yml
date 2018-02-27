@@ -1,0 +1,44 @@
+name: etk2_env
+dependencies:
+- certifi=2016.2.28=py36_0
+- openssl=1.0.2l=0
+- pip=9.0.1=py36_1
+- python=3.6.2=0
+- readline=6.2=2
+- setuptools=36.4.0=py36_1
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- wheel=0.29.0=py36_0
+- xz=5.2.3=0
+- zlib=1.2.11=0
+- pip:
+  - chardet==3.0.4
+  - cymem==1.31.2
+  - cytoolz==0.8.2
+  - decorator==4.2.1
+  - dill==0.2.7.1
+  - ftfy==4.4.3
+  - html5lib==1.0b8
+  - idna==2.6
+  - jsonpath-rw==1.4.0
+  - msgpack-numpy==0.4.1
+  - msgpack-python==0.5.4
+  - murmurhash==0.28.0
+  - numpy==1.14.1
+  - pathlib==1.0.1
+  - plac==0.9.6
+  - ply==3.11
+  - preshed==1.0.0
+  - pygtrie==2.2
+  - regex==2017.4.5
+  - requests==2.18.4
+  - six==1.11.0
+  - spacy==2.0.9
+  - termcolor==1.1.0
+  - thinc==6.10.2
+  - toolz==0.9.0
+  - tqdm==4.19.5
+  - ujson==1.35
+  - urllib3==1.22
+  - wcwidth==0.1.7
+  - wrapt==1.10.11

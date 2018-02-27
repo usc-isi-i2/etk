@@ -1,11 +1,13 @@
 import unittest
-from tokenizer import Tokenizer
+from etk.tokenizer import Tokenizer
+import re
 
 
-class TestTokenizerExtractor(unittest.TestCase):
+class TestTokenizer(unittest.TestCase):
 
-    def test_tokenizer(self):
-        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789,"
+    def test_tokenizer(self) -> None:
+        text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, #1  \n \n   "
+        reconstruct_text = re.sub(' +', ' ', text)
         t = Tokenizer()
         tokens = t.tokenize(text)
         token_attrs = []
@@ -26,8 +28,17 @@ class TestTokenizerExtractor(unittest.TestCase):
             {'orth': '-', 'offset': 28, 'full_shape': '-'},
             {'orth': '345', 'offset': 29, 'full_shape': 'ddd'},
             {'orth': '-', 'offset': 32, 'full_shape': '-'},
-            {'orth': '6789,', 'offset': 33, 'full_shape': 'dddd,'}]
+            {'orth': '6789', 'offset': 33, 'full_shape': 'dddd'},
+            {'orth': ',', 'offset': 37, 'full_shape': ','},
+            {'orth': '#', 'offset': 39, 'full_shape': '#'},
+            {'orth': '1', 'offset': 40, 'full_shape': 'd'},
+            {'orth': '\n ', 'offset': 42, 'full_shape': '\n '},
+            {'orth': '\n', 'offset': 44, 'full_shape': '\n'},
+            {'orth': ' ', 'offset': 45, 'full_shape': ' '}
+        ]
+
         self.assertEqual(token_attrs, expected)
+        self.assertEqual(t.reconstruct_text(tokens), reconstruct_text)
 
 if __name__ == '__main__':
     unittest.main()

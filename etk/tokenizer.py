@@ -1,9 +1,8 @@
 import spacy
 import re
 from spacy.tokenizer import Tokenizer as spacyTokenizer
-
-
-nlp = spacy.load('en_core_web_sm')
+from spacy.tokens import Token
+from typing import List
 
 
 class Tokenizer(object):
@@ -11,45 +10,44 @@ class Tokenizer(object):
     Abstract class used for all tokenizer implementations.
     """
 
-    def __init__(self):
+    def __init__(self, nlp=spacy.load('en_core_web_sm')) -> None:
         """Load vocab, more vocab are available at: https://spacy.io/models/en"""
         self.nlp = nlp
 
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text):
+    def tokenize(self, text: str, keep_multi_space: bool = False) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
         Args:
             text (string):
+            keep_multi_space
 
         Returns: [tokens]
 
         """
         """Tokenize text"""
-        # if not self.keep_multi_space:
-        #     text = re.sub(' +', ' ', text)
-        # if self.lowercase:
-        #     text = text.lower()
+        if not keep_multi_space:
+            text = re.sub(' +', ' ', text)
         spacy_tokens = self.nlp(text)
         tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 
         return tokens
 
-    def custom_tokenizer(self):
+    def custom_tokenizer(self) -> spacyTokenizer:
         """
         Custom tokenizer
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
         """
-        prefix_re = re.compile(r'''^[\[\(\-\."']''')
-        infix_re = re.compile(r'''[\@\-\(\)]|(?![0-9])\.(?![0-9])''')
+        prefix_re = re.compile(r'''^[\[()\-.,@#$%^&*?|<~+_:;>!"']''')
+        infix_re = re.compile(r'''[\[()\-,@#$%^&*?|<~+_:;>!"']|(?![0-9])\.(?![0-9])|\n''')
         return spacyTokenizer(self.nlp.vocab, rules=None, prefix_search=prefix_re.search, suffix_search=None,
                               infix_finditer=infix_re.finditer, token_match=None)
 
     @staticmethod
-    def custom_token(spacy_token):
+    def custom_token(spacy_token) -> Token:
         """
         Function for token attributes extension, methods extension
         Use set_extension method.
@@ -73,6 +71,19 @@ class Tokenizer(object):
             return full_shape
         spacy_token.set_extension("full_shape", getter=get_shape)
 
+        def is_integer(token):
+            pattern = re.compile('^[-+]?[0-9]+$')
+            return bool(pattern.match(token.text))
+        spacy_token.set_extension("is_integer", getter=is_integer)
+
+        def is_decimal(token):
+            pattern = re.compile('^[-+]?[0-9]+\.[0-9]+$')
+            return bool(pattern.match(token.text))
+        spacy_token.set_extension("is_decimal", getter=is_decimal)
+
+        # def is_linebreak(token):
+
+
         """To Do: 
             is_integer(boolean), 
             is_float(boolean), 
@@ -81,7 +92,8 @@ class Tokenizer(object):
             is_mixed(eg.xXxX) (boolean), 
             is_alphanumeric(sda23d) (boolean), 
             is_following_space?(boolean), 
-            is_followed_by_space?(boolean)
+            is_followed_by_space?(boolean),
+            is_space?(boolean)
         ...
         """
 
@@ -106,7 +118,7 @@ class Tokenizer(object):
         return spacy_token
 
     @staticmethod
-    def reconstruct_text(tokens):
+    def reconstruct_text(tokens: List[Token]) -> str:
         """
         Given a list of tokens, reconstruct the original text with as much fidelity as possible.
 
