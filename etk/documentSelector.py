@@ -81,7 +81,9 @@ class DefaultDocumentSelector(DocumentSelector):
             res_set.append(self.check_content(json_doc, "$.website", website_patterns, True))
 
         if json_paths is not None:
-            rw_json_paths = map(lambda jsonpath_rw: jsonpath_rw.parse(), json_paths)
+            rw_json_paths = []
+            for json_path in json_paths:
+                rw_json_paths.append(parse(json_path))
 
         if json_paths_regex is not None:
             rw_json_paths_regex = re.compile('|'.join(json_paths_regex))
@@ -114,8 +116,8 @@ class DefaultDocumentSelector(DocumentSelector):
                                 rw_json_paths: List[jsonpath.Child], 
                                 compiled_json_paths_regex: str) -> bool:
         for json_path_expr in rw_json_paths:
-            matches = json_path_expr.find(json_doc)
-            res = any(re.search(compiled_json_paths_regex, match) != None for match in matches)
+            values = [match.value for match in json_path_expr.find(json_doc)]
+            res = any(re.search(compiled_json_paths_regex, value) != None for value in values)
             if res:
                 return True
 

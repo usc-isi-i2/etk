@@ -54,11 +54,24 @@ class TestDocumentSelector(unittest.TestCase):
 		self.assertEqual(False, res_false)
 
 	def test_json_paths_and_json_paths_regex(self) -> None:
-		pass
+		etk = ETK()
+		doc = etk.create_document(sample_input)
+		default_doc_selector = DefaultDocumentSelector()
+		res_true = default_doc_selector.select_document(doc, json_paths = ["$.website"], json_paths_regex = [".*unittest",".*abc"])
+		res_false = default_doc_selector.select_document(doc, json_paths = ["$.website"], json_paths_regex = [".*hhhh"])
+		self.assertEqual(True, res_true)
+		self.assertEqual(False, res_false)
 
 	def test_all_condiation(self) -> None:
-		pass
-
+		etk = ETK()
+		doc = etk.create_document(sample_input)
+		default_doc_selector = DefaultDocumentSelector()
+		res_true = default_doc_selector.select_document(doc, datasets = [".*unittest",".*abc"], url_patterns = [".*unittest",".*zxc"],
+			website_patterns = [".*unittest",".*abc"], json_paths = ["$.website"], json_paths_regex = [".*unittest",".*abc"])
+		res_false = default_doc_selector.select_document(doc, datasets = [".*abc", ".*hhhh"], url_patterns = [".*ZXc", ".*hhhh"],
+			website_patterns = [".*ABc", ".*hhhh"], json_paths = ["$.website"], json_paths_regex = [".*hhhh"])
+		self.assertEqual(True, res_true)
+		self.assertEqual(False, res_false)
 
 if __name__ == '__main__':
 		unittest.main()
