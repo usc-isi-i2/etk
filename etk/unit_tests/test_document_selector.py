@@ -1,16 +1,12 @@
 import unittest
 
 from etk.documentSelector import DefaultDocumentSelector
-from etk.document import Document
 from etk.etk import ETK
 
 sample_input = {
-	"datasets": 
-			"unittestUnittestUNITTEST",
-	"website": 
-			"abcABCAbc",
-	"url": 
-			"zxcZXCZxc",
+	"datasets": "unittestUnittestUNITTEST",
+	"website": "abcABCAbc",
+	"url": "zxcZXCZxc",
     "projects": [
         {
             "name": "etk",

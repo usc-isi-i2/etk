@@ -2,6 +2,7 @@ import unittest
 from etk.etk_extraction import Extractable
 from etk.tokenizer import Tokenizer
 
+
 class TestExtractable(unittest.TestCase):
 
     def test_Extractable(self) -> None:
