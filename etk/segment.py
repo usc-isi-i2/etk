@@ -14,7 +14,7 @@ class Segment(Extractable):
         Extractable.__init__(self)
         self.json_path = json_path
         self._value = _value
-        self._extractions = []
+        self._extractions = dict()
 
     @property
     def full_path(self) -> str:
@@ -50,7 +50,7 @@ class Segment(Extractable):
         Returns:
 
         """
-        self._extractions = (attribute, extractions)
+        self._extractions[attribute] = extractions
         try:
             self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
         except Exception as e:
@@ -58,7 +58,7 @@ class Segment(Extractable):
             print(e)
 
     @property
-    def extractions(self) -> List[Extraction]:
+    def extractions(self) -> Dict:
         """
         Get the extractions stored in this container.
         Returns: List[Extraction]
