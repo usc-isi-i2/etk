@@ -51,8 +51,8 @@ class Document(Extractable):
 
         return segments
 
-    def invoke_extractor(self, extractor: Extractor, extractable: Extractable, tokenizer: Tokenizer = None,
-                         joiner: AnyStr = "  ") -> List[Extraction]:
+    def invoke_extractor(self, extractor: Extractor, extractable: Extractable = None, tokenizer: Tokenizer = None,
+                         joiner: AnyStr = "  ", **kwargs) -> List[Extraction]:
 
         """
         Invoke the extractor on the given extractable, accumulating all the extractions in a list.
@@ -62,10 +62,14 @@ class Document(Extractable):
             extractable (extractable):
             tokenizer: user can pass custom tokenizer if extractor wants token
             joiner: user can pass joiner if extractor wants text
+            kwargs: user can pass arguments with name and value as kwargs to pass in the extract() function
 
         Returns: List of Extraction, containing all the extractions.
 
         """
+        if not extractable:
+            extractable = self
+
         if not tokenizer:
             tokenizer = self.default_tokenizer
 
@@ -83,6 +87,9 @@ class Document(Extractable):
 
         elif extractor.input_type == InputType.OBJECT:
             extracted_results = extractor.extract(extractable.value)
+
+        elif extractor.input_type == InputType.HTML:
+            extracted_results = extractor.extract(extractable.value['raw_content'], kwargs)
 
         # TODO: the reason that extractors must return Extraction objects is so that
         # they can communicate back the provenance.
