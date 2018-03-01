@@ -1,5 +1,6 @@
 from enum import Enum, auto
-from typing import List, Dict
+from typing import List
+from etk.etk_extraction import Extraction
 
 
 class InputType(Enum):
@@ -56,7 +57,9 @@ class Extractor(object):
         """
         return self._category
 
-    def extract(self, **input_value) -> List[object]:
+
+    def extract(self, *input_value) -> List[Extraction]:
+
         """
 
         Args:

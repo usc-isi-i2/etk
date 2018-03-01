@@ -1,6 +1,6 @@
 from etk.etk_extraction import Extractable, Extraction
 import copy
-from typing import List
+from typing import List, Dict
 
 
 class Segment(Extractable):
@@ -10,11 +10,11 @@ class Segment(Extractable):
     to record segments within a text doc, e.g., by start and end char, or segments within
     a token list with start and end tokens.
     """
-    def __init__(self, json_path: str, _value: object) -> None:
+    def __init__(self, json_path: str, _value: Dict) -> None:
         Extractable.__init__(self)
         self.json_path = json_path
         self._value = _value
-        self._extractions = None
+        self._extractions = dict()
 
     @property
     def full_path(self) -> str:
@@ -50,14 +50,15 @@ class Segment(Extractable):
         Returns:
 
         """
-        self._extractions = extractions
-        if isinstance(self._value, dict):
+        self._extractions[attribute] = extractions
+        try:
             self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
-        else:
-            print("segment is "+str(type(self._value)))
+        except Exception as e:
+            print("segment is " + str(type(self._value)))
+            print(e)
 
     @property
-    def extractions(self) -> List[Extraction]:
+    def extractions(self) -> Dict:
         """
         Get the extractions stored in this container.
         Returns: List[Extraction]

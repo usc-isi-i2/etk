@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import jsonpath_rw
 import spacy
 from etk.tokenizer import Tokenizer
@@ -10,8 +10,9 @@ class ETK(object):
     def __init__(self):
         self.parser = jsonpath_rw.parse
         self.default_tokenizer = Tokenizer(nlp=spacy.load('en_core_web_sm'))
+        self.parsed = dict()
 
-    def create_document(self, doc: object, mime_type: str=None, url: str="http://ex.com/123") -> Document:
+    def create_document(self, doc: Dict, mime_type: str=None, url: str="http://ex.com/123") -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -24,6 +25,12 @@ class ETK(object):
 
         """
         return Document(self, doc)
+
+    def invoke_parser(self, jsonpath):
+        if jsonpath not in self.parsed:
+            self.parsed[jsonpath] = self.parser(jsonpath)
+
+        return self.parsed[jsonpath]
 
     @staticmethod
     def load_glossary(file_path: str) -> List[str]:

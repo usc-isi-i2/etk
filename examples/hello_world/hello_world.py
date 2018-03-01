@@ -23,12 +23,8 @@ doc = etk.create_document(sample_input)
 
 name_extractor = GlossaryExtractor(etk.load_glossary("./names.txt"), "name_extractor", etk.default_tokenizer, case_sensitive=False, ngrams=1)
 
-# TODO: Pedro thinks this is ugly, and we should allow users to pass in strings to select_segments
-descriptions_path = etk.parser("projects[*].description")
-projects_path = etk.parser("projects[*]")
-
-descriptions = doc.select_segments(descriptions_path)
-projects = doc.select_segments(projects_path)
+descriptions = doc.select_segments("projects[*].description")
+projects = doc.select_segments("projects[*]")
 
 for d, p in zip(descriptions, projects):
     names = doc.invoke_extractor(name_extractor, d)
