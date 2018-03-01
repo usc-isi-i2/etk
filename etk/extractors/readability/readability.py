@@ -198,7 +198,7 @@ class Document:
                             article = self.html
 
                 cleaned_article = self.sanitize(article, candidates)
-                #print cleaned_article
+                print(cleaned_article)
 
                 article_length = len(cleaned_article or '')
                 retry_length = self.options.get(

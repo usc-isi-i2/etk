@@ -23,6 +23,6 @@ root = doc.select_segments(etk.parser("$"))[0]
 # ans: **kwargs are defined in invoke_extractor() to pass the arguments to extractor.extract(), is that ok?
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_title=True), "title")
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_meta=True), "metadata")
-root.store_extractions(doc.invoke_extractor(content_extractor, stategy=Strategy.ALL_TEXT), "text")
+root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.MAIN_CONTENT_RELAXED), "text")
 
 print(json.dumps(doc.cdr_document, indent=2))
