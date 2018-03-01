@@ -124,7 +124,14 @@ class Extraction(Extractable):
     Note that Extractions are Extractable, so they can be used as inputs to other extractors.
     """
 
-    def __init__(self, extracted_result: Dict):
+    def __init__(self,
+                 value,
+                 extractor_name,
+                 confidence=1.0,
+                 start_token=None,
+                 end_token=None,
+                 start_char=None,
+                 end_char=None):
         Extractable.__init__(self)
         """
 
@@ -135,13 +142,21 @@ class Extraction(Extractable):
         Returns:
 
         """
-        fake_extraction = {"extracted_value": extracted_result["value"], "confidence": extracted_result["confidence"], "context": extracted_result["context"]}
+        fake_provenance = {
+            "extractor_name": extractor_name,
+            "confidence": confidence,
+            "start_token": start_token,
+            "end_token": end_token,
+            "start_char": start_char,
+            "end_char": end_char
+        }
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
         #                   start_char=start_char, end_char=end_char)
         # prov_id = document.add_provenance(self.provenance)
         # self._value = ExtractionValue(value, prov_id)
-        self._value = fake_extraction
+        self._value = value
+        self._provenance = fake_provenance
 
     @property
     def value(self) -> object:
