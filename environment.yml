@@ -19,7 +19,6 @@ dependencies:
     - cytoolz==0.8.2
     - decorator==4.2.1
     - dill==0.2.7.1
-    - en-core-web-sm==2.0.0
     - ftfy==4.4.3
     - html5lib==1.0b8
     - idna==2.6
