@@ -54,7 +54,6 @@ class Document(Extractable):
     def invoke_extractor(self, extractor: Extractor, extractable: Extractable = None, tokenizer: Tokenizer = None,
                          joiner: str = "  ", **options) -> List[Extraction]:
 
-
         """
         Invoke the extractor on the given extractable, accumulating all the extractions in a list.
 

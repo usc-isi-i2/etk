@@ -9,7 +9,8 @@ class ETK(object):
 
     def __init__(self):
         self.parser = jsonpath_rw.parse
-        self.default_tokenizer = Tokenizer(nlp=spacy.load('en_core_web_sm'))
+        self.default_nlp = spacy.load('en_core_web_sm')
+        self.default_tokenizer = Tokenizer(self.default_nlp)
         self.parsed = dict()
 
     def create_document(self, doc: Dict, mime_type: str=None, url: str="http://ex.com/123") -> Document:
