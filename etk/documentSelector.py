@@ -1,5 +1,4 @@
 from typing import List
-import json
 import re
 from jsonpath_rw import jsonpath, parse
 from etk.document import Document
@@ -20,6 +19,7 @@ class DocumentSelector(object):
         Returns: True, if the document should be selected for processing
 
         """
+
 
 class DefaultDocumentSelector(DocumentSelector):
 
@@ -55,7 +55,6 @@ class DefaultDocumentSelector(DocumentSelector):
 
 # sentences = [string1, string2, string3, string4]
 # generic_re = re.compile("(%s|%s|%s|%s)" % (re1, re2, re3, re4)).findall(sentence)
-
 
     def select_document(self,
                         document: Document,
@@ -93,7 +92,6 @@ class DefaultDocumentSelector(DocumentSelector):
 
         raise NotImplementedError
 
-
     def check_content(self, json_doc: dict, json_path: str, patterns: List[str], enable_regexp: bool = True) -> bool:
         if enable_regexp:
             # compile json path
@@ -111,7 +109,6 @@ class DefaultDocumentSelector(DocumentSelector):
         return res
         raise NotImplementedError
 
-
     def check_json_path_codition(self, json_doc: dict, 
                                 rw_json_paths: List[jsonpath.Child], 
                                 compiled_json_paths_regex: str) -> bool:
@@ -123,12 +120,3 @@ class DefaultDocumentSelector(DocumentSelector):
 
         return False
         raise NotImplementedError
-
-
-
-
-
-
-
-
-

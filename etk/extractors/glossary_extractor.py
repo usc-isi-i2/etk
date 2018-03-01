@@ -7,14 +7,10 @@ from pygtrie import CharTrie
 from itertools import *
 from functools import reduce
 
-# TODO: the InputType should be TOKENS, as we want the invoke_extractor to tokenize the text so
-# that it is possible to tokenize a long text once and reuse the tokens.
-# invoke_extractor will use default_tokenizer to know how to tokenize before calling the
-# GlossaryExtractor
 
 class GlossaryExtractor(Extractor):
     def __init__(self,
-                 glossary: List[str], #TODO: what is the type of glossary?
+                 glossary: List[str],
                  extractor_name: str,
                  tokenizer: Tokenizer,
                  ngrams: int=2,
@@ -30,7 +26,7 @@ class GlossaryExtractor(Extractor):
         self.glossary = self.populate_trie(glossary)
         self._category = "glossary"
 
-    def extract(self, tokens: List[Token]) -> List[dict]:
+    def extract(self, tokens: List[Token]) -> List[Extraction]:
         """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""
         results = list()
 

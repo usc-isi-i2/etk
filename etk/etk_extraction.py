@@ -1,6 +1,6 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
-from typing import List, Any, Dict, AnyStr
+from typing import List, Any, Dict
 
 
 class ExtractableBase(object):
@@ -18,7 +18,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, joiner: AnyStr ="  ") -> str:
+    def get_string(self, joiner: str ="  ") -> str:
         """
         Args:
             joiner(str): if the value of an extractable is not a string, join the elements
@@ -36,7 +36,7 @@ class ExtractableBase(object):
         else:
             return str(self._value)
 
-    def list2str(self, l: List, joiner: AnyStr) -> str:
+    def list2str(self, l: List, joiner: str) -> str:
         """
         Convert list to str as input for tokenizer
 
@@ -57,7 +57,7 @@ class ExtractableBase(object):
                 result = result + str(item) + joiner
         return result
 
-    def dict2str(self, d: Dict, joiner: AnyStr) -> str:
+    def dict2str(self, d: Dict, joiner: str) -> str:
         """
         Convert dict to str as input for tokenizer
 
