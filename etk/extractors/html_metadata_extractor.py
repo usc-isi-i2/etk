@@ -1,6 +1,10 @@
 from typing import List
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction, Extractable
+from extruct.w3cmicrodata import MicrodataExtractor
+from extruct.jsonld import JsonLdExtractor
+from extruct.rdfa import RDFaExtractor
+from bs4 import BeautifulSoup
 
 
 class HTMLMetadataExtractor(Extractor):
@@ -26,6 +30,33 @@ class HTMLMetadataExtractor(Extractor):
                 extract_json_ld: bool = False,
                 extract_rdfa: bool = False) \
             -> List[dict]:
+
+        res = []
+        soup = BeautifulSoup(html_text, 'html.parser')
+
+        if extract_title:
+            title = wrap_title_content(soup.title.string)
+            res.append(title)
+
+        if extract_meta:
+            meta = wrap_meta_content(soup.find_all("meta"))
+            res.append(meta)
+
+        if extract_microdata:
+            mde = MicrodataExtractor()
+            mde_data = mde.extract(html)
+            res.append(mde_data)
+
+        if extract_json_ld:
+            jslde = JsonLdExtractor()
+            jslde_data = jslde.extract(html)
+            res.append(jslde_data)
+
+        if extract_rdfa:
+            rdfae = RDFaExtractor()
+            rdfae_data = rdfae.extract(html)
+            res.append(rdfae_data)
+
         """
 
         Args:
@@ -39,4 +70,23 @@ class HTMLMetadataExtractor(Extractor):
         Returns: a singleton list containing a dict with each type of metadata.
 
         """
-        pass
+        
+        return res
+        raise NotImplementedError
+
+    @staticmethod
+    def wrap_meta_content(meta_tags: List[str]) -> str:
+        res, meta = {}, {}
+        for tag in meta_tags:
+            meta[tag.get("name")] = tag.get("content")
+
+        res["meta"] = meta
+        return res
+        raise NotImplementedError
+
+    @staticmethod
+    def wrap_title_content(title_value: str = '') -> str:
+        return {'title': title_value}
+        raise NotImplementedError
+
+
