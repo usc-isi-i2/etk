@@ -144,7 +144,7 @@ class Extraction(Extractable):
         self._value = fake_extraction
 
     @property
-    def value(self) -> object:
+    def value(self) -> Dict or str:
         """
         Returns: the value produced by an extractor
         """

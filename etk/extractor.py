@@ -57,9 +57,7 @@ class Extractor(object):
         """
         return self._category
 
-
     def extract(self, *input_value) -> List[Extraction]:
-
         """
 
         Args:

@@ -1,6 +1,7 @@
 from typing import List
 from enum import Enum, auto
 from bs4 import BeautifulSoup
+from bs4.element import Comment
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
 from etk.extractors.readability.readability import Document
@@ -42,7 +43,7 @@ class HTMLContentExtractor(Extractor):
 
         Returns: a list of Extraction(s) of a str, typically a singleton list with the extracted text
         """
-        print(options)
+
         if 'strategy' in options:
             strategy = options['strategy']
         else:
@@ -51,8 +52,11 @@ class HTMLContentExtractor(Extractor):
         try:
             if html_text:
                 if strategy == Strategy.ALL_TEXT:
-                    # TODO use BeautifulSoup to get all visible content of the html page
-                    return []
+                    soup = BeautifulSoup(html_text, 'html.parser')
+                    texts = soup.findAll(text=True)
+                    visible_texts = filter(self.tag_visible, texts)
+                    all_text = u" ".join(t.strip() for t in visible_texts)
+                    return [Extraction(self.wrap_html_content(all_text))]
                 else:
                     relax = strategy == Strategy.MAIN_CONTENT_RELAXED
                     readable = Document(html_text, recallPriority=relax).summary(html_partial=False)
@@ -70,4 +74,12 @@ class HTMLContentExtractor(Extractor):
     def wrap_html_content(readability_text: str = ''):
         return {'value': readability_text, 'confidence': 1.0, 'context': ''}
 
+
+    @staticmethod
+    def tag_visible(element):
+        if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
+            return False
+        if isinstance(element, Comment):
+            return False
+        return True
 
