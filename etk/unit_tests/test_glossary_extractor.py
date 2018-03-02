@@ -12,24 +12,7 @@ class TestGlossaryExtractor(unittest.TestCase):
         text = 'i live in los angeles. my hometown is Beijing'
         tokens = t.tokenize(text)
         test_result = [i.value for i in ge.extract(tokens)]
-        expected = [
-            {
-              "extracted_value": "Beijing",
-              "confidence": 1.0,
-              "context": {
-                "start": 9,
-                "end": 10
-              }
-            },
-            {
-              "extracted_value": "Los Angeles",
-              "confidence": 1.0,
-              "context": {
-                "start": 3,
-                "end": 5
-              }
-            }
-        ]
+        expected = ["Beijing", "Los Angeles"]
         self.assertEqual(test_result, expected)
 
 

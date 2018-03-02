@@ -56,23 +56,18 @@ class HTMLContentExtractor(Extractor):
                     texts = soup.findAll(text=True)
                     visible_texts = filter(self.tag_visible, texts)
                     all_text = u" ".join(t.strip() for t in visible_texts)
-                    return [Extraction(self.wrap_html_content(all_text))]
+                    return [Extraction(all_text, self.name)]
                 else:
                     relax = strategy == Strategy.MAIN_CONTENT_RELAXED
                     readable = Document(html_text, recallPriority=relax).summary(html_partial=False)
                     cleantext = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
                     readability_text = ' '.join(cleantext)
-                    return [Extraction(self.wrap_html_content(readability_text))]
+                    return [Extraction(readability_text, self.name)]
             else:
                 return []
         except Exception as e:
             print('Error in extracting readability %s' % e)
             return []
-
-
-    @staticmethod
-    def wrap_html_content(readability_text: str = ''):
-        return {'value': readability_text, 'confidence': 1.0, 'context': ''}
 
 
     @staticmethod
