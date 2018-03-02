@@ -16,13 +16,13 @@ doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com
 metadata_extractor = HTMLMetadataExtractor()
 content_extractor = HTMLContentExtractor()
 
-root = doc.select_segments(etk.parser("$"))[0]
+root = doc.select_segments("$")[0]
 
 # Passing arguments to extractors using keyword arguments in invoke_extractor is causing warnings.
 # Is there a pythonic way to do this?
-# ans: **kwargs are defined in invoke_extractor() to pass the arguments to extractor.extract(), is that ok?
+# **options are defined in invoke_extractor() to pass the arguments to extractor.extract(), is that ok?
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_title=True), "title")
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_meta=True), "metadata")
-root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.MAIN_CONTENT_RELAXED), "text")
+root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.ALL_TEXT), "text")
 
 print(json.dumps(doc.cdr_document, indent=2))
