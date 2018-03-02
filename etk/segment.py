@@ -52,6 +52,9 @@ class Segment(Extractable):
         """
         self._extractions[attribute] = extractions
         try:
+            # TODO: why is it necessary to deepcopy the extraction?
+            # TODO: should check whether there are already extractions in attribute and append the new ones
+            # TODO: when adding extractions they should be added one by one, and deduplicated
             self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
         except Exception as e:
             print("segment is " + str(type(self._value)))
