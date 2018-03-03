@@ -1,7 +1,7 @@
 import spacy
 import re
 from spacy.tokenizer import Tokenizer as spacyTokenizer
-from spacy.tokens import Token
+from spacy.tokens import Token, Doc
 from typing import List
 
 
@@ -35,6 +35,15 @@ class Tokenizer(object):
         tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 
         return tokens
+
+    def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = False) -> Doc:
+        if not keep_multi_space:
+            text = re.sub(' +', ' ', text)
+        doc = self.nlp(text)
+        for a_token in doc:
+            self.custom_token(a_token)
+
+        return doc
 
     def custom_tokenizer(self) -> spacyTokenizer:
         """
