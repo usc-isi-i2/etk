@@ -2043,6 +2043,7 @@ class Core(object):
         if not config:
             config = dict()
         config['ignore_past_years'] = 200
+        config['ignore_future_dates'] = False
 
         try:
             # try the 2005344 format just in case
