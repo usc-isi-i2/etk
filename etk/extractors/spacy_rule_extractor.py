@@ -5,6 +5,8 @@ from etk.tokenizer import Tokenizer
 from spacy.matcher import Matcher
 from spacy import attrs
 import copy
+import itertools
+
 
 FLAG_DICT = {
     20: attrs.FLAG20,
@@ -78,14 +80,15 @@ class SpacyRuleExtractor(Extractor):
     def extract(self, text: str) -> List[Extraction]:
         doc = self.tokenizer.tokenize_to_spacy_doc(text)
         self.load_matcher()
+        print(self.matcher(doc))
         for idx, start, end in self.matcher(doc):
             print(idx, doc[start:end])
 
     def load_matcher(self):
         for idx, a_rule in enumerate(self.rule_lst):
-            for a_pattern in a_rule.patterns:
-                print(a_pattern.spacy_token_lst)
-                self.matcher.add(idx, None, a_pattern.spacy_token_lst)
+            pattern_flat_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
+            for element in itertools.product(*pattern_flat_lst):
+                self.matcher.add(idx, None, list(element))
 
 
 class Pattern(object):
@@ -166,10 +169,10 @@ class Pattern(object):
     @staticmethod
     def add_common_constrain(token_lst: List[Dict], d: Dict) -> List[Dict]:
         result = []
-        if d["is_required"] == "false":
-            for a_token in token_lst:
-                a_token["OP"] = "+"
-                result.append(copy.deepcopy(a_token))
+        for a_token in token_lst:
+            if d["is_required"] == "false":
+                a_token["OP"] = "?"
+            result.append(copy.deepcopy(a_token))
         return result
 
     @staticmethod
@@ -180,7 +183,6 @@ class Pattern(object):
                 a_token[attrs.LENGTH] = int(length)
                 result.append(copy.deepcopy(a_token))
         return result
-
 
     @staticmethod
     def construct_linebreak_token(d):
