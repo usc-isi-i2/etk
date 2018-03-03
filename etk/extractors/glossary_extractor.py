@@ -73,15 +73,9 @@ class GlossaryExtractor(Extractor):
         trie_accumulator[key] = value
         return trie_accumulator
 
-    @staticmethod
-    def wrap_value_with_context(value: str, start: int, end: int) -> Extraction:
+    def wrap_value_with_context(self, value: str, start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return Extraction({'value': value,
-                'context': {'start': start,
-                            'end': end
-                            },
-                'confidence': 1.0
-                })
+        return Extraction(value, self.name, start_token=start, end_token=end)
 
     @staticmethod
     def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:
