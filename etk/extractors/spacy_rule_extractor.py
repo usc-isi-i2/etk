@@ -55,6 +55,30 @@ FLAG_DICT = {
     63: attrs.FLAG63
 }
 
+POS_MAP = {
+    "AUX": "AUX",
+    "EOL": "EOL",
+    "CCONJ": "CCONJ",
+    "SCONJ": "SCONJ",
+    "noun": "NOUN",
+    "pronoun": "PROPN",
+    "proper noun": "PROPN",
+    "determiner": "DET",
+    "symbol": "SYM",
+    "adjective": "ADJ",
+    "conjunction": "CONJ",
+    "verb": "VERB",
+    "pre/post-position": "ADP",
+    "adverb": "ADV",
+    "particle": "PART",
+    "interjection": "INTJ",
+    "X": "X",
+    "NUM": "NUM",
+    "SPACE": "SPACE",
+    "PRON": "PRON"
+}
+
+
 FLAG_ID = 20
 
 
@@ -117,10 +141,25 @@ class Pattern(object):
 
     @staticmethod
     def construct_word_token(d, nlp):
+        "TODO: Test shape first"
         pass
 
     def construct_shape_token(self, d, nlp):
-        pass
+        result = []
+        if not d["shapes"]:
+            this_token = {attrs.IS_ASCII: True}
+            result.append(this_token)
+        else:
+            for shape in d["shapes"]:
+                this_shape = self.generate_shape(shape, self.counting_stars(shape))
+                this_token = {attrs.SHAPE: this_shape}
+                result.append(copy.deepcopy(this_token))
+
+        result = self.add_common_constrain(result, d)
+        if d["part_of_speech"]:
+            result = self.add_pos_constrain(result, d["part_of_speech"])
+
+        return result
 
     def construct_number_token(self, d, nlp) -> List[Dict]:
         result = []
@@ -172,7 +211,7 @@ class Pattern(object):
         for a_token in token_lst:
             if d["is_required"] == "false":
                 a_token["OP"] = "?"
-            result.append(copy.deepcopy(a_token))
+            result.append(a_token)
         return result
 
     @staticmethod
@@ -185,8 +224,42 @@ class Pattern(object):
         return result
 
     @staticmethod
+    def add_pos_constrain(token_lst: List[Dict], pos_tags: List) -> List[Dict]:
+        result = []
+        for a_token in token_lst:
+            for pos in pos_tags:
+                a_token[attrs.POS] = POS_MAP[pos]
+                result.append(copy.deepcopy(a_token))
+        return result
+
+
+    @staticmethod
     def construct_linebreak_token(d):
         pass
+
+    @staticmethod
+    def generate_shape(word, count):
+        shape = ""
+        p = 0
+        for c in count:
+            if c > 4:
+                shape += word[p:p + 4]
+            else:
+                shape += word[p:p + c]
+            p = p + c
+
+        return shape
+
+    @staticmethod
+    def counting_stars(word):
+        count = [1]
+        for i in range(1, len(word)):
+            if word[i - 1] == word[i]:
+                count[-1] += 1
+            else:
+                count.append(1)
+
+        return count
 
 
 class Rule(object):
