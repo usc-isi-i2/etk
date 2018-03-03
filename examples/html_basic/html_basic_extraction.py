@@ -24,6 +24,8 @@ root = doc.select_segments("$")[0]
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_title=True), "title")
 # root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_meta=True), "metadata")
 root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.ALL_TEXT), "etk2_text")
+root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.MAIN_CONTENT_STRICT), "etk2_content_strict")
+root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy.MAIN_CONTENT_RELAXED), "etk2_content_relaxed")
 root.store_extractions(doc.invoke_extractor(metadata_extractor), "etk2_metadata")
 
 
