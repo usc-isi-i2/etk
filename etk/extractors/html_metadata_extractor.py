@@ -1,6 +1,10 @@
 from typing import List
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction, Extractable
+from extruct.w3cmicrodata import MicrodataExtractor
+from extruct.jsonld import JsonLdExtractor
+from extruct.rdfa import RDFaExtractor
+from bs4 import BeautifulSoup
 
 
 class HTMLMetadataExtractor(Extractor):
@@ -26,6 +30,34 @@ class HTMLMetadataExtractor(Extractor):
                 extract_json_ld: bool = False,
                 extract_rdfa: bool = False) \
             -> List[dict]:
+
+        res = []
+        soup = BeautifulSoup(html_text, 'html.parser')
+
+        if extract_title:
+            title = self.wrap_data("title", soup.title.string)
+            res.append(title)
+
+        if extract_meta:
+            meta_content = self.wrap_meta_content(soup.find_all("meta"))
+            meta_data = self.wrap_data("meta", meta_content)
+            res.append(meta_data)
+
+        if extract_microdata:
+            mde = MicrodataExtractor()
+            mde_data = self.wrap_data("microdata", mde.extract(html_text))
+            res.append(mde_data)
+
+        if extract_json_ld:
+            jslde = JsonLdExtractor()
+            jslde_data = self.wrap_data("json-ld", jslde.extract(html_text))
+            res.append(jslde_data)
+
+        if extract_rdfa:
+            rdfae = RDFaExtractor()
+            rdfae_data = self.wrap_data("rdfa", rdfae.extract(html_text))
+            res.append(rdfae_data)
+
         """
 
         Args:
@@ -39,4 +71,21 @@ class HTMLMetadataExtractor(Extractor):
         Returns: a singleton list containing a dict with each type of metadata.
 
         """
-        pass
+        
+        return res
+        raise NotImplementedError
+
+    @staticmethod
+    def wrap_data(key: str, value: dict) -> dict:
+        return {key: value}
+        raise NotImplementedError
+
+    @staticmethod
+    def wrap_meta_content(meta_tags: List[str]) -> dict:
+        meta = {}
+        for tag in meta_tags:
+            meta[tag.get("name")] = tag.get("content")
+
+        return meta
+        raise NotImplementedError
+
