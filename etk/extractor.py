@@ -57,12 +57,13 @@ class Extractor(object):
         """
         return self._category
 
-    def extract(self, *input_value) -> List[Extraction]:
+    def extract(self, *input_value, **configs) -> List[Extraction]:
         """
 
         Args:
             input_value (): some extractors may want multiple arguments, for example, to
             concatenate them together
+            configs (): any configs/options of extractors
 
         Returns: list of extracted data, which can be any Python object
         """

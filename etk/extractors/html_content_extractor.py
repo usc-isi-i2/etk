@@ -31,23 +31,17 @@ class HTMLContentExtractor(Extractor):
                            category="HTML extractor",
                            name="HTML content extractor")
 
-    def extract(self, html_text: str, options: dict = None) \
+    def extract(self, html_text: str, strategy: Strategy=Strategy.ALL_TEXT) \
             -> List[Extraction]:
         """
         Extracts text from an HTML page using a variety of strategies
 
         Args:
             html_text (): html page in string
-            options: {'strategy': strategy () -> one of Strategy.ALL_TEXT, Strategy.MAIN_CONTENT_STRICT \
-                and Strategy.MAIN_CONTENT_RELAXED}
+            strategy (): one of Strategy.ALL_TEXT, Strategy.MAIN_CONTENT_STRICT and Strategy.MAIN_CONTENT_RELAXED
 
         Returns: a list of Extraction(s) of a str, typically a singleton list with the extracted text
         """
-
-        if 'strategy' in options:
-            strategy = options['strategy']
-        else:
-            strategy = Strategy.ALL_TEXT
 
         try:
             if html_text:
@@ -68,7 +62,6 @@ class HTMLContentExtractor(Extractor):
         except Exception as e:
             print('Error in extracting readability %s' % e)
             return []
-
 
     @staticmethod
     def tag_visible(element):
