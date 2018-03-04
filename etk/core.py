@@ -889,7 +889,7 @@ class Core(object):
             # x_1 = re.sub(remove_break_html_1, ' \n ', x)
             # x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
             x_2 = re.sub(remove_break_html_3, ' \n\n ', x)
-            x_2 = x_2.replace('\n', '<br>')
+            x_2 = x_2.replace('\n', '<br/>')
         except:
             return x
         return x_2
