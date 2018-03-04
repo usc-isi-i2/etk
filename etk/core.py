@@ -194,6 +194,7 @@ _CREATED_BY = 'created_by'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
+remove_break_html_3 = re.compile("(\\n\ *){3,}")
 seven_digits = re.compile("[0-9]{7}")
 
 
@@ -885,8 +886,9 @@ class Core(object):
     @staticmethod
     def remove_line_breaks(x):
         try:
-            x_1 = re.sub(remove_break_html_1, ' \n ', x)
-            x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
+            # x_1 = re.sub(remove_break_html_1, ' \n ', x)
+            # x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
+            x_2 = re.sub(remove_break_html_3, ' \n\n ', x)
         except:
             return x
         return x_2
