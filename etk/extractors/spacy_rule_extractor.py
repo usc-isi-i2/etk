@@ -103,6 +103,10 @@ class SpacyRuleExtractor(Extractor):
 
     def extract(self, text: str) -> List[Extraction]:
         doc = self.tokenizer.tokenize_to_spacy_doc(text)
+        # for i in doc:
+        #     print(i.orth_)
+        #     print(i.pos_)
+        #     print(i.shape_)
         self.load_matcher()
         print(self.matcher(doc))
         for idx, start, end in self.matcher(doc):
@@ -131,7 +135,7 @@ class Pattern(object):
         if self.type == "word":
             self.spacy_token_lst = self.construct_word_token(d, nlp)
         elif self.type == "shape":
-            self.spacy_token_lst = self.construct_shape_token(d, nlp)
+            self.spacy_token_lst = self.construct_shape_token(d)
         elif self.type == "number":
             self.spacy_token_lst = self.construct_number_token(d, nlp)
         elif self.type == "punctuation":
@@ -141,10 +145,10 @@ class Pattern(object):
 
     @staticmethod
     def construct_word_token(d, nlp):
-        "TODO: Test shape first"
+        "TODO"
         pass
 
-    def construct_shape_token(self, d, nlp):
+    def construct_shape_token(self, d):
         result = []
         if not d["shapes"]:
             this_token = {attrs.IS_ASCII: True}
@@ -231,7 +235,6 @@ class Pattern(object):
                 a_token[attrs.POS] = POS_MAP[pos]
                 result.append(copy.deepcopy(a_token))
         return result
-
 
     @staticmethod
     def construct_linebreak_token(d):

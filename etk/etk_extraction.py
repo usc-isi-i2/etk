@@ -127,11 +127,12 @@ class Extraction(Extractable):
     def __init__(self,
                  value,
                  extractor_name: str,
-                 confidence: float=1.0,
-                 start_token: int=None,
-                 end_token: int=None,
-                 start_char: int=None,
-                 end_char: int=None):
+                 confidence=1.0,
+                 start_token=None,
+                 end_token=None,
+                 start_char=None,
+                 end_char=None,
+                 tag=None):
         Extractable.__init__(self)
         """
 
@@ -148,7 +149,8 @@ class Extraction(Extractable):
             "start_token": start_token,
             "end_token": end_token,
             "start_char": start_char,
-            "end_char": end_char
+            "end_char": end_char,
+            "tag": tag
         }
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,

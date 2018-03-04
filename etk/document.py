@@ -89,7 +89,7 @@ class Document(Extractable):
             extracted_results = extractor.extract(extractable.value)
 
         elif extractor.input_type == InputType.HTML:
-            extracted_results = extractor.extract(extractable.value['raw_content'], options)
+            extracted_results = extractor.extract(extractable.value['raw_content'], **options)
 
 
         # TODO: the reason that extractors must return Extraction objects is so that
