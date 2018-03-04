@@ -50,12 +50,12 @@ class Segment(Extractable):
         Returns:
 
         """
-        self._extractions[attribute] = extractions
+        if attribute not in self._extractions:
+            self._extractions[attribute] = set([])
+        self._extractions[attribute] = self._extractions[attribute].union(extractions)
         try:
             # TODO: why is it necessary to deepcopy the extraction?
-            # TODO: should check whether there are already extractions in attribute and append the new ones
-            # TODO: when adding extractions they should be added one by one, and deduplicated
-            self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
+            self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in self._extractions[attribute]]
         except Exception as e:
             print("segment is " + str(type(self._value)))
             print(e)
@@ -64,7 +64,7 @@ class Segment(Extractable):
     def extractions(self) -> Dict:
         """
         Get the extractions stored in this container.
-        Returns: List[Extraction]
+        Returns: Dict
 
         """
         return self._extractions

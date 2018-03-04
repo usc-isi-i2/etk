@@ -126,7 +126,7 @@ class Extraction(Extractable):
 
     def __init__(self,
                  value,
-                 extractor_name,
+                 extractor_name: str,
                  confidence=1.0,
                  start_token=None,
                  end_token=None,
