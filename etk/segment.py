@@ -50,9 +50,12 @@ class Segment(Extractable):
         Returns:
 
         """
+        if not isinstance(extractions, list):
+            extractions = [extractions]
+
         self._extractions[attribute] = extractions
         try:
-            # TODO: why is it necessary to deepcopy the extraction?
+            # TODO: why is it necessary to deepcopy the extraction values?
             # TODO: should check whether there are already extractions in attribute and append the new ones
             # TODO: when adding extractions they should be added one by one, and deduplicated
             self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in extractions]
