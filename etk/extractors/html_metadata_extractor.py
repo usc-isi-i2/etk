@@ -35,26 +35,27 @@ class HTMLMetadataExtractor(Extractor):
         soup = BeautifulSoup(html_text, 'html.parser')
 
         if extract_title:
-            title = wrap_title_content(soup.title.string)
+            title = self.wrap_data("title", soup.title.string)
             res.append(title)
 
         if extract_meta:
-            meta = wrap_meta_content(soup.find_all("meta"))
-            res.append(meta)
+            meta_content = self.wrap_meta_content(soup.find_all("meta"))
+            meta_data = self.wrap_data("meta", meta_content)
+            res.append(meta_data)
 
         if extract_microdata:
             mde = MicrodataExtractor()
-            mde_data = mde.extract(html)
+            mde_data = self.wrap_data("microdata", mde.extract(html_text))
             res.append(mde_data)
 
         if extract_json_ld:
             jslde = JsonLdExtractor()
-            jslde_data = jslde.extract(html)
+            jslde_data = self.wrap_data("json-ld", jslde.extract(html_text))
             res.append(jslde_data)
 
         if extract_rdfa:
             rdfae = RDFaExtractor()
-            rdfae_data = rdfae.extract(html)
+            rdfae_data = self.wrap_data("rdfa", rdfae.extract(html_text))
             res.append(rdfae_data)
 
         """
@@ -75,18 +76,16 @@ class HTMLMetadataExtractor(Extractor):
         raise NotImplementedError
 
     @staticmethod
-    def wrap_meta_content(meta_tags: List[str]) -> str:
-        res, meta = {}, {}
-        for tag in meta_tags:
-            meta[tag.get("name")] = tag.get("content")
-
-        res["meta"] = meta
-        return res
+    def wrap_data(key: str, value: dict) -> dict:
+        return {key: value}
         raise NotImplementedError
 
     @staticmethod
-    def wrap_title_content(title_value: str = '') -> str:
-        return {'title': title_value}
-        raise NotImplementedError
+    def wrap_meta_content(meta_tags: List[str]) -> dict:
+        meta = {}
+        for tag in meta_tags:
+            meta[tag.get("name")] = tag.get("content")
 
+        return meta
+        raise NotImplementedError
 
