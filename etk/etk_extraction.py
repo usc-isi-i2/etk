@@ -143,14 +143,14 @@ class Extraction(Extractable):
         Returns:
 
         """
+        self._tag = tag
         fake_provenance = {
             "extractor_name": extractor_name,
             "confidence": confidence,
             "start_token": start_token,
             "end_token": end_token,
             "start_char": start_char,
-            "end_char": end_char,
-            "tag": tag
+            "end_char": end_char
         }
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
@@ -160,6 +160,9 @@ class Extraction(Extractable):
         self._value = value
         self._provenance = fake_provenance
 
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
     @property
     def value(self) -> Dict or str:
         """
@@ -167,9 +170,18 @@ class Extraction(Extractable):
         """
         return self._value
 
+    # @property
+    # def confidence(self) -> float:
+    #     """
+    #     Returns: the confidence of this extraction
+    #     """
+    #     return self._value["confidence"]
+
     @property
-    def confidence(self) -> float:
+    def tag(self) -> str:
         """
-        Returns: the confidence of this extraction
+
+        Returns: the tag associated with this Extraction.
+
         """
-        return self._value["confidence"]
+        return self._tag
