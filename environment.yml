@@ -56,5 +56,3 @@ dependencies:
     - urllib3==1.22
     - wcwidth==0.1.7
     - wrapt==1.10.11
-prefix: /Users/Sylvia/anaconda2/envs/etk2_env
-
