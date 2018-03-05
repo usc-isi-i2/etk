@@ -6,7 +6,8 @@ import abc
 import codecs
 import cgi
 import uuid
-from landmark_extractor.postprocessing.PostProcessor import RemoveExtraSpaces, RemoveHtml
+from etk.dependencies.landmark_extractor.postprocessing.PostProcessor import RemoveExtraSpaces, RemoveHtml
+# from landmark_extractor.postprocessing.PostProcessor import RemoveExtraSpaces, RemoveHtml
 from collections import OrderedDict
 
 MAX_EXTRACT_LENGTH=100000
