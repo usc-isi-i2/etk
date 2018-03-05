@@ -419,6 +419,8 @@ class Core(object):
                                                     run_readability = False
 
                                 elif extractor == _READABILITY:
+                                    if 'crawler' in doc and doc['crawler'] == 'Sage-LexisNexis-Crawler':
+                                        run_readability = False
                                     if run_readability:
                                         re_extractors = extractors[extractor]
                                         if isinstance(re_extractors, dict):
