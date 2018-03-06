@@ -92,7 +92,10 @@ class DateExtractor(Extractor):
         for date_str in self.extract_date_str(text):
             date = date_parser.parse_date(date_str['value'], settings)
             if date:
-                res.append(Extraction(date, self.name, start_char=date_str['start'], end_char=date_str['start']+len(date_str['value'])))
+                extracted_date = Extraction(str(date), self.name, start_char=date_str['start'], end_char=date_str['start']+len(date_str['value']))
+                # should be better if re-consider the construction of provenance:
+                extracted_date._provenance['original_date_str'] = date_str['value']
+                res.append(extracted_date)
         return res
 
     def extract_date_str(self, text: str) -> List[dict]:
@@ -137,3 +140,4 @@ class DateExtractor(Extractor):
                         same_start[start]['end'] = end
 
         return sorted(list(same_end.values()), key=lambda k: k['start'])
+

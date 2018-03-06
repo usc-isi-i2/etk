@@ -15,6 +15,7 @@ class TestDateExtractor(unittest.TestCase):
                     '2018-05-11T00:00:00',
                     '1994-04-29T00:00:00'
                     ]
+
         self.assertEqual(json.dumps(test_result), json.dumps(expected))
 
 

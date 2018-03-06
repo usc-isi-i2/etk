@@ -13,7 +13,7 @@ sample_html = json.load(codecs.open('../html_basic/sample_html.json', 'r')) # re
 etk = ETK()
 doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
 
-rule_set = InferlinkRuleSet.load_rules_file('sample_inferlink_rules.json')
+rule_set = InferlinkRuleSet.load_rules_file('../html_basic/sample_inferlink_rules.json')
 
 inferlink_extractor = InferlinkExtractor(InferlinkRuleSet(rule_set))
 
