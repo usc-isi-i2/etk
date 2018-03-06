@@ -57,19 +57,23 @@ class Toolkit:
                 r[i] = re.sub('\s+', ' ', r[i])
                 r[i] = r[i].strip()
 
+
 class EntityTableDataExtraction(Extractor):
     extractor_name = "DigEntityTableDataExtractor"
-    def __init__(self) -> None:
 
+    def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.OBJECT,
                            category="data",
                            name=EntityTableDataExtraction.extractor_name)
-        self.dicts = {}
+        self.glossaries = dict()
 
-    def wrap_value_with_context(self, value: dict, start: int=0, end: int=0) -> Extraction:
+    def add_glossary(self, glossary: List[str], attr_name: str):
+        self.glossaries[attr_name] = glossary
+
+    def wrap_value_with_context(self, value: dict, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
-        return Extraction(value, self.name, start_token=start, end_token=end, tag=)
+        return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
     def extract(self, table: dict) -> List[Extraction]:
         if table['features']['max_cols_in_a_row'] != 2 and table['features']['no_of_rows'] < 2:
@@ -79,25 +83,24 @@ class EntityTableDataExtraction(Extractor):
             if len(row['cells']) != 2:
                 continue
             text = [row['cells'][0]['text'], row['cells'][1]['text']]
-            for field_name in self.dicts.keys():
-                if self.matches_cell(text[0], self.dicts[field_name]):
-                    results.append(self.wrap_value_with_context(text[1]))
-                if self.matches_cell(text[1], self.dicts[field_name]):
-                    results.append(self.wrap_value_with_context(text[0]))
+            for field_name in self.glossaries.keys():
+                if self.cell_matches_dict(text[0], self.glossaries[field_name]):
+                    results.append(self.wrap_value_with_context(text[1], field_name))
+                if self.cell_matches_dict(text[1], self.glossaries[field_name]):
+                    results.append(self.wrap_value_with_context(text[0], field_name))
         return results
 
-    def cell_matches_dict(self, cell_text, dict):
-        if any([self.cell_matches_text(cell_text, x) for x in dict])
+    def cell_matches_dict(self, cell_text: str, glossary: List[str]):
+        if any([self.cell_matches_text(cell_text, x) for x in glossary]):
             return True
         return False
 
-    def cell_matches_text(self, cell_text, text):
+    def cell_matches_text(self, cell_text: str, text: str):
         cell_text = cell_text.lower()
         text = text.lower()
         if text in cell_text and float(len(cell_text))/float(len(text)) < 1.5:
             return True
         return False
-
 
 
 class TableExtraction:
@@ -300,7 +303,7 @@ class TableExtraction:
                                 col_data['c_{0}'.format(d_index)].append(col_content)
                             d_index += 1
 
-                    for key, value in col_data.iteritems():
+                    for key, value in col_data.items():
                         whole_col = ' '.join(value)
                         # avg_cell_len += float("%.2f" % mean([len(x) for x in value]))
                         avg_col_len += sum([len(x) for x in value])
@@ -414,13 +417,12 @@ class TableExtractor(Extractor):
                            category="content",
                            name=TableExtractor.extractor_name)
 
-
-    def wrap_value_with_context(self, value: dict, start: int, end: int) -> Extraction:
+    def wrap_value_with_context(self, value: dict, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
-        return Extraction(value, self.name, start_token=start, end_token=end)
+        return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
     def extract(self, html: str) -> List[Extraction]:
         results = list()
         temp_res = TableExtractor.tableExtractorInstance.extract(html)
-        results.extend(map(lambda t: self.wrap_value_with_context(t, 0, 0), temp_res['tables']))
+        results.extend(map(lambda t: self.wrap_value_with_context(t, "tables"), temp_res['tables']))
         return results
