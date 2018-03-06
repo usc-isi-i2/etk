@@ -24,7 +24,6 @@ class GlossaryExtractor(Extractor):
         self.default_tokenizer = tokenizer
         self.joiner = " "
         self.glossary = self.populate_trie(glossary)
-        self._category = "glossary"
 
     def extract(self, tokens: List[Token]) -> List[Extraction]:
         """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""
