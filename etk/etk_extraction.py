@@ -126,12 +126,13 @@ class Extraction(Extractable):
 
     def __init__(self,
                  value,
-                 extractor_name,
+                 extractor_name: str,
                  confidence=1.0,
                  start_token=None,
                  end_token=None,
                  start_char=None,
-                 end_char=None):
+                 end_char=None,
+                 tag=None):
         Extractable.__init__(self)
         """
 
@@ -142,6 +143,7 @@ class Extraction(Extractable):
         Returns:
 
         """
+        self._tag = tag
         fake_provenance = {
             "extractor_name": extractor_name,
             "confidence": confidence,
@@ -158,6 +160,9 @@ class Extraction(Extractable):
         self._value = value
         self._provenance = fake_provenance
 
+    def __str__(self):
+        return str(self.__class__) + ": " + str(self.__dict__)
+
     @property
     def value(self) -> Dict or str:
         """
@@ -165,9 +170,18 @@ class Extraction(Extractable):
         """
         return self._value
 
+    # @property
+    # def confidence(self) -> float:
+    #     """
+    #     Returns: the confidence of this extraction
+    #     """
+    #     return self._value["confidence"]
+
     @property
-    def confidence(self) -> float:
+    def tag(self) -> str:
         """
-        Returns: the confidence of this extraction
+
+        Returns: the tag associated with this Extraction.
+
         """
-        return self._value["confidence"]
+        return self._tag
