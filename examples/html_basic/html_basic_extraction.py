@@ -26,6 +26,6 @@ root.store_extractions(doc.invoke_extractor(content_extractor, strategy=Strategy
 root.store_extractions(doc.invoke_extractor(metadata_extractor), "etk2_metadata")
 
 for e in doc.invoke_extractor(landmark_extractor):
-    root.store_extractions(e, e.tag)
+    root.store_extractions([e], e.tag)
 
 print(json.dumps(doc.cdr_document, indent=2))
