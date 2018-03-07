@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 import json
 import re
+from enum import Enum, auto
 
 class Toolkit:
     # def __init__(self):
@@ -68,7 +69,12 @@ class EntityTableDataExtraction(Extractor):
                            name=EntityTableDataExtraction.extractor_name)
         self.glossaries = dict()
 
-    def add_glossary(self, glossary: List[str], attr_name: str):
+    def add_glossary(self, glossary: List[str], attr_name: str) -> None:
+        """
+        Adds a glossary for the given attribute name
+        :param glossary: a list of possible mentions of the attribute name
+        :param attr_name: the attribute name (field name)
+        """
         self.glossaries[attr_name] = glossary
 
     def wrap_value_with_context(self, value: dict, field_name: str, start: int=0, end: int=0) -> Extraction:
@@ -76,6 +82,10 @@ class EntityTableDataExtraction(Extractor):
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
     def extract(self, table: dict) -> List[Extraction]:
+        """
+        :param table: a table extracted by table extractor, as a json object
+        :return: list of all extractions from the input table
+        """
         if table['features']['max_cols_in_a_row'] != 2 and table['features']['no_of_rows'] < 2:
             return []
         results = list()
@@ -90,12 +100,12 @@ class EntityTableDataExtraction(Extractor):
                     results.append(self.wrap_value_with_context(text[0], field_name))
         return results
 
-    def cell_matches_dict(self, cell_text: str, glossary: List[str]):
+    def cell_matches_dict(self, cell_text: str, glossary: List[str]) -> bool:
         if any([self.cell_matches_text(cell_text, x) for x in glossary]):
             return True
         return False
 
-    def cell_matches_text(self, cell_text: str, text: str):
+    def cell_matches_text(self, cell_text: str, text: str) -> bool:
         cell_text = cell_text.lower()
         text = text.lower()
         if text in cell_text and float(len(cell_text))/float(len(text)) < 1.5:
@@ -404,25 +414,35 @@ class TableExtraction:
     def text_from_html(self, soup):
         texts = soup.findAll(text=True)
         visible_texts = filter(self.tag_visible, texts)
-        return u" ".join(t.strip() for t in visible_texts)
+        # print([x.strip() for x in visible_texts])
+        # exit(0)
+        return u" ".join(t.strip() for t in visible_texts if t.strip() != "")
 
 
 class TableExtractor(Extractor):
     extractor_name = "DigTableExtractor"
     tableExtractorInstance = TableExtraction()
-    def __init__(self) -> None:
 
+    def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="content",
                            name=TableExtractor.extractor_name)
 
-    def wrap_value_with_context(self, value: dict, field_name: str, start: int=0, end: int=0) -> Extraction:
+    def wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
-    def extract(self, html: str) -> List[Extraction]:
+    def extract(self, html: str, return_text: bool=False) -> List[Extraction]:
+        """
+            :param html: raw html of the page
+            :param return_text: if True, return the visible text in the page
+                                removing all the data tables
+            :return: a list of Extractions
+        """
         results = list()
         temp_res = TableExtractor.tableExtractorInstance.extract(html)
+        if return_text:
+            results.append(self.wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
         results.extend(map(lambda t: self.wrap_value_with_context(t, "tables"), temp_res['tables']))
         return results
