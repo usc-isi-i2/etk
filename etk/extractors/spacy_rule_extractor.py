@@ -261,6 +261,8 @@ class Pattern(object):
             s = ''
             for i in range(num_break):
                 s += '\n'
+            this_token = {attrs.LOWER: s}
+            result.append(this_token)
             s += ' '
             this_token = {attrs.LOWER: s}
             result.append(this_token)
