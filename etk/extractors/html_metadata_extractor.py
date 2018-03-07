@@ -23,15 +23,29 @@ class HTMLMetadataExtractor(Extractor):
                            category="HTML extractor",
                            name="HTML metadata extractor")
 
+        """
+
+        Args:
+            html_text ():
+            extract_title (): extract the <title> tag from the HTML page, return as { "title": "..." }
+            extract_meta (): extract the meta tags, return as { "meta": { "author": "...", ...}}
+            extract_microdata (): extract microdata, returns as { "microdata": [...] }
+            extract_json_ld (): extract JSON-LD, return as { "json-ld": [...] }
+            extract_rdfa (): extract rdfa, returns as { "rdfa": [...] }
+
+        Returns: a singleton list containing a dict with each type of metadata.
+
+        """
+        
     def extract(self, html_text: str,
                 extract_title: bool = False,
                 extract_meta: bool = False,
                 extract_microdata: bool = False,
                 extract_json_ld: bool = False,
                 extract_rdfa: bool = False) \
-            -> List[dict]:
+            -> List[Extraction]:
 
-        res = []
+        res = list()
         soup = BeautifulSoup(html_text, 'html.parser')
 
         if extract_title:
@@ -58,26 +72,12 @@ class HTMLMetadataExtractor(Extractor):
             rdfae_data = self.wrap_data("rdfa", rdfae.extract(html_text))
             res.append(rdfae_data)
 
-        """
-
-        Args:
-            html_text ():
-            extract_title (): extract the <title> tag from the HTML page, return as { "title": "..." }
-            extract_meta (): extract the meta tags, return as { "meta": { "author": "...", ...}}
-            extract_microdata (): extract microdata, returns as { "microdata": [...] }
-            extract_json_ld (): extract JSON-LD, return as { "json-ld": [...] }
-            extract_rdfa (): extract rdfa, returns as { "rdfa": [...] }
-
-        Returns: a singleton list containing a dict with each type of metadata.
-
-        """
-        
         return res
         raise NotImplementedError
 
-    @staticmethod
-    def wrap_data(key: str, value: dict) -> dict:
-        return {key: value}
+    def wrap_data(self, key: str, value) -> Extraction:
+        e = Extraction(value = value, extractor_name = self.name, tag = key)
+        return e
         raise NotImplementedError
 
     @staticmethod
