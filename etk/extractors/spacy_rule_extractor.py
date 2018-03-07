@@ -108,11 +108,11 @@ class SpacyRuleExtractor(Extractor):
         #     print(i.pos_)
         #     print(i.shape_)
         self.load_matcher()
-        print(self.matcher(doc))
+        """TODO: add callback function to filter custom constrains"""
         for idx, start, end in self.matcher(doc):
             print(idx, doc[start:end])
 
-    def load_matcher(self):
+    def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
             pattern_flat_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
             for element in itertools.product(*pattern_flat_lst):
@@ -125,7 +125,7 @@ class Pattern(object):
     """For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,
     which can be used with rule-based matching: https://spacy.io/usage/linguistic-features#section-rule-based-matching
     Some are custom attributes, need to apply further filtering after we get matches"""
-    def __init__(self, d: Dict, nlp):
+    def __init__(self, d: Dict, nlp) -> None:
         self.type = d["type"]
         self.in_output = False if d["is_in_output"] == "false" else True
         self.max = d["maximum"]
@@ -145,7 +145,7 @@ class Pattern(object):
         elif self.type == "linebreak":
             self.spacy_token_lst = self.construct_linebreak_token(d)
 
-    def construct_word_token(self, d, nlp):
+    def construct_word_token(self, d: Dict, nlp) -> List[Dict]:
         result = []
         if len(d["token"]) == 1:
             if d["match_all_forms"] == "true":
@@ -193,7 +193,7 @@ class Pattern(object):
 
         return result
 
-    def construct_shape_token(self, d):
+    def construct_shape_token(self, d: Dict) -> List[Dict]:
         result = []
         if not d["shapes"]:
             this_token = {attrs.IS_ASCII: True}
@@ -210,7 +210,7 @@ class Pattern(object):
 
         return result
 
-    def construct_number_token(self, d, nlp) -> List[Dict]:
+    def construct_number_token(self, d: Dict, nlp) -> List[Dict]:
         result = []
         if not d["numbers"]:
             this_token = {attrs.IS_DIGIT: True}
@@ -252,6 +252,20 @@ class Pattern(object):
             FLAG_ID += 1
         result.append(this_token)
         result = self.add_common_constrain(result, d)
+        return result
+
+    def construct_linebreak_token(self, d):
+        result = []
+        num_break = int(d["length"][0]) if d["length"] else 1
+        if num_break:
+            s = ''
+            for i in range(num_break):
+                s += '\n'
+            s += ' '
+            this_token = {attrs.LOWER: s}
+            result.append(this_token)
+        result = self.add_common_constrain(result, d)
+
         return result
 
     @staticmethod
@@ -311,11 +325,7 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def construct_linebreak_token(d):
-        pass
-
-    @staticmethod
-    def generate_shape(word, count):
+    def generate_shape(word: str, count: List) -> str:
         shape = ""
         p = 0
         for c in count:
@@ -328,7 +338,7 @@ class Pattern(object):
         return shape
 
     @staticmethod
-    def counting_stars(word):
+    def counting_stars(word: str) -> List[int]:
         count = [1]
         for i in range(1, len(word)):
             if word[i - 1] == word[i]:
