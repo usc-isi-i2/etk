@@ -3,7 +3,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
 from etk.etk import ETK
-from etk.document import Document
 from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
 
 
@@ -17,7 +16,8 @@ rule_set = InferlinkRuleSet.load_rules_file('../html_basic/sample_inferlink_rule
 
 inferlink_extractor = InferlinkExtractor(InferlinkRuleSet(rule_set))
 
-extractions = doc.invoke_extractor(inferlink_extractor)
+raw = doc.select_segments("$.raw_content")[0]
+extractions = doc.invoke_extractor(inferlink_extractor, raw)
 
 # create a an empty dict in the cdr document to hold the inferlink extractions
 doc.cdr_document["my_location_for_inferlink"] = {}
