@@ -29,18 +29,23 @@ etk = ETK()
 doc = etk.create_document(sample_input)
 
 bae = BitcpinAddressExtractor()
-che = CryptographicHashExtractor()
 ce = CVEExtractor()
 he = HostnameExtractor()
 iae = IPAddressExtractor()
 ue = URLExtractor(True)
 
-e_list = [bae, che, ce, he, iae, ue]
+e_list = [bae, ce, he, iae, ue]
 segment = doc.select_segments("target_text")[0]
 target = doc.select_segments("$")[0]
 for e in e_list:
     res = doc.invoke_extractor(e, segment)
     target.store_extractions(res, e.name)
 
+che = CryptographicHashExtractor()
+extractions = doc.invoke_extractor(che, segment)
+doc.cdr_document["my_cryptographic_extractions"] = {}
+target = doc.select_segments("$.my_cryptographic_extractions")[0]
+for e in extractions:
+    target.store_extractions([e], e.tag)
 
 print(json.dumps(sample_input, indent=2))

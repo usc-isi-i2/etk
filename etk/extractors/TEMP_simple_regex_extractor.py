@@ -16,7 +16,7 @@ import re
 
 class SimpleRegexExtractor(Extractor):
 
-    def __init__(self, pattern: re.compile, name: str):
+    def __init__(self, pattern: re.compile or List[dict], name: str):
 
         """
         Args:
@@ -45,11 +45,20 @@ class SimpleRegexExtractor(Extractor):
         try:
             res = list()
             if text:
-                iterator = self.pattern.finditer(text)
-                if iterator:
-                    for ele in iterator:
-                        res.append(Extraction(ele.group(), extractor_name=self.name,
-                                              start_char=ele.span()[0], end_char=ele.span()[1]))
+                if type(self.pattern) is list:
+                    for p in self.pattern:
+                        tag = p['tag']
+                        iterator = p['pattern'].finditer(text)
+                        if iterator:
+                            for ele in iterator:
+                                res.append(Extraction(ele.group(), extractor_name=self.name,
+                                                      start_char=ele.span()[0], end_char=ele.span()[1], tag=tag))
+                else:
+                    iterator = self.pattern.finditer(text)
+                    if iterator:
+                        for ele in iterator:
+                            res.append(Extraction(ele.group(), extractor_name=self.name,
+                                                  start_char=ele.span()[0], end_char=ele.span()[1]))
             return res
         except Exception as e:
             print('Error in extracting through regex %s' % e)
