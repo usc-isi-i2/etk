@@ -108,22 +108,24 @@ class SpacyRuleExtractor(Extractor):
         #     print(i.pos_)
         #     print(i.shape_)
         self.load_matcher()
-        print(self.matcher(doc))
+        """TODO: add callback function to filter custom constrains"""
         for idx, start, end in self.matcher(doc):
             print(idx, doc[start:end])
 
-    def load_matcher(self):
+    def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
             pattern_flat_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
             for element in itertools.product(*pattern_flat_lst):
-                self.matcher.add(idx, None, list(element))
+                x = list(element)
+                print(x)
+                self.matcher.add(idx, None, x)
 
 
 class Pattern(object):
     """For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,
     which can be used with rule-based matching: https://spacy.io/usage/linguistic-features#section-rule-based-matching
     Some are custom attributes, need to apply further filtering after we get matches"""
-    def __init__(self, d: Dict, nlp):
+    def __init__(self, d: Dict, nlp) -> None:
         self.type = d["type"]
         self.in_output = False if d["is_in_output"] == "false" else True
         self.max = d["maximum"]
@@ -143,12 +145,55 @@ class Pattern(object):
         elif self.type == "linebreak":
             self.spacy_token_lst = self.construct_linebreak_token(d)
 
-    @staticmethod
-    def construct_word_token(d, nlp):
-        "TODO"
-        pass
+    def construct_word_token(self, d: Dict, nlp) -> List[Dict]:
+        result = []
+        if len(d["token"]) == 1:
+            if d["match_all_forms"] == "true":
+                this_token = {attrs.LEMMA: nlp(d["token"][0])[0].lemma_}
+            else:
+                this_token = {attrs.LOWER: d["token"][0].lower()}
+            result.append(this_token)
+            if d["capitalization"]:
+                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
-    def construct_shape_token(self, d):
+        elif not d["token"]:
+            if d["contain_digit"] == "true":
+                this_token = {attrs.IS_ASCII: True, attrs.IS_PUNCT: False}
+            else:
+                this_token = {attrs.IS_ALPHA: True}
+            if d["is_out_of_vocabulary"] == "true" and d["is_in_vocabulary"] != "true":
+                this_token[attrs.IS_OOV] = True
+            elif d["is_out_of_vocabulary"] != "true" and d["is_in_vocabulary"] == "true":
+                this_token[attrs.IS_OOV] = False
+            result.append(this_token)
+            if d["length"]:
+                result = self.add_length_constrain(result, d["length"])
+
+        else:
+            if d["match_all_forms"] == "false":
+                global FLAG_ID
+                token_set = set(d["token"])
+
+                def is_selected_token(x):
+                    return x in token_set
+
+                FLAG_DICT[FLAG_ID] = nlp.vocab.add_flag(is_selected_token)
+                this_token = {FLAG_DICT[FLAG_ID]: True}
+                FLAG_ID += 1
+                result.append(this_token)
+
+            else:
+                token_set = [nlp(x)[0].lemma_ for x in set(d["token"])]
+                for a_lemma in token_set:
+                    this_token = {attrs.LEMMA: a_lemma}
+                    result.append(this_token)
+
+            if d["capitalization"]:
+                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+
+        return result
+
+    def construct_shape_token(self, d: Dict) -> List[Dict]:
         result = []
         if not d["shapes"]:
             this_token = {attrs.IS_ASCII: True}
@@ -165,7 +210,7 @@ class Pattern(object):
 
         return result
 
-    def construct_number_token(self, d, nlp) -> List[Dict]:
+    def construct_number_token(self, d: Dict, nlp) -> List[Dict]:
         result = []
         if not d["numbers"]:
             this_token = {attrs.IS_DIGIT: True}
@@ -209,6 +254,20 @@ class Pattern(object):
         result = self.add_common_constrain(result, d)
         return result
 
+    def construct_linebreak_token(self, d):
+        result = []
+        num_break = int(d["length"][0]) if d["length"] else 1
+        if num_break:
+            s = ''
+            for i in range(num_break):
+                s += '\n'
+            s += ' '
+            this_token = {attrs.LOWER: s}
+            result.append(this_token)
+        result = self.add_common_constrain(result, d)
+
+        return result
+
     @staticmethod
     def add_common_constrain(token_lst: List[Dict], d: Dict) -> List[Dict]:
         result = []
@@ -237,11 +296,36 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def construct_linebreak_token(d):
-        pass
+    def add_capitalization_constrain(token_lst: List[Dict], capi_lst: List, word_lst: List) -> List[Dict]:
+        result = []
+        for a_token in token_lst:
+            if "exact" in capi_lst and word_lst != []:
+                for word in word_lst:
+                    token = copy.deepcopy(a_token)
+                    token[attrs.ORTH] = word
+                    result.append(token)
+            if "lower" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_LOWER] = True
+                result.append(token)
+            if "upper" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_UPPER] = True
+                result.append(token)
+            if "title" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_TITLE] = True
+                result.append(token)
+            if "mixed" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_UPPER] = False
+                token[attrs.IS_LOWER] = False
+                token[attrs.IS_TITLE] = False
+                result.append(token)
+        return result
 
     @staticmethod
-    def generate_shape(word, count):
+    def generate_shape(word: str, count: List) -> str:
         shape = ""
         p = 0
         for c in count:
@@ -254,7 +338,7 @@ class Pattern(object):
         return shape
 
     @staticmethod
-    def counting_stars(word):
+    def counting_stars(word: str) -> List[int]:
         count = [1]
         for i in range(1, len(word)):
             if word[i - 1] == word[i]:
