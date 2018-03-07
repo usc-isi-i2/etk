@@ -2030,7 +2030,7 @@ class Core(object):
         return d
 
     @staticmethod
-    def parse_date(d, config=None, field_name=None):
+    def parse_date(d, config=None, field_name=None, strict_parsing=True):
         ignore_past_years = config['ignore_past_years'] if config and 'ignore_past_years' in config else 20
         ignore_future_dates = config['ignore_future_dates'] if config and 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
@@ -2039,7 +2039,7 @@ class Core(object):
             try:
                 return date_parser.convert_to_iso_format(
                     date_parser.parse_date(d[_TEXT], ignore_future_dates=ignore_future_dates,
-                                           ignore_past_years=ignore_past_years))
+                                           ignore_past_years=ignore_past_years, strict_parsing=strict_parsing))
             except:
                 return None
 
@@ -2061,7 +2061,7 @@ class Core(object):
         except:
             return None
 
-        result = Core.parse_date(d, config=config)
+        result = Core.parse_date(d, config=config, strict_parsing=False)
 
         return result
 
