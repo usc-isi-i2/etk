@@ -78,15 +78,15 @@ class Document(Extractable):
         if extractor.input_type == InputType.TOKENS:
             tokens = extractable.get_tokens(tokenizer)
             if tokens:
-                extracted_results = extractor.extract(tokens)
+                extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
             text = extractable.get_string(joiner)
             if text:
-                extracted_results = extractor.extract(text)
+                extracted_results = extractor.extract(text, **options)
 
         elif extractor.input_type == InputType.OBJECT:
-            extracted_results = extractor.extract(extractable.value)
+            extracted_results = extractor.extract(extractable.value, **options)
 
         elif extractor.input_type == InputType.HTML:
             extracted_results = extractor.extract(extractable.value['raw_content'], **options)
