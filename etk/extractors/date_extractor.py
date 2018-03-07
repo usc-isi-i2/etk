@@ -15,6 +15,7 @@ class DateParser(object):
         self.ignore_past_years = ignore_past_years
 
     def parse_date(self, str_date: str, settings: dict=None) -> datetime.datetime or None:
+        # TODO: May not need to use dateparser, as the date str is already recognized when extract from text
         """
 
         Args:

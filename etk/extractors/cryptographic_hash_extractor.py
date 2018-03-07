@@ -3,6 +3,7 @@ from etk.extractors.TEMP_simple_regex_extractor import SimpleRegexExtractor
 
 
 class CryptographicHashExtractor(SimpleRegexExtractor):
+    # TODO: It will be better if can record the type of the hash value
     def __init__(self):
         md5 = r"\b[a-fA-F\d]{32}\b"
         sha1 = r"\b[0-9a-f]{5,40}\b"
