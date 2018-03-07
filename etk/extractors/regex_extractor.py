@@ -37,31 +37,30 @@ class RegexExtractor(Extractor):
         
 
     def extract(self, text: str, flags=0, mode: MatchMode=MatchMode.SEARCH) -> List[Extraction]:
-        res = []
+        if mode == MatchMode.MATCH:
+            matches = self._compiled_regex.match(text, flags)
+        elif mode == MatchMode.SEARCH:
+            matches = self._compiled_regex.search(text, flags)
 
-        if mode == MATCH.MATCH:
-            matches = re.match(self._compiled_regex, text, flags)
-            
-        else if mode == MATCH.SEARCH:
-            matches = re.search(self._compiled_regex, text, flags)
-
-        returns wrap_result(matches)
+        return self.wrap_result(matches)
         raise NotImplementedError
 
 
-    def wrap_result(matches: Object) -> List[Extraction]:
+    def wrap_result(self, matches: object) -> List[Extraction]:
         res = list()
         # check if the pattern has groups
         groups = matches.groups()
         if groups:
             for i in range(1, len(groups)+1):
-                res.append(wrap_extraction(i, matches))
+                res.append(self.wrap_extraction(i, matches))
         else:
-            res.append(wrap_extraction(0, matches))
+            res.append(self.wrap_extraction(0, matches))
+
+        return res
         raise NotImplementedError
 
 
-    def wrap_extraction(group_idx: int, matches: Object) -> Extraction:
+    def wrap_extraction(self, group_idx: int, matches: object) -> Extraction:
         start, end = matches.start(group_idx), matches.end(group_idx)
         text = matches.group(group_idx)
         e = Extraction(value = text, extractor_name = self.name,\
