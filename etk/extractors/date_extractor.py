@@ -100,10 +100,15 @@ class DateExtractor(Extractor):
         return res
 
     def extract_date_str(self, text: str) -> List[dict]:
+        """
+        TODO: To extract the date str, by apply the regex here, actually we have already known which is \
+            Month, Date and Year. So I think the date str can be converted to iso date directly.
+            The dateparser module is not so necessary if we have to extract date str from a long text first.
+        """
         """ extract sub-strings in the text that is possible to be a date """
-        mdy = re.compile("((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))", re.I)
-        dmy = re.compile("((?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))", re.I)
-        ymd = re.compile("((?:(?:[12][0-9])?\d{2})[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?))", re.I)
+        mdy = re.compile(r"\b((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))\b", re.I)
+        dmy = re.compile(r"\b((?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))\b", re.I)
+        ymd = re.compile(r"\b((?:(?:[12][0-9])?\d{2})[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?))\b", re.I)
         return self.union_results([mdy.finditer(text), dmy.finditer(text), ymd.finditer(text)])
 
     def union_results(self, results: List[iter]) -> List[dict]:
