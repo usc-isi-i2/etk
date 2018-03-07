@@ -94,8 +94,6 @@ class Tokenizer(object):
 
 
         """To Do: 
-            is_integer(boolean), 
-            is_float(boolean), 
             is_linkbreak(\n) (boolean), 
             is_month(boolean), 
             is_mixed(eg.xXxX) (boolean), 
