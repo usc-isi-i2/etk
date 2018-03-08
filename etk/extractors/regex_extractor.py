@@ -3,10 +3,13 @@ from enum import Enum, auto
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
 import re
+import collections
 
 class MatchMode(Enum):
     MATCH = auto(),
-    SEARCH = auto()
+    SEARCH = auto(),
+    FINDALL = auto(),
+    SPLIT = auto()
 
 class RegexExtractor(Extractor):
     """
@@ -21,7 +24,15 @@ class RegexExtractor(Extractor):
                            input_type=InputType.TEXT,
                            category="regex",
                            name=extractor_name)
+
         self._compiled_regex = re.compile(pattern, flags)
+
+        self._match_functions = {
+            MatchMode.MATCH: self._compiled_regex.match,
+            MatchMode.SEARCH: self._compiled_regex.search,
+            MatchMode.FINDALL: self._compiled_regex.finditer,
+            MatchMode.SPLIT: self._compiled_regex.split
+        }
 
         """
         Extracts information from a text using the given regex.
@@ -34,30 +45,54 @@ class RegexExtractor(Extractor):
             mode (): whether to use re.search() or re.match().
         Returns: the List(Extraction) or the empty list if there are no matches.
         """
-        
-
-    def extract(self, text: str, flags=0, mode: MatchMode=MatchMode.SEARCH) -> List[Extraction]:
-        if mode == MatchMode.MATCH:
-            matches = self._compiled_regex.match(text, flags)
-        elif mode == MatchMode.SEARCH:
-            matches = self._compiled_regex.search(text, flags)
-
+    def extract(self, text: str, flags=0, mode: MatchMode=MatchMode.FINDALL) -> List[Extraction]:
+        match_func = self._match_functions[mode]
+        matches = match_func(text,flags)
         return self.wrap_result(matches)
         raise NotImplementedError
 
 
+    # wrap the re return object to list of extraction  
     def wrap_result(self, matches: object) -> List[Extraction]:
         res = list()
-        # check if the pattern has groups
-        groups = matches.groups()
-        if groups:
-            for i in range(1, len(groups)+1):
-                res.append(self.wrap_extraction(i, matches))
+        # matches are result of split()
+        if isinstance(matches, list):
+            return self.wrap_split_extraction(matches)
+        
+        # matches are result of finditer()
+        elif isinstance(matches, collections.Iterable):
+            for match in matches:
+                print(type(match))
+                # each match return a list
+                es = self.wrap_result(match)
+                # flatten the list of list
+                res.extend(es)
+        
+        # single match
         else:
-            res.append(self.wrap_extraction(0, matches))
+            # check if the pattern has groups
+            groups = matches.groups()
+            if groups:
+                for i in range(1, len(groups)+1):
+                    res.append(self.wrap_extraction(i, matches))
+            else:
+                res.append(self.wrap_extraction(0, matches))
 
         return res
         raise NotImplementedError
+
+
+    def wrap_split_extraction(self, items: List[str]) -> List[Extraction]:
+        res = list()
+        start = 0
+        for item in items:
+            end = start+len(item)
+            e = Extraction(value = item, extractor_name = self.name,\
+                start_char = start, end_char = end)
+            res.append(e)
+            start = end
+
+        return res
 
 
     def wrap_extraction(self, group_idx: int, matches: object) -> Extraction:
