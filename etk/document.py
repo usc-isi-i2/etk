@@ -46,7 +46,7 @@ class Document(Extractable):
         matches = path.find(self.cdr_document)
         segments = []
         for a_match in matches:
-            this_segment = Segment(str(a_match.full_path), a_match.value)
+            this_segment = Segment(str(a_match.full_path), a_match.value, self)
             segments.append(this_segment)
 
         return segments
