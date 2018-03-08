@@ -1,39 +1,38 @@
 import unittest
 import json
 from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
-from pprint import pprint
-import requests
+
 
 class TestMetadataExtractor(unittest.TestCase):
-
+# value of title extraction is a string
     def test_title_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html.jl', 'r') as f:
             sample_html = json.load(f)
         test_html = sample_html["raw_content"]
 
-        title_text = hme.extract(test_html, extract_title = True)[0]
-        expected_title = {'title':"323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23"}
-        self.assertDictEqual(title_text, expected_title)
+        title_text = hme.extract(test_html, extract_title = True)[0].value
+        expected_title = "323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23"
+        self.assertEqual(title_text, expected_title)
 
-
+# value of mate extraction is a dict
     def test_meta_tag_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html.jl', 'r') as f:
             sample_html = json.load(f)
         test_html = sample_html["raw_content"]
 
-        meta_tag_dic = hme.extract(test_html, extract_meta = True)[0]
+        meta_tag_dic = hme.extract(test_html, extract_meta = True)[0].value
         expected_dic = {
-            'meta':{
                 'description': "323-452-2013 Escort listings. View all of her listings at once. On this page you will see a history for 323-452-2013 and all of the escort ads placed with this phone number. Specifically in losangeles: 323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23",
                 'netinsert': "0.0.1.13.13.1",
                 'keywords': "323-452-2013, escort listing, escort ad, escorts in Los angeles, 323-452-2013 in Los angeles, escorts in losangeles, call 323-452-2013, phone number 323-452-2013, craigslist escorts, backpage escorts, listings"
             }
-        }
 
         self.assertDictEqual(meta_tag_dic, expected_dic)
 
+
+# value of microdata extraction is a list
     def test_microdata_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         test_html = """<!DOCTYPE HTML>
@@ -59,27 +58,26 @@ class TestMetadataExtractor(unittest.TestCase):
                     ...  </body>
                     ... </html>"""
 
-        microdata = hme.extract(test_html, extract_microdata = True)[0]
-        expected_microdata = {'microdata': [{'properties': {'license': 'http://www.opensource.org/licenses/mit-license.php',
+        microdata = hme.extract(test_html, extract_microdata = True)[0].value
+        expected_microdata = [{'properties': {'license': 'http://www.opensource.org/licenses/mit-license.php',
                                              'title': 'The house I found.',
                                              'work': 'http://www.example.com/images/house.jpeg'},
                                             'type': 'http://n.whatwg.org/work'},
                                             {'properties': {'license': 'http://www.opensource.org/licenses/mit-license.php',
                                              'title': 'The mailbox.',
                                              'work': 'http://www.example.com/images/mailbox.jpeg'},
-                                            'type': 'http://n.whatwg.org/work'}]}
-        self.assertDictEqual(microdata, expected_microdata)
+                                            'type': 'http://n.whatwg.org/work'}]
+        self.assertEqual(microdata, expected_microdata)
 
-
+# value of microdata extraction is list
     def test_json_ld_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html_for_json_ld.html', 'r') as f:
           test_html = f.read()
         
-        json_ld_data = hme.extract(test_html, extract_json_ld = True)[0]
+        json_ld_data = hme.extract(test_html, extract_json_ld = True)[0].value
 
-        expected_ld_data = {
-            'json-ld': [{'@context': 'http://schema.org',
+        expected_ld_data = [{'@context': 'http://schema.org',
                           '@type': 'MusicEvent',
                           'location': {'@type': 'Place',
                                        'address': {'@type': 'PostalAddress',
@@ -153,10 +151,9 @@ class TestMetadataExtractor(unittest.TestCase):
                           'logo': 'https://images.sk-static.com/images/media/profile_images/artists/236156/card_avatar',
                           'name': 'Elysian Fields',
                           'url': 'https://www.songkick.com/artists/236156-elysian-fields?utm_medium=organic&utm_source=microformat'}]
-                    }
-        self.assertDictEqual(json_ld_data, expected_ld_data)
+        self.assertEqual(json_ld_data, expected_ld_data)
 
-
+# value of microdata extraction is a list
     def test_rdfa_extrator(self) -> None:
         hme = HTMLMetadataExtractor()
         test_html = """<html>
@@ -175,14 +172,14 @@ class TestMetadataExtractor(unittest.TestCase):
                     ... </html>
                     ... """
 
-        rdfa_data = hme.extract(test_html, extract_rdfa = True)[0]
-        expected_rdfa_data = {'rdfa': [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob', 
+        rdfa_data = hme.extract(test_html, extract_rdfa = True)[0].value
+        expected_rdfa_data = [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob', 
                                         '@type': ['http://schema.org/BlogPosting'], 
                                         'http://purl.org/dc/terms/creator': [{'@id': 'http://www.example.com/#me'}], 
                                         'http://purl.org/dc/terms/title': [{'@value': 'The trouble with Bob'}], 
                                         'http://schema.org/articleBody': [{'@value': '\n                    ...         The trouble with Bob is that he takes much better photos than I do:\n                    ...       '}],
-                                        'http://schema.org/creator': [{'@id': 'http://www.example.com/#me'}]}]}
-        self.assertDictEqual(rdfa_data, expected_rdfa_data)
+                                        'http://schema.org/creator': [{'@id': 'http://www.example.com/#me'}]}]
+        self.assertEqual(rdfa_data, expected_rdfa_data)
 
 if __name__ == '__main__':
     unittest.main()
