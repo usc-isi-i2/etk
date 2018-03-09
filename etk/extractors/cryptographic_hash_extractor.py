@@ -3,6 +3,7 @@ from etk.extractor import Extractor, InputType
 from typing import List
 from etk.etk_extraction import Extraction
 
+
 class CryptographicHashExtractor(Extractor):
     def __init__(self):
         e_name = 'cryptographic hash extractor'
