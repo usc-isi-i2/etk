@@ -87,6 +87,16 @@ class SpacyRuleExtractor(Extractor):
                  nlp,
                  rules: Dict,
                  extractor_name: str) -> None:
+        """
+        Initialize the extractor, storing the rule information and construct spacy rules
+        Args:
+            nlp
+            rules: Dict
+            extractor_name: str
+
+        Returns:
+        """
+
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="spacy_rule_extractor",
@@ -102,28 +112,50 @@ class SpacyRuleExtractor(Extractor):
             self.rule_lst.append(this_rule)
 
     def extract(self, text: str) -> List[Extraction]:
+        """
+        Extract from text
+        Args:
+            text: str
+
+        Returns: List[Extraction]
+        """
         doc = self.tokenizer.tokenize_to_spacy_doc(text)
-        # for i in doc:
-        #     print(i.orth_)
-        #     print(i.pos_)
-        #     print(i.shape_)
         self.load_matcher()
-        print(self.matcher(doc))
+        """TODO: add callback function to filter custom constrains
+        1. Prefix, suffix
+        2. min, max
+        3. full shape
+        4. is in output
+        5. filter overlap
+        """
         for idx, start, end in self.matcher(doc):
             print(idx, doc[start:end])
 
-    def load_matcher(self):
+    def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
             pattern_flat_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
             for element in itertools.product(*pattern_flat_lst):
-                self.matcher.add(idx, None, list(element))
+                x = list(element)
+                print(x)
+                self.matcher.add(idx, None, x)
 
 
 class Pattern(object):
-    """For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,
+    """
+    class pattern represent each token
+
+    For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,
     which can be used with rule-based matching: https://spacy.io/usage/linguistic-features#section-rule-based-matching
     Some are custom attributes, need to apply further filtering after we get matches"""
-    def __init__(self, d: Dict, nlp):
+    def __init__(self, d: Dict, nlp) -> None:
+        """
+        Initialize a pattern, construct spacy token for matching according to type
+        Args:
+            d: Dict
+            nlp
+
+        Returns:
+        """
         self.type = d["type"]
         self.in_output = False if d["is_in_output"] == "false" else True
         self.max = d["maximum"]
@@ -143,19 +175,80 @@ class Pattern(object):
         elif self.type == "linebreak":
             self.spacy_token_lst = self.construct_linebreak_token(d)
 
-    @staticmethod
-    def construct_word_token(d, nlp):
-        "TODO"
-        pass
+    def construct_word_token(self, d: Dict, nlp) -> List[Dict]:
+        """
+        Construct a word token
+        Args:
+            d: Dict
+            nlp
 
-    def construct_shape_token(self, d):
+        Returns: List[Dict]
+        """
+        result = []
+        if len(d["token"]) == 1:
+            if d["match_all_forms"] == "true":
+                this_token = {attrs.LEMMA: nlp(d["token"][0])[0].lemma_}
+            else:
+                this_token = {attrs.LOWER: d["token"][0].lower()}
+            result.append(this_token)
+            if d["capitalization"]:
+                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+
+        elif not d["token"]:
+            if d["contain_digit"] == "true":
+                this_token = {attrs.IS_ASCII: True, attrs.IS_PUNCT: False}
+            else:
+                this_token = {attrs.IS_ALPHA: True}
+            if d["is_out_of_vocabulary"] == "true" and d["is_in_vocabulary"] != "true":
+                this_token[attrs.IS_OOV] = True
+            elif d["is_out_of_vocabulary"] != "true" and d["is_in_vocabulary"] == "true":
+                this_token[attrs.IS_OOV] = False
+            result.append(this_token)
+            if d["length"]:
+                result = self.add_length_constrain(result, d["length"])
+
+        else:
+            if d["match_all_forms"] == "false":
+                global FLAG_ID
+                token_set = set(d["token"])
+
+                def is_selected_token(x):
+                    return x in token_set
+
+                FLAG_DICT[FLAG_ID] = nlp.vocab.add_flag(is_selected_token)
+                this_token = {FLAG_DICT[FLAG_ID]: True}
+                FLAG_ID += 1
+                result.append(this_token)
+
+            else:
+                token_set = [nlp(x)[0].lemma_ for x in set(d["token"])]
+                for a_lemma in token_set:
+                    this_token = {attrs.LEMMA: a_lemma}
+                    result.append(this_token)
+
+            if d["capitalization"]:
+                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+
+        result = self.add_common_constrain(result, d)
+
+        return result
+
+    def construct_shape_token(self, d: Dict) -> List[Dict]:
+        """
+        Construct a shape token
+        Args:
+            d: Dict
+
+        Returns: List[Dict]
+        """
+
         result = []
         if not d["shapes"]:
             this_token = {attrs.IS_ASCII: True}
             result.append(this_token)
         else:
             for shape in d["shapes"]:
-                this_shape = self.generate_shape(shape, self.counting_stars(shape))
+                this_shape = self.generate_shape(shape)
                 this_token = {attrs.SHAPE: this_shape}
                 result.append(copy.deepcopy(this_token))
 
@@ -165,7 +258,15 @@ class Pattern(object):
 
         return result
 
-    def construct_number_token(self, d, nlp) -> List[Dict]:
+    def construct_number_token(self, d: Dict, nlp) -> List[Dict]:
+        """
+        Construct a shape token
+        Args:
+            d: Dict
+            nlp
+
+        Returns: List[Dict]
+        """
         result = []
         if not d["numbers"]:
             this_token = {attrs.IS_DIGIT: True}
@@ -190,6 +291,14 @@ class Pattern(object):
         return result
 
     def construct_punctuation_token(self, d: Dict, nlp) -> List[Dict]:
+        """
+        Construct a shape token
+        Args:
+            d: Dict
+            nlp
+
+        Returns: List[Dict]
+        """
         result = []
         if not d["token"]:
             this_token = {attrs.IS_PUNCT: True}
@@ -209,8 +318,39 @@ class Pattern(object):
         result = self.add_common_constrain(result, d)
         return result
 
+    def construct_linebreak_token(self, d):
+        """
+        Construct a shape token
+        Args:
+            d: Dict
+
+        Returns: List[Dict]
+        """
+        result = []
+        num_break = int(d["length"][0]) if d["length"] else 1
+        if num_break:
+            s = ''
+            for i in range(num_break):
+                s += '\n'
+            this_token = {attrs.LOWER: s}
+            result.append(this_token)
+            s += ' '
+            this_token = {attrs.LOWER: s}
+            result.append(this_token)
+        result = self.add_common_constrain(result, d)
+
+        return result
+
     @staticmethod
     def add_common_constrain(token_lst: List[Dict], d: Dict) -> List[Dict]:
+        """
+        Add common constrain for every token type, like "is_required"
+        Args:
+            token_lst: List[Dict]
+            d: Dict
+
+        Returns: List[Dict]
+        """
         result = []
         for a_token in token_lst:
             if d["is_required"] == "false":
@@ -220,6 +360,14 @@ class Pattern(object):
 
     @staticmethod
     def add_length_constrain(token_lst: List[Dict], lengths: List) -> List[Dict]:
+        """
+        Add length constrain for some token type, create cross production
+        Args:
+            token_lst: List[Dict]
+            lengths: List
+
+        Returns: List[Dict]
+        """
         result = []
         for a_token in token_lst:
             for length in lengths:
@@ -229,6 +377,14 @@ class Pattern(object):
 
     @staticmethod
     def add_pos_constrain(token_lst: List[Dict], pos_tags: List) -> List[Dict]:
+        """
+        Add pos tag constrain for some token type, create cross production
+        Args:
+            token_lst: List[Dict]
+            pos_tags: List
+
+        Returns: List[Dict]
+        """
         result = []
         for a_token in token_lst:
             for pos in pos_tags:
@@ -237,14 +393,66 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def construct_linebreak_token(d):
-        pass
+    def add_capitalization_constrain(token_lst: List[Dict], capi_lst: List, word_lst: List) -> List[Dict]:
+        """
+        Add capitalization constrain for some token type, create cross production
+        Args:
+            token_lst: List[Dict]
+            capi_lst: List
+            word_lst: List
+
+        Returns: List[Dict]
+        """
+        result = []
+        for a_token in token_lst:
+            if "exact" in capi_lst and word_lst != []:
+                for word in word_lst:
+                    token = copy.deepcopy(a_token)
+                    token[attrs.ORTH] = word
+                    result.append(token)
+            if "lower" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_LOWER] = True
+                result.append(token)
+            if "upper" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_UPPER] = True
+                result.append(token)
+            if "title" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_TITLE] = True
+                result.append(token)
+            if "mixed" in capi_lst:
+                token = copy.deepcopy(a_token)
+                token[attrs.IS_UPPER] = False
+                token[attrs.IS_LOWER] = False
+                token[attrs.IS_TITLE] = False
+                result.append(token)
+        return result
 
     @staticmethod
-    def generate_shape(word, count):
+    def generate_shape(word: str) -> str:
+        """
+        Recreate shape from a token input by user
+        Args:
+            word: str
+
+        Returns: str
+        """
+
+        def counting_stars(w) -> List[int]:
+            count = [1]
+            for i in range(1, len(w)):
+                if w[i - 1] == w[i]:
+                    count[-1] += 1
+                else:
+                    count.append(1)
+
+            return count
+
         shape = ""
         p = 0
-        for c in count:
+        for c in counting_stars(word):
             if c > 4:
                 shape += word[p:p + 4]
             else:
@@ -253,20 +461,21 @@ class Pattern(object):
 
         return shape
 
-    @staticmethod
-    def counting_stars(word):
-        count = [1]
-        for i in range(1, len(word)):
-            if word[i - 1] == word[i]:
-                count[-1] += 1
-            else:
-                count.append(1)
-
-        return count
-
 
 class Rule(object):
+    """
+        class Rule represent each matching rule, each rule contains many pattern
+    """
     def __init__(self, d: Dict, nlp) -> None:
+        """
+        Storing information for each Rule, create list of Pattern for a rule
+        Args:
+            d: Dict
+            nlp
+
+        Returns:
+        """
+
         self.dependencies = d["dependencies"]
         self.description = d["description"]
         self.active = True if d["is_active"] == "true" else False
@@ -274,7 +483,10 @@ class Rule(object):
         self.output_format = d["output_format"]
         self.polarity = False if d["polarity"] == "false" else True
         self.patterns = []
-        for a_pattern in d["pattern"]:
+        self.operator_token = {'*':[]}
+        for pattern_idx, a_pattern in enumerate(d["pattern"]):
+            if a_pattern["is_required"]:
+                self.operator_token['*'].append(pattern_idx)
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
 
