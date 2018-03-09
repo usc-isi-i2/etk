@@ -73,12 +73,12 @@ class HTMLMetadataExtractor(Extractor):
             res.append(rdfae_data)
 
         return res
-        raise NotImplementedError
+
 
     def wrap_data(self, key: str, value) -> Extraction:
-        e = Extraction(value = value, extractor_name = self.name, tag = key)
+        e = Extraction(value=value, extractor_name=self.name, tag=key)
         return e
-        raise NotImplementedError
+
 
     @staticmethod
     def wrap_meta_content(meta_tags: List[str]) -> dict:
@@ -87,5 +87,4 @@ class HTMLMetadataExtractor(Extractor):
             meta[tag.get("name")] = tag.get("content")
 
         return meta
-        raise NotImplementedError
 

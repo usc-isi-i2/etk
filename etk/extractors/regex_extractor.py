@@ -49,7 +49,6 @@ class RegexExtractor(Extractor):
         match_func = self._match_functions[mode]
         matches = match_func(text,flags)
         return self.wrap_result(matches)
-        raise NotImplementedError
 
 
     # wrap the re return object to list of extraction  
@@ -62,10 +61,7 @@ class RegexExtractor(Extractor):
         # matches are result of finditer()
         elif isinstance(matches, collections.Iterable):
             for match in matches:
-                print(type(match))
-                # each match return a list
                 es = self.wrap_result(match)
-                # flatten the list of list
                 res.extend(es)
         
         # single match
@@ -77,9 +73,7 @@ class RegexExtractor(Extractor):
                     res.append(self.wrap_extraction(i, matches))
             else:
                 res.append(self.wrap_extraction(0, matches))
-
         return res
-        raise NotImplementedError
 
 
     def wrap_split_extraction(self, items: List[str]) -> List[Extraction]:
@@ -88,10 +82,9 @@ class RegexExtractor(Extractor):
         for item in items:
             end = start+len(item)
             e = Extraction(value = item, extractor_name = self.name,\
-                start_char = start, end_char = end)
+                            start_char = start, end_char = end)
             res.append(e)
             start = end
-
         return res
 
 
@@ -101,5 +94,4 @@ class RegexExtractor(Extractor):
         e = Extraction(value = text, extractor_name = self.name,\
                         start_char = start, end_char = end)
         return e
-        raise NotImplementedError
 

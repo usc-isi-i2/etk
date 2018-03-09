@@ -1,8 +1,5 @@
 import unittest
 from etk.extractors.regex_extractor import RegexExtractor, MatchMode
-from pprint import pprint
-import requests
-
 
 class TestRegexExtractor(unittest.TestCase):
 	def test_match_mode_with_group(self) -> None:
