@@ -19,6 +19,7 @@ class RegexExtractor(Extractor):
                  pattern: str,
                  extractor_name: str,
                  flags=0,
+                 general_tag: str=None
                  ) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
@@ -26,6 +27,7 @@ class RegexExtractor(Extractor):
                            name=extractor_name)
 
         self._compiled_regex = re.compile(pattern, flags)
+        self._general_tag = general_tag
 
         self._match_functions = {
             MatchMode.MATCH: self._compiled_regex.match,
@@ -45,6 +47,11 @@ class RegexExtractor(Extractor):
             mode (): whether to use re.search() or re.match().
         Returns: the List(Extraction) or the empty list if there are no matches.
         """
+
+    @property
+    def general_tag(self):
+        return self._general_tag
+
     def extract(self, text: str, flags=0, mode: MatchMode=MatchMode.FINDALL) -> List[Extraction]:
         match_func = self._match_functions[mode]
         matches = match_func(text,flags)
@@ -92,6 +99,6 @@ class RegexExtractor(Extractor):
         start, end = matches.start(group_idx), matches.end(group_idx)
         text = matches.group(group_idx)
         e = Extraction(value = text, extractor_name = self.name,\
-                        start_char = start, end_char = end)
+                        start_char = start, end_char = end, tag=self.general_tag)
         return e
 
