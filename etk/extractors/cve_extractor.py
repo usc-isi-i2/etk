@@ -1,10 +1,7 @@
-import re
-from etk.extractors.TEMP_simple_regex_extractor import SimpleRegexExtractor
+from etk.extractors.regex_extractor import RegexExtractor
 
 
-class CVEExtractor(SimpleRegexExtractor):
+class CVEExtractor(RegexExtractor):
     def __init__(self):
-        cve_pattern = re.compile(r"CVE-(\d{4})-(\d{4})")
-        SimpleRegexExtractor.__init__(self,
-                                      pattern=cve_pattern,
-                                      name="cve extractor")
+        cve_pattern = r"CVE-(?:\d{4})-(?:\d{4})"
+        RegexExtractor.__init__(self, pattern=cve_pattern, extractor_name="cve extractor")

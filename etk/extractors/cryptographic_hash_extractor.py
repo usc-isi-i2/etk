@@ -1,18 +1,27 @@
-import re
-from etk.extractors.TEMP_simple_regex_extractor import SimpleRegexExtractor
+from etk.extractors.regex_extractor import RegexExtractor
+from etk.extractor import Extractor, InputType
+from typing import List
+from etk.etk_extraction import Extraction
 
-
-class CryptographicHashExtractor(SimpleRegexExtractor):
-    # TODO: It will be better if can record the type of the hash value
+class CryptographicHashExtractor(Extractor):
     def __init__(self):
-        md5 = re.compile(r"(\b[a-fA-F\d]{32}\b)")
-        sha1 = re.compile(r"(\b[0-9a-f]{40}\b)")
-        sha256 = re.compile(r"(\b[A-Fa-f0-9]{64}\b)")
-        hash_pattern = [
-            {'tag': 'md5', 'pattern': md5},
-            {'tag': 'sha1', 'pattern': sha1},
-            {'tag': 'sha256', 'pattern': sha256},
+        e_name = 'cryptographic hash extractor'
+        self._regex_extractors = [
+            RegexExtractor(r"(\b[a-fA-F\d]{32}\b)", 'md5 '+e_name, general_tag='md5'),
+            RegexExtractor(r"(\b[0-9a-f]{40}\b)", 'sha1 '+e_name, general_tag='sha1'),
+            RegexExtractor(r"(\b[A-Fa-f0-9]{64}\b)", 'sha256 '+e_name, general_tag='sha256'),
         ]
-        SimpleRegexExtractor.__init__(self,
-                                      pattern=hash_pattern,
-                                      name="cryptographic hash extractor")
+        Extractor.__init__(self,
+                           input_type=InputType.TEXT,
+                           category="regex",
+                           name=e_name)
+
+    @property
+    def regex_extractors(self):
+        return self._regex_extractors
+
+    def extract(self, text: str) -> List[Extraction]:
+        res = set()
+        for e in self.regex_extractors:
+            res = res.union(e.extract(text))
+        return list(res)

@@ -1,6 +1,6 @@
 import json, os, sys
 from etk.etk import ETK
-from etk.extractors.bitcoin_address_extractor import BitcpinAddressExtractor
+from etk.extractors.bitcoin_address_extractor import BitcoinAddressExtractor
 from etk.extractors.cryptographic_hash_extractor import CryptographicHashExtractor
 from etk.extractors.cve_extractor import CVEExtractor
 from etk.extractors.hostname_extractor import HostnameExtractor
@@ -27,7 +27,7 @@ sample_input = {
 etk = ETK()
 doc = etk.create_document(sample_input)
 
-bae = BitcpinAddressExtractor()
+bae = BitcoinAddressExtractor()
 ce = CVEExtractor()
 che = CryptographicHashExtractor()
 he = HostnameExtractor()

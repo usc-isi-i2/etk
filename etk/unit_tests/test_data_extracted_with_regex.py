@@ -1,5 +1,5 @@
 import unittest, json
-from etk.extractors.bitcoin_address_extractor import BitcpinAddressExtractor
+from etk.extractors.bitcoin_address_extractor import BitcoinAddressExtractor
 from etk.extractors.cryptographic_hash_extractor import CryptographicHashExtractor
 from etk.extractors.cve_extractor import CVEExtractor
 from etk.extractors.hostname_extractor import HostnameExtractor
@@ -11,7 +11,7 @@ class TestMultiDataExtractor(unittest.TestCase):
 
     def test_bitcoin_address_extractor(self) -> None:
         text = "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq bc1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 1AGNa15ZQXAZUgFiqJ3i7Z2DPU2J6hW62i 17NdbrSGoUotzeGCcMMCqnFkEvLymoou9j bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9 bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"
-        e = BitcpinAddressExtractor()
+        e = BitcoinAddressExtractor()
         test_result = [x.value for x in e.extract(text)]
         expected = ["1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
                     "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
