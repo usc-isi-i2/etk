@@ -1629,7 +1629,7 @@ class Core(object):
             # print spacy_email_extractor.extract(d[_TEXT], self.origin_nlp, self.nlp, t)
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_email_extractor.extract(d[_TEXT], self.origin_nlp,
-                                                                                       self.nlp, t),
+                                                                                     self.nlp, t),
                                                        _EMAIL)
         return results
 
@@ -2228,7 +2228,7 @@ class Core(object):
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (
-                                                abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
+                                        abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
                                     city_state_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -2244,7 +2244,7 @@ class Core(object):
                                     city_state_code_separate_count += 1
                             for a_country in countries:
                                 if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (
-                                                abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
+                                        abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
                                     city_country_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -2403,8 +2403,8 @@ class Core(object):
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME,
                                                                               _CREATE_KG_NODE_EXTRACTOR))
         if _DISABLE_DEFAULT_EXT in config and \
-                        config[_DISABLE_DEFAULT_EXT] != _NO and \
-                        config[_DISABLE_DEFAULT_EXT] != _YES:
+                config[_DISABLE_DEFAULT_EXT] != _NO and \
+                config[_DISABLE_DEFAULT_EXT] != _YES:
             raise KeyError('{} not acceptable for {} in the config for method: {}'.format(config[_DISABLE_DEFAULT_EXT],
                                                                                           _DISABLE_DEFAULT_EXT,
                                                                                           _CREATE_KG_NODE_EXTRACTOR))
