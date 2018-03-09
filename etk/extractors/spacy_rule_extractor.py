@@ -483,10 +483,10 @@ class Rule(object):
         self.output_format = d["output_format"]
         self.polarity = False if d["polarity"] == "false" else True
         self.patterns = []
-        self.operator_tokenx = {'*':[]}
+        self.operator_token = {'*':[]}
         for pattern_idx, a_pattern in enumerate(d["pattern"]):
             if a_pattern["is_required"]:
-                self.operator_tokenx['*'].append(pattern_idx)
+                self.operator_token['*'].append(pattern_idx)
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
 
