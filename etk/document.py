@@ -1,4 +1,4 @@
-from jsonpath_rw import jsonpath
+from jsonpath_ng import jsonpath
 from typing import List, Dict
 
 from etk.etk_extraction import Extractable, Extraction

@@ -1,6 +1,6 @@
 from typing import List
 import re
-from jsonpath_rw import jsonpath, parse
+from jsonpath_ng import jsonpath, parse
 from etk.document import Document
 
 
