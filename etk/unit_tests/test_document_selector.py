@@ -1,6 +1,6 @@
 import unittest
 
-from etk.documentSelector import DefaultDocumentSelector
+from etk.document_selector import DefaultDocumentSelector
 from etk.etk import ETK
 
 sample_input = {
