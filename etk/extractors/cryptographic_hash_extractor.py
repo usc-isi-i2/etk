@@ -21,7 +21,7 @@ class CryptographicHashExtractor(Extractor):
         return self._regex_extractors
 
     def extract(self, text: str) -> List[Extraction]:
-        res = set()
+        res = list()
         for e in self.regex_extractors:
-            res = res.union(e.extract(text))
-        return list(res)
+            res = res+e.extract(text)
+        return res
