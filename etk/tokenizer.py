@@ -216,6 +216,8 @@ class Tokenizer(object):
         def n_suffix(token, n):
             return token.text[-n:]
         spacy_token.set_extension("n_suffix", method=n_suffix)
+        
+        return spacy_token
 
     @staticmethod
     def reconstruct_text(tokens: List[Token]) -> str:
