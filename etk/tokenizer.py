@@ -4,6 +4,107 @@ from spacy.tokenizer import Tokenizer as spacyTokenizer
 from spacy.tokens import Token, Doc
 from typing import List
 
+months_dict = {
+    "january": 1,
+    "february": 2,
+    "march": 3,
+    "april": 4,
+    "may": 5,
+    "june": 6,
+    "july": 7,
+    "august": 8,
+    "september": 9,
+    "october": 10,
+    "november": 11,
+    "december": 12,
+    "jan": 1,
+    "feb": 2,
+    "mar": 3,
+    "apr": 4,
+    "jun": 6,
+    "jul": 7,
+    "aug": 8,
+    "sep": 9,
+    "oct": 10,
+    "nov": 11,
+    "dec": 12,
+    "enero": 1,
+    "febrero": 2,
+    "marzo": 3,
+    "abril": 4,
+    "mayo": 5,
+    "junio": 6,
+    "julio": 7,
+    "agosto": 8,
+    "septiembre": 9,
+    "octubre": 10,
+    "noviembre": 11,
+    "diciembre": 12,
+    "janvier": 1,
+    "fevrier": 2,
+    "fvrier": 2,
+    "mars": 3,
+    "avril": 4,
+    "mai": 5,
+    "juin": 6,
+    "juillet": 7,
+    "aout": 8,
+    "aot": 8,
+    "septembre": 9,
+    "octobre": 10,
+    "novembre": 11,
+    "decempre": 12,
+    "janeiro": 1,
+    "fevereiro": 2,
+    "marco": 3,
+    # "abril": 4,
+    "maio": 5,
+    "junho": 6,
+    "julho": 7,
+    # "agosto": 8,
+    "setembro": 9,
+    "setiembre": 9,
+    "outubro": 10,
+    "novembro": 11,
+    "dezembro": 12,
+    "gennaio": 1,
+    "febbraio": 2,
+    # "marzo": 3,
+    "aprile": 4,
+    "maggio": 5,
+    "giugno": 6,
+    "luglio": 7,
+    # "agosto": 8,
+    "settembre": 9,
+    "ottobre": 10,
+    # "novembre": 11,
+    "dicembre": 12,
+    "januar": 1,
+    # "februar": 2,
+    "marz": 3,
+    # "april": 4,
+    # "mai": 5,
+    "juni": 6,
+    "juli": 7,
+    # "august": 8,
+    # "september": 9,
+    "oktober": 10,
+    # "november": 11,
+    "dezember": 12,
+    # "januar": 1,
+    # "februar": 2,
+    "marts": 3,
+    # "april": 4,
+    "maj": 5,
+    # "juni": 6,
+    # "juli": 7,
+    # "august": 8,
+    # "september": 9,
+    # "oktober": 10,
+    # "november": 11,
+    # "december": 12
+}
+
 
 class Tokenizer(object):
     """
@@ -90,19 +191,20 @@ class Tokenizer(object):
             return bool(pattern.match(token.text))
         spacy_token.set_extension("is_decimal", getter=is_decimal)
 
-        # def is_linebreak(token):
+        def is_ordinal(token):
+            return token.orth_[-2:] in ['rd', 'st', 'th', 'nd']
+        spacy_token.set_extension("is_ordinal", getter=is_ordinal)
 
+        def is_month(token):
+            return token.lower_ in months_dict.keys()
+        spacy_token.set_extension("is_month", getter=is_month)
 
-        """To Do: 
-            is_linkbreak(\n) (boolean), 
-            is_month(boolean), 
-            is_mixed(eg.xXxX) (boolean), 
-            is_alphanumeric(sda23d) (boolean), 
-            is_following_space?(boolean), 
-            is_followed_by_space?(boolean),
-            is_space?(boolean)
-        ...
-        """
+        def is_mixed(token):
+            if not token.is_title and not token.is_lower and not token.is_upper:
+                return True
+            else:
+                return False
+        spacy_token.set_extension("is_mixed", getter=is_mixed)
 
         """Add custom methods"""
         """Add get_prefix method. RETURN length N prefix"""
@@ -114,15 +216,6 @@ class Tokenizer(object):
         def n_suffix(token, n):
             return token.text[-n:]
         spacy_token.set_extension("n_suffix", method=n_suffix)
-
-        """To Do: 
-        1. Method convert_to_number: RETURN number, type integer if is integer, float if is float, else None
-        2. Method find_substring(args): 
-            args can be a string or a regex
-            RETURN start index of first matches if exist, else None
-        """
-
-        return spacy_token
 
     @staticmethod
     def reconstruct_text(tokens: List[Token]) -> str:
