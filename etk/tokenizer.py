@@ -138,6 +138,16 @@ class Tokenizer(object):
         return tokens
 
     def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = False) -> Doc:
+        """
+        Tokenize the given text, returning a spacy doc. Used for spacy rule extractor
+
+        Args:
+            text (string):
+            keep_multi_space
+
+        Returns: Doc
+
+        """
         if not keep_multi_space:
             text = re.sub(' +', ' ', text)
         doc = self.nlp(text)
@@ -216,7 +226,7 @@ class Tokenizer(object):
         def n_suffix(token, n):
             return token.text[-n:]
         spacy_token.set_extension("n_suffix", method=n_suffix)
-        
+
         return spacy_token
 
     @staticmethod
