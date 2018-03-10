@@ -28,7 +28,6 @@ dependencies:
     - html5lib==1.0b8
     - idna==2.6
     - isodate==0.6.0
-    - jsonpath-rw==1.4.0
     - landmark-extractor==0.1.8.0
     - lxml==4.1.1
     - msgpack-numpy==0.4.1
@@ -55,3 +54,4 @@ dependencies:
     - urllib3==1.22
     - wcwidth==0.1.7
     - wrapt==1.10.11
+    - jsonpath-ng==1.4.3

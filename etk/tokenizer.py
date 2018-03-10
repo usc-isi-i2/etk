@@ -51,7 +51,7 @@ class Tokenizer(object):
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
         """
         prefix_re = re.compile(r'''^[\[()\-.,@#$%^&*?|<~+_:;>!"']''')
-        infix_re = re.compile(r'''[\[()\-,@#$%^&*?|<~+_:;>!"']|(?![0-9])\.(?![0-9])|\n''')
+        infix_re = re.compile(r'''[\[()\-,@#$%^&*?|<~+_:;>!"']|(?![0-9])\.(?![0-9])|\n+ ''')
         return spacyTokenizer(self.nlp.vocab, rules=None, prefix_search=prefix_re.search, suffix_search=None,
                               infix_finditer=infix_re.finditer, token_match=None)
 
@@ -94,8 +94,6 @@ class Tokenizer(object):
 
 
         """To Do: 
-            is_integer(boolean), 
-            is_float(boolean), 
             is_linkbreak(\n) (boolean), 
             is_month(boolean), 
             is_mixed(eg.xXxX) (boolean), 

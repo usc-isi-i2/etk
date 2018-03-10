@@ -33,8 +33,7 @@ class TestTokenizer(unittest.TestCase):
             {'orth': '#', 'offset': 39, 'full_shape': '#'},
             {'orth': '1', 'offset': 40, 'full_shape': 'd'},
             {'orth': '\n ', 'offset': 42, 'full_shape': '\n '},
-            {'orth': '\n', 'offset': 44, 'full_shape': '\n'},
-            {'orth': ' ', 'offset': 45, 'full_shape': ' '}
+            {'orth': '\n ', 'offset': 44, 'full_shape': '\n '}
         ]
 
         self.assertEqual(token_attrs, expected)
