@@ -36,7 +36,7 @@ class HTMLMetadataExtractor(Extractor):
         Returns: a singleton list containing a dict with each type of metadata.
 
         """
-        
+
     def extract(self, html_text: str,
                 extract_title: bool = False,
                 extract_meta: bool = False,
@@ -74,11 +74,9 @@ class HTMLMetadataExtractor(Extractor):
 
         return res
 
-
     def wrap_data(self, key: str, value) -> Extraction:
         e = Extraction(value=value, extractor_name=self.name, tag=key)
         return e
-
 
     @staticmethod
     def wrap_meta_content(meta_tags: List[str]) -> dict:
@@ -87,4 +85,3 @@ class HTMLMetadataExtractor(Extractor):
             meta[tag.get("name")] = tag.get("content")
 
         return meta
-

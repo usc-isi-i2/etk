@@ -4,7 +4,7 @@ from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
 
 
 class TestMetadataExtractor(unittest.TestCase):
-# value of title extraction is a string
+    # value of title extraction is a string
     def test_title_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html.jl', 'r') as f:
@@ -15,7 +15,7 @@ class TestMetadataExtractor(unittest.TestCase):
         expected_title = "323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23"
         self.assertEqual(title_text, expected_title)
 
-# value of mate extraction is a dict
+    # value of mate extraction is a dict
     def test_meta_tag_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html.jl', 'r') as f:
@@ -31,8 +31,7 @@ class TestMetadataExtractor(unittest.TestCase):
 
         self.assertDictEqual(meta_tag_dic, expected_dic)
 
-
-# value of microdata extraction is a list
+    # value of microdata extraction is a list
     def test_microdata_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         test_html = """<!DOCTYPE HTML>
@@ -69,7 +68,7 @@ class TestMetadataExtractor(unittest.TestCase):
                                             'type': 'http://n.whatwg.org/work'}]
         self.assertEqual(microdata, expected_microdata)
 
-# value of microdata extraction is list
+    # value of microdata extraction is list
     def test_json_ld_extractor(self) -> None:
         hme = HTMLMetadataExtractor()
         with open('etk/unit_tests/ground_truth/sample_html_for_json_ld.html', 'r') as f:
@@ -153,7 +152,7 @@ class TestMetadataExtractor(unittest.TestCase):
                           'url': 'https://www.songkick.com/artists/236156-elysian-fields?utm_medium=organic&utm_source=microformat'}]
         self.assertEqual(json_ld_data, expected_ld_data)
 
-# value of microdata extraction is a list
+    # value of microdata extraction is a list
     def test_rdfa_extrator(self) -> None:
         hme = HTMLMetadataExtractor()
         test_html = """<html>
@@ -173,13 +172,14 @@ class TestMetadataExtractor(unittest.TestCase):
                     ... """
 
         rdfa_data = hme.extract(test_html, extract_rdfa = True)[0].value
-        expected_rdfa_data = [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob', 
+        expected_rdfa_data = [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob',
                                         '@type': ['http://schema.org/BlogPosting'], 
                                         'http://purl.org/dc/terms/creator': [{'@id': 'http://www.example.com/#me'}], 
                                         'http://purl.org/dc/terms/title': [{'@value': 'The trouble with Bob'}], 
                                         'http://schema.org/articleBody': [{'@value': '\n                    ...         The trouble with Bob is that he takes much better photos than I do:\n                    ...       '}],
                                         'http://schema.org/creator': [{'@id': 'http://www.example.com/#me'}]}]
         self.assertEqual(rdfa_data, expected_rdfa_data)
+
 
 if __name__ == '__main__':
     unittest.main()
