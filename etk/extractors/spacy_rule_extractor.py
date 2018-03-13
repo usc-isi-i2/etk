@@ -107,6 +107,7 @@ class SpacyRuleExtractor(Extractor):
         self.matcher = Matcher(self.nlp.vocab)
         self.field_name = rules["field_name"]
         self.rule_lst = []
+        self.spacy_rule_lst = []
         for a_rule in self.rules:
             this_rule = Rule(a_rule, self.nlp)
             self.rule_lst.append(this_rule)
@@ -133,11 +134,10 @@ class SpacyRuleExtractor(Extractor):
 
     def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
-            pattern_flat_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
-            for element in itertools.product(*pattern_flat_lst):
-                x = list(element)
-                print(x)
-                self.matcher.add(idx, None, x)
+            pattern_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
+            self.spacy_rule_lst += list(itertools.product(*pattern_lst))
+        for spacy_rule_id, spacy_rule in enumerate(self.spacy_rule_lst):
+            self.matcher.add(spacy_rule_id, None, list(spacy_rule))
 
 
 class Pattern(object):
