@@ -1,74 +1,8 @@
 from typing import List
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
-import dateparser
-import datetime
+from etk.extractors.date_parser import DateParser
 import re
-
-
-class DateParser(object):
-    """
-    Parse a date in string to an ISO formatted date object
-    """
-    def __init__(self, ignore_future_dates: bool=True, ignore_past_years: int=40) -> None:
-        self.ignore_future_dates = ignore_future_dates
-        self.ignore_past_years = ignore_past_years
-
-    def parse_date(self, str_date: str, settings: dict=None) -> datetime.datetime or None:
-        """
-
-        Args:
-            str_date (): a date in strin
-            settings (): settings when parse the date:
-                {
-                    'DATE_ORDER': 'MDY',    # default to be 'MDY', shuffled Y, M, D representing Year, Month, Date
-                    'STRICT_PARSING': True,
-                    'FUZZY': True,
-                    'PREFER_DAY_OF_MONTH': 'current',   # default to be 'current'; can be 'first' or 'last' instead;\
-                        specify the date when the date is missing
-                    'PREFER_DATES_FROM': 'current_period',  # default to be 'current_period'; can be 'future', \
-                        or 'past' instead; specify the date when the date is missing
-                    'RELATIVE_BASE': datetime.datetime(2020, 1, 1),  # default to be current date and time
-                    'SKIP_TOKENS_PARSER': ['t']    # default to be ['t']; a list of tokens to discard while detecting language
-                }
-            see more on https://github.com/scrapinghub/dateparser/blob/master/docs/usage.rst
-
-        Returns: a datetime.datetime object (or None if the string is not a date)
-
-        """
-        customized_settings = settings if settings else {'STRICT_PARSING': True}
-        try:
-            if len(str_date) > 100:
-                return None
-            str_date = str_date[:20] if len(str_date) > 20 else str_date
-            str_date = str_date.replace('\r', '')
-            str_date = str_date.replace('\n', '')
-            str_date = str_date.replace('<', '')
-            str_date = str_date.replace('>', '')
-            parsed_date = dateparser.parse(str_date, settings=customized_settings)
-            if parsed_date:
-                parsed_year = parsed_date.year
-                current_year = datetime.datetime.now().year
-                if current_year - self.ignore_past_years > parsed_year:
-                    return None
-                if self.ignore_future_dates:
-                    return parsed_date if datetime.datetime.now() >= parsed_date else None
-            return self.convert_to_iso_format(parsed_date)
-        except Exception as e:
-            print('Exception: {}, failed to parse {} as date'.format(e, str_date))
-            return None
-
-    @staticmethod
-    def convert_to_iso_format(date: datetime.datetime):
-        """  """
-        try:
-            if date:
-                dt = date.replace(minute=0, hour=0, second=0, microsecond=0)
-                return dt.isoformat()
-        except Exception as e:
-            print('Exception: {}, failed to convert {} to isoformat '.format(e, date))
-            return None
-        return None
 
 
 class DateExtractor(Extractor):
@@ -89,20 +23,26 @@ class DateExtractor(Extractor):
 
         res = list()
         date_parser = DateParser(ignore_future_dates, ignore_past_years)
-        for date_str in self.extract_date_str(text):
-            date = date_parser.parse_date(date_str['value'], settings)
-            if date:
-                extracted_date = Extraction(str(date), self.name, start_char=date_str['start'], end_char=date_str['start']+len(date_str['value']))
+        date_list = self.extract_date_str(text)
+        for date_str in date_list:
+            date = date_parser.extract(date_str['value'], settings)
+            if date and len(date):
+                extracted_date = Extraction(str(date[0].value), self.name, start_char=date_str['start'], end_char=date_str['start']+len(date_str['value']))
                 # should be better if re-consider the construction of provenance:
                 extracted_date._provenance['original_date_str'] = date_str['value']
                 res.append(extracted_date)
         return res
 
     def extract_date_str(self, text: str) -> List[dict]:
+        """
+        TODO: To extract the date str, by apply the regex here, actually we have already known which is \
+            Month, Date and Year. So I think the date str can be converted to iso date directly.
+            The dateparser module is not so necessary if we have to extract date str from a long text first.
+        """
         """ extract sub-strings in the text that is possible to be a date """
-        mdy = re.compile("((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))", re.I)
-        dmy = re.compile("((?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))", re.I)
-        ymd = re.compile("((?:(?:[12][0-9])?\d{2})[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?))", re.I)
+        mdy = re.compile(r"\b((?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))\b", re.I)
+        dmy = re.compile(r"\b((?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?)[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:(?:[12][0-9])?\d{2}))\b", re.I)
+        ymd = re.compile(r"\b((?:(?:[12][0-9])?\d{2})[./\-_ ,]{0,2}(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|1[0-2]|0?[1-9])[./\-_ ,]{0,2}(?:3[01]|[0-2]?[0-9](?:th|rd|st|nd)?))\b", re.I)
         return self.union_results([mdy.finditer(text), dmy.finditer(text), ymd.finditer(text)])
 
     def union_results(self, results: List[iter]) -> List[dict]:

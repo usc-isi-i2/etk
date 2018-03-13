@@ -1,4 +1,3 @@
-from jsonpath_rw import jsonpath
 from typing import List, Dict
 
 from etk.etk_extraction import Extractable, Extraction
@@ -46,7 +45,7 @@ class Document(Extractable):
         matches = path.find(self.cdr_document)
         segments = []
         for a_match in matches:
-            this_segment = Segment(str(a_match.full_path), a_match.value)
+            this_segment = Segment(str(a_match.full_path), a_match.value, self)
             segments.append(this_segment)
 
         return segments
@@ -89,7 +88,7 @@ class Document(Extractable):
             extracted_results = extractor.extract(extractable.value, **options)
 
         elif extractor.input_type == InputType.HTML:
-            extracted_results = extractor.extract(extractable.value['raw_content'], **options)
+            extracted_results = extractor.extract(extractable.value, **options)
 
 
         # TODO: the reason that extractors must return Extraction objects is so that

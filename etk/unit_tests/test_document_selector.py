@@ -1,12 +1,12 @@
 import unittest
 
-from etk.documentSelector import DefaultDocumentSelector
+from etk.document_selector import DefaultDocumentSelector
 from etk.etk import ETK
 
 sample_input = {
-	"datasets": "unittestUnittestUNITTEST",
-	"website": "abcABCAbc",
-	"url": "zxcZXCZxc",
+    "datasets": "unittestUnittestUNITTEST",
+    "website": "abcABCAbc",
+    "url": "zxcZXCZxc",
     "projects": [
         {
             "name": "etk",
@@ -22,54 +22,59 @@ sample_input = {
 
 class TestDocumentSelector(unittest.TestCase):
 
-	def test_datasets_condition(self) -> None:
-		etk = ETK()
-		doc = etk.create_document(sample_input)
-		default_doc_selector = DefaultDocumentSelector()
-		res_true = default_doc_selector.select_document(doc, datasets = [".*unittest",".*abc"])
-		res_false = default_doc_selector.select_document(doc, datasets = [".*abc", ".*hhhh"])
-		self.assertEqual(True, res_true)
-		self.assertEqual(False, res_false)
+    def test_datasets_condition(self) -> None:
+        etk = ETK()
+        doc = etk.create_document(sample_input)
+        default_doc_selector = DefaultDocumentSelector()
+        res_true = default_doc_selector.select_document(doc, datasets=[".*unittest", ".*abc"])
+        res_false = default_doc_selector.select_document(doc, datasets=[".*abc", ".*hhhh"])
+        self.assertEqual(True, res_true)
+        self.assertEqual(False, res_false)
 
-	def test_url_patterns_condition(self) -> None:
-		etk = ETK()
-		doc = etk.create_document(sample_input)
-		default_doc_selector = DefaultDocumentSelector()
-		res_true = default_doc_selector.select_document(doc, url_patterns = [".*unittest",".*zxc"])
-		res_false = default_doc_selector.select_document(doc, url_patterns = [".*ZXc", ".*hhhh"])
-		self.assertEqual(True, res_true)
-		self.assertEqual(False, res_false)
+    def test_url_patterns_condition(self) -> None:
+        etk = ETK()
+        doc = etk.create_document(sample_input)
+        default_doc_selector = DefaultDocumentSelector()
+        res_true = default_doc_selector.select_document(doc, url_patterns=[".*unittest", ".*zxc"])
+        res_false = default_doc_selector.select_document(doc, url_patterns=[".*ZXc", ".*hhhh"])
+        self.assertEqual(True, res_true)
+        self.assertEqual(False, res_false)
 
-	def test_website_patterns_condition(self) -> None:
-		etk = ETK()
-		doc = etk.create_document(sample_input)
-		default_doc_selector = DefaultDocumentSelector()
-		res_true = default_doc_selector.select_document(doc, website_patterns = [".*unittest",".*abc"])
-		res_false = default_doc_selector.select_document(doc, website_patterns = [".*ABc", ".*hhhh"])
-		self.assertEqual(True, res_true)
-		self.assertEqual(False, res_false)
+    def test_website_patterns_condition(self) -> None:
+        etk = ETK()
+        doc = etk.create_document(sample_input)
+        default_doc_selector = DefaultDocumentSelector()
+        res_true = default_doc_selector.select_document(doc, website_patterns=[".*unittest", ".*abc"])
+        res_false = default_doc_selector.select_document(doc, website_patterns=[".*ABc", ".*hhhh"])
+        self.assertEqual(True, res_true)
+        self.assertEqual(False, res_false)
 
-	def test_json_paths_and_json_paths_regex(self) -> None:
-		etk = ETK()
-		doc = etk.create_document(sample_input)
-		default_doc_selector = DefaultDocumentSelector()
-		res_true = default_doc_selector.select_document(doc, json_paths = ["$.website"], json_paths_regex = [".*unittest",".*abc"])
-		res_false = default_doc_selector.select_document(doc, json_paths = ["$.website"], json_paths_regex = [".*hhhh"])
-		self.assertEqual(True, res_true)
-		self.assertEqual(False, res_false)
+    def test_json_paths_and_json_paths_regex(self) -> None:
+        etk = ETK()
+        doc = etk.create_document(sample_input)
+        default_doc_selector = DefaultDocumentSelector()
+        res_true = default_doc_selector.select_document(doc, json_paths=["$.website"],
+                                                        json_paths_regex=[".*unittest", ".*abc"])
+        res_false = default_doc_selector.select_document(doc, json_paths=["$.website"], json_paths_regex=[".*hhhh"])
+        self.assertEqual(True, res_true)
+        self.assertEqual(False, res_false)
 
-	def test_all_condiation(self) -> None:
-		etk = ETK()
-		doc = etk.create_document(sample_input)
-		default_doc_selector = DefaultDocumentSelector()
-		res_true = default_doc_selector.select_document(doc, datasets = [".*unittest",".*abc"], url_patterns = [".*unittest",".*zxc"],
-			website_patterns = [".*unittest",".*abc"], json_paths = ["$.website"], json_paths_regex = [".*unittest",".*abc"])
-		res_false = default_doc_selector.select_document(doc, datasets = [".*abc", ".*hhhh"], url_patterns = [".*ZXc", ".*hhhh"],
-			website_patterns = [".*ABc", ".*hhhh"], json_paths = ["$.website"], json_paths_regex = [".*hhhh"])
-		self.assertEqual(True, res_true)
-		self.assertEqual(False, res_false)
+    def test_all_condition(self) -> None:
+        etk = ETK()
+        doc = etk.create_document(sample_input)
+        default_doc_selector = DefaultDocumentSelector()
+        res_true = default_doc_selector.select_document(doc, datasets=[".*unittest", ".*abc"],
+                                                        url_patterns=[".*unittest", ".*zxc"],
+                                                        website_patterns=[".*unittest", ".*abc"],
+                                                        json_paths=["$.website"],
+                                                        json_paths_regex=[".*unittest", ".*abc"])
+        res_false = default_doc_selector.select_document(doc, datasets=[".*abc", ".*hhhh"],
+                                                         url_patterns=[".*ZXc", ".*hhhh"],
+                                                         website_patterns=[".*ABc", ".*hhhh"], json_paths=["$.website"],
+                                                         json_paths_regex=[".*hhhh"])
+        self.assertEqual(True, res_true)
+        self.assertEqual(False, res_false)
+
 
 if __name__ == '__main__':
-		unittest.main()
-
-
+    unittest.main()

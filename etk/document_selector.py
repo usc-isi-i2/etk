@@ -1,6 +1,6 @@
 from typing import List
 import re
-from jsonpath_rw import jsonpath, parse
+from jsonpath_ng import jsonpath, parse
 from etk.document import Document
 
 
@@ -90,7 +90,6 @@ class DefaultDocumentSelector(DocumentSelector):
 
         return all(i == True for i in res_set)
 
-        raise NotImplementedError
 
     def check_content(self, json_doc: dict, json_path: str, patterns: List[str], enable_regexp: bool = True) -> bool:
         if enable_regexp:
@@ -107,7 +106,7 @@ class DefaultDocumentSelector(DocumentSelector):
         res = any(re.search(patterns, value) != None for value in values)
 
         return res
-        raise NotImplementedError
+
 
     def check_json_path_codition(self, json_doc: dict, 
                                 rw_json_paths: List[jsonpath.Child], 
@@ -119,4 +118,4 @@ class DefaultDocumentSelector(DocumentSelector):
                 return True
 
         return False
-        raise NotImplementedError
+
