@@ -16,7 +16,7 @@ root = doc.select_segments("$")[0]
 
 tables = doc.invoke_extractor(my_table_extractor, d)
 for t in tables:
-    root.store_extractions([t], t.tag)
+    root.store_extractions([t], t.tag, group_by_tags=False)
 
 table_data_extractor = EntityTableDataExtraction()
 table_data_extractor.add_glossary(etk.load_glossary("./resources/address_dict.txt"), "address")
@@ -30,7 +30,6 @@ root = doc.select_segments("$")[0]
 
 for t in tables:
     extractions = doc.invoke_extractor(table_data_extractor, t)
-    for e in extractions:
-        root.store_extractions([e], e.tag)
+    root.store_extractions(extractions, "table_data_extraction")
 
 print(json.dumps(doc.cdr_document, indent=2))
