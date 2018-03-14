@@ -72,8 +72,7 @@ class Segment(Extractable):
             self._extractions[attribute] = set([])
         self._extractions[attribute] = self._extractions[attribute].union(extractions)
         try:
-            # TODO: why is it necessary to deepcopy the extraction?
-            self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in self._extractions[attribute]]
+            self._value[attribute] = [a_extraction.value for a_extraction in self._extractions[attribute]]
         except Exception as e:
             print("segment is " + str(type(self._value)))
             print(e)

@@ -107,7 +107,7 @@ class SpacyRuleExtractor(Extractor):
         self.matcher = Matcher(self.nlp.vocab)
         self.field_name = rules["field_name"]
         self.rule_lst = []
-        self.spacy_rule_lst = []
+        self.hash_map = {}
         for a_rule in self.rules:
             this_rule = Rule(a_rule, self.nlp)
             self.rule_lst.append(this_rule)
@@ -122,22 +122,95 @@ class SpacyRuleExtractor(Extractor):
         """
         doc = self.tokenizer.tokenize_to_spacy_doc(text)
         self.load_matcher()
-        """TODO: add callback function to filter custom constrains
-        1. Prefix, suffix
-        2. min, max
-        3. full shape
-        4. is in output
-        5. filter overlap
-        """
-        for idx, start, end in self.matcher(doc):
-            print(idx, doc[start:end])
+
+        matches = [x for x in self.matcher(doc) if x[1] != x[2]]
+        filtered_matches = []
+        for idx, start, end in matches:
+            span_doc = self.tokenizer.tokenize_to_spacy_doc(doc[start:end].text)
+            this_spacy_rule = self.matcher.get(idx)
+            # print("===========")
+            # print(this_spacy_rule)
+            # print(span_doc)
+            relations = self.find_relation(span_doc, this_spacy_rule)
+
+
+            # rule_id, spacy_rule_id = self.hash_map[idx]
 
     def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
             pattern_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
-            self.spacy_rule_lst += list(itertools.product(*pattern_lst))
-        for spacy_rule_id, spacy_rule in enumerate(self.spacy_rule_lst):
-            self.matcher.add(spacy_rule_id, None, list(spacy_rule))
+
+            for spacy_rule_id, spacy_rule in enumerate(itertools.product(*pattern_lst)):
+                self.matcher.add(self.construct_key(idx, spacy_rule_id), None, list(spacy_rule))
+
+    """TODO: add callback function to filter custom constrains
+    1. Prefix, suffix
+    2. min, max
+    3. full shape
+    4. is in output
+    5. filter overlap
+    """
+
+    def pre_suf_fix_filter(self):
+        pass
+
+    def min_max_filter(self):
+        pass
+
+    def full_shape_filter(self):
+        pass
+
+    def overlap_filter(self):
+        pass
+
+    def construct_key(self, rule_id, spacy_rule_id):
+        hash_key = (rule_id, spacy_rule_id)
+        hash_v = hash(hash_key)
+        self.hash_map[hash_v] = hash_key
+        return hash_v
+
+    def find_relation(self, span_doc, r):
+        rule = r[1][0]
+        span_pivot = 0
+        relation = {}
+        for e_id, element in enumerate(rule):
+            if not span_doc[span_pivot:]:
+                for extra_id, _, in enumerate(rule[e_id:]):
+                    relation[e_id+extra_id] = None
+                break
+            new_doc = self.tokenizer.tokenize_to_spacy_doc(span_doc[span_pivot:].text)
+            if "OP" not in element:
+                relation[e_id] = (span_pivot, span_pivot+1)
+                span_pivot += 1
+            else:
+                if e_id < len(rule)-1:
+                    tmp_rule_1 = [rule[e_id]]
+                    tmp_rule_2 = [rule[e_id+1]]
+                    tmp_matcher = Matcher(self.nlp.vocab)
+                    tmp_matcher.add(0, None, tmp_rule_1)
+                    tmp_matcher.add(1, None, tmp_rule_2)
+                    tmp_matches = sorted([x for x in tmp_matcher(new_doc) if x[1] != x[2]], key=lambda a: a[1])
+
+                    if not tmp_matches:
+                        relation[e_id] = None
+                    else:
+                        matches_1 = [x for x in tmp_matches if x[0] == 0 and x[1] == 0]
+                        if not matches_1:
+                            relation[e_id] = None
+                        else:
+                            matches_2 = [x for x in tmp_matches if x[0] == 1]
+                            _, s1, e1 = matches_1[0]
+                            _, s2, e2 = matches_2[0]
+                            if e1 <= s2:
+                                relation[e_id] = (span_pivot, span_pivot + e1)
+                                span_pivot += e1
+                            else:
+                                relation[e_id] = (span_pivot, span_pivot + s2)
+                                span_pivot += s2
+                else:
+                    relation[e_id] = (span_pivot, len(span_doc))
+
+        return relation
 
 
 class Pattern(object):
@@ -483,10 +556,7 @@ class Rule(object):
         self.output_format = d["output_format"]
         self.polarity = False if d["polarity"] == "false" else True
         self.patterns = []
-        self.operator_token = {'*':[]}
         for pattern_idx, a_pattern in enumerate(d["pattern"]):
-            if a_pattern["is_required"]:
-                self.operator_token['*'].append(pattern_idx)
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
 
