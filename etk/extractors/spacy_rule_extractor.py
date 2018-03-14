@@ -132,9 +132,7 @@ class SpacyRuleExtractor(Extractor):
             # print(this_spacy_rule)
             # print(span_doc)
             relations = self.find_relation(span_doc, this_spacy_rule)
-
-
-            # rule_id, spacy_rule_id = self.hash_map[idx]
+            rule_id, spacy_rule_id = self.hash_map[idx]
 
     def load_matcher(self) -> None:
         for idx, a_rule in enumerate(self.rule_lst):
