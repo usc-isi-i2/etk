@@ -92,7 +92,7 @@ class SpacyRuleExtractor(Extractor):
         Initialize the extractor, storing the rule information and construct spacy rules
         Args:
             nlp
-            rules: Dict
+            rules (Dict): spacy rules
             extractor_name: str
 
         Returns:
@@ -121,6 +121,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: List[Extraction]
         """
+
         doc = self.tokenizer.tokenize_to_spacy_doc(text)
         self.load_matcher()
 
@@ -152,15 +153,20 @@ class SpacyRuleExtractor(Extractor):
         extractions = []
         for (start, end, value, rule_id) in return_lst:
             this_extraction = Extraction(value=value,
-                                         extractor_name=self.rule_lst[rule_id].identifier,
+                                         extractor_name=self.name,
                                          start_token=start,
                                          end_token=end,
                                          start_char=doc[start].idx,
                                          end_char=doc[end-1].idx+len(doc[end-1]))
             extractions.append(this_extraction)
+
         return extractions
 
     def load_matcher(self) -> None:
+        """
+        Add constructed spacy rule to Matcher
+        """
+
         for idx, a_rule in enumerate(self.rule_lst):
             pattern_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
 
@@ -173,10 +179,11 @@ class SpacyRuleExtractor(Extractor):
         Args:
             span: span
             relations: Dict
-            patterns: List
+            patterns: List of pattern
 
         Returns: bool
         """
+
         for pattern_id, a_pattern in enumerate(patterns):
             token_range = relations[pattern_id]
             if token_range:
@@ -202,6 +209,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: List
         """
+
         value_lst.sort()
         result = []
         pivot = value_lst[0]
@@ -230,6 +238,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: List
         """
+
         pos_lst.sort()
         neg_lst.sort()
         result = []
@@ -265,6 +274,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: bool
         """
+
         if prefix:
             for a_token in t:
                 if a_token._.n_prefix(len(prefix)) != prefix:
@@ -287,6 +297,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: bool
         """
+
         def tofloat(value):
             try:
                 float(value)
@@ -319,6 +330,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: bool
         """
+
         if shapes:
             for a_token in t:
                 if a_token._.full_shape not in shapes:
@@ -338,6 +350,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: str
         """
+
         format_value = []
         output_inf = [a_pattern.in_output for a_pattern in patterns]
         for i in range(len(output_inf)):
@@ -356,7 +369,7 @@ class SpacyRuleExtractor(Extractor):
             t3 = s.pop(0)
             if t1 == '{' and t2.isdigit() and t3 == '}':
                 if int(t2) > len(format_value):
-                    return " ".join(format_value)
+                    return result_str + t1 + t2 + t3 + "".join(s)
                 result_str += format_value[int(t2) - 1]
                 if not s:
                     break
@@ -387,6 +400,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: int
         """
+
         hash_key = (rule_id, spacy_rule_id)
         hash_v = hash(hash_key)
         self.hash_map[hash_v] = hash_key
@@ -401,6 +415,7 @@ class SpacyRuleExtractor(Extractor):
 
         Returns: Dict
         """
+
         rule = r[1][0]
         span_pivot = 0
         relation = {}
@@ -450,7 +465,9 @@ class Pattern(object):
 
     For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,
     which can be used with rule-based matching: https://spacy.io/usage/linguistic-features#section-rule-based-matching
-    Some are custom attributes, need to apply further filtering after we get matches"""
+    Some are custom attributes, need to apply further filtering after we get matches
+    """
+
     def __init__(self, d: Dict, nlp) -> None:
         """
         Initialize a pattern, construct spacy token for matching according to type
@@ -460,6 +477,7 @@ class Pattern(object):
 
         Returns:
         """
+
         self.type = d["type"]
         self.in_output = False if d["is_in_output"] == "false" else True
         self.max = d["maximum"]
@@ -488,6 +506,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         if len(d["token"]) == 1:
             if d["match_all_forms"] == "true":
@@ -510,6 +529,8 @@ class Pattern(object):
             result.append(this_token)
             if d["length"]:
                 result = self.add_length_constrain(result, d["length"])
+            if d["capitalization"]:
+                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         else:
             if d["match_all_forms"] == "false":
@@ -571,6 +592,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         if not d["numbers"]:
             this_token = {attrs.IS_DIGIT: True}
@@ -603,6 +625,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         if not d["token"]:
             this_token = {attrs.IS_PUNCT: True}
@@ -630,6 +653,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         num_break = int(d["length"][0]) if d["length"] else 1
         if num_break:
@@ -655,6 +679,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         for a_token in token_lst:
             if d["is_required"] == "false":
@@ -672,6 +697,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         for a_token in token_lst:
             for length in lengths:
@@ -689,6 +715,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         for a_token in token_lst:
             for pos in pos_tags:
@@ -707,6 +734,7 @@ class Pattern(object):
 
         Returns: List[Dict]
         """
+
         result = []
         for a_token in token_lst:
             if "exact" in capi_lst and word_lst != []:
@@ -768,8 +796,9 @@ class Pattern(object):
 
 class Rule(object):
     """
-        class Rule represent each matching rule, each rule contains many pattern
+        Class Rule represent each matching rule, each rule contains many pattern
     """
+
     def __init__(self, d: Dict, nlp) -> None:
         """
         Storing information for each Rule, create list of Pattern for a rule
