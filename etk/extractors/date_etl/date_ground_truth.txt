@@ -1,0 +1,183 @@
+# The format of this file is that each line contains a ground truth
+# <text to extract>|<desired extraction>|<format>
+
+2017-02-12 14:29:11|2017-02-12|
+
+Friday, October 2, 2015 1:35 AM|2015-10-02|%A, %B %d, %Y %I:%M %p
+Friday, October 2, 2015|2015-10-02|
+October 2, 2015|2015-10-02|
+
+Friday, 2 October 2015, 18:23|2015-10-02|%A, %d %B %Y, %H:%M
+2 October 2015, 18:23|2015-10-02|
+Friday, 2 October 2015|2015-10-02|
+
+Thu October 01st, 2015|2015-10-01|%a %B %dst, %Y
+October 01st, 2015|2015-10-01|
+
+Thu October 02nd, 2015|2015-10-02|%a %B %dnd, %Y
+October 02nd, 2015|2015-10-02|
+
+Thu October 03rd, 2015|2015-10-03|%a %B %drd, %Y
+October 03rd, 2015|2015-10-03|
+
+Thu October 04th, 2015|2015-10-04|%a %B %dth, %Y
+October 04th, 2015|2015-10-04|
+
+2018-03-10 02:07:57 UTC|2018-03-10|%Y-%m-%d %H:%M:%S %Z
+
+2018-03-10T02:07:11Z|2018-03-10|%Y-%m-%dT%H:%M:%SZ
+
+Saturday, Mar 10, 2018|2018-03-10|%A, %b %d, %Y
+
+Saturday, March 10, 2018|2018-03-10|%A, %B %e, %Y
+
+Sat, Mar 10|2018-03-10|%a, %b %e
+
+2018-03-10 02:08:57.0|2018-03-10|%Y-%m-%d %H:%M:%S.0
+
+2018-03-10|2018-03-10|%Y-%m-%d
+
+Mar 10, 2018|2018-03-10|%b %d, %Y
+
+March 10, 2018|2018-03-10|%B %e, %Y
+
+March 10, 2018|2018-03-10|%B %d, %Y
+
+March 10, 2018 02:10 AM|2018-03-10|%B %d, %Y %I:%M %p
+
+Mar 10, 2018 at 02:10 AM|2018-03-10|%b %d, %Y at %I:%M %p
+
+03-10-2018|2018-03-10|%m-%d-%Y
+
+2018-03-10T02:11:24|2018-03-10|%Y-%m-%dT%H:%M:%S
+
+2018-03-10T02:11:44Z|2018-03-10|%Y-%m-%dT%H:%M:%SZ
+
+10 Mar 2018|2018-03-10|%e %b %Y
+
+# Adult service regex
+#adultservice_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+Thursday, September 4, 2014, 4:57 PM PST
+
+# Citiguide regex
+# citiguide_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+September 9, 2012  10:29 AM
+
+# anunico regex
+# anunico_regex_day = r"(\d\d?)\s(" + months_long_regex + r"),\s+(\d\d\d\d)"
+#Domingo, 20
+# Diciembre, 2009 & nbsp;
+# 04:11
+Domingo, 20 Diciembre, 2009 04:11
+
+# craigslist regex
+# craigslist_regex_day = r"(\d\d\d\d)-(\d\d)-(\d\d)"
+2013-12-04,  7:44PM CST
+
+# backpage regex
+# backpage1_regex_day = r"(\d\d?)\s+(" + months_long_regex + r")\s+(\d\d\d\d)"
+# backpage2_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+saturday, 1 february 2014, 12:03 am
+friday, december 6, 2013 3:16 pm
+
+# myproviderguide regex
+# myproviderguide_regex_day = r"(" + months_long_regex + r")\s+(\d\d?)\w+,\s+(\d\d\d\d)"
+wednesday, april 16th, 2014
+
+# sipsap regex
+# sipsap_regex_day = r"(" + months_long_regex + r")\s+(\d\d?)\w+\s+(\d\d\d\d)"
+wednesday, april 16th, 2014
+
+# days_relative_regex = r'(\b\d\d?)\s+days?\s+ago\b'
+9 days ago
+
+# hours_relative_regex = r'(\b\d\d?)\s+hours?\s+ago\b'
+22 hours ago
+
+# spanish backpage regex
+#  lunes, 27 de junio de 2016, 14:07
+# backpage3_regex_day = r"(\d\d?)\s+de\s+(" +  months_long_regex + r")\s+de\s+(\d\d\d\d)"
+lunes, 4 de julio de 2016, 9:01
+
+# european backpahe dates
+# backpage4_regex_day = r"(\d\d?)\.\s+(" +  months_long_regex + r")\s+(\d\d\d\d)"
+torsdag, 7. juli 2016, 12:01
+
+# Need to create ground truth examples for the following entries:
+# dd/mm/yy	03/08/06
+
+# dd/mm/yyyy	03/08/2006
+
+# d/m/yy	3/8/06
+
+# d/m/yyyy	3/8/2006
+
+# ddmmyy	030806
+
+# ddmmyyyy	03082006
+
+# ddmmmyy	03Aug06
+
+# ddmmmyyyy	03Aug2006
+
+# dd-mmm-yy	03-Aug-06
+
+# dd-mmm-yyyy	03-Aug-2006
+
+# dmmmyy	3Aug06
+
+# dmmmyyyy	3Aug2006
+
+# d-mmm-yy	3-Aug-06
+
+# d-mmm-yyyy	3-Aug-2006
+
+# d-mmmm-yy	3-August-06
+
+# d-mmmm-yyyy	3-August-2006
+
+# yymmdd	060803
+
+# yyyymmdd	20060803
+
+# yy/mm/dd	06/08/03
+
+# yyyy/mm/dd	2006/08/03
+
+# mmddyy	080306
+
+# mmddyyyy	08032006
+
+# mm/dd/yy	08/03/06
+
+# mm/dd/yyyy	08/03/2006
+
+# mmm-dd-yy	Aug-03-06
+
+# mmm-dd-yyyy	Aug-03-2006
+
+# yyyy-mm-dd	2006-08-03
+
+# weekday, dth mmmm yyyy	Monday, 3 of August 2006
+
+# weekday	Monday
+
+# mmm-yy	Aug-06
+
+# yy	06
+
+# yyyy	2006
+
+# dd-mmm-yyyy time	03-Aug-2006 18:55:30.35
+
+# yyyy-mm-dd time24 (ODBC Std)	2006-08-03 18:55:30
+
+# dd-mmm-yyyy time12	03-Aug-2006 6:55:30 pm
+
+# time24	18:55:30
+
+# time12	6:55:30 pm
+
+# hours	48:55:30
+
+# seconds	68538.350
