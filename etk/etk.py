@@ -1,6 +1,7 @@
 from typing import List, Dict
 import jsonpath_ng
 import spacy
+import json
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 
@@ -46,3 +47,15 @@ class ETK(object):
         with open(file_path) as fp:
             return fp.read().splitlines()
 
+    @staticmethod
+    def load_spacy_rule(file_path: str) -> Dict:
+        """
+        A spacy rule file is a json file.
+
+        Args:
+            file_path (str): path to a text file containing a glossary.
+
+        Returns: Dict as the representation of spacy rules
+        """
+        with open(file_path) as fp:
+            return json.load(fp)
