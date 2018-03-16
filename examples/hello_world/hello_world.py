@@ -43,7 +43,7 @@ member_descriptions = doc.select_segments("members[*].description")
 members = doc.select_segments("members[*]")
 
 for m_d, m in zip(member_descriptions, members):
-    dates = doc.invoke_extractor(date_extractor, m_d, ignore_future_dates=False, ignore_past_years=40)
+    dates = doc.invoke_extractor(date_extractor, m_d)
     m.store_extractions(dates, "related_dates")
 
 

@@ -8,7 +8,7 @@ class TestDateExtractor(unittest.TestCase):
         date_extractor = DateExtractor('test_date_parser')
         text = '03/05/2018: I went to USC on Aug 20th, 2016 and will graduate on 2018, May 11. My birthday is 29-04-1994.'
 
-        test_result = [x.value for x in date_extractor.extract(text, False, 30)]
+        test_result = [x.value for x in date_extractor.extract(text)]
 
         expected = ['2018-03-05T00:00:00',
                     '2016-08-20T00:00:00',
