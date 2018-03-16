@@ -64,7 +64,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
               {
                 "dependencies": [],
                 "description": "",
-                "identifier": "rule_3",
+                "identifier": "rule_4",
                 "is_active": "true",
                 "output_format": "number:{1}",
                 "pattern": [
@@ -96,8 +96,9 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         }
         sample_rule_extractor = SpacyRuleExtractor(spacy.load("en_core_web_sm"), sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract("version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
-        expected = [(1, 'number:2'), (0, 'firstName:Runqi12, lastName:Shao'), (0, 'firstName:Dongyu, lastName:Li'),
-                    (0, 'firstName:Sylvia, lastName:{2}'), (0, 'firstName:Amandeep, lastName:{2}')]
+        expected = [('rule_4', 'number:2'), ('rule_3', 'firstName:Runqi12, lastName:Shao'),
+                    ('rule_3', 'firstName:Dongyu, lastName:Li'), ('rule_3', 'firstName:Sylvia, lastName:{2}'),
+                    ('rule_3', 'firstName:Amandeep, lastName:{2}')]
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
 if __name__ == '__main__':

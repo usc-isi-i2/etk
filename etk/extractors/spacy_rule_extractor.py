@@ -7,6 +7,7 @@ from spacy import attrs
 from spacy.tokens import span, doc
 import copy
 import itertools
+import sys
 
 
 FLAG_DICT = {
@@ -107,11 +108,11 @@ class SpacyRuleExtractor(Extractor):
         self.tokenizer = Tokenizer(self.nlp)
         self.matcher = Matcher(self.nlp.vocab)
         self.field_name = rules["field_name"]
-        self.rule_lst = []
+        self.rule_lst = {}
         self.hash_map = {}
         for a_rule in self.rules:
             this_rule = Rule(a_rule, self.nlp)
-            self.rule_lst.append(this_rule)
+            self.rule_lst[this_rule.identifier] = this_rule
 
     def extract(self, text: str) -> List[Extraction]:
         """
@@ -167,12 +168,11 @@ class SpacyRuleExtractor(Extractor):
         """
         Add constructed spacy rule to Matcher
         """
-
-        for idx, a_rule in enumerate(self.rule_lst):
-            pattern_lst = [a_pattern.spacy_token_lst for a_pattern in a_rule.patterns]
+        for id_key in self.rule_lst:
+            pattern_lst = [a_pattern.spacy_token_lst for a_pattern in self.rule_lst[id_key].patterns]
 
             for spacy_rule_id, spacy_rule in enumerate(itertools.product(*pattern_lst)):
-                self.matcher.add(self.construct_key(idx, spacy_rule_id), None, list(spacy_rule))
+                self.matcher.add(self.construct_key(id_key, spacy_rule_id), None, list(spacy_rule))
 
     def filter_match(self, span: span, relations: Dict, patterns: List) -> bool:
         """
@@ -392,7 +392,7 @@ class SpacyRuleExtractor(Extractor):
                     break
         return result_str
 
-    def construct_key(self, rule_id: int, spacy_rule_id:int) -> int:
+    def construct_key(self, rule_id: str, spacy_rule_id:int) -> int:
         """
         Use a mapping to store the information about rule_id for each matches, create the mapping key here
         Args:
@@ -403,7 +403,7 @@ class SpacyRuleExtractor(Extractor):
         """
 
         hash_key = (rule_id, spacy_rule_id)
-        hash_v = hash(hash_key)
+        hash_v = hash(hash_key) + sys.maxsize + 1
         self.hash_map[hash_v] = hash_key
         return hash_v
 
