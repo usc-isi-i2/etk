@@ -157,7 +157,8 @@ class SpacyRuleExtractor(Extractor):
                                          start_token=start,
                                          end_token=end,
                                          start_char=doc[start].idx,
-                                         end_char=doc[end-1].idx+len(doc[end-1]))
+                                         end_char=doc[end-1].idx+len(doc[end-1]),
+                                         rule_id=rule_id)
             extractions.append(this_extraction)
 
         return extractions

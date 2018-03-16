@@ -132,7 +132,8 @@ class Extraction(Extractable):
                  end_token=None,
                  start_char=None,
                  end_char=None,
-                 tag=None):
+                 tag=None,
+                 rule_id=None):
         Extractable.__init__(self)
         """
 
@@ -144,6 +145,7 @@ class Extraction(Extractable):
 
         """
         self._tag = tag
+        self._rule_id = rule_id
         fake_provenance = {
             "extractor_name": extractor_name,
             "confidence": confidence,
@@ -185,3 +187,12 @@ class Extraction(Extractable):
 
         """
         return self._tag
+
+    @property
+    def rule_id(self) -> str:
+        """
+
+        Returns: the rule_id associated with this Extraction.
+
+        """
+        return self._rule_id
