@@ -104,10 +104,6 @@ class Tokenizer(object):
             return token.orth_[-2:] in ['rd', 'st', 'th', 'nd']
         spacy_token.set_extension("is_ordinal", getter=is_ordinal)
 
-        def is_month(token):
-            return token.lower_ in months_dict.keys()
-        spacy_token.set_extension("is_month", getter=is_month)
-
         def is_mixed(token):
             if not token.is_title and not token.is_lower and not token.is_upper:
                 return True
