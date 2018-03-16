@@ -93,23 +93,77 @@ class DateExtractor(Extractor):
                 prefer_day_of_month: str = "first",  # can be "current", "first", "last".
                 prefer_dates_from: str = "current"  # can be "current", "future", "past".
                 ) -> List[Extraction]:
-        results = [list(re.finditer(d, text)) for d in self.final_regex]
+
+        extractions = []
+
+        results = []
+        for order in self.final_regex.keys():
+            res = [self.wrap_date_str(order, match) for match in re.finditer(self.final_regex[order], text)]
+            results.append(res)
+
+        date_string_dicts = self.remove_overlapped_date_str(results, preferred_date_order)
+        for date in date_string_dicts:
+            date_extraction = self.validate_and_convert_date(date)
+            if date_extraction:
+                extractions.append(date_extraction)
+
+        return extractions
+
+    def validate_and_convert_date(self, date):
+        segment_list = date['groups']
+        order = list(date['order'])
+        if not segment_list or len(segment_list) < 10:
+            return None
+        # TODO: convert to python datetime object
+        # TODO: apply customized settings
+        mappings = {
+            'W': segment_list[0] if segment_list[0] else segment_list[4] if segment_list[4] else None,
+            'HOUR': segment_list[5],
+            'MIN': segment_list[6],
+            'SEC': segment_list[7],
+            'MARK': segment_list[8],
+            'TZ': segment_list[9]
+        }
+        i = 1
+        for k in order:
+            mappings[k] = segment_list[i]
+            i += 1
+
+        return date
+
+    def wrap_date_str(self, order, match):
+        return {
+            'value': match.group(),
+            'groups': match.groups(),
+            'start': match.start(),
+            'end': match.end(),
+            'order': order
+        }
+
+
+    def remove_overlapped_date_str(self, results, preferred_order="MDY"):
         res = []
         all_results = []
         for x in results:
             all_results = all_results + x
         if not all_results or len(all_results) == 0:
             return list()
-        all_results.sort(key=lambda k: k.start())
+        all_results.sort(key=lambda k: k['start'])
         cur_max = all_results[0]
         for x in all_results[1:]:
-            if cur_max.end() <= x.start():
-                res.append(self.wrap(cur_max))
+            if cur_max['end'] <= x['start']:
+                parsed_date = self.parse_date(cur_max)
+                if parsed_date:
+                    res.append(parsed_date)
                 cur_max = x
             else:
-                if len(x.group()) > len(cur_max.group()):
+                if len(x['value']) > len(cur_max['value']):
                     cur_max = x
-        res.append(self.wrap(cur_max))
+                elif len(x['value']) == len(cur_max['value']) and x['order'] == preferred_order:
+                    cur_max = x
+        parsed_date = self.parse_date(cur_max)
+        if parsed_date:
+            res.append(parsed_date)
         # TODO: do not append if parse_date returns None
         return res
 
@@ -160,24 +214,25 @@ class DateExtractor(Extractor):
 
         """
         # TODO: convert the params to settings for dateparser
-        customized_settings = {
-            'STRICT_PARSING': False
-        }
-        try:
-            if len(str_date) > 100:
-                return list()
-            str_date = str_date[:20] if len(str_date) > 20 else str_date
-            str_date = str_date.replace('\r', '')
-            str_date = str_date.replace('\n', '')
-            str_date = str_date.replace('<', '')
-            str_date = str_date.replace('>', '')
-            parsed_date = dateparser.parse(str_date, settings=customized_settings)
-            if parsed_date:
-                # TODO: deal with the constraints like 'ignore_dates_after', 'ignore_dates_before'
-                return parsed_date
-        except Exception as e:
-            print('Exception: {}, failed to parse {} as date'.format(e, str_date))
-            return list()
+        # customized_settings = {
+        #     'STRICT_PARSING': False
+        # }
+        # try:
+        #     if len(str_date) > 100:
+        #         return list()
+        #     str_date = str_date[:20] if len(str_date) > 20 else str_date
+        #     str_date = str_date.replace('\r', '')
+        #     str_date = str_date.replace('\n', '')
+        #     str_date = str_date.replace('<', '')
+        #     str_date = str_date.replace('>', '')
+        #     parsed_date = dateparser.parse(str_date, settings=customized_settings)
+        #     if parsed_date:
+        #         # TODO: deal with the constraints like 'ignore_dates_after', 'ignore_dates_before'
+        #         return parsed_date
+        # except Exception as e:
+        #     print('Exception: {}, failed to parse {} as date'.format(e, str_date))
+        #     return list()
+        return str_date
 
     @staticmethod
     def convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY):
@@ -197,30 +252,22 @@ class DateExtractor(Extractor):
         for k in self.units.keys():
             all[k] = self.generate_regex_for_a_unit(self.units[k])
         s = self.singleton_regex['%splitters'] + r'? ?'
-        time = r'(' + all['HOUR'] + r': ?' + all['MIN'] + r'(?:: ?' + all['SEC'] + r')?(?:' + all[
+        time = r'(?:' + all['HOUR'] + r': ?' + all['MIN'] + r'(?:: ?' + all['SEC'] + r')?(?:' + all[
             'MARK'] + ')?(?:' + s + all['TZ'] + r')?)'
         st = r'(?:' + self.singleton_regex['%splitters'] + r' ?|T)?'
         time_reg = r'(?:T?' + st + time + r'Z?)?'
         week_reg = r'(?:' + s + all['W'] + r')?'
-        return [
-            # 'MDY':
-            r'\b(((?:' + all['W'] + s + r')?' + all['M'] + s + all['D'] + r'?' + s + all[
+        return {
+            'MDY': r'\b(?:(?:(?:' + all['W'] + s + r')?' + all['M'] + s + all['D'] + r'?' + s + all[
                 'Y'] + week_reg + r')' + time_reg + r')\b',
-            # 'DMY':
-            r'\b(((?:' + all['W'] + s + r')?' + all['D'] + r'?' + s + all['M'] + s + all[
+            'DMY': r'\b(?:(?:(?:' + all['W'] + s + r')?' + all['D'] + r'?' + s + all['M'] + s + all[
                 'Y'] + week_reg + r')' + time_reg + r')\b',
-            # 'YMD':
-            r'\b(((?:' + all['W'] + s + r')?' + all['Y'] + s + all['M'] + s + all[
-                'D'] + r'?' + week_reg + r')' + time_reg + r')\b',
-        ]
+            'YMD': r'\b(?:(?:(?:' + all['W'] + s + r')?' + all['Y'] + s + all['M'] + s + all[
+                'D'] + r'?' + week_reg + r')' + time_reg + r')\b'
+        }
 
     def wrap(self, match):
-        value = str(self.convert_to_iso_format(self.parse_date(match.group())))
-        e = Extraction(value=value, start_char=match.start(), end_char=match.end(), extractor_name=self.name)
-        # match.groups() contains the separated date and time
-        # TODO: need a better way to do this
-        e._provenance['original_string'] = match.group()
-        return e
+        return match
 
     def generate_regex_for_a_unit(self, key_list):
         if isinstance(key_list, list):
@@ -238,23 +285,19 @@ class DateExtractor(Extractor):
                     regex_list.append('(?:'+self.singleton_regex[key]+')')
             if not regex_list or len(regex_list) == 0:
                 return r''
-            res = r'(?:' + regex_list[0]
+            res = r'(' + regex_list[0]
             for r in regex_list[1:]:
                 res = res + '|' + r
             res = res + ')'
             return res
         else:
-            return r'(?:' + self.singleton_regex[key_list] + r')'
+            return r'(' + self.singleton_regex[key_list] + r')'
 
-# with open('date_etl/date_ground_truth.txt', 'r') as f:
-#     text = f.read()
-# aaa = DateExtractor(extractor_name='test')
-# bbb = aaa.extract(text)
-# cnt=0
-# for x in bbb:
-#     if x.value == 'None':
-#         print(x._provenance['original_string'])
-#         cnt += 1
-#     print(x.value)
-#
-# print(len(bbb), cnt)
+with open('date_ground_truth.txt', 'r') as f:
+    text = f.read()
+aaa = DateExtractor(extractor_name='test')
+bbb = aaa.extract(text)
+for x in bbb:
+    print(x)
+
+print(len(bbb))
