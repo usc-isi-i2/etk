@@ -403,9 +403,10 @@ class Core(object):
 
                         run_readability = True
                         for index in range(len(matches)):
-                            if content_extraction_guards and not self.assert_data_extraction_guard(content_extraction_guards, doc, matches[index].value):
-                                continue
                             for extractor in extractors.keys():
+                                if content_extraction_guards and not self.assert_data_extraction_guard(
+                                        content_extraction_guards, doc, matches[index].value):
+                                    continue
                                 if extractor == _LANDMARK:
                                     doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
                                                                                  matches[index].value,
