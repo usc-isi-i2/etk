@@ -377,6 +377,7 @@ class Core(object):
                     if _CONTENT_EXTRACTION not in doc:
                         doc[_CONTENT_EXTRACTION] = dict()
                     ce_config = self.extraction_config[_CONTENT_EXTRACTION]
+                    content_extraction_guards = ce_config[_GUARDS] if _GUARDS in ce_config else None
 
                     # JSON CONTENT: create content for data extraction from json paths
                     if _JSON_CONTENT in ce_config:
@@ -399,8 +400,11 @@ class Core(object):
                         matches = self.content_extraction_path.find(doc)
 
                         extractors = ce_config[_EXTRACTORS]
+
                         run_readability = True
                         for index in range(len(matches)):
+                            if content_extraction_guards and not self.assert_data_extraction_guard(content_extraction_guards, doc, matches[index].value):
+                                continue
                             for extractor in extractors.keys():
                                 if extractor == _LANDMARK:
                                     doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
