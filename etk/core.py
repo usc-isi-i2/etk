@@ -858,6 +858,7 @@ class Core(object):
             if config and _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
                 result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
+
             return result
 
         elif isinstance(d, dict) and _TEXT in d:
@@ -865,8 +866,13 @@ class Core(object):
                 result = self.pseudo_extraction_results(d[_TEXT], key=d[_KEY] if _KEY in d else None,
                                                         qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
                 if config and _POST_FILTER in config:
+                    if config[_FIELD_NAME] == 'event_date':
+                        print d[_TEXT]
                     post_filters = config[_POST_FILTER]
                     result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
+                    if config[_FIELD_NAME] == 'event_date':
+                        if result:
+                            print result
                 return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
             else:
                 return None
@@ -1581,6 +1587,7 @@ class Core(object):
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
+
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
             results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
@@ -2042,7 +2049,7 @@ class Core(object):
         ignore_past_years = config['ignore_past_years'] if config and 'ignore_past_years' in config else 20
         ignore_future_dates = config['ignore_future_dates'] if config and 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
-            return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates)
+            return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates, strict_parsing=strict_parsing)
         else:
             try:
                 return date_parser.convert_to_iso_format(
@@ -2060,6 +2067,7 @@ class Core(object):
 
         try:
             # try the 2005344 format just in case
+
             to_be_parsed_date = str(d) if isinstance(d, basestring) else d[_TEXT]
             if seven_digits.match(to_be_parsed_date):
                 year = to_be_parsed_date[0:4]
@@ -2068,17 +2076,16 @@ class Core(object):
                 return parsed_date.isoformat()
         except:
             return None
-
         result = Core.parse_date(d, config=config, strict_parsing=False)
 
         return result
 
     @staticmethod
-    def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
+    def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True, strict_parsing=True):
         try:
             return date_parser.convert_to_iso_format(
                 date_parser.parse_date(str_date, ignore_future_dates=ignore_future_dates,
-                                       ignore_past_years=ignore_past_years))
+                                       ignore_past_years=ignore_past_years, strict_parsing=strict_parsing))
         except:
             return None
 
