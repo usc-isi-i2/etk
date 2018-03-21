@@ -238,6 +238,7 @@ class Core(object):
         self.etk_version = "1"
         self.prefer_inferlink_description = False
         self.doc_filter_regexes = dict()
+        self.guards_path_regex = dict()
         self.readability_timeout = 3
         self.decoding_dict_dict = dict()
         if self.extraction_config:
@@ -1293,7 +1294,9 @@ class Core(object):
         # print 'processing guards: {}'.format(guards)
         for guard in guards:
             try:
-                jpath_parser = parse(guard['path'])
+                if guard['path'] not in self.guards_path_regex:
+                    self.guards_path_regex[guard['path']] = parse(guard['path'])
+                jpath_parser = self.guards_path_regex[guard['path']]
                 regex = guard['regex']
                 if guard['type'] == 'doc':
                     matches = jpath_parser.find(doc)
