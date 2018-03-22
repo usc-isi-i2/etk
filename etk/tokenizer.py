@@ -37,6 +37,16 @@ class Tokenizer(object):
         return tokens
 
     def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = False) -> Doc:
+        """
+        Tokenize the given text, returning a spacy doc. Used for spacy rule extractor
+
+        Args:
+            text (string):
+            keep_multi_space
+
+        Returns: Doc
+
+        """
         if not keep_multi_space:
             text = re.sub(' +', ' ', text)
         doc = self.nlp(text)
@@ -90,19 +100,16 @@ class Tokenizer(object):
             return bool(pattern.match(token.text))
         spacy_token.set_extension("is_decimal", getter=is_decimal)
 
-        # def is_linebreak(token):
+        def is_ordinal(token):
+            return token.orth_[-2:] in ['rd', 'st', 'th', 'nd']
+        spacy_token.set_extension("is_ordinal", getter=is_ordinal)
 
-
-        """To Do: 
-            is_linkbreak(\n) (boolean), 
-            is_month(boolean), 
-            is_mixed(eg.xXxX) (boolean), 
-            is_alphanumeric(sda23d) (boolean), 
-            is_following_space?(boolean), 
-            is_followed_by_space?(boolean),
-            is_space?(boolean)
-        ...
-        """
+        def is_mixed(token):
+            if not token.is_title and not token.is_lower and not token.is_upper:
+                return True
+            else:
+                return False
+        spacy_token.set_extension("is_mixed", getter=is_mixed)
 
         """Add custom methods"""
         """Add get_prefix method. RETURN length N prefix"""
@@ -114,13 +121,6 @@ class Tokenizer(object):
         def n_suffix(token, n):
             return token.text[-n:]
         spacy_token.set_extension("n_suffix", method=n_suffix)
-
-        """To Do: 
-        1. Method convert_to_number: RETURN number, type integer if is integer, float if is float, else None
-        2. Method find_substring(args): 
-            args can be a string or a regex
-            RETURN start index of first matches if exist, else None
-        """
 
         return spacy_token
 
