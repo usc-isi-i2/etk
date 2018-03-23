@@ -99,9 +99,7 @@ class DateExtractor(Extractor):
         if parsed_date:
             if parsed_date:
                 res.append(parsed_date)
-        # TODO: do not append if parse_date returns None
         return res
-
 
     def parse_date(self, str_date: dict,
                    date_formats: List[str] = list(),  # when specified, only extract the given formats.
@@ -118,18 +116,6 @@ class DateExtractor(Extractor):
                    prefer_dates_from: str = "current"  # can be "current", "future", "past".
                    ) -> datetime.datetime or None:
         """
-        settings (): settings when parse the date:
-            {
-                'DATE_ORDER': 'MDY',    # default to be 'MDY', shuffled Y, M, D representing Year, Month, Date
-                'STRICT_PARSING': True,
-                'FUZZY': True,
-                'PREFER_DAY_OF_MONTH': 'current',   # default to be 'current'; can be 'first' or 'last' instead;\
-                    specify the date when the date is missing
-                'PREFER_DATES_FROM': 'current_period',  # default to be 'current_period'; can be 'future', \
-                    or 'past' instead; specify the date when the date is missing
-                'RELATIVE_BASE': datetime.datetime(2020, 1, 1),  # default to be current date and time
-                'SKIP_TOKENS_PARSER': ['t']    # default to be ['t']; a list of tokens to discard while detecting language
-            }
         Args:
             str_date:
             date_formats:
@@ -148,31 +134,11 @@ class DateExtractor(Extractor):
         Returns:
 
         """
-        # TODO: convert the params to settings for dateparser
-        # customized_settings = {
-        #     'STRICT_PARSING': False
-        # }
-        # try:
-        #     if len(str_date) > 100:
-        #         return list()
-        #     str_date = str_date[:20] if len(str_date) > 20 else str_date
-        #     str_date = str_date.replace('\r', '')
-        #     str_date = str_date.replace('\n', '')
-        #     str_date = str_date.replace('<', '')
-        #     str_date = str_date.replace('>', '')
-        #     parsed_date = dateparser.parse(str_date, settings=customized_settings)
-        #     if parsed_date:
-        #         # TODO: deal with the constraints like 'ignore_dates_after', 'ignore_dates_before'
-        #         return parsed_date
-        # except Exception as e:
-        #     print('Exception: {}, failed to parse {} as date'.format(e, str_date))
-        #     return list()
+
         i = 0
         pattern = list()
         formatted = list()
-        # print(len(str_date['groups']), len(self.symbol_list[str_date['order']]))
-        # print(str_date['groups'])
-        # print(self.symbol_list[str_date['order']])
+
         for s in str_date['groups']:
             if s:
                 pattern.append(self.symbol_list[str_date['order']][i].replace('-',''))
