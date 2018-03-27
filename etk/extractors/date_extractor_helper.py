@@ -1,5 +1,6 @@
 # reference: http://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
 # symbol references: http://strftime.org/
+import re
 singleton_regex = {
     '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
     '%y': r'([6-9][0-9]|[0-3][0-9])',  # year in two digits
@@ -49,7 +50,6 @@ units = {
     'MARK': '%p',
     'TZ': ['%Z', '%z']
 }
-
 
 def generate_regex_for_a_unit(key_list):
     if isinstance(key_list, list):

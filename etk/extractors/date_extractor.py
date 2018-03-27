@@ -4,7 +4,57 @@ from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
 import datetime, re, dateparser, json
 
+singleton_regex = {
+    '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
+    '%y': r'([6-9][0-9]|[0-3][0-9])',  # year in two digits
+    '%B': r'(January|February|March|April|May|June|July|August|September|October|November|December)',  # month
+    '%b': r'(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?)',  # month abbr.
+    '%m': r'(1[0-2]|0[1-9])',  # month in two digits: 01-12
+    '%-m': r'(1[0-2]|[1-9])',  # month in number without prefix 0: 1-12
+    '%d': r'(3[0-1]|[1-2][0-9]|0[1-9])',  # day in two digits: 01-31
+    '%-d': r'(3[0-1]|[1-2][0-9]|[1-9])',  # day in number without prefix 0: 1-31
+    'd_suffix': r'(?:st|nd|rd|th)',
+    '%A': r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)',  # weekdays
+    '%a': r'(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?)',  # weekdays abbr.
+    '%H': r'(2[0-3]|[0-1][0-9])',  # hour in 24-hours in two digits: 00-23
+    '%-H': r'(2[0-3]|1[0-9]|[0-9])',  # hour in 24-hour in number without prefix 0: 0-23
+    '%I': r'(1[0-2]|0[1-9])',  # hour in 12-hour in two digits: 01-12
+    '%-I': r'(1[0-2]|[1-9])',  # hour in 12-hour in number without prefix 0: 1-12
+    '%p': r'((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))',  # am/pm markers
+    '%M': r'([0-5][0-9])',  # minute in two digits: 00-59
+    '%S': r'([0-5][0-9])',  # second in two digits: 00-59
+    '%Z': r'(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|'
+          r'BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|'
+          r'CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|'
+          r'EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|'
+          r'GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|'
+          r'ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|'
+          r'MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|'
+          r'OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|'
+          r'SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|'
+          r'ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)',
+    # timezone abbr. list
+    # reference: https://en.wikipedia.org/wiki/List_of_time_zone_abbreviations
+    '%z': r'((?:UTC|GMT)(?: ?[\+\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|'
+          r'[+-][01][0-3](?:00|30|45)|[\+\-](?:1[0-3]|0[0-9])(?:00|30|45))',
+    # timezone like 'UTC', 'UTC + 8:30', 'GMT+1130', '+0600'
+    # reference: https://en.wikipedia.org/wiki/Time_zone
+    'splitters': r'(?:[,/ \.\-]? ?)'
+}
 
+
+
+units = {
+    'Y': ['%Y', '%y'],
+    'M': ['%B', '%b', '%m', '%-m'],
+    'D': ['%d', '%-d', ['%d', 'd_suffix'], ['%-d', 'd_suffix']],
+    'W': ['%A', '%a'],
+    'HOUR': ['%I', '%-I', '%H', '%-H'],
+    'MIN': '%M',
+    'SEC': '%S',
+    'MARK': '%p',
+    'TZ': ['%Z', '%z']
+}
 
 class DateResolution(Enum):
     """
@@ -59,23 +109,58 @@ class DateExtractor(Extractor):
                 prefer_dates_from: str = "current"  # can be "current", "future", "past".
                 ) -> List[Extraction]:
 
+
+
         results = []
+        if date_formats:
+            regexes = []
+            for date_format in date_formats:
+                order = ''
+                reg = date_format
+                for key in singleton_regex:
+                    if key[0] == '%':
+                        reg2 = re.sub(key, singleton_regex[key], reg)
+                        if reg != reg2:
+                            if key in units['M']:
+                                order += 'M'
+                            elif key in units['Y']:
+                                order += 'Y'
+                            elif key in units['D']:
+                                order += 'D'
+                            reg = reg2
+                regexes.append({
+                    'reg': reg,
+                    'pattern': date_format,
+                    'order': order,
+                })
+            for r in regexes:
+                if extract_first_date_only:
+                    results.append([self.wrap_date_str(r['order'], re.match(r['reg'], text, re.I), pattern=r['pattern'])])
+                else:
+                    results.append([self.wrap_date_str(r['order'], match, pattern=r['pattern']) for match in re.finditer(r['reg'], text, re.I)])
+            return self.remove_overlapped_date_str(results, preferred_date_order, ignore_dates_before,
+                                                   ignore_dates_after)
+
         for order in self.final_regex.keys():
-            res = [self.wrap_date_str(order, match) for match in re.finditer(self.final_regex[order], text, re.I)]
+            if extract_first_date_only:
+                res = [self.wrap_date_str(order, re.match(self.final_regex[order], text, re.I))]
+            else:
+                res = [self.wrap_date_str(order, match) for match in re.finditer(self.final_regex[order], text, re.I)]
             results.append(res)
 
-        return self.remove_overlapped_date_str(results, preferred_date_order)
+        return self.remove_overlapped_date_str(results, preferred_date_order, ignore_dates_before, ignore_dates_after)
 
-    def wrap_date_str(self, order, match):
+    def wrap_date_str(self, order, match, pattern=None):
         return {
             'value': match.group(),
             'groups': match.groups(),
             'start': match.start(),
             'end': match.end(),
-            'order': order
+            'order': order,
+            'pattern': pattern
         }
 
-    def remove_overlapped_date_str(self, results, preferred_order="MDY"):
+    def remove_overlapped_date_str(self, results, preferred_order="MDY", ignore_dates_before=None, ignore_dates_after=None):
         res = []
         all_results = []
         for x in results:
@@ -86,7 +171,7 @@ class DateExtractor(Extractor):
         cur_max = all_results[0]
         for x in all_results[1:]:
             if cur_max['end'] <= x['start']:
-                parsed_date = self.parse_date(cur_max)
+                parsed_date = self.parse_date(cur_max, ignore_dates_before=ignore_dates_before, ignore_dates_after=ignore_dates_after)
                 if parsed_date:
                     res.append(parsed_date)
                 cur_max = x
@@ -95,10 +180,9 @@ class DateExtractor(Extractor):
                     cur_max = x
                 elif len(x['value']) == len(cur_max['value']) and x['order'] == preferred_order:
                     cur_max = x
-        parsed_date = self.parse_date(cur_max)
+        parsed_date = self.parse_date(cur_max, ignore_dates_before=ignore_dates_before, ignore_dates_after=ignore_dates_after)
         if parsed_date:
-            if parsed_date:
-                res.append(parsed_date)
+            res.append(parsed_date)
         return res
 
     def parse_date(self, str_date: dict,
@@ -134,19 +218,24 @@ class DateExtractor(Extractor):
         Returns:
 
         """
+        if str_date['pattern']:
+            date = datetime.datetime.strptime(str_date['value'], str_date['pattern'])
+        else:
+            i = 0
+            pattern = list()
+            formatted = list()
 
-        i = 0
-        pattern = list()
-        formatted = list()
-
-        for s in str_date['groups']:
-            if s:
-                pattern.append(self.symbol_list[str_date['order']][i].replace('-',''))
-                formatted.append(s.strip())
-            i += 1
+            for s in str_date['groups']:
+                if s:
+                    pattern.append(self.symbol_list[str_date['order']][i].replace('-',''))
+                    formatted.append(s.strip())
+                i += 1
+            date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
+        if (ignore_dates_before and date<ignore_dates_before) or (ignore_dates_after and date>ignore_dates_after):
+            return None
         try:
             return {
-                'value': datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern)),
+                'value': date,
                 'original_text': str_date['value'],
                 'start': str_date['start'],
                 'end': str_date['end']
@@ -155,8 +244,6 @@ class DateExtractor(Extractor):
             print()
             print('!Exception', e)
             print(str_date)
-            print(pattern)
-            print(formatted)
             return None
 
     @staticmethod
@@ -173,11 +260,33 @@ class DateExtractor(Extractor):
         return None
 
 
-
-with open('date_ground_truth.txt', 'r') as f:
-    text = f.read()
+ignore_before = datetime.datetime(2000, 1, 1)
+ignore_after = datetime.datetime(2020, 10, 10)
+# with open('date_ground_truth.txt', 'r') as f:
+#     text = f.read()
+text = '11121211 20180508 20200101 19930505 20112011 2018-Jun-15 2018, Jun 15 2008-12-12 '
 aaa = DateExtractor(extractor_name='test')
-bbb = aaa.extract(text)
+bbb = aaa.extract(text,
+                # extract_first_date_only: bool = False,
+                extract_first_date_only=False,
+                # # useful for news stories where the first date is typically the publication date.
+                # date_formats: List[str] = list(),  # when specified, only extract the given formats.
+                date_formats=['%Y-%m-%d', '%Y, %b %d'],
+                # ignore_dates_before: datetime.datetime = None,
+                ignore_dates_before=ignore_before,
+                # ignore_dates_after: datetime.datetime = None,
+                ignore_dates_after=ignore_after,
+                # detect_relative_dates: bool = True,
+                # relative_base: datetime.datetime = None,
+                # preferred_date_order: str = "MDY",  # used for interpreting ambiguous dates that are missing parts
+                preferred_date_order="DMY"
+                # prefer_language_date_order: bool = True,
+                # timezone: str = None,  # default is local timezone.
+                # to_timezone: str = None,  # when not specified, not timezone conversion is done.
+                # return_as_timezone_aware: bool = True,  # when false don't do timezime conversions.
+                # prefer_day_of_month: str = "first",  # can be "current", "first", "last".
+                # prefer_dates_from: str = "current"  # can be "current", "future", "past".)
+                )
 for x in bbb:
     print(x)
 
