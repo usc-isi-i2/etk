@@ -21,6 +21,14 @@ class KgSchema(object):
     """
 
     def __init__(self, config: Dict) -> None:
+        """
+        Record a mapping about each fields and its type from config file
+
+        Args:
+            config: Dict
+
+        """
+
         self.fields_dict = {}
         try:
             for field in config["fields"]:
@@ -117,7 +125,7 @@ class KnowledgeGraph(object):
         if self.schema.has_field(field_name):
             self._kg[field_name] = []
             path = self.etk.invoke_parser(jsonpath)
-            matches = path.find(self.origin_doc)
+            matches = path.find(self.origin_doc.value)
             for a_match in matches:
                 if self.schema.is_valid(field_name, a_match.value):
                     self._kg[field_name].append({
