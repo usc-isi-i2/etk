@@ -152,6 +152,9 @@
     }, 
     "table_attributes": {},
     "fields": {
+        "developer": {
+            "type": "string"
+        },
         "causeex_class": {
             "color": "amber",
             "show_in_search": false,
@@ -697,7 +700,7 @@
             "show_as_link": "text",
             "blacklists": [],
             "show_in_result": "nested",
-            "type": "string",
+            "type": "kg_id",
             "description": "The person or organization that caused and event",
             "rule_extractor_enabled": false,
             "search_importance": 1,
