@@ -126,11 +126,11 @@ class KgSchema(object):
         try:
             datetime.strptime(v, '%Y-%m-%d')
             return True
-        except ValueError:
+        except:
             try:
                 datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
                 return True
-            except ValueError:
+            except:
                 pass
         return False
 
@@ -152,6 +152,8 @@ class KgSchema(object):
             except ValueError:
                 return False
 
+        if not isinstance(v, str):
+            return False
         split_lst = v.split(":")
         if len(split_lst) != 5:
             return False
