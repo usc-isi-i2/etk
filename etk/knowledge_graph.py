@@ -2,7 +2,7 @@ from typing import List, Dict
 from enum import Enum, auto
 from etk.document import Document
 from etk.etk import ETK
-from etk.exception import KgValueInvalidError, ISODateError
+from etk.exception import KgValueInvalidError, ISODateError, InvalidJsonPathError
 from datetime import date, datetime
 import numbers
 
@@ -192,15 +192,17 @@ class KnowledgeGraph(object):
             if field_name not in self._kg:
                 self._kg[field_name] = []
                 path = self.etk.invoke_parser(jsonpath)
-                matches = path.find(self.origin_doc.value)
+                try:
+                    matches = path.find(self.origin_doc.value)
+                except Exception:
+                    raise InvalidJsonPathError("Invalid Json Path")
+
                 all_valid = True
                 for a_match in matches:
                     if self.schema.is_valid(field_name, a_match.value):
-                        this_value = a_match.value
-                        if self.schema.field_type(field_name) == FieldType.DATE:
-                            this_value = self.iso_date(this_value)
+                        this_value = self.value_pre_process(a_match.value, field_name)
                         self._kg[field_name].append({
-                            "value": this_value.strip(),
+                            "value": this_value,
                             "key": self.create_key_from_value(this_value, field_name)
                         })
                     else:
@@ -224,20 +226,18 @@ class KnowledgeGraph(object):
         if field_name not in self._kg:
             self._kg[field_name] = []
             if self.schema.is_valid(field_name, value):
-                if self.schema.field_type(field_name) == FieldType.DATE:
-                    value = self.iso_date(value)
+                value = self.value_pre_process(value, field_name)
                 self._kg[field_name].append({
-                    "value": value.strip(),
+                    "value": value,
                     "key": self.create_key_from_value(value, field_name)
                 })
             elif isinstance(value, list):
                 all_valid = True
                 for a_value in value:
                     if self.schema.is_valid(field_name, a_value):
-                        if self.schema.field_type(field_name) == FieldType.DATE:
-                            a_value = self.iso_date(a_value)
+                        a_value = self.value_pre_process(a_value, field_name)
                         self._kg[field_name].append({
-                            "value": a_value.strip(),
+                            "value": a_value,
                             "key": self.create_key_from_value(a_value, field_name)
                         })
                     else:
@@ -259,6 +259,25 @@ class KnowledgeGraph(object):
         Returns: Dict
         """
         return self._kg
+
+    def value_pre_process(self, v, field_name):
+        """
+        Pre process value
+
+        Args:
+            v: value
+            field_name: str
+
+        Returns: v
+        """
+        result = v
+        if isinstance(result, str):
+            result = result.strip()
+
+        if self.schema.field_type(field_name) == FieldType.DATE:
+            result = self.iso_date(result)
+
+        return result
 
     @staticmethod
     def iso_date(d) -> str:

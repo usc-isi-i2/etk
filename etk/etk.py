@@ -4,6 +4,7 @@ import spacy
 import json
 from etk.tokenizer import Tokenizer
 from etk.document import Document
+from etk.exception import InvalidJsonPathError
 
 
 class ETK(object):
@@ -30,7 +31,10 @@ class ETK(object):
 
     def invoke_parser(self, jsonpath):
         if jsonpath not in self.parsed:
-            self.parsed[jsonpath] = self.parser(jsonpath)
+            try:
+                self.parsed[jsonpath] = self.parser(jsonpath)
+            except Exception:
+                raise InvalidJsonPathError("Invalid Json Path")
 
         return self.parsed[jsonpath]
 

@@ -1,9 +1,9 @@
 from typing import List, Dict
-
 from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
+from etk.exception import InvalidJsonPathError
 
 
 class Document(Extractable):
@@ -42,7 +42,11 @@ class Document(Extractable):
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
         path = self.etk.invoke_parser(jsonpath)
-        matches = path.find(self.cdr_document)
+        try:
+            matches = path.find(self.cdr_document)
+        except Exception:
+            raise InvalidJsonPathError("Invalid Json Path")
+
         segments = []
         for a_match in matches:
             this_segment = Segment(str(a_match.full_path), a_match.value, self)
