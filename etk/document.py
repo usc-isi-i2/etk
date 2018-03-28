@@ -80,6 +80,10 @@ class Document(Extractable):
                 extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
+            if isinstance(extractable.value, list):
+                print("\n======extractor needs string, got extractable value as list, converting list to string======")
+            elif isinstance(extractable.value, dict):
+                print("\n======extractor needs string, got extractable value as dict, converting dict to string======")
             text = extractable.get_string(joiner)
             if text:
                 extracted_results = extractor.extract(text, **options)

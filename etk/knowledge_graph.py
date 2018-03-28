@@ -2,16 +2,22 @@ from typing import List, Dict
 from enum import Enum, auto
 from etk.document import Document
 from etk.etk import ETK
+from etk.exception import KgValueInvalidError, ISODateError
+from datetime import date, datetime
+import numbers
 
 
 class FieldType(Enum):
     """
     TEXT: value must be a string
     NUMBER: value must be a number
+    LOCATION: value must be a location format
+    DATE: value must be a date format
     """
     STRING = auto()
     NUMBER = auto()
-    KG_ID = auto()
+    LOCATION = auto()
+    DATE = auto()
 
 
 class KgSchema(object):
@@ -26,7 +32,6 @@ class KgSchema(object):
 
         Args:
             config: Dict
-
         """
 
         self.fields_dict = {}
@@ -34,8 +39,10 @@ class KgSchema(object):
             for field in config["fields"]:
                 if config["fields"][field]["type"] == "number":
                     self.fields_dict[field] = FieldType.NUMBER
-                elif config["fields"][field]["type"] == "kg_id":
-                    self.fields_dict[field] = FieldType.KG_ID
+                elif config["fields"][field]["type"] == "date":
+                    self.fields_dict[field] = FieldType.DATE
+                elif config["fields"][field]["type"] == "location":
+                    self.fields_dict[field] = FieldType.LOCATION
                 else:
                     self.fields_dict[field] = FieldType.STRING
 
@@ -91,13 +98,72 @@ class KgSchema(object):
         Returns: bool
         """
         if self.has_field(field_name):
-            if isinstance(value, (int, float, complex)) and self.fields_dict[field_name] == FieldType.NUMBER:
+            if isinstance(value, numbers.Number) and self.fields_dict[field_name] == FieldType.NUMBER:
                 return True
             if isinstance(value, str) and self.fields_dict[field_name] == FieldType.STRING:
+                return True
+            if self.is_date(value) and self.fields_dict[field_name] == FieldType.DATE:
+                return True
+            if self.is_location(value) and self.fields_dict[field_name] == FieldType.LOCATION:
                 return True
             return False
         else:
             print(field_name + " field not defined")
+
+    @staticmethod
+    def is_date(v):
+        """
+        Boolean function for checking if v is a date
+
+        Args:
+            v:
+        Returns: bool
+
+        """
+
+        if isinstance(v, date):
+            return True
+        try:
+            datetime.strptime(v, '%Y-%m-%d')
+            return True
+        except ValueError:
+            try:
+                datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
+                return True
+            except ValueError:
+                pass
+        return False
+
+    @staticmethod
+    def is_location(v):
+        """
+        Boolean function for checking if v is a location format
+
+        Args:
+            v:
+        Returns: bool
+
+        """
+
+        def convert2float(value):
+            try:
+                float_num = float(value)
+                return float_num
+            except ValueError:
+                return False
+
+        split_lst = v.split(":")
+        if len(split_lst) != 5:
+            return False
+        if convert2float(split_lst[3]):
+            longitude = abs(convert2float(split_lst[3]))
+            if longitude > 90:
+                return False
+        if convert2float(split_lst[4]):
+            latitude = abs(convert2float(split_lst[3]))
+            if latitude > 180:
+                return False
+        return True
 
 
 class KnowledgeGraph(object):
@@ -112,7 +178,7 @@ class KnowledgeGraph(object):
         self.etk = etk
         self.schema = schema
 
-    def add_value(self, field_name: str, jsonpath: str) -> None:
+    def add_doc_value(self, field_name: str, jsonpath: str) -> None:
         """
         Add a value to knowledge graph by giving a jsonpath
 
@@ -123,15 +189,66 @@ class KnowledgeGraph(object):
         Returns:
         """
         if self.schema.has_field(field_name):
+            if field_name not in self._kg:
+                self._kg[field_name] = []
+                path = self.etk.invoke_parser(jsonpath)
+                matches = path.find(self.origin_doc.value)
+                all_valid = True
+                for a_match in matches:
+                    if self.schema.is_valid(field_name, a_match.value):
+                        this_value = a_match.value
+                        if self.schema.field_type(field_name) == FieldType.DATE:
+                            this_value = self.iso_date(this_value)
+                        self._kg[field_name].append({
+                            "value": this_value.strip(),
+                            "key": self.create_key_from_value(this_value, field_name)
+                        })
+                    else:
+                        all_valid = False
+                if not all_valid:
+                    raise KgValueInvalidError("Some Type of Kg Value Invalid")
+
+            else:
+                print("===Field already in kg, skip the adding===")
+
+    def add_value(self, field_name: str, value) -> None:
+        """
+        Add a value to knowledge graph by giving a jsonpath
+
+        Args:
+            field_name: str
+            value:
+
+        Returns:
+        """
+        if field_name not in self._kg:
             self._kg[field_name] = []
-            path = self.etk.invoke_parser(jsonpath)
-            matches = path.find(self.origin_doc.value)
-            for a_match in matches:
-                if self.schema.is_valid(field_name, a_match.value):
-                    self._kg[field_name].append({
-                        "value": a_match.value,
-                        "key": self.create_key_from_value(a_match.value)
-                    })
+            if self.schema.is_valid(field_name, value):
+                if self.schema.field_type(field_name) == FieldType.DATE:
+                    value = self.iso_date(value)
+                self._kg[field_name].append({
+                    "value": value.strip(),
+                    "key": self.create_key_from_value(value, field_name)
+                })
+            elif isinstance(value, list):
+                all_valid = True
+                for a_value in value:
+                    if self.schema.is_valid(field_name, a_value):
+                        if self.schema.field_type(field_name) == FieldType.DATE:
+                            a_value = self.iso_date(a_value)
+                        self._kg[field_name].append({
+                            "value": a_value.strip(),
+                            "key": self.create_key_from_value(a_value, field_name)
+                        })
+                    else:
+                        all_valid = False
+                if not all_valid:
+                    raise KgValueInvalidError("Some Type of Kg Value Invalid")
+            else:
+                raise KgValueInvalidError("Invalid type of kg value: " + type(value))
+
+        else:
+            print("===Field already in kg, skip the adding===")
 
     def get_kg(self) -> Dict:
         """
@@ -144,14 +261,47 @@ class KnowledgeGraph(object):
         return self._kg
 
     @staticmethod
-    def create_key_from_value(value):
+    def iso_date(d) -> str:
+        """
+        Return iso format of a date
+
+        Args:
+            d:
+        Returns: str
+
+        """
+        if isinstance(d, datetime):
+            return d.isoformat()
+        elif isinstance(d, date):
+            return datetime.combine(d, datetime.min.time()).isoformat()
+        else:
+            try:
+                datetime.strptime(d, '%Y-%m-%dT%H:%M:%S')
+                return d
+            except ValueError:
+                try:
+                    datetime.strptime(d, '%Y-%m-%d')
+                    return d+"T00:00:00"
+                except ValueError:
+                    pass
+        raise ISODateError("Can not convert value to ISO format for kg")
+
+    def create_key_from_value(self, value, field_name):
         """
 
         Args:
             value:
-
+            field_name: str
         Returns: key
 
         """
-        "TODO: create function that create key from value"
-        return value
+        key = value
+        if (isinstance(key, str) or isinstance(key, numbers.Number)) and self.schema.field_type(
+                field_name) != FieldType.DATE:
+            # try except block because unicode characters will not be lowered
+            try:
+                key = str(key).strip().lower()
+            except:
+                pass
+
+        return key
