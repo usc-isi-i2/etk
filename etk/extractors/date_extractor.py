@@ -2,7 +2,8 @@ from typing import List
 from enum import Enum, auto
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
-import datetime, re, dateparser, json
+import datetime, re, dateparser, json, calendar, pytz
+from tzlocal import get_localzone
 
 singleton_regex = {
     '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
@@ -109,6 +110,26 @@ class DateExtractor(Extractor):
                 prefer_dates_from: str = "current"  # can be "current", "future", "past".
                 ) -> List[Extraction]:
 
+        if ignore_dates_before and not ignore_dates_before.tzinfo:
+            ignore_dates_before = ignore_dates_before.replace(tzinfo=pytz.timezone(timezone) if timezone else get_localzone())
+        if ignore_dates_after and not ignore_dates_after.tzinfo:
+            ignore_dates_after = ignore_dates_after.replace(tzinfo=pytz.timezone(timezone) if timezone else get_localzone())
+
+        self.settings = {
+            'extract_first_date_only': extract_first_date_only,
+            'date_formats': date_formats,
+            'ignore_dates_before': ignore_dates_before,
+            'ignore_dates_after': ignore_dates_after,
+            'detect_relative_dates': detect_relative_dates,
+            'relative_base': relative_base,
+            'preferred_date_order': preferred_date_order,
+            'prefer_language_date_order': prefer_language_date_order,
+            'timezone': timezone,
+            'to_timezone': to_timezone,
+            'return_as_timezone_aware': return_as_timezone_aware,
+            'prefer_day_of_month': prefer_day_of_month,
+            'prefer_dates_from': prefer_dates_from
+        }
 
 
         results = []
@@ -135,20 +156,26 @@ class DateExtractor(Extractor):
                 })
             for r in regexes:
                 if extract_first_date_only:
-                    results.append([self.wrap_date_str(r['order'], re.match(r['reg'], text, re.I), pattern=r['pattern'])])
+                    match = self.wrap_date_str(r['order'], re.match(r['reg'], text, re.I), pattern=r['pattern'])
+                    if not match:
+                        continue
+                    results.append([match])
                 else:
-                    results.append([self.wrap_date_str(r['order'], match, pattern=r['pattern']) for match in re.finditer(r['reg'], text, re.I)])
-            return self.remove_overlapped_date_str(results, preferred_date_order, ignore_dates_before,
-                                                   ignore_dates_after)
+                    matches = [self.wrap_date_str(r['order'], match, pattern=r['pattern']) for match in re.finditer(r['reg'], text, re.I)]
+                    results.append(matches)
+            return self.remove_overlapped_date_str(results)
 
         for order in self.final_regex.keys():
             if extract_first_date_only:
-                res = [self.wrap_date_str(order, re.match(self.final_regex[order], text, re.I))]
+                match = self.wrap_date_str(order, re.match(self.final_regex[order], text, re.I))
+                if not match:
+                    continue
+                results.append([match])
             else:
-                res = [self.wrap_date_str(order, match) for match in re.finditer(self.final_regex[order], text, re.I)]
-            results.append(res)
+                matches = [self.wrap_date_str(order, match) for match in re.finditer(self.final_regex[order], text, re.I) if match]
+                results.append(matches)
 
-        return self.remove_overlapped_date_str(results, preferred_date_order, ignore_dates_before, ignore_dates_after)
+        return self.remove_overlapped_date_str(results)
 
     def wrap_date_str(self, order, match, pattern=None):
         return {
@@ -158,9 +185,9 @@ class DateExtractor(Extractor):
             'end': match.end(),
             'order': order,
             'pattern': pattern
-        }
+        } if match else None
 
-    def remove_overlapped_date_str(self, results, preferred_order="MDY", ignore_dates_before=None, ignore_dates_after=None):
+    def remove_overlapped_date_str(self, results):
         res = []
         all_results = []
         for x in results:
@@ -171,49 +198,25 @@ class DateExtractor(Extractor):
         cur_max = all_results[0]
         for x in all_results[1:]:
             if cur_max['end'] <= x['start']:
-                parsed_date = self.parse_date(cur_max, ignore_dates_before=ignore_dates_before, ignore_dates_after=ignore_dates_after)
+                parsed_date = self.parse_date(cur_max)
                 if parsed_date:
                     res.append(parsed_date)
                 cur_max = x
             else:
                 if len(x['value']) > len(cur_max['value']):
                     cur_max = x
-                elif len(x['value']) == len(cur_max['value']) and x['order'] == preferred_order:
+                elif len(x['value']) == len(cur_max['value']) and x['order'] == self.settings['preferred_date_order']:
                     cur_max = x
-        parsed_date = self.parse_date(cur_max, ignore_dates_before=ignore_dates_before, ignore_dates_after=ignore_dates_after)
+        parsed_date = self.parse_date(cur_max)
         if parsed_date:
             res.append(parsed_date)
         return res
 
     def parse_date(self, str_date: dict,
-                   date_formats: List[str] = list(),  # when specified, only extract the given formats.
-                   ignore_dates_before: datetime.datetime = None,
-                   ignore_dates_after: datetime.datetime = None,
-                   detect_relative_dates: bool = True,
-                   relative_base: datetime.datetime = None,
-                   preferred_date_order: str = "MDY",  # used for interpreting ambiguous dates that are missing parts
-                   prefer_language_date_order: bool = True,
-                   timezone: str = None,  # default is local timezone.
-                   to_timezone: str = None,  # when not specified, not timezone conversion is done.
-                   return_as_timezone_aware: bool = True,  # when false don't do timezime conversions.
-                   prefer_day_of_month: str = "first",  # can be "current", "first", "last".
-                   prefer_dates_from: str = "current"  # can be "current", "future", "past".
                    ) -> datetime.datetime or None:
         """
         Args:
             str_date:
-            date_formats:
-            ignore_dates_before:
-            ignore_dates_after:
-            detect_relative_dates:
-            relative_base:
-            preferred_date_order:
-            prefer_language_date_order:
-            timezone:
-            to_timezone:
-            return_as_timezone_aware:
-            prefer_day_of_month:
-            prefer_dates_from:
 
         Returns:
 
@@ -225,14 +228,40 @@ class DateExtractor(Extractor):
             pattern = list()
             formatted = list()
 
+            miss_day = True
+            miss_tz = True
             for s in str_date['groups']:
                 if s:
-                    pattern.append(self.symbol_list[str_date['order']][i].replace('-',''))
-                    formatted.append(s.strip())
+                    p = self.symbol_list[str_date['order']][i].replace('-','')
+                    if p in units['D']:
+                        miss_day = False
+                    elif p in units['TZ']:
+                        miss_tz = False
+                    pattern.append(p)
+                    formatted.append(re.sub(r'[^0-9+\-]', '', s) if p=='%z' else s.strip())
                 i += 1
             date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
-        if (ignore_dates_before and date<ignore_dates_before) or (ignore_dates_after and date>ignore_dates_after):
+            print(formatted, pattern)
+            if miss_day:
+                if self.settings['prefer_day_of_month'] == 'current':
+                    date = date.replace(day=datetime.datetime.now().day)
+                elif self.settings['prefer_day_of_month'] == 'last':
+                    date = date.replace(day=calendar.monthrange(date.year, date.month)[1])
+            if miss_tz:
+                try:
+                    date = date.replace(tzinfo=pytz.timezone(self.settings['timezone']) if self.settings['timezone'] else get_localzone())
+                except Exception as e:
+                    date = date.replace(tzinfo=get_localzone())
+                    print('UnknownTimeZoneError for user defined timezone', self.settings['timezone'])
+
+        if (self.settings['ignore_dates_before'] and date<self.settings['ignore_dates_before']) or (self.settings['ignore_dates_after'] and date>self.settings['ignore_dates_after']):
             return None
+        if self.settings['to_timezone']:
+            try:
+                date = date.astimezone(pytz.timezone(self.settings['to_timezone']))
+            except Exception as e:
+                print(e)
+
         try:
             return {
                 'value': date,
@@ -262,32 +291,80 @@ class DateExtractor(Extractor):
 
 ignore_before = datetime.datetime(2000, 1, 1)
 ignore_after = datetime.datetime(2020, 10, 10)
-# with open('date_ground_truth.txt', 'r') as f:
-#     text = f.read()
-text = '11121211 20180508 20200101 19930505 20112011 2018-Jun-15 2018, Jun 15 2008-12-12 '
+# text = '2008-12-11 11121211 UTC 20180508 20200101 19930505 20112011 2018-Jun-15 2018, Jun 15 2008-12-12 2008, May'
+with open('date_ground_truth.txt', 'r') as f:
+    text = f.read()
 aaa = DateExtractor(extractor_name='test')
 bbb = aaa.extract(text,
                 # extract_first_date_only: bool = False,
-                extract_first_date_only=False,
                 # # useful for news stories where the first date is typically the publication date.
-                # date_formats: List[str] = list(),  # when specified, only extract the given formats.
-                date_formats=['%Y-%m-%d', '%Y, %b %d'],
+                # extract_first_date_only=True,   # first valid
+
+
+
+                # additional_formats=['%Y-%m-%d', '%b %d, %Y'] List[str] = list()
+
+                # use_default_formats: bool
+
+
                 # ignore_dates_before: datetime.datetime = None,
                 ignore_dates_before=ignore_before,
+
                 # ignore_dates_after: datetime.datetime = None,
                 ignore_dates_after=ignore_after,
+
                 # detect_relative_dates: bool = True,
+
                 # relative_base: datetime.datetime = None,
+
                 # preferred_date_order: str = "MDY",  # used for interpreting ambiguous dates that are missing parts
-                preferred_date_order="DMY"
+                preferred_date_order="DMY",
+
                 # prefer_language_date_order: bool = True,
+
                 # timezone: str = None,  # default is local timezone.
+                timezone='GMT',
+
                 # to_timezone: str = None,  # when not specified, not timezone conversion is done.
-                # return_as_timezone_aware: bool = True,  # when false don't do timezime conversions.
+                to_timezone='UTC',
+
+                # return_as_timezone_aware: bool = True,  # when false don't do timezime conversions.??? needed?
+
                 # prefer_day_of_month: str = "first",  # can be "current", "first", "last".
-                # prefer_dates_from: str = "current"  # can be "current", "future", "past".)
+                prefer_day_of_month = 'last'
+
+                # prefer_dates_from: str = "current"  # can be "future", "future", "past".)
+                    # when missing not only the day, like only the month was extracted, how to decide other values except day
+                    # current: select the most close day to today
+                    # future: select the most close day after today
+                    # past: select the most close day in the past
+
                 )
 for x in bbb:
     print(x)
 
 print(len(bbb))
+
+
+# 1. extract first day only, then if we set range, still extract first date ignore the constraints or the first valid date
+# 2. if date format set, strictly follow the format or add day if day is missing(support partial match?)
+# 3. prefer_dates_from: do we support missing any part of the date, even if only the month/year exists, we still extract the date.
+# we can support only the month exist in word and only the day with suffix nd, st, th, rd,
+# not to support single year/month/day in pure number -> hard to say if it is part of the date, unless we analysis the context
+# through on, at, in, to support the single number for dates
+# support single day of week?
+# 4. preferred language date order and preferred date order which go first: if language->language, else preferred?
+# 5. timezone_aware and to_timezone
+# 6. default year range -> precision, may have 887, three digits, support several centuries only?
+# concept of date <-> if support missing both month and day and pure number appears
+# 7.
+
+
+# TODO: validate through weekday if confusing
+
+
+# relative date:
+# before, after, last, next
+# number, half, quarter, several?, some?,
+# weeks, years, days, months, hours, minutes, seconds
+# now, , yesterday, tomorrow
