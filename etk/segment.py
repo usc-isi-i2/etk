@@ -1,7 +1,5 @@
 from etk.etk_extraction import Extractable, Extraction
-import copy
 from typing import List, Dict
-# from etk.document import Document # will throw exception
 
 
 class Segment(Extractable):
@@ -68,6 +66,7 @@ class Segment(Extractable):
                 return
             except StopIteration:
                 pass
+
         if attribute not in self._extractions:
             self._extractions[attribute] = set([])
         self._extractions[attribute] = self._extractions[attribute].union(extractions)

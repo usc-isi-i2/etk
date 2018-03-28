@@ -112,6 +112,10 @@ class Extractable(ExtractableBase):
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
+            if isinstance(self._value, list):
+                print("\n========tokenizer needs string, got list, converting list to string========")
+            elif isinstance(self._value, dict):
+                print("\n========tokenizer needs string, got dict, converting dict to string========")
             segment_value_for_tokenize = self.get_string()
             tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens
