@@ -47,18 +47,22 @@ class DateExtractor(Extractor):
         # If the single regexes are changed or more patterns are added,
         # please re-generate 'final_regex' and 'symbol_list' and paste here.
         self.final_regex = {
-          'MDY': r'(?<=\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?))(?:[,/ \.\-]? ?))?(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:(?:[,/ \.\-]? ?)(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th)))?(?:[,/ \.\-]? ?)(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:(?:[,/ \.\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?)))?)(?:T?(?:(?:[,/ \.\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))))?(?:(?:[,/ \.\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\+\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\+\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\b)',
-          'DMY': r'(?<=\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?))(?:[,/ \.\-]? ?))?(?:(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th))(?:[,/ \.\-]? ?))?(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:[,/ \.\-]? ?)(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:(?:[,/ \.\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?)))?)(?:T?(?:(?:[,/ \.\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))))?(?:(?:[,/ \.\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\+\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\+\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\b)',
-          'YMD': r'(?<=\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?))(?:[,/ \.\-]? ?))?(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:[,/ \.\-]? ?)(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:(?:[,/ \.\-]? ?)(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th)))?(?:(?:[,/ \.\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\.?|Tue\.?|Wed\.?|Th(?:u(?:r(?:s?)?)?)\.?|Fri\.?|Sat\.?|Sun\.?)))?)(?:T?(?:(?:[,/ \.\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))))?(?:(?:[,/ \.\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\+\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\+\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\b)'
+            "MDY": "(?<=\\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?))(?:[,/ \\.\\-]? ?))?(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\\.?|Feb\\.?|Mar\\.?|Apr\\.?|Jun\\.?|Jul\\.?|Aug\\.?|Sep(?:t?)\\.?|Oct\\.?|Nov\\.?|Dec\\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:(?:[,/ \\.\\-]? ?)(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th)))?(?:[,/ \\.\\-]? ?)(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:(?:[,/ \\.\\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?)))?)(?:T?(?:(?:[,/ \\.\\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\\.?)|(?: ?)PM(?:\\.?))))?(?:(?:[,/ \\.\\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\\+\\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\\+\\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\\b)",
+            "DMY": "(?<=\\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?))(?:[,/ \\.\\-]? ?))?(?:(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th))(?:[,/ \\.\\-]? ?))?(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\\.?|Feb\\.?|Mar\\.?|Apr\\.?|Jun\\.?|Jul\\.?|Aug\\.?|Sep(?:t?)\\.?|Oct\\.?|Nov\\.?|Dec\\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:[,/ \\.\\-]? ?)(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:(?:[,/ \\.\\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?)))?)(?:T?(?:(?:[,/ \\.\\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\\.?)|(?: ?)PM(?:\\.?))))?(?:(?:[,/ \\.\\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\\+\\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\\+\\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\\b)",
+            "YMD": "(?<=\\b)(?:(?:(?:(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?))(?:[,/ \\.\\-]? ?))?(?:([1-2][0-9][0-9][0-9])|([6-9][0-9]|[0-3][0-9]))(?:[,/ \\.\\-]? ?)(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\\.?|Feb\\.?|Mar\\.?|Apr\\.?|Jun\\.?|Jul\\.?|Aug\\.?|Sep(?:t?)\\.?|Oct\\.?|Nov\\.?|Dec\\.?)|(1[0-2]|0[1-9])|(1[0-2]|[1-9]))(?:(?:[,/ \\.\\-]? ?)(?:(3[0-1]|[1-2][0-9]|0[1-9])|(3[0-1]|[1-2][0-9]|[1-9])|(3[0-1]|[1-2][0-9]|0[1-9])(?:st|nd|rd|th)|(3[0-1]|[1-2][0-9]|[1-9])(?:st|nd|rd|th)))?(?:(?:[,/ \\.\\-]? ?)(?:(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)|(Mon\\.?|Tue\\.?|Wed\\.?|Th(?:u(?:r(?:s?)?)?)\\.?|Fri\\.?|Sat\\.?|Sun\\.?)))?)(?:T?(?:(?:[,/ \\.\\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\\.?)|(?: ?)PM(?:\\.?))))?(?:(?:[,/ \\.\\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\\+\\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\\+\\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\\b)",
+            "SINGLE_MONTH": "(?<=\\b)(?:(?:(?:(January|February|March|April|May|June|July|August|September|October|November|December)|(Jan\\.?|Feb\\.?|Mar\\.?|Apr\\.?|Jun\\.?|Jul\\.?|Aug\\.?|Sep(?:t?)\\.?|Oct\\.?|Nov\\.?|Dec\\.?)))(?:T?(?:(?:[,/ \\.\\-]? ?)|T)?(?:(?:(1[0-2]|0[1-9])|(1[0-2]|[1-9])|(2[0-3]|[0-1][0-9])|(2[0-3]|1[0-9]|[0-9])): ?(?:([0-5][0-9]))(?:: ?(?:([0-5][0-9])))?(?:(?:((?: ?)AM(?:\\.?)|(?: ?)PM(?:\\.?))))?(?:(?:[,/ \\.\\-]? ?)(?:(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|EASST|EAST|EAT|ECT|ECT|EDT|EEST|EET|EGST|EGT|EIT|EST|FET|FJT|FKST|FKT|FNT|GALT|GAMT|GET|GFT|GILT|GIT|GMT|GST|GST|GYT|HDT|HAEC|HST|HKT|HMT|HOVST|HOVT|ICT|IDT|IOT|IRDT|IRKT|IRST|IST|IST|IST|JST|KGT|KOST|KRAT|KST|LHST|LHST|LINT|MAGT|MART|MAWT|MDT|MET|MEST|MHT|MIST|MIT|MMT|MSK|MST|MST|MUT|MVT|MYT|NCT|NDT|NFT|NPT|NST|NT|NUT|NZDT|NZST|OMST|ORAT|PDT|PET|PETT|PGT|PHOT|PHT|PKT|PMDT|PMST|PONT|PST|PST|PYST|PYT|RET|ROTT|SAKT|SAMT|SAST|SBT|SCT|SDT|SGT|SLST|SRET|SRT|SST|SST|SYOT|TAHT|THA|TFT|TJT|TKT|TLT|TMT|TRT|TOT|TVT|ULAST|ULAT|USZ1|UTC|UYST|UYT|UZT|VET|VLAT|VOLT|VOST|VUT|WAKT|WAST|WAT|WEST|WET|WIT|WST|YAKT|YEKT)|((?:UTC|GMT)(?: ?[\\+\\-] ?(?:(?:1[0-4]|0?[0-9])(?::?(?:00|30|45))?))?|[+-][01][0-3](?:00|30|45)|[\\+\\-](?:1[0-3]|0[0-9])(?:00|30|45))))?)Z?)?)(?=\\b)"
         }
+
         self.symbol_list = {
             'MDY': ['%A', '%a', '%B', '%b', '%m', '%-m', '%d', '%-d', '%d', '%-d', '%Y', '%y', '%A', '%a',
                     '%I', '%-I', '%H', '%-H', '%M', '%S', '%p', '%Z', '%z'],
             'DMY': ['%A', '%a', '%d', '%-d', '%d', '%-d', '%B', '%b', '%m', '%-m', '%Y', '%y', '%A', '%a',
                     '%I', '%-I', '%H', '%-H', '%M', '%S', '%p', '%Z', '%z'],
             'YMD': ['%A', '%a', '%Y', '%y', '%B', '%b', '%m', '%-m', '%d', '%-d', '%d', '%-d', '%A', '%a',
-                    '%I', '%-I', '%H', '%-H', '%M', '%S', '%p', '%Z', '%z']
-          }
+                    '%I', '%-I', '%H', '%-H', '%M', '%S', '%p', '%Z', '%z'],
+            "SINGLE_MONTH": ["%B", "%b", "%I", "%-I", "%H", "%-H", "%M", "%S", "%p", "%Z", "%z"]
+        }
+
         self.settings = {}
         self.etk = etk
 
@@ -81,11 +85,11 @@ class DateExtractor(Extractor):
                 ) -> List[Extraction]:
 
         if ignore_dates_before and not ignore_dates_before.tzinfo:
-            ignore_dates_before = ignore_dates_before.replace(tzinfo=pytz.timezone(timezone) if timezone else get_localzone())
+            ignore_dates_before = ignore_dates_before.astimezone(pytz.timezone(timezone) if timezone else get_localzone())
         if ignore_dates_after and not ignore_dates_after.tzinfo:
-            ignore_dates_after = ignore_dates_after.replace(tzinfo=pytz.timezone(timezone) if timezone else get_localzone())
+            ignore_dates_after = ignore_dates_after.astimezone(pytz.timezone(timezone) if timezone else get_localzone())
         if relative_base and not relative_base.tzinfo:
-            relative_base = relative_base.replace(tzinfo=pytz.timezone(timezone) if timezone else get_localzone())
+            relative_base = relative_base.astimezone(pytz.timezone(timezone) if timezone else get_localzone())
 
         self.settings = {
             EXTRACT_FIRST_DATE_ONLY: extract_first_date_only,
@@ -142,9 +146,7 @@ class DateExtractor(Extractor):
         ans = self.remove_overlapped_date_str(results)
 
         if detect_relative_dates:
-            # ans += self.extract_relative_dates(text)
-            for x in self.extract_relative_dates(text):
-                print(x)
+            ans += self.extract_relative_dates(text)
 
         return ans
 
@@ -170,18 +172,20 @@ class DateExtractor(Extractor):
                 measure = '1'
             elif relative_date.rule_id == 'the_day':
                 unit = 'days'
-                direction = '-' if relative_date.value.split()[-1].lower() == 'yesterday' else '+'
+                direction = 'ago' if relative_date.value.split()[-1].lower() == 'yesterday' else 'later'
                 measure = '1' if len(relative_date.value.split()) == 1 else '2'
             else:
                 continue
             unit = unit if unit[-1] == 's' else unit+'s'
-            direction = directions[direction.lower()] if direction.lower() in directions else (direction if direction else '+')
+            direction = directions[direction.lower()] if direction.lower() in directions else '+'
             delta_args = {unit: int(direction+measure)}
             relative_delta = relativedelta(**delta_args)
-            ans.append({
-                'original_text': relative_date.value,
-                'date_object': base+relative_delta
-            })
+            extraction_date = self.wrap_extraction(base+relative_delta,
+                                                   relative_date.value,
+                                                   relative_date._provenance['start_char'],
+                                                   relative_date._provenance['end_char'])
+            if extraction_date:
+                ans.append(extraction_date)
         return ans
 
     @staticmethod
@@ -194,6 +198,21 @@ class DateExtractor(Extractor):
             'order': order,
             'pattern': pattern
         } if match else None
+
+    def wrap_extraction(self, date_object, original_text, start_char, end_char):
+        try:
+            e = Extraction(self.convert_to_iso_format(date_object),
+                           start_char=start_char,
+                           end_char=end_char,
+                           extractor_name=self.name)
+            # need a more elegant way to do this:
+            e._provenance['date_object'] = date_object
+            e._provenance['original_text'] = original_text
+            return e
+        except Exception as e:
+            print('!Exception', e)
+            print(date_object)
+            return None
 
     def remove_overlapped_date_str(self, results):
         res = []
@@ -255,11 +274,25 @@ class DateExtractor(Extractor):
                     date = date.replace(day=datetime.datetime.now().day)
                 elif self.settings[PREFER_DAY_OF_MONTH] == 'last':
                     date = date.replace(day=calendar.monthrange(date.year, date.month)[1])
+            if date_info['order'] == 'SINGLE_MONTH':
+                today = datetime.datetime.now()
+                date = date.replace(year=today.year)
+                next_year = date.replace(year=today.year+1)
+                last_year = date.replace(year=today.year-1)
+                if self.settings[PREFER_DATES_FROM] == 'past':
+                    date = last_year if date > today else date
+                elif self.settings[PREFER_DATES_FROM] == 'future':
+                    date = next_year if date < today else date
+                else:
+                    if date > today and (date-today > today-date.replace(year=today.year-1)):
+                        date = last_year
+                    elif date < today and (today-date < date.replace(year=today.year+1)-today):
+                        date = next_year
         if not date.tzinfo:
             try:
-                date = date.replace(tzinfo=pytz.timezone(self.settings[TIMEZONE]) if self.settings[TIMEZONE] else get_localzone())
+                date = date.astimezone(pytz.timezone(self.settings[TIMEZONE]) if self.settings[TIMEZONE] else get_localzone())
             except Exception as e:
-                date = date.replace(tzinfo=get_localzone())
+                date = date.astimezone(get_localzone())
                 print('UnknownTimeZoneError for user defined timezone', self.settings[TIMEZONE])
         try:
             if (self.settings[IGNORE_DATES_BEFORE] and date < self.settings[IGNORE_DATES_BEFORE]) or \
@@ -278,17 +311,7 @@ class DateExtractor(Extractor):
                 print(e)
                 print('UnknownTimeZoneError for user defined timezone, set to local timezone', self.settings[TIMEZONE])
 
-        try:
-            e = Extraction(self.convert_to_iso_format(date), start_char=date_info['start'], end_char=date_info['end'], extractor_name=self.name)
-            # need a more elegant way to do this:
-            e._provenance['date_object'] = date
-            e._provenance['original_text'] = date_info['value']
-            return e
-        except Exception as e:
-            print()
-            print('!Exception', e)
-            print(date_info)
-            return None
+        return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
 
     @staticmethod
     def convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY):
@@ -314,24 +337,3 @@ class DateExtractor(Extractor):
             print('Exception: {}, failed to convert {} to isoformat '.format(e, date))
             return None
         return None
-
-# 1. extract first day only, then if we set range, still extract first date ignore the constraints or the first valid date
-# 2. if date format set, strictly follow the format or add day if day is missing(support partial match?)
-# 3. prefer_dates_from: do we support missing any part of the date, even if only the month/year exists, we still extract the date.
-# we can support only the month exist in word and only the day with suffix nd, st, th, rd,
-# not to support single year/month/day in pure number -> hard to say if it is part of the date, unless we analysis the context
-# through on, at, in, to support the single number for dates
-# support single day of week?
-# 4. preferred language date order and preferred date order which go first: if language->language, else preferred?
-# 5. timezone_aware and to_timezone
-# 6. default year range -> precision, may have 887, three digits, support several centuries only?
-# concept of date <-> if support missing both month and day and pure number appears
-# 7.
-
-# TODO: validate through weekday if confusing
-
-# relative date:
-# before, after, last, next
-# number, half, quarter, several?, some?,
-# weeks, years, days, months, hours, minutes, seconds
-# now, , yesterday, tomorrow

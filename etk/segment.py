@@ -71,7 +71,8 @@ class Segment(Extractable):
                     if tag not in self.value[attribute]:
                         self.value[attribute][tag] = [e.value]
                     else:
-                        self.value[attribute][tag].append(e.value)
+                        if e.value not in self.value[attribute][tag]:
+                            self.value[attribute][tag].append(e.value)
                 self._extractions[attribute] = self._extractions[attribute].union(extractions)
                 return
             except StopIteration:

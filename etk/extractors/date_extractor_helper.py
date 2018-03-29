@@ -1,6 +1,6 @@
 # reference: http://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
 # symbol references: http://strftime.org/
-import re
+import re, json
 singleton_regex = {
     '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
     '%y': r'([6-9][0-9]|[0-3][0-9])',  # year in two digits
@@ -48,11 +48,12 @@ units = {
     'MIN': '%M',
     'SEC': '%S',
     'MARK': '%p',
-    'TZ': ['%Z', '%z']
+    'TZ': ['%Z', '%z'],
+    'SINGLE_MONTH': ['%B', '%b']
 }
 
 # relative date:
-# before, after, last, next
+# before, after, last, next, ago, later, in
 # number, half, quarter, several?, some?,
 # weeks, years, days, months, hours, minutes, seconds
 # now, , yesterday, tomorrow
@@ -62,7 +63,9 @@ directions = {
     'next': '+',
     'before': '-',
     'after': '+',
-    'in': '+'
+    'in': '+',
+    'ago': '-',
+    'later': '+'
 }
 
 num_to_digit = {
@@ -571,21 +574,26 @@ def generate_all_regexes_by_singletons():
     pl = 'pattern_list'
     time_pattern = all['HOUR'][pl] + all['MIN'][pl] + all['SEC'][pl] + all['MARK'][pl] + all['TZ'][pl]
 
+    # print(all['SINGLE'])
+
     return ({
                 'MDY': r'(?<=\b)(?:(?:' + week_reg_pre + all['M']['res'] + day_reg_post + s + all['Y'][
                     'res'] + week_reg_post + r')' + time_reg + r')(?=\b)',
                 'DMY': r'(?<=\b)(?:(?:' + week_reg_pre + day_reg_pre + all['M']['res'] + s + all['Y'][
                     'res'] + week_reg_post + r')' + time_reg + r')(?=\b)',
                 'YMD': r'(?<=\b)(?:(?:' + week_reg_pre + all['Y']['res'] + s + all['M'][
-                    'res'] + day_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)'
+                    'res'] + day_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)',
+                'SINGLE_MONTH': r'(?<=\b)(?:(?:' + all['SINGLE_MONTH']['res'] + r')' + time_reg + r')(?=\b)'
             }, {
                 'MDY': all['W'][pl] + all['M'][pl] + all['D'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
                 'DMY': all['W'][pl] + all['D'][pl] + all['M'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
-                'YMD': all['W'][pl] + all['Y'][pl] + all['M'][pl] + all['D'][pl] + all['W'][pl] + time_pattern
+                'YMD': all['W'][pl] + all['Y'][pl] + all['M'][pl] + all['D'][pl] + all['W'][pl] + time_pattern,
+                'SINGLE_MONTH': all['SINGLE_MONTH'][pl] + time_pattern
             })
 
-
-temp = generate_all_regexes_by_singletons()
+#
+# temp = generate_all_regexes_by_singletons()
 # print(json.dumps(temp, indent=2))
-final_regex = temp[0]
-symbol_list = temp[1]
+# final_regex = temp[0]
+# symbol_list = temp[1]
+

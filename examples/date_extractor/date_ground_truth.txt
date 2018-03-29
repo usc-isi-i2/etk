@@ -181,3 +181,6 @@ torsdag, 7. juli 2016, 12:01
 # hours	48:55:30
 
 # seconds	68538.350
+
+# single month  July    June    Mar Dec
+# single year   1998    2017    2025
