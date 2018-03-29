@@ -62,11 +62,17 @@ class Segment(Extractable):
 
         if group_by_tags:
             try:
-                next(x for x in extractions if x.tag)
-                child_segment = Segment(self.full_path+'.'+attribute, {}, self.document)
+                next(x for x in extractions if x.tag)   # if there is at least one extraction with a tag
+                if attribute not in self._extractions:
+                    self._extractions[attribute] = set([])
+                    self._value[attribute] = {}
                 for e in extractions:
-                    child_segment.store_extractions([e], e.tag if e.tag else 'NO_TAGS', False)
-                self.document.cdr_document[attribute] = child_segment._value
+                    tag = e.tag if e.tag else 'NO_TAGS'
+                    if tag not in self.value[attribute]:
+                        self.value[attribute][tag] = [e.value]
+                    else:
+                        self.value[attribute][tag].append(e.value)
+                self._extractions[attribute] = self._extractions[attribute].union(extractions)
                 return
             except StopIteration:
                 pass
@@ -74,6 +80,8 @@ class Segment(Extractable):
         if attribute not in self._extractions:
             self._extractions[attribute] = set([])
             self._value[attribute] = []
+
+        self._extractions[attribute] = self._extractions[attribute].union(extractions)
 
         for a_extraction in extractions:
             if a_extraction.value not in self._value[attribute]:
