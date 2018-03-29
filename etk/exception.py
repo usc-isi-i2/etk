@@ -11,3 +11,8 @@ class ISODateError(Exception):
 class InvalidJsonPathError(Exception):
     def __init__(self, message=""):
         super(InvalidJsonPathError, self).__init__(message)
+
+
+class StoreExtractionError(Exception):
+    def __init__(self, message=""):
+        super(StoreExtractionError, self).__init__(message)
