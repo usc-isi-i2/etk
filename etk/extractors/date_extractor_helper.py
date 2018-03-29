@@ -51,6 +51,469 @@ units = {
     'TZ': ['%Z', '%z']
 }
 
+# relative date:
+# before, after, last, next
+# number, half, quarter, several?, some?,
+# weeks, years, days, months, hours, minutes, seconds
+# now, , yesterday, tomorrow
+
+directions = {
+    'last': '-',
+    'next': '+',
+    'before': '-',
+    'after': '+',
+    'in': '+'
+}
+
+num_to_digit = {
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eight': '8',
+    'nine': '9',
+    'ten': '10'
+}
+
+spacy_rules = {
+  "field_name": "relative_date",
+  "rules": [
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "direction_number_unit",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["in", "after", "before"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["weeks", "years", "days", "months", "hours", "minutes", "seconds",
+                    "week", "year", "day", "month", "hour", "minute", "second"],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "number_unit_direction",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["weeks", "years", "days", "months", "hours", "minutes", "seconds",
+                    "week", "year", "day", "month", "hour", "minute", "second"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["before", "ago", "later", "after"],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "direction_digit_unit",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["in", "after", "before"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "true",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "0",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": [
+          ],
+          "type": "number"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["weeks", "years", "days", "months", "hours", "minutes", "seconds",
+                    "week", "year", "day", "month", "hour", "minute", "second"],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "digit_unit_direction",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "true",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "0",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": [
+          ],
+          "type": "number"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["weeks", "years", "days", "months", "hours", "minutes", "seconds",
+                    "week", "year", "day", "month", "hour", "minute", "second"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["before", "ago", "later", "after"],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "direction_unit",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["last", "next"
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["week", "year", "day", "month", "hour", "minute", "second"],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    },
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "the_day",
+      "is_active": "true",
+      "output_format": "",
+      "pattern": [
+    {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "false",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["the"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "false",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["day"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "false",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["before", "after"],
+          "type": "word"
+        },
+        {
+          "capitalization": [],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": ["yesterday", "tomorrow"],
+          "type": "word"
+        },
+      ],
+      "polarity": "true"
+    }
+  ]
+}
+
+
 def generate_regex_for_a_unit(key_list):
     if isinstance(key_list, list):
         if not key_list or len(key_list) == 0:
@@ -82,6 +545,7 @@ def generate_regex_for_a_unit(key_list):
     else:
         return {'res': r'(?:' + singleton_regex[key_list] + r')',
                 'pattern_list': [key_list] if key_list[0] == '%' else []}
+
 
 def generate_all_regexes_by_singletons():
     all = {}
