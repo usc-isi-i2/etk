@@ -138,9 +138,9 @@ class SpacyRuleExtractor(Extractor):
             if self.filter_match(doc[start:end], relations, this_rule.patterns):
                 value = self.form_output(doc[start:end], this_rule.output_format, relations, this_rule.patterns)
                 if this_rule.polarity:
-                    pos_filtered_matches.append((start, end, value, rule_id))
+                    pos_filtered_matches.append((start, end, value, rule_id, relations))
                 else:
-                    neg_filtered_matches.append((start, end, value, rule_id))
+                    neg_filtered_matches.append((start, end, value, rule_id, relations))
 
         return_lst = []
         if pos_filtered_matches:
@@ -152,14 +152,15 @@ class SpacyRuleExtractor(Extractor):
                 return_lst = longest_lst_pos
 
         extractions = []
-        for (start, end, value, rule_id) in return_lst:
+        for (start, end, value, rule_id, relation) in return_lst:
             this_extraction = Extraction(value=value,
                                          extractor_name=self.name,
                                          start_token=start,
                                          end_token=end,
                                          start_char=doc[start].idx,
                                          end_char=doc[end-1].idx+len(doc[end-1]),
-                                         rule_id=rule_id)
+                                         rule_id=rule_id,
+                                         match_mapping=relation)
             extractions.append(this_extraction)
 
         return extractions
@@ -217,7 +218,7 @@ class SpacyRuleExtractor(Extractor):
         start, end = pivot[0], pivot[1]
         pivot_e = end
         pivot_s = start
-        for idx, (s, e, v, rule_id) in enumerate(value_lst):
+        for idx, (s, e, v, rule_id, _) in enumerate(value_lst):
             if s == pivot_s and pivot_e < e:
                 pivot_e = e
                 pivot = value_lst[idx]
@@ -340,7 +341,7 @@ class SpacyRuleExtractor(Extractor):
         return True
 
     @staticmethod
-    def form_output(span_doc: span, format: str, relations: Dict, patterns: List) -> str:
+    def form_output(span_doc: span, output_format: str, relations: Dict, patterns: List) -> str:
         """
         Form an output value according to user input of output_format
         Args:
@@ -359,11 +360,11 @@ class SpacyRuleExtractor(Extractor):
             if token_range and output_inf[i]:
                 format_value.append(span_doc[token_range[0]:token_range[1]].text)
 
-        if not format:
+        if not output_format:
             return " ".join(format_value)
 
         result_str = ""
-        s = list(format)
+        s = list(output_format)
         t1 = s.pop(0)
         t2 = s.pop(0)
         while 1:
@@ -396,7 +397,7 @@ class SpacyRuleExtractor(Extractor):
         """
         Use a mapping to store the information about rule_id for each matches, create the mapping key here
         Args:
-            rule_id: int
+            rule_id: str
             spacy_rule_id:int
 
         Returns: int
@@ -646,7 +647,7 @@ class Pattern(object):
         result = self.add_common_constrain(result, d)
         return result
 
-    def construct_linebreak_token(self, d):
+    def construct_linebreak_token(self, d: Dict) -> List[Dict]:
         """
         Construct a shape token
         Args:
@@ -820,4 +821,3 @@ class Rule(object):
         for pattern_idx, a_pattern in enumerate(d["pattern"]):
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
-

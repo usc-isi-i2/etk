@@ -1,7 +1,6 @@
 from etk.etk_extraction import Extractable, Extraction
-import copy
 from typing import List, Dict
-# from etk.document import Document # will throw exception
+from etk.exception import StoreExtractionError
 
 
 class Segment(Extractable):
@@ -55,6 +54,9 @@ class Segment(Extractable):
         Returns:
 
         """
+        if not isinstance(self._value, dict):
+            raise StoreExtractionError("segment is type: " + str(type(self._value)))
+
         if not len(extractions):
             return
 
@@ -68,14 +70,14 @@ class Segment(Extractable):
                 return
             except StopIteration:
                 pass
+
         if attribute not in self._extractions:
             self._extractions[attribute] = set([])
-        self._extractions[attribute] = self._extractions[attribute].union(extractions)
-        try:
-            self._value[attribute] = [a_extraction.value for a_extraction in self._extractions[attribute]]
-        except Exception as e:
-            print("segment is " + str(type(self._value)))
-            print(e)
+            self._value[attribute] = []
+
+        for a_extraction in extractions:
+            if a_extraction.value not in self._value[attribute]:
+                self._value[attribute].append(a_extraction.value)
 
     @property
     def extractions(self) -> Dict:
