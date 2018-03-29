@@ -138,9 +138,9 @@ class SpacyRuleExtractor(Extractor):
             if self.filter_match(doc[start:end], relations, this_rule.patterns):
                 value = self.form_output(doc[start:end], this_rule.output_format, relations, this_rule.patterns)
                 if this_rule.polarity:
-                    pos_filtered_matches.append((start, end, value, rule_id))
+                    pos_filtered_matches.append((start, end, value, rule_id, relations))
                 else:
-                    neg_filtered_matches.append((start, end, value, rule_id))
+                    neg_filtered_matches.append((start, end, value, rule_id, relations))
 
         return_lst = []
         if pos_filtered_matches:
@@ -152,14 +152,15 @@ class SpacyRuleExtractor(Extractor):
                 return_lst = longest_lst_pos
 
         extractions = []
-        for (start, end, value, rule_id) in return_lst:
+        for (start, end, value, rule_id, relation) in return_lst:
             this_extraction = Extraction(value=value,
                                          extractor_name=self.name,
                                          start_token=start,
                                          end_token=end,
                                          start_char=doc[start].idx,
                                          end_char=doc[end-1].idx+len(doc[end-1]),
-                                         rule_id=rule_id)
+                                         rule_id=rule_id,
+                                         match_mapping=relation)
             extractions.append(this_extraction)
 
         return extractions
@@ -217,7 +218,7 @@ class SpacyRuleExtractor(Extractor):
         start, end = pivot[0], pivot[1]
         pivot_e = end
         pivot_s = start
-        for idx, (s, e, v, rule_id) in enumerate(value_lst):
+        for idx, (s, e, v, rule_id, _) in enumerate(value_lst):
             if s == pivot_s and pivot_e < e:
                 pivot_e = e
                 pivot = value_lst[idx]
