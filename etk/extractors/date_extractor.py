@@ -207,7 +207,7 @@ class DateExtractor(Extractor):
             print(date_object)
             return None
 
-    def remove_overlapped_date_str(self, results: List[List[dict]]) -> List[dict]:
+    def remove_overlapped_date_str(self, results: List[List[dict]]) -> List[Extraction]:
         """
         some string may be matched by multiple date templates,
         deduplicate the results and return a single list
@@ -252,7 +252,7 @@ class DateExtractor(Extractor):
             res.append(parsed_date)
         return res
 
-    def parse_date(self, date_info: dict) -> datetime.datetime or None:
+    def parse_date(self, date_info: dict) -> Extraction or None:
         """
         parse a date string extracted to a datetime.datetime object
         apply the customizations like date range, date completion etc.
@@ -304,7 +304,17 @@ class DateExtractor(Extractor):
                     date = last_year
                 elif date < today and (today-date < date.replace(year=today.year+1)-today):
                     date = next_year
+        date = self.post_process_date(date)
+        if date:
+            return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
+        return None
 
+    def post_process_date(self, date: datetime.datetime) -> datetime.datetime or None:
+        """
+
+        apply date range and timezone conversion
+
+        """
         if not date.tzinfo:
             try:
                 date = date.astimezone(pytz.timezone(self.settings[TIMEZONE]) if self.settings[TIMEZONE] else get_localzone())
@@ -330,7 +340,7 @@ class DateExtractor(Extractor):
                 print(e)
                 print('UnknownTimeZoneError for user defined timezone, set to local timezone', self.settings[TIMEZONE])
 
-        return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
+        return date
 
     def extract_relative_dates(self, text: str) -> List[Extraction]:
         """
@@ -343,7 +353,7 @@ class DateExtractor(Extractor):
         Returns: List of Extraction(s)
 
         """
-        if not text:
+        if not text or not self.etk:
             return list()
         base = self.settings[RELATIVE_BASE] if self.settings[RELATIVE_BASE] else datetime.datetime.now()
         res = SpacyRuleExtractor(self.etk.default_nlp, spacy_rules, 'relative_date_extractor').extract(text)
@@ -372,12 +382,14 @@ class DateExtractor(Extractor):
             direction = directions[direction.lower()] if direction.lower() in directions else '+'
             delta_args = {unit: int(direction+measure)}
             relative_delta = relativedelta(**delta_args)
-            extraction_date = self.wrap_extraction(base+relative_delta,
-                                                   relative_date.value,
-                                                   relative_date._provenance['start_char'],
-                                                   relative_date._provenance['end_char'])
-            if extraction_date:
-                ans.append(extraction_date)
+            date = self.post_process_date(base+relative_delta)
+            if date:
+                extraction_date = self.wrap_extraction(date,
+                                                       relative_date.value,
+                                                       relative_date._provenance['start_char'],
+                                                       relative_date._provenance['end_char'])
+                if extraction_date:
+                    ans.append(extraction_date)
         return ans
 
     @staticmethod
