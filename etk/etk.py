@@ -1,10 +1,10 @@
 from typing import List, Dict
-import jsonpath_ng
 import spacy
-import json
+import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.exception import InvalidJsonPathError
+from etk.extraction_module import ExtractionModule
 
 
 class ETK(object):
@@ -21,13 +21,13 @@ class ETK(object):
 
         Args:
             doc (object): a JSON object containing a document in CDR format.
-            mime_type (str): if doc is a tring, the mime_type tells what it is
+            mime_type (str): if doc is a string, the mime_type tells what it is
             url (str): if the doc came from the web, specifies the URL for it
 
         Returns: wrapped Document
 
         """
-        return Document(self, doc)
+        return Document(self, doc, mime_type, url)
 
     def invoke_parser(self, jsonpath):
         if jsonpath not in self.parsed:
@@ -76,3 +76,33 @@ class ETK(object):
         """
         with open(file_path) as fp:
             return json.load(fp)
+
+    def load_ems(self, modules_path: str):
+        """
+        Load all extraction modules from the path
+
+        Args:
+            modules_path: str
+
+        Returns:
+
+        """
+        modules_path = modules_path.strip(".").strip("/")
+        em_lst = []
+        for file_name in os.listdir(modules_path):
+            if file_name.startswith("em_") and file_name.endswith(".py"):
+                this_module = importlib.import_module(modules_path + "." + file_name[:-3])
+                for em in self.classes_in_module(this_module):
+                    em_lst.append(em(self))
+
+        return em_lst
+
+    @staticmethod
+    def classes_in_module(module):
+        md = module.__dict__
+        return [
+            md[c] for c in md if (
+            isinstance(md[c], type) and
+            issubclass(md[c], ExtractionModule) and
+            md[c].__module__ == module.__name__)
+        ]
