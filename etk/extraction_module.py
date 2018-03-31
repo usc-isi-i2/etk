@@ -1,6 +1,7 @@
 from etk.document import Document
 from etk.document_selector import DefaultDocumentSelector
 from typing import List
+from etk.knowledge_graph import KnowledgeGraph
 
 
 class ExtractionModule(object):
@@ -10,7 +11,7 @@ class ExtractionModule(object):
     def __init__(self, etk):
         self.etk = etk
 
-    def process_document(self, doc: Document):
+    def process_document(self, doc: Document, kg: KnowledgeGraph):
         """
         Add your code for processing the document
         """

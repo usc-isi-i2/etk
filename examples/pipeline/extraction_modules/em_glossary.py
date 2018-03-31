@@ -1,13 +1,14 @@
 from etk.extraction_module import ExtractionModule
 from etk.document import Document
 from etk.extractors.glossary_extractor import GlossaryExtractor
+from etk.knowledge_graph import KnowledgeGraph
 
 
 class ExtractionModuleGlossary(ExtractionModule):
     def __init__(self, etk):
         ExtractionModule.__init__(self, etk)
 
-    def process_document(self, doc: Document):
+    def process_document(self, doc: Document, kg: KnowledgeGraph):
         name_extractor = GlossaryExtractor(self.etk.load_glossary("./extraction_modules/resources/names.txt"),
                                            "name_extractor",
                                            self.etk.default_tokenizer,
@@ -31,3 +32,6 @@ class ExtractionModuleGlossary(ExtractionModule):
             for name_extraction in names:
                 students += doc.invoke_extractor(student_extractor, name_extraction)
             p.store_extractions(students, "students")
+
+        kg.add_doc_value("developer", "projects[*].members[*]")
+        kg.add_doc_value("student_developer", "projects[*].students[*]")
