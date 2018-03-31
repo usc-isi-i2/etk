@@ -1,4 +1,4 @@
-import json, os, sys, datetime, time
+import json, os, sys, datetime
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
@@ -34,7 +34,6 @@ sample_input = {
         }
     ]
 }
-start = time.time()
 
 etk = ETK()
 doc = etk.create_document(sample_input)
@@ -86,9 +85,9 @@ for m_d, m in zip(member_descriptions, members):
 
         # prefer_dates_from: str = "current"  # can be "future", "future", "past".)
         prefer_dates_from='future',
+
+        # date_value_resolution: DateResolution = DateResolution.DAY
     )
     m.store_extractions(dates, "related_dates")
-    print(len(dates))
 
 print(json.dumps(sample_input, indent=2))
-print(time.time()-start)

@@ -102,6 +102,8 @@ directions = {
     'later': '+'
 }
 num_to_digit = {
+    'a': '1',
+    'an': '1',
     'one': '1',
     'two': '2',
     'three': '3',
@@ -161,7 +163,7 @@ spacy_rules = {
           "shapes": [
           ],
           "suffix": "",
-          "token": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+          "token": ["a", "an", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
           "type": "word"
         },
         {
@@ -212,7 +214,7 @@ spacy_rules = {
           "shapes": [
           ],
           "suffix": "",
-          "token": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+          "token": ["a", "an", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
           "type": "word"
         },
         {

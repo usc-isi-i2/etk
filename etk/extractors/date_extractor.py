@@ -3,6 +3,7 @@ from enum import Enum, auto
 import datetime, re, calendar, pytz
 from tzlocal import get_localzone
 from dateutil.relativedelta import relativedelta
+from langdetect import detect
 
 from etk.etk import ETK
 from etk.extractor import Extractor, InputType
@@ -26,6 +27,7 @@ TO_TIMEZONE = 'to_timezone'
 RETURN_AS_TIMEZONE_AWARE = 'return_as_timezone_aware'
 PREFER_DAY_OF_MONTH = 'prefer_day_of_month'
 PREFER_DATES_FROM = 'prefer_dates_from'
+DATE_VALUE_RESOLUTION= 'date_value_resolution'
 
 
 class DateResolution(Enum):
@@ -67,6 +69,7 @@ class DateExtractor(Extractor):
         }
         self.settings = {}
         self.etk = etk
+        self.lan = 'en'
 
     def extract(self, text: str = None,
                 extract_first_date_only: bool = False,
@@ -82,7 +85,8 @@ class DateExtractor(Extractor):
                 to_timezone: str = None,
                 return_as_timezone_aware: bool = True,
                 prefer_day_of_month: str = "first",
-                prefer_dates_from: str = "current"
+                prefer_dates_from: str = "current",
+                date_value_resolution: DateResolution = DateResolution.DAY
                 ) -> List[Extraction]:
         """
 
@@ -102,6 +106,9 @@ class DateExtractor(Extractor):
             return_as_timezone_aware: bool - returned datetime timezone awareness
             prefer_day_of_month: enum['first', 'current', 'last'] - use which day of the month when there is no 'day'
             prefer_dates_from: enum['past', 'current', 'future'] - use which date when there is few info(e.g. only month)
+            date_value_resolution: enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR,
+                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR] - specify resolution
+                when convert to iso format string
 
         Returns: List[Extraction] - Extraction.value: iso format string
                                     extra attributes in Extraction._provenance:
@@ -118,6 +125,11 @@ class DateExtractor(Extractor):
         if relative_base and not relative_base.tzinfo:
             relative_base = relative_base.astimezone(pytz.timezone(timezone) if timezone else get_localzone())
 
+        try:
+            self.lan = detect(text)
+        except Exception as e:
+            # print('LangDetectException: ', e)
+            pass
         self.settings = {
             EXTRACT_FIRST_DATE_ONLY: extract_first_date_only,
             ADDITIONAL_FORMATS: additional_formats,
@@ -132,7 +144,8 @@ class DateExtractor(Extractor):
             TO_TIMEZONE: to_timezone,
             RETURN_AS_TIMEZONE_AWARE: return_as_timezone_aware,
             PREFER_DAY_OF_MONTH: prefer_day_of_month,
-            PREFER_DATES_FROM: prefer_dates_from
+            PREFER_DATES_FROM: prefer_dates_from,
+            DATE_VALUE_RESOLUTION: date_value_resolution
         }
 
         results = []
@@ -158,9 +171,13 @@ class DateExtractor(Extractor):
                     'order': order,
                 })
             for r in additional_regex:
-                matches = [self.wrap_date_match(r['order'], match, pattern=r['pattern']) for
+                try:
+                    matches = [self.wrap_date_match(r['order'], match, pattern=r['pattern']) for
                            match in re.finditer(r['reg'], text, re.I)]
-                results.append(matches)
+                    if matches:
+                        results.append(matches)
+                except:
+                    pass
             if use_default_formats:
                 for order in self.final_regex.keys():
                     matches = [self.wrap_date_match(order, match) for match
@@ -194,7 +211,7 @@ class DateExtractor(Extractor):
                 # timezone is needed for comparison of the dates,
                 # so tzinfo is kept until the dates will be returned
                 date_object = date_object.replace(tzinfo=None)
-            e = Extraction(self.convert_to_iso_format(date_object),
+            e = Extraction(self.convert_to_iso_format(date_object, resolution=self.settings[DATE_VALUE_RESOLUTION]),
                            start_char=start_char,
                            end_char=end_char,
                            extractor_name=self.name)
@@ -233,13 +250,8 @@ class DateExtractor(Extractor):
                 if len(x['value']) > len(cur_max['value']):
                     cur_max = x
                 elif len(x['value']) == len(cur_max['value']):
-                    if self.settings[PREFER_LANGUAGE_DATE_ORDER]:
-                        lan = 'en'
-                        for token in x['groups']:
-                            if token in spanish_to_english:
-                                lan = 'es'
-                                break
-                        if x['order'] == language_date_order[lan]:
+                    if self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
+                        if x['order'] == language_date_order[self.lan]:
                             cur_max = x
                         elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                             cur_max = x
@@ -285,10 +297,12 @@ class DateExtractor(Extractor):
         date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
 
         if miss_day:
+            last = calendar.monthrange(date.year, date.month)[1]
             if self.settings[PREFER_DAY_OF_MONTH] == 'current':
-                date = date.replace(day=datetime.datetime.now().day)
+                cur = datetime.datetime.now().day
+                date = date.replace(day=cur if cur <= last else last)
             elif self.settings[PREFER_DAY_OF_MONTH] == 'last':
-                date = date.replace(day=calendar.monthrange(date.year, date.month)[1])
+                date = date.replace(day=last)
 
         if date_info['order'] == 'SINGLE_MONTH':
             today = datetime.datetime.now()
@@ -316,11 +330,15 @@ class DateExtractor(Extractor):
 
         """
         if not date.tzinfo:
+            # cannot set time zone for time before 1883-11-19
             try:
                 date = date.astimezone(pytz.timezone(self.settings[TIMEZONE]) if self.settings[TIMEZONE] else get_localzone())
             except Exception as e:
-                date = date.astimezone(get_localzone())
-                print('UnknownTimeZoneError for user defined timezone', self.settings[TIMEZONE])
+                try:
+                    date = date.astimezone(get_localzone())
+                except ValueError as e:
+                    # print('ValueError for timezone', e)
+                    pass
 
         try:
             if (self.settings[IGNORE_DATES_BEFORE] and date < self.settings[IGNORE_DATES_BEFORE]) or \
