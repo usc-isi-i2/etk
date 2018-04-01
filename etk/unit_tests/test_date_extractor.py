@@ -1,4 +1,5 @@
-import unittest, datetime
+import unittest, datetime, pytz
+from dateutil.relativedelta import relativedelta
 from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk import ETK
 
@@ -7,10 +8,13 @@ with open('etk/unit_tests/ground_truth/date_ground_truth.txt', 'r') as f:
 
 de = DateExtractor(ETK(), 'unit_test_date')
 
+
 class TestDateExtractor(unittest.TestCase):
-    def test_default(self) -> None:
-        extractions = de.extract(sample)
+    def test_basic(self) -> None:
+        extractions = de.extract(sample, relative_base=datetime.datetime(2018, 1, 1), return_as_timezone_aware=False)
+
         results = [e.value for e in extractions]
+
         expected = ['2017-02-12', '2017-02-12', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02',
                     '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02',
                     '2015-10-01', '2015-10-01', '2015-10-01', '2015-10-01', '2015-10-02', '2015-10-02', '2015-10-02',
@@ -27,7 +31,7 @@ class TestDateExtractor(unittest.TestCase):
                     '2006-08-03', '2003-06-08', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03',
                     '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-01', '2020-06-01', '2006-08-03',
                     '2006-08-03', '2006-08-03', '2018-07-01', '2018-06-01', '2019-03-01', '2017-12-01', '1998-01-09',
-                    '2020-01-07', '2020-02-05', '2018-03-22', '2018-03-30']
+                    '2020-01-07', '2020-02-05', '2017-12-23', '2017-12-31']
 
         self.assertEqual(results, expected)
 
@@ -67,15 +71,19 @@ class TestDateExtractor(unittest.TestCase):
 
     def test_relative_date(self) -> None:
         text = '5 days ago, in two months, last year, yesterday, the day after tomorrow  2009-10-23 Jun 27 2017'
+        base = datetime.datetime(2018, 1, 1, tzinfo=pytz.timezone('UTC'))
+        today = datetime.datetime.now()
 
-        extractions_with_base = de.extract(text, detect_relative_dates=True, relative_base=datetime.datetime(2018, 1, 1))
+        extractions_with_base = de.extract(text, detect_relative_dates=True, relative_base=base)
         extractions_base_tody = de.extract(text, detect_relative_dates=True)
 
         results_with_base = [e.value for e in extractions_with_base]
         results_base_today = [e.value for e in extractions_base_tody]
 
-        expected_with_base = ['2009-10-23', '2017-06-27', '2017-12-27', '2018-03-01', '2017-01-01', '2017-12-31', '2018-01-03']
-        expected_base_today = ['2009-10-23', '2017-06-27', '2018-03-26', '2018-05-31', '2017-03-31', '2018-03-30', '2018-04-02']
+        relative = [relativedelta(days=-5), relativedelta(months=2), relativedelta(years=-1), relativedelta(days=-1), relativedelta(days=2)]
+
+        expected_with_base = ['2009-10-23', '2017-06-27'] + [de.convert_to_iso_format(base + x) for x in relative]
+        expected_base_today = ['2009-10-23', '2017-06-27'] + [de.convert_to_iso_format(today + x) for x in relative]
 
         self.assertEqual(results_with_base, expected_with_base)
         self.assertEqual(results_base_today, expected_base_today)
@@ -98,21 +106,6 @@ class TestDateExtractor(unittest.TestCase):
         self.assertEqual(results_dmy, expected_dmy)
         self.assertEqual(results_mdy, expected_mdy)
         self.assertEqual(results_ymd, expected_ymd)
-
-    def test_timezone(self) -> None:
-        text = '2018-12-25 12:30, 2018-12-25 11:00 -0830'
-
-        extractions_1 = de.extract(text, to_timezone='MET', date_value_resolution=DateResolution.MINUTE)
-        extractions_2 = de.extract(text, to_timezone='UTC', date_value_resolution=DateResolution.MINUTE)
-
-        results_1 = [e.value for e in extractions_1]
-        results_2 = [e.value for e in extractions_2]
-
-        expected_1 = ['2018-12-25T09:30', '2018-12-25T20:30']
-        expected_2 = ['2018-12-25T08:30', '2018-12-25T19:30']
-
-        self.assertEqual(results_1, expected_1)
-        self.assertEqual(results_2, expected_2)
 
     def test_prefer_day(self) -> None:
         text = '2018 July and 09/20 and 2017/12'
