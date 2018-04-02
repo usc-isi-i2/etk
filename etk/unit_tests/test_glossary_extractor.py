@@ -12,7 +12,17 @@ class TestGlossaryExtractor(unittest.TestCase):
         text = 'i live in los angeles. my hometown is Beijing'
         tokens = t.tokenize(text)
         test_result = [i.value for i in ge.extract(tokens)]
-        expected = ["Beijing", "Los Angeles"]
+        expected = ["Beijing", "los angeles"]
+        self.assertEqual(test_result, expected)
+
+    def test_case_sensitive(self) -> None:
+        t = Tokenizer()
+        g = ['New York', 'Shanghai', 'Los Angeles', 'Beijing']
+        ge = GlossaryExtractor(g, 'test_glossary', t, 2, True)
+        text = 'i live in los angeles. my hometown is Beijing'
+        tokens = t.tokenize(text)
+        test_result = [i.value for i in ge.extract(tokens)]
+        expected = ["Beijing"]
         self.assertEqual(test_result, expected)
 
 
