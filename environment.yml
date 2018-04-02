@@ -21,7 +21,6 @@ dependencies:
     - cymem==1.31.2
     - cytoolz==0.8.2
     - decorator==4.2.1
-    - dateparser==0.7.0
     - dill==0.2.7.1
     - extruct==0.4.0
     - ftfy==4.4.3
@@ -29,6 +28,7 @@ dependencies:
     - idna==2.6
     - isodate==0.6.0
     - landmark-extractor==0.1.8.0
+    - langdetect==1.0.7
     - lxml==4.1.1
     - msgpack-numpy==0.4.1
     - msgpack-python==0.5.4
@@ -40,6 +40,8 @@ dependencies:
     - preshed==1.0.0
     - pygtrie==2.2
     - pyparsing==2.2.0
+    - python-dateutil==2.7.2
+    - pytz==2018.3
     - rdflib==4.2.2
     - rdflib-jsonld==0.4.0
     - regex==2017.4.5
@@ -50,6 +52,7 @@ dependencies:
     - thinc==6.10.2
     - toolz==0.9.0
     - tqdm==4.19.5
+    - tzlocal==1.5.1
     - ujson==1.35
     - urllib3==1.22
     - wcwidth==0.1.7

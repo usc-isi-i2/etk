@@ -139,6 +139,6 @@ class TestKnowledgeGraph(unittest.TestCase):
         ]
 
         self.assertEqual(expected_developers, knowledge_graph.get_kg()["developer"])
-        self.assertEquals(expected_date, knowledge_graph.get_kg()["test_date"])
-        self.assertEquals(expected_location, knowledge_graph.get_kg()["test_location"])
-        self.assertEquals(expected_add_value_date, knowledge_graph.get_kg()["test_add_value_date"])
+        self.assertEqual(expected_date, knowledge_graph.get_kg()["test_date"])
+        self.assertEqual(expected_location, knowledge_graph.get_kg()["test_location"])
+        self.assertEqual(expected_add_value_date, knowledge_graph.get_kg()["test_add_value_date"])
