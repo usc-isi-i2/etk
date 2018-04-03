@@ -5,7 +5,6 @@ from etk.document import Document
 
 
 class DocumentSelector(object):
-
     """
     Abstract class to encapsulate logic to enable ETK to selectively apply different extractors to different
     documents. Enables users of ETK to write custom logic for selecting documents for processing.
@@ -25,6 +24,7 @@ class DefaultDocumentSelector(DocumentSelector):
 
     def __init__(self):
         pass
+
     """
     A concrete implementation of DocumentSelector that supports commonly used methods for
     selecting documents.
@@ -48,13 +48,13 @@ class DefaultDocumentSelector(DocumentSelector):
         that the same selectors will be used for consuming all documents in a stream.
         """
 
-# re1 = r'\d+\.\d*[L][-]\d*\s[A-Z]*[/]\d*'
-# re2 = '\d*[/]\d*[A-Z]*\d*\s[A-Z]*\d*[A-Z]*'
-# re3 = '[A-Z]*\d+[/]\d+[A-Z]\d+'
-# re4 = '\d+[/]\d+[A-Z]*\d+\s\d+[A-z]\s[A-Z]*'
+    # re1 = r'\d+\.\d*[L][-]\d*\s[A-Z]*[/]\d*'
+    # re2 = '\d*[/]\d*[A-Z]*\d*\s[A-Z]*\d*[A-Z]*'
+    # re3 = '[A-Z]*\d+[/]\d+[A-Z]\d+'
+    # re4 = '\d+[/]\d+[A-Z]*\d+\s\d+[A-z]\s[A-Z]*'
 
-# sentences = [string1, string2, string3, string4]
-# generic_re = re.compile("(%s|%s|%s|%s)" % (re1, re2, re3, re4)).findall(sentence)
+    # sentences = [string1, string2, string3, string4]
+    # generic_re = re.compile("(%s|%s|%s|%s)" % (re1, re2, re3, re4)).findall(sentence)
 
     def select_document(self,
                         document: Document,
@@ -65,19 +65,26 @@ class DefaultDocumentSelector(DocumentSelector):
                         json_paths_regex: List[str] = None) -> bool:
 
         json_doc = document.cdr_document
-        res_set = []
+
         if (json_paths_regex is not None) and (json_paths is None):
+            print("please specify both json_paths_regex and json_paths")
             # TODO: print out some error message here
-            pass
+            return False
 
         if datasets is not None:
-            res_set.append(self.check_content(json_doc, "$.datasets", datasets, False))
+            res = self.check_content(json_doc, "$.datasets", datasets, False)
+            if not res:
+                return False
 
         if url_patterns is not None:
-            res_set.append(self.check_content(json_doc, "$.url", url_patterns, True))
+            res = self.check_content(json_doc, "$.url", url_patterns, True)
+            if not res:
+                return False
 
         if website_patterns is not None:
-            res_set.append(self.check_content(json_doc, "$.website", website_patterns, True))
+            res = self.check_content(json_doc, "$.website", website_patterns, True)
+            if not res:
+                return False
 
         if json_paths is not None:
             rw_json_paths = []
@@ -86,12 +93,14 @@ class DefaultDocumentSelector(DocumentSelector):
 
         if json_paths_regex is not None:
             rw_json_paths_regex = re.compile('|'.join(json_paths_regex))
-            res_set.append(self.check_json_path_codition(json_doc, rw_json_paths, rw_json_paths_regex))
+            res = self.check_json_path_codition(json_doc, rw_json_paths, rw_json_paths_regex)
+            if not res:
+                return False
 
-        return all(i == True for i in res_set)
+        return True
 
-
-    def check_content(self, json_doc: dict, json_path: str, patterns: List[str], enable_regexp: bool = True) -> bool:
+    @staticmethod
+    def check_content(json_doc: dict, json_path: str, patterns: List[str], enable_regexp: bool = True) -> bool:
         if enable_regexp:
             # compile json path
             patterns = re.compile('|'.join(patterns))
@@ -107,15 +116,14 @@ class DefaultDocumentSelector(DocumentSelector):
 
         return res
 
-
-    def check_json_path_codition(self, json_doc: dict, 
-                                rw_json_paths: List[jsonpath.Child], 
-                                compiled_json_paths_regex: str) -> bool:
+    @staticmethod
+    def check_json_path_codition(json_doc: dict,
+                                 rw_json_paths: List[jsonpath.Child],
+                                 compiled_json_paths_regex: str) -> bool:
         for json_path_expr in rw_json_paths:
             values = [match.value for match in json_path_expr.find(json_doc)]
-            res = any(re.search(compiled_json_paths_regex, value) != None for value in values)
+            res = any(re.search(compiled_json_paths_regex, value) is not None for value in values)
             if res:
                 return True
 
         return False
-
