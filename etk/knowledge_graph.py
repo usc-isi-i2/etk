@@ -1,6 +1,5 @@
 from typing import List, Dict
 from enum import Enum, auto
-from etk.document import Document
 from etk.exception import KgValueInvalidError, ISODateError, InvalidJsonPathError
 from datetime import date, datetime
 import numbers
@@ -173,10 +172,9 @@ class KnowledgeGraph(object):
     Add field and value to the kg object, analysis on provenence
     """
 
-    def __init__(self, schema: KgSchema, doc: Document, etk) -> None:
+    def __init__(self, schema: KgSchema, doc) -> None:
         self._kg = {}
         self.origin_doc = doc
-        self.etk = etk
         self.schema = schema
 
     def add_doc_value(self, field_name: str, jsonpath: str) -> None:
@@ -192,7 +190,7 @@ class KnowledgeGraph(object):
         if self.schema.has_field(field_name):
             if field_name not in self._kg:
                 self._kg[field_name] = []
-            path = self.etk.invoke_parser(jsonpath)
+            path = self.origin_doc.etk.invoke_parser(jsonpath)
             try:
                 matches = path.find(self.origin_doc.value)
             except Exception:
@@ -263,7 +261,8 @@ class KnowledgeGraph(object):
         # else:
         #     print("===Field already in kg, skip the adding===")
 
-    def get_kg(self) -> Dict:
+    @property
+    def value(self) -> Dict:
         """
         Get knowledge graph object
 

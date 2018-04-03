@@ -4,6 +4,7 @@ from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
 from etk.exception import InvalidJsonPathError
+from etk.knowledge_graph import KnowledgeGraph
 
 
 class Document(Extractable):
@@ -31,6 +32,9 @@ class Document(Extractable):
         self.default_tokenizer = self.etk.default_tokenizer
         self.mine_type = mine_type
         self.url = url
+        if self.etk.kg_schema:
+            self.kg = KnowledgeGraph(self.etk.kg_schema, self)
+            self._value["knowledge_graph"] = self.kg.value
 
     def select_segments(self, jsonpath: str) -> List[Segment]:
         """

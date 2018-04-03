@@ -9,11 +9,17 @@ from etk.extraction_module import ExtractionModule
 
 class ETK(object):
 
-    def __init__(self):
+    def __init__(self, kg_schema=None, modules=None):
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
         self.default_tokenizer = Tokenizer(self.default_nlp)
         self.parsed = dict()
+        self.kg_schema = kg_schema
+        if modules:
+            if isinstance(modules, ExtractionModule):
+                self.em_lst = [modules]
+            elif type(modules) == str:
+                self.em_lst = self.load_ems(modules)
 
     def create_document(self, doc: Dict, mime_type: str=None, url: str="http://ex.com/123") -> Document:
         """
@@ -37,6 +43,11 @@ class ETK(object):
                 raise InvalidJsonPathError("Invalid Json Path")
 
         return self.parsed[jsonpath]
+
+    def process_ems(self, doc: Document):
+        for a_em in self.em_lst:
+            if a_em.document_selector(doc):
+                a_em.process_document(doc)
 
     @staticmethod
     def load_glossary(file_path: str) -> List[str]:

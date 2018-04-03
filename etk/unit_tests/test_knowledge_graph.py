@@ -1,5 +1,5 @@
 import unittest
-from etk.knowledge_graph import KnowledgeGraph, KgSchema
+from etk.knowledge_graph import KgSchema
 from etk.etk import ETK
 from etk.exception import KgValueInvalidError
 from datetime import date, datetime
@@ -57,28 +57,28 @@ class TestKnowledgeGraph(unittest.TestCase):
             }
         }
 
-        etk = ETK()
-        doc = etk.create_document(sample_doc)
         kg_schema = KgSchema(master_config)
 
-        knowledge_graph = KnowledgeGraph(kg_schema, doc, etk)
+        etk = ETK(kg_schema)
+        doc = etk.create_document(sample_doc)
+
         try:
-            knowledge_graph.add_doc_value("developer", "projects[*].members[*]")
+            doc.kg.add_doc_value("developer", "projects[*].members[*]")
         except KgValueInvalidError:
             pass
 
         try:
-            knowledge_graph.add_doc_value("test_date", "projects[*].date[*]")
+            doc.kg.add_doc_value("test_date", "projects[*].date[*]")
         except KgValueInvalidError:
             pass
 
         try:
-            knowledge_graph.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
+            doc.kg.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
         except KgValueInvalidError:
             pass
 
         try:
-            knowledge_graph.add_doc_value("test_location", "projects[*].place")
+            doc.kg.add_doc_value("test_location", "projects[*].place")
         except KgValueInvalidError:
             pass
 
@@ -137,8 +137,7 @@ class TestKnowledgeGraph(unittest.TestCase):
               "key": "columbus:georgia:united states:-84.98771:32.46098"
             }
         ]
-
-        self.assertEqual(expected_developers, knowledge_graph.get_kg()["developer"])
-        self.assertEqual(expected_date, knowledge_graph.get_kg()["test_date"])
-        self.assertEqual(expected_location, knowledge_graph.get_kg()["test_location"])
-        self.assertEqual(expected_add_value_date, knowledge_graph.get_kg()["test_add_value_date"])
+        self.assertEqual(expected_developers, doc.kg.value["developer"])
+        self.assertEqual(expected_date, doc.kg.value["test_date"])
+        self.assertEqual(expected_location, doc.kg.value["test_location"])
+        self.assertEqual(expected_add_value_date, doc.kg.value["test_add_value_date"])
