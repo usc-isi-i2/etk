@@ -1,4 +1,6 @@
 import json, os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.bitcoin_address_extractor import BitcoinAddressExtractor
 from etk.extractors.cryptographic_hash_extractor import CryptographicHashExtractor
@@ -6,8 +8,7 @@ from etk.extractors.cve_extractor import CVEExtractor
 from etk.extractors.hostname_extractor import HostnameExtractor
 from etk.extractors.ip_address_extractor import IPAddressExtractor
 from etk.extractors.url_extractor import URLExtractor
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+
 
 sample_input = {
     "target_text": "This is for test multiple extractors using regex expression. "
