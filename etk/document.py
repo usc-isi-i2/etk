@@ -104,9 +104,7 @@ class Document(Extractable):
         elif extractor.input_type == InputType.HTML:
             extracted_results = extractor.extract(extractable.value, **options)
 
-
-        # TODO: the reason that extractors must return Extraction objects is so that
-        # they can communicate back the provenance.
+        # The reason that extractors must return Extraction is so that they can communicate back the provenance.
 
         return extracted_results
         # record provenance:
