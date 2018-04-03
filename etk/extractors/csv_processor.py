@@ -3,7 +3,7 @@ import pyexcel_xlsx
 import os
 import csv
 from etk.document import Document
-from typing import List, Tuple
+from typing import List
 from io import StringIO
 
 
@@ -18,17 +18,20 @@ class CsvProcessor(object):
                         required_columns: list[str]
     """
 
-    def __init__(self, etk: object, **mapping_spec: dict) -> None:
+    def __init__(self, etk, **mapping_spec) -> None:
         self.etk = etk
-        self.heading_row = mapping_spec.get("heading_row", 1) - 1
+
+        self.heading_row = mapping_spec.get("heading_row")
+        if self.heading_row is not None:
+            self.heading_row = self.heading_row -1
 
         self.content_start_row = mapping_spec.get("content_start_row", 2) - 1
 
         # how about if heading_col is not present? read until first empty cell?
-        self.heading_columns = mapping_spec.get("heading_colums")
+        self.heading_columns = mapping_spec.get("heading_columns")
+
         if self.heading_columns is not None:
-            self.heading_columns[0] = self.heading_columns[0] - 1
-            self.heading_columns[1] = self.heading_columns[1] + 1
+            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1] + 1)
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
@@ -47,9 +50,6 @@ class CsvProcessor(object):
             mapping_spec.get("remove_leading_empty_rows", True)
 
         self.required_columns = mapping_spec.get("required_columns")
-
-        # TODO: what is this used for?
-        self.remove_blank_fields = mapping_spec.get("remove_blank_fields", True)
 
         self._get_data_function = {
             ".csv": pyexcel_io.get_data,
@@ -96,18 +96,21 @@ class CsvProcessor(object):
             if extension == '.xls' or extension == '.xlsx' and sheet_num is not None:
                 data = data[sheet_num]
             else:
-                data = data[filename]
+                file_name = fn.split('/')[-1] + extension
+                data = data[file_name]
 
         table_content, header = self.content_recognizer(data)
 
         return self.create_documents(table_content, header, filename, data_set, nested_key)
 
-    def content_recognizer(self, data: List[List[str]]) -> Tuple(List[List[str]], List[str]):
+    def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
         if self.heading_row is not None:
-            heading, col_start, col_end = self.process_header(data[self.header_row])
+            heading, col_start, col_end = self.process_header(data[self.heading_row])
             # if heading_row is specified, discards/overwrite the heading_columns
             self.heading_columns = (col_start, col_end)
+        else:
+            heading = None
 
         # handle row first:
         if self.content_end_row is not None:
@@ -118,39 +121,48 @@ class CsvProcessor(object):
             self.heading_columns = (col_start, col_end)
 
         # handle col:
-        data = self.extract_row_content(data, self.heading_colums[0], self.heading_colums[1])
+        data = self.extract_row_content(data)
 
         return data, heading
 
     @staticmethod
-    def process_header(header: List[str]) -> Tuple[List[str], int, int]:
+    def process_header(header: List[str]) -> tuple((List[str], int, int)):
         processed_header = list()
-        col_start, col_end = 0, 0
-        for col in header:
-            if not col and col_start == 0:
+        col_start, col_end = 0, len(header)
+        for i in range(len(header)):
+            if not header[i] and col_start == 0:
                 continue
-            elif not col and col_start != 0:
+            elif header[i] and col_start == 0:
+                col_start = i
+                processed_header.append(header[i])
+            elif not header[i] and col_start != 0:
+                col_end = i
                 break
             else:
-                processed_header.append(col)
+                processed_header.append(header[i])
 
-        return processed_header, col_start, col_end
+        return processed_header, col_start-1, col_end
 
     # slicing table by start and end col
-    @staticmethod
-    def extract_row_content(sheet: List[List[str]], heading_cols: Tuple(int, int)) -> List[List[str]]:
+    def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:
         valid_row = list()
         for row in sheet:
-            valid_row.append(row[heading_cols[0], heading_cols[1]])
+            valid_row.append(row[self.heading_columns[0]:self.heading_columns[1]])
 
         return valid_row
 
     # remove all leading empty rows and figure out the start and end col
-    def process_by_row(self, sheet: List[List[str]]) -> Tuple(List[List[str]], int, int, int):
+    def process_by_row(self, sheet: List[List[str]]) -> tuple((List[List[str]], int, int, int)):
         col_min, col_max, row_count, valid_row = float("inf"), 0, 0, list()
 
         if self.remove_leading_empty_rows:
             for row in sheet:
+                # empty row
+                if not any(row):
+                    if self.blank_row_ends_content:
+                        break
+                    else:
+                        continue
                 idx = list(map(bool, row)).index(True)
                 col_min = min(col_min, idx)
                 col_max = max(len(row), col_max)
@@ -163,6 +175,15 @@ class CsvProcessor(object):
         else:
             valid_row = sheet
             for row in sheet:
+                # empty row
+                if not any(row):
+                    if self.blank_row_ends_content:
+                        break
+                    else:
+                        continue
+                idx = list(map(bool, row)).index(True)
+                col_min = min(col_min, idx)
+                col_max = max(len(row), col_max)
                 col_count = max(len(row), col_count)
                 row_count += 1
 
@@ -180,8 +201,8 @@ class CsvProcessor(object):
             return list()
 
         # get the header line index of required columns
+        list_idx = list()
         if self.required_columns is not None:
-            list_idx = list()
             for i in range(len(header)):
                 if header[i] in self.required_columns:
                     list_idx.append(i)
@@ -196,11 +217,17 @@ class CsvProcessor(object):
                 continue
 
             doc = dict()
-            for i in len(row):
+            for i in range(0, self.heading_columns[1] - self.heading_columns[0]):
+                # range(len(row)):
                 if header is not None:
-                    doc[header[i]] = row[i]
+                    key = header[i]
                 else:
-                    doc[str(i)] = row[i]
+                    key = str(i)
+
+                if i >= len(row):
+                    doc[key] = ''
+                else:
+                    doc[key] = row[i]
 
             cdr_doc = dict()
             if nested_key is not None:
