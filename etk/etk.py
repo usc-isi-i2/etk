@@ -1,8 +1,10 @@
 from typing import List, Dict
 import jsonpath_ng
 import spacy
+import json
 from etk.tokenizer import Tokenizer
 from etk.document import Document
+from etk.exception import InvalidJsonPathError
 
 
 class ETK(object):
@@ -29,7 +31,10 @@ class ETK(object):
 
     def invoke_parser(self, jsonpath):
         if jsonpath not in self.parsed:
-            self.parsed[jsonpath] = self.parser(jsonpath)
+            try:
+                self.parsed[jsonpath] = self.parser(jsonpath)
+            except Exception:
+                raise InvalidJsonPathError("Invalid Json Path")
 
         return self.parsed[jsonpath]
 
@@ -46,3 +51,28 @@ class ETK(object):
         with open(file_path) as fp:
             return fp.read().splitlines()
 
+    @staticmethod
+    def load_spacy_rule(file_path: str) -> Dict:
+        """
+        A spacy rule file is a json file.
+
+        Args:
+            file_path (str): path to a text file containing a spacy rule sets.
+
+        Returns: Dict as the representation of spacy rules
+        """
+        with open(file_path) as fp:
+            return json.load(fp)
+
+    @staticmethod
+    def load_master_config(file_path: str) -> Dict:
+        """
+        A spacy rule file is a json file.
+
+        Args:
+            file_path (str): path to a text file containing a master config file.
+
+        Returns: Dict as the representation of spacy rules
+        """
+        with open(file_path) as fp:
+            return json.load(fp)

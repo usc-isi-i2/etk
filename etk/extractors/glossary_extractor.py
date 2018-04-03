@@ -31,13 +31,15 @@ class GlossaryExtractor(Extractor):
 
         if len(tokens) > 0:
             if self.case_sensitive:
-                tokens = [x.orth_ for x in tokens]
+                new_tokens = [x.orth_ for x in tokens]
             else:
-                tokens = [x.lower_ for x in tokens]
+                new_tokens = [x.lower_ for x in tokens]
+        else:
+            return results
 
         try:
-            ngrams_iter = self.generate_ngrams_with_context(tokens)
-            results.extend(map(lambda term: self.wrap_value_with_context(term[0], term[1], term[2]),
+            ngrams_iter = self.generate_ngrams_with_context(new_tokens)
+            results.extend(map(lambda term: self.wrap_value_with_context(tokens, term[1], term[2]),
                                filter(lambda term: isinstance(term[0], str),
                                       map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
@@ -72,9 +74,9 @@ class GlossaryExtractor(Extractor):
         trie_accumulator[key] = value
         return trie_accumulator
 
-    def wrap_value_with_context(self, value: str, start: int, end: int) -> Extraction:
+    def wrap_value_with_context(self, tokens: List[Token], start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return Extraction(value, self.name, start_token=start, end_token=end)
+        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]), self.name, start_token=start, end_token=end)
 
     @staticmethod
     def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:

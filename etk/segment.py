@@ -1,7 +1,6 @@
 from etk.etk_extraction import Extractable, Extraction
-import copy
 from typing import List, Dict
-# from etk.document import Document # will throw exception
+from etk.exception import StoreExtractionError
 
 
 class Segment(Extractable):
@@ -55,28 +54,39 @@ class Segment(Extractable):
         Returns:
 
         """
+        if not isinstance(self._value, dict):
+            raise StoreExtractionError("segment is type: " + str(type(self._value)))
+
         if not len(extractions):
             return
 
         if group_by_tags:
             try:
-                next(x for x in extractions if x.tag)
-                child_segment = Segment(self.full_path+'.'+attribute, {}, self.document)
+                next(x for x in extractions if x.tag)   # if there is at least one extraction with a tag
+                if attribute not in self._extractions:
+                    self._extractions[attribute] = set([])
+                    self._value[attribute] = {}
                 for e in extractions:
-                    child_segment.store_extractions([e], e.tag if e.tag else 'NO_TAGS', False)
-                self.document.cdr_document[attribute] = child_segment._value
+                    tag = e.tag if e.tag else 'NO_TAGS'
+                    if tag not in self.value[attribute]:
+                        self.value[attribute][tag] = [e.value]
+                    else:
+                        if e.value not in self.value[attribute][tag]:
+                            self.value[attribute][tag].append(e.value)
+                self._extractions[attribute] = self._extractions[attribute].union(extractions)
                 return
             except StopIteration:
                 pass
+
         if attribute not in self._extractions:
             self._extractions[attribute] = set([])
+            self._value[attribute] = []
+
         self._extractions[attribute] = self._extractions[attribute].union(extractions)
-        try:
-            # TODO: why is it necessary to deepcopy the extraction?
-            self._value[attribute] = [copy.deepcopy(a_extraction.value) for a_extraction in self._extractions[attribute]]
-        except Exception as e:
-            print("segment is " + str(type(self._value)))
-            print(e)
+
+        for a_extraction in extractions:
+            if a_extraction.value not in self._value[attribute]:
+                self._value[attribute].append(a_extraction.value)
 
     @property
     def extractions(self) -> Dict:

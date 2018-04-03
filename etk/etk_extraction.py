@@ -112,6 +112,10 @@ class Extractable(ExtractableBase):
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
+            if isinstance(self._value, list):
+                print("\n========tokenizer needs string, got list, converting list to string========")
+            elif isinstance(self._value, dict):
+                print("\n========tokenizer needs string, got dict, converting dict to string========")
             segment_value_for_tokenize = self.get_string()
             tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens
@@ -132,7 +136,7 @@ class Extraction(Extractable):
                  end_token=None,
                  start_char=None,
                  end_char=None,
-                 tag=None):
+                 **options):
         Extractable.__init__(self)
         """
 
@@ -143,7 +147,11 @@ class Extraction(Extractable):
         Returns:
 
         """
-        self._tag = tag
+
+        self._tag = options["tag"] if "tag" in options else None
+        self._rule_id = options["rule_id"] if "rule_id" in options else None
+        self._spacy_rule_mapping = options["match_mapping"] if "match_mapping" in options else None
+
         fake_provenance = {
             "extractor_name": extractor_name,
             "confidence": confidence,
@@ -185,3 +193,21 @@ class Extraction(Extractable):
 
         """
         return self._tag
+
+    @property
+    def rule_id(self) -> str:
+        """
+
+        Returns: the rule_id associated with this Extraction.
+
+        """
+        return self._rule_id
+
+    @property
+    def spacy_rule_mapping(self) -> Dict:
+        """
+
+        Returns: the spacy_rule_mapping associated with this Extraction.
+
+        """
+        return self._spacy_rule_mapping

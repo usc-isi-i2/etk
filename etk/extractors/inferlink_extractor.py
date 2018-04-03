@@ -2,7 +2,8 @@ import json
 from typing import List
 from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
-from etk.dependencies.landmark_extractor.extraction.Landmark import ItemRule, IterationRule
+from etk.dependencies.landmark.landmark_extractor.extraction.Landmark \
+    import ItemRule, IterationRule
 
 
 class InferlinkRule(object):
