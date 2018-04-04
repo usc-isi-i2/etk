@@ -1,8 +1,8 @@
 import os, sys, json, codecs
-from etk.etk import ETK
-from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+from etk.etk import ETK
+from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
 
 
 sample_html = json.load(codecs.open('../html_basic/sample_html.json', 'r')) # read sample file from disk
