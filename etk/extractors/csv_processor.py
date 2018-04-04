@@ -23,7 +23,7 @@ class CsvProcessor(object):
 
         self.heading_row = mapping_spec.get("heading_row")
         if self.heading_row is not None:
-            self.heading_row = self.heading_row -1
+            self.heading_row = self.heading_row - 1
 
         self.content_start_row = mapping_spec.get("content_start_row", 2) - 1
 
@@ -35,8 +35,8 @@ class CsvProcessor(object):
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
-        if self.content_end_row is not None:
-            self.content_end_row = self.content_end_row + 1
+        # if self.content_end_row is not None:
+        #     self.content_end_row = self.content_end_row
 
         # if set to false, read until EOF
         self.blank_row_ends_content = mapping_spec.get("ends_with_blank_row", True)
@@ -59,7 +59,7 @@ class CsvProcessor(object):
         }
 
     def tabular_extractor(self, table_str: str = None, filename: str = None,
-                          sheet_num: int = 1,
+                          sheet_name:str = None,
                           data_set: str = None,
                           nested_key: str = None) -> List[Document]:
         data = list()
@@ -93,8 +93,13 @@ class CsvProcessor(object):
                     data = get_data(filename, auto_detect_datetime=False,
                                     auto_detect_float=False, encoding="utf-8-sig")
 
-            if extension == '.xls' or extension == '.xlsx' and sheet_num is not None:
-                data = data[sheet_num]
+            if extension == '.xls' or extension == '.xlsx':
+                if sheet_name is None:
+                    sheet_name = data.key()[0]
+                    print("ssss")
+                    print(sheet_name)
+
+                data = data[sheet_name]
             else:
                 file_name = fn.split('/')[-1] + extension
                 data = data[file_name]
@@ -151,41 +156,34 @@ class CsvProcessor(object):
 
         return valid_row
 
+    # TODO: refactor this method
     # remove all leading empty rows and figure out the start and end col
     def process_by_row(self, sheet: List[List[str]]) -> tuple((List[List[str]], int, int, int)):
-        col_min, col_max, row_count, valid_row = float("inf"), 0, 0, list()
+        col_min = float("inf")
+        col_max = 0
+        row_count = 0
+        valid_row = list()
 
-        if self.remove_leading_empty_rows:
-            for row in sheet:
-                # empty row
-                if not any(row):
-                    if self.blank_row_ends_content:
-                        break
-                    else:
-                        continue
-                idx = list(map(bool, row)).index(True)
-                col_min = min(col_min, idx)
-                col_max = max(len(row), col_max)
-                # leading empty rows
-                if row_count == 0 and len(row) == 0:
-                    continue
-                else:
-                    valid_row.append(row)
-                    row_count += 1
-        else:
-            valid_row = sheet
-            for row in sheet:
-                # empty row
-                if not any(row):
-                    if self.blank_row_ends_content:
-                        break
-                    else:
-                        continue
-                idx = list(map(bool, row)).index(True)
-                col_min = min(col_min, idx)
-                col_max = max(len(row), col_max)
-                col_count = max(len(row), col_count)
+        for row in sheet:
+            # first row & row is empty & remove all leading empty rows
+            if row_count == 0 and not any(row) and self.remove_leading_empty_rows:
+                continue
+            elif row_count == 0 and not any(row) and not self.remove_leading_empty_rows:
                 row_count += 1
+                continue
+            # not first row & row is empty & end with blank row
+            elif row_count != 0 and not any(row) and self.blank_row_ends_content:
+                break
+            elif row_count != 0 and not any(row) and not self.blank_row_ends_content:
+                row_count += 1
+                continue
+
+            #  find first non-empty col
+            idx = list(map(bool, row)).index(True)
+            col_min = min(col_min, idx)
+            col_max = max(len(row), col_max)
+            row_count += 1
+            valid_row.append(row)
 
         return valid_row, col_min, col_max, row_count
 
