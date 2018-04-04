@@ -35,7 +35,16 @@ class ETK(object):
         """
         return Document(self, doc, mime_type, url)
 
-    def invoke_parser(self, jsonpath):
+    def invoke_parser(self, jsonpath: str):
+        """
+        Parse a jsonpath
+
+        Args:
+            jsonpath: str
+
+        Returns: a parsed json path
+
+        """
         if jsonpath not in self.parsed:
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
@@ -45,9 +54,20 @@ class ETK(object):
         return self.parsed[jsonpath]
 
     def process_ems(self, doc: Document):
+        """
+        Factory method to wrap input JSON docs in an ETK Document object.
+
+        Args:
+            doc (Document): process on this document
+
+        Returns: a Document object and a KnowledgeGraph object
+
+        """
         for a_em in self.em_lst:
             if a_em.document_selector(doc):
                 a_em.process_document(doc)
+
+        return doc, doc.kg
 
     @staticmethod
     def load_glossary(file_path: str) -> List[str]:
@@ -109,7 +129,16 @@ class ETK(object):
         return em_lst
 
     @staticmethod
-    def classes_in_module(module):
+    def classes_in_module(module) -> List:
+        """
+        Return all classes with super class ExtractionModule
+
+        Args:
+            module:
+
+        Returns: List of classes
+
+        """
         md = module.__dict__
         return [
             md[c] for c in md if (
