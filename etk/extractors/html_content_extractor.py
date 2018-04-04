@@ -54,8 +54,8 @@ class HTMLContentExtractor(Extractor):
                 else:
                     relax = strategy == Strategy.MAIN_CONTENT_RELAXED
                     readable = Document(html_text, recallPriority=relax).summary(html_partial=False)
-                    cleantext = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
-                    readability_text = ' '.join(cleantext)
+                    clean_text = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
+                    readability_text = ' '.join(clean_text)
                     return [Extraction(readability_text, self.name)]
             else:
                 return []
