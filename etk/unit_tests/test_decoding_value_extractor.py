@@ -1,5 +1,5 @@
 import unittest
-from etk.extractors.decoding_dictionary_extractor import DecodingDictionaryExtractor
+from etk.extractors.decoding_value_extractor import DecodingValueExtractor
 
 
 class TestDictionaryExtractor(unittest.TestCase):
@@ -13,10 +13,10 @@ class TestDictionaryExtractor(unittest.TestCase):
         }
         values = ['ca', 'CA', ' CA', ' ca', 'NY', ' ny', 'Az', 'AZ', 'az ', 'tx', 'tx ', 'TX', 'fl', 'FL', 'fl ']
 
-        de_default = DecodingDictionaryExtractor(decoding_dict, 'default_decoding') # strip_key and not case_sensitive
-        de_case_sensitive = DecodingDictionaryExtractor(decoding_dict, 'default_decoding', case_sensitive=True)
-        de_not_strip_key = DecodingDictionaryExtractor(decoding_dict, 'default_decoding', strip_key=False)
-        de_strip_value = DecodingDictionaryExtractor(decoding_dict, 'default_decoding', strip_value=True)
+        de_default = DecodingValueExtractor(decoding_dict, 'default_decoding') # strip_key and not case_sensitive
+        de_case_sensitive = DecodingValueExtractor(decoding_dict, 'default_decoding', case_sensitive=True)
+        de_not_strip_key = DecodingValueExtractor(decoding_dict, 'default_decoding', strip_key=False)
+        de_strip_value = DecodingValueExtractor(decoding_dict, 'default_decoding', strip_value=True)
 
         results = list()
         results.append([de_default.extract(v)[0].value for v in values if de_default.extract(v)])

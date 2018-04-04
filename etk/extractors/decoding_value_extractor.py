@@ -3,15 +3,15 @@ from etk.extractor import Extractor, InputType
 from etk.etk_extraction import Extraction
 
 
-class DecodingDictionaryExtractor(Extractor):
+class DecodingValueExtractor(Extractor):
 
     def __init__(self,
                  decoding_dict: dict,
                  extractor_name: str,
                  default_action: str='delete',
+                 case_sensitive: bool=False,
                  strip_key: bool=True,
                  strip_value: bool=False,
-                 case_sensitive: bool=False,
                  ) -> None:
         """
 
@@ -19,9 +19,9 @@ class DecodingDictionaryExtractor(Extractor):
             decoding_dict: dict -> a python dictionary for decoding values
             extractor_name: str -> extractor name
             default_action: enum['delete'] ->  what if the value not matched in dictionary
+            case_sensitive: bool -> matching the key and value strictly or ignore cases
             strip_key: bool -> strip key and value for matching or not
             strip_value: bool -> return the striped value if matched or the original value
-            case_sensitive: bool -> matching the key and value strictly or ignore cases
         """
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
@@ -31,13 +31,13 @@ class DecodingDictionaryExtractor(Extractor):
             self.decoding_dict = decoding_dict
         else:
             new_dict = {}
-            if not strip_key:
+            if not strip_key:   # not case_sensitive, ignore cases
                 for k in decoding_dict:
                     new_dict[k.lower()] = decoding_dict[k]
-            elif case_sensitive:
+            elif case_sensitive:   # strip key
                 for k in decoding_dict:
                     new_dict[k.strip()] = decoding_dict[k]
-            else:
+            else:   # ignore case AND strip key
                 for k in decoding_dict:
                     new_dict[k.lower().strip()] = decoding_dict[k]
             self.decoding_dict = new_dict
@@ -59,7 +59,7 @@ class DecodingDictionaryExtractor(Extractor):
 
         """
 
-        to_match = value if self.case_sensitive else value.lower()
+        to_match = value.lower() if not self.case_sensitive else value
         to_match = to_match.strip() if self.strip_key else to_match
 
         if to_match in self.decoding_dict:
