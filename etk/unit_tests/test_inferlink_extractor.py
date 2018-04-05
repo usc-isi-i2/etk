@@ -18,11 +18,14 @@ class TestInferlinkExtractor(unittest.TestCase):
             "323-452-2013",
             "Los Angeles, California",
             "23",
-            "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013",
+            "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. "
+            "discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or "
+            "text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013",
             "2017-01-02 06:46"
-          ]
+        ]
 
-        self.assertEqual(json.dumps(result), json.dumps(expected))
+        self.assertEqual(result, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
