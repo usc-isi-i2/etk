@@ -57,10 +57,13 @@ class ETK(object):
 
         Args:
             file_path (str): path to a text file containing a glossary.
-            read_json (bool): set True if file is in json format
+            read_json (bool): set True if the glossary is in json format
         Returns: List of the strings in the glossary.
         """
-        return json.load(codecs.open(file_path)) if read_json else codecs.open(file_path).read().splitlines()
+        with open(file_path) as fp:
+            if read_json:
+                return json.load(fp)
+            return fp.read().splitlines()
 
     @staticmethod
     def load_spacy_rule(file_path: str) -> Dict:
@@ -72,19 +75,21 @@ class ETK(object):
 
         Returns: Dict as the representation of spacy rules
         """
-        return json.load(codecs.open(file_path))
+        with open(file_path) as fp:
+            return json.load(fp)
 
     @staticmethod
     def load_master_config(file_path: str) -> Dict:
         """
-        A master config file is a json file.
+        A master config rule file is a json file.
 
         Args:
             file_path (str): path to a text file containing a master config file.
 
         Returns: Dict as the representation of spacy rules
         """
-        return json.load(codecs.open(file_path))
+        with open(file_path) as fp:
+            return json.load(fp)
 
     def load_ems(self, modules_path: str):
         """
