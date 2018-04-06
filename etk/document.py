@@ -3,7 +3,7 @@ from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.exception import InvalidJsonPathError
+from etk.etk_exceptions import InvalidJsonPathError
 from etk.knowledge_graph import KnowledgeGraph
 
 
@@ -13,7 +13,7 @@ class Document(Extractable):
         to query elements of the document and to update the document with the results
         of extractors.
         """
-    def __init__(self, etk, cdr_document: Dict, mine_type, url) -> None:
+    def __init__(self, etk, cdr_document: Dict, mime_type, url) -> None:
 
         """
         Wrapper object for CDR documents.
@@ -29,8 +29,9 @@ class Document(Extractable):
         self.etk = etk
         self.cdr_document = cdr_document
         self._value = cdr_document
+        # TODO do we really need to have a default_tokenizer class variable, as etk already has a tokenizer and can be accessed -> self.etk.tokenizer ???
         self.default_tokenizer = self.etk.default_tokenizer
-        self.mine_type = mine_type
+        self.mime_type = mime_type
         self.url = url
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)

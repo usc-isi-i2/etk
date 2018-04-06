@@ -1,6 +1,6 @@
 from typing import List, Dict
 from enum import Enum, auto
-from etk.exception import KgValueInvalidError, ISODateError, InvalidJsonPathError
+from etk.etk_exceptions import KgValueInvalidError, ISODateError, InvalidJsonPathError
 from datetime import date, datetime
 import numbers
 

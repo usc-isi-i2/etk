@@ -3,7 +3,7 @@ import spacy
 import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
-from etk.exception import InvalidJsonPathError
+from etk.etk_exceptions import InvalidJsonPathError
 from etk.extraction_module import ExtractionModule
 
 

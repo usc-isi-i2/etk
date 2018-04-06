@@ -1,7 +1,7 @@
 import unittest
 from etk.knowledge_graph import KgSchema
 from etk.etk import ETK
-from etk.exception import KgValueInvalidError
+from etk.etk_exceptions import KgValueInvalidError
 from datetime import date, datetime
 
 
