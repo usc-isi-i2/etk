@@ -72,8 +72,7 @@ class ETK(object):
 
         Returns: Dict as the representation of spacy rules
         """
-        with open(file_path) as fp:
-            return json.load(fp)
+        return json.load(codecs.open(file_path))
 
     @staticmethod
     def load_master_config(file_path: str) -> Dict:
@@ -85,9 +84,8 @@ class ETK(object):
 
         Returns: Dict as the representation of spacy rules
         """
-        with open(file_path) as fp:
-            return json.load(fp)
-
+        return json.load(codecs.open(file_path))
+        
     def load_ems(self, modules_path: str):
         """
         Load all extraction modules from the path
