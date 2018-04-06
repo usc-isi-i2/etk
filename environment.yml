@@ -52,7 +52,7 @@ dependencies:
     - regex==2017.4.5
     - requests==2.18.4
     - six==1.11.0
-    - spacy==2.0.7
+    - spacy==2.0.11
     - termcolor==1.1.0
     - thinc==6.10.2
     - toolz==0.9.0
