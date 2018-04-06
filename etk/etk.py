@@ -126,7 +126,22 @@ class ETK(object):
                 for em in self.classes_in_module(this_module):
                     em_lst.append(em(self))
 
+        em_lst = self.topological_sort(em_lst)
         return em_lst
+
+    @staticmethod
+    def topological_sort(lst: List[ExtractionModule]) -> List[ExtractionModule]:
+        """
+        Return topological order of ems
+
+        Args:
+            lst: List[ExtractionModule]
+
+        Returns: List[ExtractionModule]
+
+        """
+        "TODO"
+        return lst
 
     @staticmethod
     def classes_in_module(module) -> List:
