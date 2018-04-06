@@ -77,7 +77,7 @@ class ETK(object):
     @staticmethod
     def load_master_config(file_path: str) -> Dict:
         """
-        A spacy rule file is a json file.
+        A master config file is a json file.
 
         Args:
             file_path (str): path to a text file containing a master config file.
@@ -85,7 +85,7 @@ class ETK(object):
         Returns: Dict as the representation of spacy rules
         """
         return json.load(codecs.open(file_path))
-        
+
     def load_ems(self, modules_path: str):
         """
         Load all extraction modules from the path
