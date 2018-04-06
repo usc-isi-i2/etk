@@ -5,6 +5,7 @@ from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.extraction_module import ExtractionModule
+import codecs
 
 
 class ETK(object):
@@ -21,7 +22,7 @@ class ETK(object):
             elif type(modules) == str:
                 self.em_lst = self.load_ems(modules)
 
-    def create_document(self, doc: Dict, mime_type: str=None, url: str="http://ex.com/123") -> Document:
+    def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -50,17 +51,16 @@ class ETK(object):
                 a_em.process_document(doc)
 
     @staticmethod
-    def load_glossary(file_path: str) -> List[str]:
+    def load_glossary(file_path: str, read_json=False) -> List[str]:
         """
         A glossary is a text file, one entry per line.
 
         Args:
             file_path (str): path to a text file containing a glossary.
-
+            read_json (bool): set True if file is in json format
         Returns: List of the strings in the glossary.
         """
-        with open(file_path) as fp:
-            return fp.read().splitlines()
+        return json.load(codecs.open(file_path)) if read_json else codecs.open(file_path).read().splitlines()
 
     @staticmethod
     def load_spacy_rule(file_path: str) -> Dict:
@@ -113,7 +113,7 @@ class ETK(object):
         md = module.__dict__
         return [
             md[c] for c in md if (
-            isinstance(md[c], type) and
-            issubclass(md[c], ExtractionModule) and
-            md[c].__module__ == module.__name__)
+                    isinstance(md[c], type) and
+                    issubclass(md[c], ExtractionModule) and
+                    md[c].__module__ == module.__name__)
         ]
