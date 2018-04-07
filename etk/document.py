@@ -91,6 +91,7 @@ class Document(Extractable):
                 extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
+            # TODO if the input is not as expected, throw an error, this is the case where we try to add 3 + '5'
             if isinstance(extractable.value, list):
                 print("\n======extractor needs string, got extractable value as list, converting list to string======")
             elif isinstance(extractable.value, dict):
