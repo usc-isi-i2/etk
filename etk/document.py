@@ -52,6 +52,7 @@ class Document(Extractable):
         try:
             matches = path.find(self.cdr_document)
         except Exception:
+            # TODO this will not be a InvalidJsonPathError, that exception will already be raised at line: 51, this will raise a misleading exception
             raise InvalidJsonPathError("Invalid Json Path")
 
         segments = []
