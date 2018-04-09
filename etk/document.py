@@ -49,7 +49,7 @@ class Document(Extractable):
 
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
-        path = self.etk.invoke_parser(jsonpath)
+        path = self.etk.parse_json_path(jsonpath)
         try:
             matches = path.find(self.cdr_document)
         except Exception:

@@ -30,7 +30,7 @@ class KnowledgeGraph(object):
         if self.schema.has_field(field_name):
             if field_name not in self._kg:
                 self._kg[field_name] = []
-            path = self.origin_doc.etk.invoke_parser(jsonpath)
+            path = self.origin_doc.etk.parse_json_path(jsonpath)
             try:
                 matches = path.find(self.origin_doc.value)
             except Exception:

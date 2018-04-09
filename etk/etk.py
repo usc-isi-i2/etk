@@ -35,7 +35,7 @@ class ETK(object):
         """
         return Document(self, doc, mime_type, url)
 
-    def invoke_parser(self, jsonpath):
+    def parse_json_path(self, jsonpath):
         if jsonpath not in self.parsed:
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
