@@ -2,7 +2,7 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
-from etk.knowledge_graph import KnowledgeGraph, KgSchema
+from etk.knowledge_graph import KnowledgeGraph, KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 import json
 
@@ -33,7 +33,7 @@ for d, p in zip(descriptions, projects):
 
 master_config = etk.load_master_config("master_config.json")
 
-kg_schema = KgSchema(master_config)
+kg_schema = KGSchema(master_config)
 
 knowledge_graph = KnowledgeGraph(kg_schema, doc, etk)
 knowledge_graph.add_doc_value("developer", "projects[*].members[*]")

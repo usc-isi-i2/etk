@@ -2,7 +2,7 @@ import os, sys, json
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
-from etk.knowledge_graph import KgSchema
+from etk.knowledge_graph import KGSchema
 
 
 sample_input = {
@@ -36,7 +36,7 @@ master_config = {
     }
 }
 
-kg_schema = KgSchema(master_config)
+kg_schema = KGSchema(master_config)
 
 etk = ETK(kg_schema, "./extraction_modules/")
 
