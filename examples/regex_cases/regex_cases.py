@@ -37,10 +37,9 @@ ue = URLExtractor(True)
 
 e_list = [bae, ce, che, he, iae, ue]
 segment = doc.select_segments("target_text")[0]
-target = doc.select_segments("$")[0]
 for e in e_list:
     res = doc.invoke_extractor(e, segment)
-    target.store_extractions(res, e.name)
+    doc.store_extractions(res, e.name)
 
 
 print(json.dumps(sample_input, indent=2))

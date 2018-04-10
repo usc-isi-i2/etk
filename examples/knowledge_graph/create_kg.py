@@ -35,6 +35,6 @@ master_config = etk.load_master_config("master_config.json")
 
 kg_schema = KGSchema(master_config)
 
-knowledge_graph = KnowledgeGraph(kg_schema, doc, etk)
+knowledge_graph = KnowledgeGraph(kg_schema, doc)
 knowledge_graph.add_doc_value("developer", "projects[*].members[*]")
-print(json.dumps(knowledge_graph.get_kg(), indent=2))
+print(json.dumps(knowledge_graph.value, indent=2))

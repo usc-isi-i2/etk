@@ -12,11 +12,10 @@ doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com
 my_table_extractor = TableExtractor()
 
 d = doc.select_segments("$.raw_content")[0]
-root = doc.select_segments("$")[0]
 
 tables = doc.invoke_extractor(my_table_extractor, d)
 for t in tables:
-    root.store_extractions([t], t.tag, group_by_tags=False)
+    doc.store_extractions([t], t.tag, group_by_tags=False)
 
 table_data_extractor = EntityTableDataExtraction()
 table_data_extractor.add_glossary(etk.load_glossary("./resources/address_dict.txt"), "address")
