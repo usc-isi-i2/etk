@@ -3,11 +3,10 @@ from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.etk_exceptions import InvalidJsonPathError
 from etk.knowledge_graph import KnowledgeGraph
 
 
-class Document(Extractable):
+class Document(Segment):
     """
         This class wraps raw CDR documents and provides a convenient API for ETK
         to query elements of the document and to update the document with the results
@@ -25,17 +24,25 @@ class Document(Extractable):
         Returns: the wrapped CDR document
 
         """
-        Extractable.__init__(self)
+        Segment.__init__(self, json_path="$", _value=cdr_document)
         self.etk = etk
         self.cdr_document = cdr_document
-        self._value = cdr_document
-        # TODO do we really need to have a default_tokenizer class variable, as etk already has a tokenizer and can be accessed -> self.etk.tokenizer ???
-        self.default_tokenizer = self.etk.default_tokenizer
         self.mime_type = mime_type
         self.url = url
+        self.kg = None
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
+
+    @property
+    def document(self):
+        """
+        Still thinking about this, having the parent doc inside each extractable is convenient to avoid
+        passing around the parent doc to all methods.
+
+        Returns: the parent Document
+        """
+        return self
 
     # TODO the below 2 methods belong in etk, will discuss with Pedro
     def select_segments(self, jsonpath: str) -> List[Segment]:
@@ -50,11 +57,7 @@ class Document(Extractable):
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
         path = self.etk.parse_json_path(jsonpath)
-        try:
-            matches = path.find(self.cdr_document)
-        except Exception:
-            # TODO this will not be a InvalidJsonPathError, that exception will already be raised at line: 51, this will raise a misleading exception
-            raise InvalidJsonPathError("Invalid Json Path")
+        matches = path.find(self.cdr_document)
 
         segments = []
         for a_match in matches:
@@ -83,7 +86,7 @@ class Document(Extractable):
             extractable = self
 
         if not tokenizer:
-            tokenizer = self.default_tokenizer
+            tokenizer = self.etk.default_tokenizer
 
         extracted_results = list()
 
