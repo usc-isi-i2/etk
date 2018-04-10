@@ -35,7 +35,6 @@ class ETK(object):
         """
         return Document(self, doc, mime_type, url)
 
-
     def parse_json_path(self, jsonpath):
     
         """
