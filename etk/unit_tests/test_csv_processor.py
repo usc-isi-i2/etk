@@ -256,4 +256,4 @@ class TestCsvProcessor(unittest.TestCase):
                           'Sources 3': '', 'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria',
                           'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'data_set': 'test_set'}]
 
-        # self.assertEqual(test_docs, expected_docs)
+        self.assertEqual(test_docs, expected_docs)
