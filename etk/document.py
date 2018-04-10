@@ -3,7 +3,6 @@ from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.etk_exceptions import InvalidJsonPathError
 from etk.knowledge_graph import KnowledgeGraph
 
 
@@ -30,6 +29,7 @@ class Document(Segment):
         self.cdr_document = cdr_document
         self.mime_type = mime_type
         self.url = url
+        self.kg = None
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
@@ -57,11 +57,7 @@ class Document(Segment):
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
         path = self.etk.parse_json_path(jsonpath)
-        try:
-            matches = path.find(self.cdr_document)
-        except Exception:
-            # TODO this will not be a InvalidJsonPathError, that exception will already be raised at line: 51, this will raise a misleading exception
-            raise InvalidJsonPathError("Invalid Json Path")
+        matches = path.find(self.cdr_document)
 
         segments = []
         for a_match in matches:
