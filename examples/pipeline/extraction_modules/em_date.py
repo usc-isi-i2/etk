@@ -7,10 +7,9 @@ import datetime
 class ExtractionModuleDate(ExtractionModule):
     def __init__(self, etk):
         ExtractionModule.__init__(self, etk)
+        self.date_extractor = DateExtractor(self.etk, 'test_date_parser')
 
     def process_document(self, doc: Document):
-
-        date_extractor = DateExtractor(self.etk, 'test_date_parser')
 
         descriptions = doc.select_segments("date_description")
         date_text = doc.select_segments("date_description.text")
@@ -21,7 +20,7 @@ class ExtractionModuleDate(ExtractionModule):
 
         for d, p in zip(date_text, descriptions):
             extracted_date = doc.invoke_extractor(
-                date_extractor,
+                self.date_extractor,
                 d,
                 extract_first_date_only=False,   # first valid
 
