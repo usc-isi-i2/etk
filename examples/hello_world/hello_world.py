@@ -3,7 +3,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.glossary_extractor import GlossaryExtractor
-from etk.extractors.date_extractor import DateExtractor
 
 sample_input = {
     "projects": [

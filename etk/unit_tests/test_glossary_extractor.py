@@ -7,23 +7,42 @@ class TestGlossaryExtractor(unittest.TestCase):
 
     def test_glossary_extractor(self) -> None:
         t = Tokenizer()
-        g = ['New York', 'Shanghai', 'Los Angeles', 'Beijing']
-        ge = GlossaryExtractor(g, 'test_glossary', t, 2, False)
-        text = 'i live in los angeles. my hometown is Beijing'
+        text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
         tokens = t.tokenize(text)
-        test_result = [i.value for i in ge.extract(tokens)]
-        expected = ["Beijing", "los angeles"]
-        self.assertEqual(test_result, expected)
+
+        g = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
+        ge = GlossaryExtractor(g, 'test_glossary', t, 3, False)
+
+        results = [i.value for i in ge.extract(tokens)]
+        expected = ['Beijing', 'los angeles', 'New York']
+
+        self.assertEqual(results, expected)
 
     def test_case_sensitive(self) -> None:
         t = Tokenizer()
-        g = ['New York', 'Shanghai', 'Los Angeles', 'Beijing']
-        ge = GlossaryExtractor(g, 'test_glossary', t, 2, True)
-        text = 'i live in los angeles. my hometown is Beijing'
+        text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
         tokens = t.tokenize(text)
-        test_result = [i.value for i in ge.extract(tokens)]
-        expected = ["Beijing"]
-        self.assertEqual(test_result, expected)
+
+        g = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
+        ge = GlossaryExtractor(g, 'test_glossary', t, 2, True)
+
+        results = [i.value for i in ge.extract(tokens)]
+        expected = ['Beijing', 'New York']
+
+        self.assertEqual(results, expected)
+
+    def test_n_grams(self) -> None:
+        t = Tokenizer()
+        text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
+        tokens = t.tokenize(text)
+
+        g = ['Beijing', 'Los Angeles', 'New York City', 'Shanghai']
+        ge = GlossaryExtractor(g, 'test_glossary', t, 2, False)
+
+        results = [i.value for i in ge.extract(tokens)]
+        expected = ['Beijing', 'los angeles']
+
+        self.assertEqual(results, expected)
 
 
 if __name__ == '__main__':
