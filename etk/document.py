@@ -29,8 +29,6 @@ class Document(Extractable):
         self.etk = etk
         self.cdr_document = cdr_document
         self._value = cdr_document
-        # TODO do we really need to have a default_tokenizer class variable, as etk already has a tokenizer and can be accessed -> self.etk.tokenizer ???
-        self.default_tokenizer = self.etk.default_tokenizer
         self.mime_type = mime_type
         self.url = url
         if self.etk.kg_schema:
@@ -83,7 +81,7 @@ class Document(Extractable):
             extractable = self
 
         if not tokenizer:
-            tokenizer = self.default_tokenizer
+            tokenizer = self.etk.default_tokenizer
 
         extracted_results = list()
 
