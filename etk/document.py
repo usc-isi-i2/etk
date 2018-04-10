@@ -7,7 +7,7 @@ from etk.etk_exceptions import InvalidJsonPathError
 from etk.knowledge_graph import KnowledgeGraph
 
 
-class Document(Extractable):
+class Document(Segment):
     """
         This class wraps raw CDR documents and provides a convenient API for ETK
         to query elements of the document and to update the document with the results
@@ -25,15 +25,24 @@ class Document(Extractable):
         Returns: the wrapped CDR document
 
         """
-        Extractable.__init__(self)
+        Segment.__init__(self, json_path="$", _value=cdr_document)
         self.etk = etk
         self.cdr_document = cdr_document
-        self._value = cdr_document
         self.mime_type = mime_type
         self.url = url
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
+
+    @property
+    def document(self):
+        """
+        Still thinking about this, having the parent doc inside each extractable is convenient to avoid
+        passing around the parent doc to all methods.
+
+        Returns: the parent Document
+        """
+        return self
 
     # TODO the below 2 methods belong in etk, will discuss with Pedro
     def select_segments(self, jsonpath: str) -> List[Segment]:
