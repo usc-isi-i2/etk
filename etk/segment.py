@@ -1,6 +1,6 @@
 from etk.etk_extraction import Extractable, Extraction
 from typing import List, Dict
-from etk.exception import StoreExtractionError
+from etk.etk_exceptions import StoreExtractionError
 
 
 class Segment(Extractable):

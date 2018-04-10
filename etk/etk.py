@@ -3,7 +3,7 @@ import spacy
 import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
-from etk.exception import InvalidJsonPathError
+from etk.etk_exceptions import InvalidJsonPathError
 from etk.extraction_module import ExtractionModule
 
 
@@ -21,7 +21,7 @@ class ETK(object):
             elif type(modules) == str:
                 self.em_lst = self.load_ems(modules)
 
-    def create_document(self, doc: Dict, mime_type: str=None, url: str="http://ex.com/123") -> Document:
+    def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -35,7 +35,9 @@ class ETK(object):
         """
         return Document(self, doc, mime_type, url)
 
-    def invoke_parser(self, jsonpath: str):
+
+    def parse_json_path(self, jsonpath):
+    
         """
         Parse a jsonpath
 
@@ -45,6 +47,7 @@ class ETK(object):
         Returns: a parsed json path
 
         """
+
         if jsonpath not in self.parsed:
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
@@ -70,16 +73,18 @@ class ETK(object):
         return doc, doc.kg
 
     @staticmethod
-    def load_glossary(file_path: str) -> List[str]:
+    def load_glossary(file_path: str, read_json=False) -> List[str]:
         """
         A glossary is a text file, one entry per line.
 
         Args:
             file_path (str): path to a text file containing a glossary.
-
+            read_json (bool): set True if the glossary is in json format
         Returns: List of the strings in the glossary.
         """
         with open(file_path) as fp:
+            if read_json:
+                return json.load(fp)
             return fp.read().splitlines()
 
     @staticmethod
@@ -98,7 +103,7 @@ class ETK(object):
     @staticmethod
     def load_master_config(file_path: str) -> Dict:
         """
-        A spacy rule file is a json file.
+        A master config rule file is a json file.
 
         Args:
             file_path (str): path to a text file containing a master config file.
@@ -157,7 +162,7 @@ class ETK(object):
         md = module.__dict__
         return [
             md[c] for c in md if (
-            isinstance(md[c], type) and
-            issubclass(md[c], ExtractionModule) and
-            md[c].__module__ == module.__name__)
+                    isinstance(md[c], type) and
+                    issubclass(md[c], ExtractionModule) and
+                    md[c].__module__ == module.__name__)
         ]

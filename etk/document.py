@@ -3,7 +3,7 @@ from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.exception import InvalidJsonPathError
+from etk.etk_exceptions import InvalidJsonPathError
 from etk.knowledge_graph import KnowledgeGraph
 
 
@@ -13,7 +13,7 @@ class Document(Extractable):
         to query elements of the document and to update the document with the results
         of extractors.
         """
-    def __init__(self, etk, cdr_document: Dict, mine_type, url) -> None:
+    def __init__(self, etk, cdr_document: Dict, mime_type, url) -> None:
 
         """
         Wrapper object for CDR documents.
@@ -29,13 +29,15 @@ class Document(Extractable):
         self.etk = etk
         self.cdr_document = cdr_document
         self._value = cdr_document
+        # TODO do we really need to have a default_tokenizer class variable, as etk already has a tokenizer and can be accessed -> self.etk.tokenizer ???
         self.default_tokenizer = self.etk.default_tokenizer
-        self.mine_type = mine_type
+        self.mime_type = mime_type
         self.url = url
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
 
+    # TODO the below 2 methods belong in etk, will discuss with Pedro
     def select_segments(self, jsonpath: str) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
@@ -47,10 +49,11 @@ class Document(Extractable):
 
         Returns: A list of Segments object that contains the elements selected by the json path.
         """
-        path = self.etk.invoke_parser(jsonpath)
+        path = self.etk.parse_json_path(jsonpath)
         try:
             matches = path.find(self.cdr_document)
         except Exception:
+            # TODO this will not be a InvalidJsonPathError, that exception will already be raised at line: 51, this will raise a misleading exception
             raise InvalidJsonPathError("Invalid Json Path")
 
         segments = []
@@ -90,6 +93,7 @@ class Document(Extractable):
                 extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
+            # TODO if the input is not as expected, throw an error, this is the case where we try to add 3 + '5'
             if isinstance(extractable.value, list):
                 print("\n======extractor needs string, got extractable value as list, converting list to string======")
             elif isinstance(extractable.value, dict):
