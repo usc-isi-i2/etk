@@ -53,9 +53,6 @@ class KnowledgeGraph(object):
             if not all_valid:
                 raise KgValueInvalidError("Some Type of Kg Value Invalid")
 
-            # else:
-            #     print("===Field already in kg, skip the adding===")
-
     def add_value(self, field_name: str, value) -> None:
         """
         Add a value to knowledge graph by giving a jsonpath
@@ -96,10 +93,7 @@ class KnowledgeGraph(object):
             if not all_valid:
                 raise KgValueInvalidError("Some Type of Kg Value Invalid")
         else:
-            raise KgValueInvalidError("Invalid type of kg value: " + type(value))
-
-        # else:
-        #     print("===Field already in kg, skip the adding===")
+            raise KgValueInvalidError("Invalid type of kg value: " + str(type(value)))
 
     @property
     def value(self) -> Dict:

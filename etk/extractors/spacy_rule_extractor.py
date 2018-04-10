@@ -107,12 +107,12 @@ class SpacyRuleExtractor(Extractor):
         self.nlp = copy.deepcopy(nlp)
         self.tokenizer = Tokenizer(self.nlp)
         self.matcher = Matcher(self.nlp.vocab)
-        self.field_name = rules["field_name"]
+        self.field_name = rules["field_name"] if "field_name" in rules else extractor_name
         self.rule_lst = {}
         self.hash_map = {}
-        for a_rule in self.rules:
+        for idx, a_rule in enumerate(self.rules):
             this_rule = Rule(a_rule, self.nlp)
-            self.rule_lst[this_rule.identifier] = this_rule
+            self.rule_lst[this_rule.identifier + str(idx)] = this_rule
 
     def extract(self, text: str) -> List[Extraction]:
         """
@@ -535,7 +535,7 @@ class Pattern(object):
                 result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         else:
-            if d["match_all_forms"] == "false":
+            if "match_all_forms" in d and d["match_all_forms"] == "false":
                 global FLAG_ID
                 token_set = set(d["token"])
 
@@ -811,12 +811,12 @@ class Rule(object):
         Returns:
         """
 
-        self.dependencies = d["dependencies"]
-        self.description = d["description"]
+        self.dependencies = d["dependencies"] if "dependencies" in d else []
+        self.description = d["description"] if "description" in d else ""
         self.active = True if d["is_active"] == "true" else False
         self.identifier = d["identifier"]
         self.output_format = d["output_format"]
-        self.polarity = False if d["polarity"] == "false" else True
+        self.polarity = False if "polarity" in d and d["polarity"] == "false" else True
         self.patterns = []
         for pattern_idx, a_pattern in enumerate(d["pattern"]):
             this_pattern = Pattern(a_pattern, nlp)
