@@ -2,7 +2,7 @@ singleton_regex = {
     '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
     '%y': r'([6-9][0-9]|[0-3][0-9])',  # year in two digits
     '%B': r'(January|February|March|April|May|June|July|August|September|October|November|December|'
-          r'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)',  # month
+          r'enero|febrero|marzo|abril|mayo|junio|julio?|agosto|septiembre|octubre|noviembre|diciembre)',  # month
     '%b': r'(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?|'
           r'enero|feb\.?|marzo|abr\.?|mayo|jun\.?|jul\.?|agosto|sept\.?|set\.?|oct\.?|nov\.?|dic\.?)',  # month abbr.
     '%m': r'(1[0-2]|0?[1-9])',  # month in two digits: 01-12 or just 0-12
@@ -15,7 +15,7 @@ singleton_regex = {
     '%I': r'(1[0-2]|0?[1-9])',  # hour in 12-hour in two digits: 01-12 or just 1-12
     '%p': r'((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))',  # am/pm markers
     '%M': r'([0-5][0-9])',  # minute in two digits: 00-59
-    '%S': r'([0-5][0-9])',  # second in two digits: 00-59
+    '%S': r'([0-5][0-9](?:\.[0-9]+)?)',  # second in two digits: 00-59 or with fractions like 12.355
     '%Z': r'(ACDT|ACST|ACT|ACT|ACWST|ADT|AEDT|AEST|AFT|AKDT|AKST|AMST|AMT|AMT|ART|AST|AST|AWST|AZOST|AZOT|AZT|'
           r'BDT|BIOT|BIT|BOT|BRST|BRT|BST|BST|BST|BTT|CAT|CCT|CDT|CDT|CEST|CET|CHADT|CHAST|CHOT|CHOST|CHST|CHUT|'
           r'CIST|CIT|CKT|CLST|CLT|COST|COT|CST|CST|CST|CT|CVT|CWST|CXT|DAVT|DDUT|DFT|'
@@ -57,6 +57,7 @@ spanish_to_english = {
     'mayo': 'May',
     'junio': 'June',
     'julio': 'July',
+    'juli': 'July',
     'agosto': 'August',
     'septiembre': 'September',
     'octubre': 'October',

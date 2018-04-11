@@ -79,10 +79,6 @@ if __name__ == "__main__":
     sample_input = {
         "members": [
             {
-                "name": "John",
-                "description": text
-            },
-            {
                 "name": "Ryan",
                 "description": "I will graduate in 5 days. My classmates traveled to Hawaii last month. "
                                "I hope that I could have a vocation after two weeks. Last year I was very busy. "
