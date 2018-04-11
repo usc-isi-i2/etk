@@ -147,26 +147,27 @@ class Extraction(Extractable):
         Returns:
 
         """
-
-        self._tag = options["tag"] if "tag" in options else None
-        self._rule_id = options["rule_id"] if "rule_id" in options else None
-        self._spacy_rule_mapping = options["match_mapping"] if "match_mapping" in options else None
-
-        fake_provenance = {
-            "extractor_name": extractor_name,
-            "confidence": confidence,
+        self._addition_inf = dict()
+        self._addition_inf["tag"] = options["tag"] if "tag" in options else None
+        self._addition_inf["spacy_rule_id"] = options["rule_id"] if "rule_id" in options else None
+        self._addition_inf["spacy_rule_mapping"] = options["match_mapping"] if "match_mapping" in options else None
+        self._addition_inf["date_object"] = options["date_object"] if "date_object" in options else None
+        self._addition_inf["original_date"] = options["original_date"] if "original_date" in options else None
+        self._extractor_name = extractor_name
+        self._offsets = {
             "start_token": start_token,
             "end_token": end_token,
             "start_char": start_char,
             "end_char": end_char
         }
+        self._confidence = confidence
+
         # pseudo-code below
         # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
         #                   start_char=start_char, end_char=end_char)
         # prov_id = document.add_provenance(self.provenance)
         # self._value = ExtractionValue(value, prov_id)
         self._value = value
-        self._provenance = fake_provenance
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -178,12 +179,26 @@ class Extraction(Extractable):
         """
         return self._value
 
-    # @property
-    # def confidence(self) -> float:
-    #     """
-    #     Returns: the confidence of this extraction
-    #     """
-    #     return self._value["confidence"]
+    @property
+    def confidence(self) -> float:
+        """
+        Returns: the confidence of this extraction
+        """
+        return self._confidence
+
+    @property
+    def offsets(self) -> Dict:
+        """
+        Returns: the offset inf of this extraction
+        """
+        return self._offsets
+
+    @property
+    def name(self) -> str:
+        """
+        Returns: the name of this extraction
+        """
+        return self._extractor_name
 
     @property
     def tag(self) -> str:
@@ -192,7 +207,7 @@ class Extraction(Extractable):
         Returns: the tag associated with this Extraction.
 
         """
-        return self._tag
+        return self._addition_inf["tag"]
 
     @property
     def rule_id(self) -> str:
@@ -201,7 +216,7 @@ class Extraction(Extractable):
         Returns: the rule_id associated with this Extraction.
 
         """
-        return self._rule_id
+        return self._addition_inf["spacy_rule_id"]
 
     @property
     def spacy_rule_mapping(self) -> Dict:
@@ -210,4 +225,22 @@ class Extraction(Extractable):
         Returns: the spacy_rule_mapping associated with this Extraction.
 
         """
-        return self._spacy_rule_mapping
+        return self._addition_inf["spacy_rule_mapping"]
+
+    @property
+    def original_date(self):
+        """
+
+        Returns: the original_date associated with this Extraction.
+
+        """
+        return self._addition_inf["original_date"]
+
+    @property
+    def date_object(self):
+        """
+
+        Returns: the original_date associated with this Extraction.
+
+        """
+        return self._addition_inf["date_object"]
