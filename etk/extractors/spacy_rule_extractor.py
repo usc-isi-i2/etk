@@ -112,7 +112,7 @@ class SpacyRuleExtractor(Extractor):
         self.hash_map = {}
         for idx, a_rule in enumerate(self.rules):
             this_rule = Rule(a_rule, self.nlp)
-            self.rule_lst[this_rule.identifier + str(idx)] = this_rule
+            self.rule_lst[this_rule.identifier + "rule_id##" + str(idx)] = this_rule
 
     def extract(self, text: str) -> List[Extraction]:
         """
@@ -159,7 +159,7 @@ class SpacyRuleExtractor(Extractor):
                                          end_token=end,
                                          start_char=doc[start].idx,
                                          end_char=doc[end-1].idx+len(doc[end-1]),
-                                         rule_id=rule_id,
+                                         rule_id=rule_id.split("rule_id##")[0],
                                          match_mapping=relation)
             extractions.append(this_extraction)
 
