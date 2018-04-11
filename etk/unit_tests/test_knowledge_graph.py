@@ -1,5 +1,5 @@
 import unittest
-from etk.knowledge_graph import KgSchema
+from etk.knowledge_graph import KGSchema
 from etk.etk import ETK
 from etk.etk_exceptions import KgValueInvalidError
 from datetime import date, datetime
@@ -57,7 +57,7 @@ class TestKnowledgeGraph(unittest.TestCase):
             }
         }
 
-        kg_schema = KgSchema(master_config)
+        kg_schema = KGSchema(master_config)
 
         etk = ETK(kg_schema)
         doc = etk.create_document(sample_doc)

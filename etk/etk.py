@@ -5,6 +5,7 @@ from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.extraction_module import ExtractionModule
+from etk.etk_exceptions import NotGetExtractionModuleError
 
 
 class ETK(object):
@@ -16,10 +17,12 @@ class ETK(object):
         self.parsed = dict()
         self.kg_schema = kg_schema
         if modules:
-            if isinstance(modules, ExtractionModule):
-                self.em_lst = [modules]
-            elif type(modules) == str:
+            if type(modules) == str:
                 self.em_lst = self.load_ems(modules)
+            elif issubclass(modules, ExtractionModule):
+                self.em_lst = [modules(self)]
+            else:
+                raise NotGetExtractionModuleError("not getting extraction module")
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
@@ -35,7 +38,18 @@ class ETK(object):
         """
         return Document(self, doc, mime_type, url)
 
-    def invoke_parser(self, jsonpath):
+    def parse_json_path(self, jsonpath):
+    
+        """
+        Parse a jsonpath
+
+        Args:
+            jsonpath: str
+
+        Returns: a parsed json path
+
+        """
+
         if jsonpath not in self.parsed:
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
@@ -45,9 +59,20 @@ class ETK(object):
         return self.parsed[jsonpath]
 
     def process_ems(self, doc: Document):
+        """
+        Factory method to wrap input JSON docs in an ETK Document object.
+
+        Args:
+            doc (Document): process on this document
+
+        Returns: a Document object and a KnowledgeGraph object
+
+        """
         for a_em in self.em_lst:
             if a_em.document_selector(doc):
                 a_em.process_document(doc)
+
+        return doc, doc.kg
 
     @staticmethod
     def load_glossary(file_path: str, read_json=False) -> List[str]:
@@ -77,19 +102,6 @@ class ETK(object):
         with open(file_path) as fp:
             return json.load(fp)
 
-    @staticmethod
-    def load_master_config(file_path: str) -> Dict:
-        """
-        A master config rule file is a json file.
-
-        Args:
-            file_path (str): path to a text file containing a master config file.
-
-        Returns: Dict as the representation of spacy rules
-        """
-        with open(file_path) as fp:
-            return json.load(fp)
-
     def load_ems(self, modules_path: str):
         """
         Load all extraction modules from the path
@@ -108,10 +120,34 @@ class ETK(object):
                 for em in self.classes_in_module(this_module):
                     em_lst.append(em(self))
 
+        em_lst = self.topological_sort(em_lst)
         return em_lst
 
     @staticmethod
-    def classes_in_module(module):
+    def topological_sort(lst: List[ExtractionModule]) -> List[ExtractionModule]:
+        """
+        Return topological order of ems
+
+        Args:
+            lst: List[ExtractionModule]
+
+        Returns: List[ExtractionModule]
+
+        """
+        "TODO"
+        return lst
+
+    @staticmethod
+    def classes_in_module(module) -> List:
+        """
+        Return all classes with super class ExtractionModule
+
+        Args:
+            module:
+
+        Returns: List of classes
+
+        """
         md = module.__dict__
         return [
             md[c] for c in md if (
