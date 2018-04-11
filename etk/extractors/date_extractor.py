@@ -219,10 +219,9 @@ class DateExtractor(Extractor):
             e = Extraction(self.convert_to_iso_format(date_object, resolution=self.settings[DATE_VALUE_RESOLUTION]),
                            start_char=start_char,
                            end_char=end_char,
-                           extractor_name=self.name)
-            # need a more elegant way to do this:
-            e._provenance['date_object'] = date_object
-            e._provenance['original_text'] = original_text
+                           extractor_name=self.name,
+                           date_object=date_object,
+                           original_date=original_text)
             return e
         except Exception as e:
             print('!Exception', e)

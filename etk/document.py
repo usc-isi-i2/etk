@@ -1,4 +1,5 @@
 from typing import List, Dict
+from etk.extraction_provenance_record import ExtractionProvenanceRecord
 from etk.etk_extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
@@ -33,6 +34,7 @@ class Document(Segment):
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
+		self.extraction_provenance_id_index = 0
 
     @property
     def document(self):
@@ -111,7 +113,20 @@ class Document(Segment):
         elif extractor.input_type == InputType.HTML:
             extracted_results = extractor.extract(extractable.value, **options)
 
-        # The reason that extractors must return Extraction is so that they can communicate back the provenance.
+        try:
+            jsonPath = extractable.full_path
+            _document = extractable.document
+        except AttributeError:
+            jsonPath = None
+            _document = None
+
+        for e in extracted_results:
+            extraction_provenance_record: ExtractionProvenanceRecord = ExtractionProvenanceRecord(self.extraction_provenance_id_index, jsonPath, e.provenance["extractor_name"], e.provenance["start_char"], e.provenance["end_char"],e.provenance["confidence"], _document, extractable.prov_id)
+            e.prov_id = self.extraction_provenance_id_index # for the purpose of provenance hierarrchy tracking
+            self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
+            self.create_provenance(extraction_provenance_record)
+        # TODO: the reason that extractors must return Extraction objects is so that
+        # they can communicate back the provenance.
 
         return extracted_results
         # record provenance:
@@ -119,3 +134,48 @@ class Document(Segment):
         #  the prov record for each extraction should point to all extractables:
         #  If the extractables are segments, put them in the "input_segments"
         #  If the extractables are extractions, put the prov ids of the extractions in "input_extractions"
+
+    @property
+    def doc_id(self):
+       """
+       Returns: the doc_id of the CDR document
+
+       """
+       return self._value.get("doc_id")
+
+    @doc_id.setter
+    def doc_id(self, new_doc_id):
+       """
+
+       Args:
+           new_doc_id ():
+
+       Returns:
+
+       """
+       self._value["doc_id"] = new_doc_id
+
+
+    def create_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
+        if "provenances" not in self.cdr_document:
+            self.cdr_document["provenances"] = []
+        self.cdr_document["provenances"].append(self.get_dict_extraction_provenance(extractionProvenanceRecord))
+
+
+    def get_dict_extraction_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
+        dict = {}
+        dict["@type"] = "extraction_provenance_record"
+        dict["@id"] = extractionProvenanceRecord.id
+        dict["method"] = extractionProvenanceRecord.method
+        dict["confidence"] = extractionProvenanceRecord.extraction_confidence
+        if extractionProvenanceRecord.origin_record.full_path is not None:
+            dict["origin_record"] = []
+            origin_dict = {}
+            origin_dict["path"] = extractionProvenanceRecord.origin_record.full_path
+            origin_dict["start_char"] = extractionProvenanceRecord.origin_record.start_char
+            origin_dict["end_char"] = extractionProvenanceRecord.origin_record.end_char
+            dict["origin_record"].append(origin_dict)
+        if extractionProvenanceRecord.parent_extraction_provenance is not None:
+            dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
+        return dict
+
