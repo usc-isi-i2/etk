@@ -1,0 +1,57 @@
+{
+  "field_name": "spacy_name",
+  "rules": [
+    {
+      "dependencies": [],
+      "description": "",
+      "identifier": "spacy_name",
+      "is_active": "true",
+      "output_format": "firstName:{1}, lastName:{2}",
+      "pattern": [
+        {
+          "capitalization": ["title"],
+          "contain_digit": "true",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "true",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": [
+          ],
+          "type": "word"
+        },
+        {
+          "capitalization": ["title"],
+          "contain_digit": "false",
+          "is_in_output": "true",
+          "is_in_vocabulary": "false",
+          "is_out_of_vocabulary": "false",
+          "is_required": "false",
+          "length": [],
+          "match_all_forms": "true",
+          "maximum": "",
+          "minimum": "",
+          "numbers": [],
+          "part_of_speech": [],
+          "prefix": "",
+          "shapes": [
+          ],
+          "suffix": "",
+          "token": [
+          ],
+          "type": "word"
+        }
+      ],
+      "polarity": "true"
+    }
+  ]
+}

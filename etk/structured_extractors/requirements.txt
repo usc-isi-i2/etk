@@ -1,4 +1,0 @@
-lxml>=3.6.0
-beautifulsoup4>=4.3
-cssselect
-chardet
