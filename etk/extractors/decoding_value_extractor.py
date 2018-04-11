@@ -83,7 +83,7 @@ class DecodingValueExtractor(Extractor):
         """
         try:
             value = value.strip() if self.strip_value else value
-            e = Extraction(value, self.name)
+            e = Extraction(value, self.name, start_char=0, end_char=len(value))
             # need a more elegant way to do so:
             e._provenance['orginal_text'] = original_key
             return e
