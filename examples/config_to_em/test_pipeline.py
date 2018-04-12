@@ -3,7 +3,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
+from examples.config_to_em.em_base_generator import EmBaseGenerator
 
+
+ebg = EmBaseGenerator('template.txt')
+ebg.generate_em_base('master_config.json', 'ems/em_base.py')
 
 kg_schema = KGSchema(json.load(open("master_config.json", "r")))
 
