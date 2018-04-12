@@ -1,27 +1,27 @@
 # The format of this file is that each line contains a ground truth
 # <text to extract>|<desired extraction>|<format>
 
-2017-02-12 14:29:11|2017-02-12|
+2017-02-12 14:29:11|2017-02-12|%Y-%m-%d %H:%M:%S
 
 Friday, October 2, 2015 1:35 AM|2015-10-02|%A, %B %d, %Y %I:%M %p
-Friday, October 2, 2015|2015-10-02|
-October 2, 2015|2015-10-02|
+Friday, October 2, 2015|2015-10-02|%A, %B %d, %Y
+October 2, 2015|2015-10-02|%B %d, %Y
 
 Friday, 2 October 2015, 18:23|2015-10-02|%A, %d %B %Y, %H:%M
-2 October 2015, 18:23|2015-10-02|
-Friday, 2 October 2015|2015-10-02|
+2 October 2015, 18:23|2015-10-02|%d %B %Y, %H:%M
+Friday, 2 October 2015|2015-10-02|%A, %d %B %Y
 
 Thu October 01st, 2015|2015-10-01|%a %B %dst, %Y
-October 01st, 2015|2015-10-01|
+October 01st, 2015|2015-10-01|%B %dst, %Y
 
 Thu October 02nd, 2015|2015-10-02|%a %B %dnd, %Y
-October 02nd, 2015|2015-10-02|
+October 02nd, 2015|2015-10-02|%B %dnd, %Y
 
 Thu October 03rd, 2015|2015-10-03|%a %B %drd, %Y
-October 03rd, 2015|2015-10-03|
+October 03rd, 2015|2015-10-03|%B %drd, %Y
 
 Thu October 04th, 2015|2015-10-04|%a %B %dth, %Y
-October 04th, 2015|2015-10-04|
+October 04th, 2015|2015-10-04|%B %dth, %Y
 
 2018-03-10 02:07:57 UTC|2018-03-10|%Y-%m-%d %H:%M:%S %Z
 
@@ -29,9 +29,9 @@ October 04th, 2015|2015-10-04|
 
 Saturday, Mar 10, 2018|2018-03-10|%A, %b %d, %Y
 
-Saturday, March 10, 2018|2018-03-10|%A, %B %e, %Y
+Saturday, March 10, 2018|2018-03-10|%A, %B %d, %Y
 
-Sat, Mar 10|2018-03-10|%a, %b %e
+Sat, Mar 10|2018-03-10|%a, %b %d
 
 2018-03-10 02:08:57.0|2018-03-10|%Y-%m-%d %H:%M:%S.0
 
@@ -39,7 +39,7 @@ Sat, Mar 10|2018-03-10|%a, %b %e
 
 Mar 10, 2018|2018-03-10|%b %d, %Y
 
-March 10, 2018|2018-03-10|%B %e, %Y
+March 10, 2018|2018-03-10|%B %d, %Y
 
 March 10, 2018|2018-03-10|%B %d, %Y
 
@@ -53,7 +53,7 @@ Mar 10, 2018 at 02:10 AM|2018-03-10|%b %d, %Y at %I:%M %p
 
 2018-03-10T02:11:44Z|2018-03-10|%Y-%m-%dT%H:%M:%SZ
 
-10 Mar 2018|2018-03-10|%e %b %Y
+10 Mar 2018|2018-03-10|%d %b %Y
 
 # Adult service regex
 #adultservice_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
@@ -192,7 +192,7 @@ Monday, 3 of August 2006|2006-08-03|%A, %d of %B %Y
 2006-08-03 6:55:30 pm|2006-08-03|%Y-%m-%d %I:%M:%S %p
 
 # mmm-yy	Aug-06  use first day as default
-Aug-06|2006-08-01|%b-%Y
+Aug-06|2006-08-01|%b-%y
 
 # yy	06  use first day as default
 06|2006-01-01|%y
@@ -200,18 +200,24 @@ Aug-06|2006-08-01|%b-%Y
 # yyyy	2006  use first day as default
 2006|2006-01-01|%Y
 
-# weekday	Monday
+# mmm Aug
+Aug|2018-08-01|%b
+
+# weekday	Tuesday
+Tuesday|@nearest[1]|%A
 
 # time24	18:55:30
+18:55:30|@todayT18:55:30|%H:%M:%S
 
 # time12	6:55:30 pm
+6:55:30 pm|@todayT18:55:30|%I:%M:%S %p
 
 # hours	48:55:30
 
 # seconds	68538.350
 
-# days_relative_regex = r'(\b\d\d?)\s+days?\s+ago\b'
-9 days ago|2017-12-23
+# days_relative_regex = r'(\b\d\d?)\s+days?\s+ago\b'    use 2018-01-01 as base date
+9 days ago|2017-12-23|
 
-# hours_relative_regex = r'(\b\d\d?)\s+hours?\s+ago\b'
-22 hours ago|2017-12-31
+# hours_relative_regex = r'(\b\d\d?)\s+hours?\s+ago\b'    use 2018-01-01 as base date
+22 hours ago|2017-12-31|

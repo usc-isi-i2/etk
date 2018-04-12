@@ -73,9 +73,6 @@ class DateExtractionModule(ExtractionModule):
 
 if __name__ == "__main__":
 
-    with open('date_ground_truth.txt', 'r') as f:
-        text = f.read()
-
     sample_input = {
         "members": [
             {

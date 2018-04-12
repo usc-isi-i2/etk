@@ -11,7 +11,7 @@ from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 from etk.etk_extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
-    spacy_rules, directions, num_to_digit, spanish_to_english, language_date_order
+    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, day_of_week_to_number
 
 # to avoid typo:
 EXTRACT_FIRST_DATE_ONLY = 'extract_first_date_only'
@@ -171,7 +171,7 @@ class DateExtractor(Extractor):
             for r in additional_regex:
                 try:
                     matches = [self.wrap_date_match(r['order'], match, pattern=r['pattern']) for
-                           match in re.finditer(r['reg'], text, re.I)]
+                           match in re.finditer(r['reg'], text, re.I) if match]
                     if matches:
                         results.append(matches)
                 except:
@@ -180,7 +180,8 @@ class DateExtractor(Extractor):
                 for order in self.final_regex.keys():
                     matches = [self.wrap_date_match(order, match) for match
                                in re.finditer(self.final_regex[order], text, re.I) if match]
-                    results.append(matches)
+                    if matches:
+                        results.append(matches)
         else:
             for order in self.final_regex.keys():
                 matches = [self.wrap_date_match(order, match) for match
@@ -243,13 +244,16 @@ class DateExtractor(Extractor):
                 if len(x['value']) > len(cur_max['value']):
                     cur_max = x
                 elif len(x['value']) == len(cur_max['value']):
-                    if self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
-                        if x['order'] == language_date_order[self.lan]:
-                            cur_max = x
+                    if x['order'] in ['SINGLE_YEAR']:
+                        cur_max = x
+                    elif len(x['order']) == len(cur_max['order']):
+                        if self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
+                            if x['order'] == language_date_order[self.lan]:
+                                cur_max = x
+                            elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
+                                cur_max = x
                         elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                             cur_max = x
-                    elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
-                        cur_max = x
         parsed_date = self.parse_date(cur_max)
         if parsed_date:
             if self.settings[EXTRACT_FIRST_DATE_ONLY]:
@@ -263,11 +267,11 @@ class DateExtractor(Extractor):
         apply the customizations like date range, date completion etc.
 
         """
-        miss_day = True
+        miss_day = miss_month = miss_year = miss_week = True
         user_defined_pattern = None
 
         if date_info['pattern']:
-            user_defined_pattern = re.findall(r'%[a-zA-Z]+', date_info['pattern'])
+            user_defined_pattern = re.findall(r'%[a-zA-Z]', date_info['pattern'])
 
         i = 0
         pattern = list()
@@ -278,50 +282,81 @@ class DateExtractor(Extractor):
                 p = self.symbol_list[date_info['order']][i] if not user_defined_pattern else user_defined_pattern[i]
                 if p in units['D']:
                     miss_day = False
+                if p in units['M']:
+                    miss_month = False
+                if p in units['Y']:
+                    miss_year = False
+                if p in units['W']:
+                    miss_week = False
                 pattern.append(p)
                 formatted_str = s.strip('.').strip().lower()
                 if p in ['%B', '%b', '%A', '%a']:
-                    if formatted_str in spanish_to_english:
-                        formatted_str = spanish_to_english[formatted_str]
+                    if formatted_str in foreign_to_english:
+                        formatted_str = foreign_to_english[formatted_str]
                 if p in ['%b', '%a']:
                     formatted_str = formatted_str[:3]
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
             i += 1
-        try:
-            date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
-        except ValueError:
-            formatted = formatted[:-1]
-            pattern = pattern[:-1]
+
+        if formatted and pattern:
             try:
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
-                return None
+                try:
+                    date = datetime.datetime.strptime('-'.join(formatted[:-1]), '-'.join(pattern[:-1]))
+                except ValueError:
+                    return None
 
-        if miss_day:
-            last = calendar.monthrange(date.year, date.month)[1]
-            if self.settings[PREFER_DAY_OF_MONTH] == 'current':
-                cur = datetime.datetime.now().day
-                date = date.replace(day=cur if cur <= last else last)
-            elif self.settings[PREFER_DAY_OF_MONTH] == 'last':
-                date = date.replace(day=last)
+            if miss_year and miss_month and miss_day:
+                today = datetime.datetime.now()
+                if miss_week:
+                    date = date.replace(day=today.day, month=today.month, year=today.year)
+                else:
+                    date = today
+                    week_of_day = formatted[0].strip().lower()
+                    if week_of_day in foreign_to_english:
+                        week_of_day = foreign_to_english[week_of_day]
+                    target = day_of_week_to_number[week_of_day] if week_of_day in day_of_week_to_number \
+                        else today.weekday()
+                    if self.settings[PREFER_DATES_FROM] == 'past':
+                        date = date + relativedelta(days=-(date.weekday()+7-target)%7)
+                    elif self.settings[PREFER_DATES_FROM] == 'future':
+                        date = date + relativedelta(days=(target+7-date.weekday())%7)
+                    else:
+                        delta = target - date.weekday()
+                        if abs(delta) <= 3:
+                            date = date + relativedelta(days=delta)
+                        else:
+                            date = date + relativedelta(days=delta-7)
 
-        if date_info['order'] == 'SINGLE_MONTH':
-            today = datetime.datetime.now()
-            date = date.replace(year=today.year)
-            next_year = date.replace(year=today.year+1)
-            last_year = date.replace(year=today.year-1)
-            if self.settings[PREFER_DATES_FROM] == 'past':
-                date = last_year if date > today else date
-            elif self.settings[PREFER_DATES_FROM] == 'future':
-                date = next_year if date < today else date
             else:
-                if date > today and (date-today > today-date.replace(year=today.year-1)):
-                    date = last_year
-                elif date < today and (today-date < date.replace(year=today.year+1)-today):
-                    date = next_year
-        date = self.post_process_date(date)
-        if date:
-            return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
+                if miss_day:
+                    last = calendar.monthrange(date.year, date.month)[1]
+                    if self.settings[PREFER_DAY_OF_MONTH] == 'current':
+                        cur = datetime.datetime.now().day
+                        date = date.replace(day=cur if cur <= last else last)
+                    elif self.settings[PREFER_DAY_OF_MONTH] == 'last':
+                        date = date.replace(day=last)
+
+                if miss_year:
+                    today = datetime.datetime.now()
+                    date = date.replace(year=today.year)
+                    next_year = date.replace(year=today.year+1)
+                    last_year = date.replace(year=today.year-1)
+                    if self.settings[PREFER_DATES_FROM] == 'past':
+                        date = last_year if date > today else date
+                    elif self.settings[PREFER_DATES_FROM] == 'future':
+                        date = next_year if date < today else date
+                    else:
+                        if date > today and (date-today > today-last_year):
+                            date = last_year
+                        elif date < today and (today-date > next_year-today):
+                            date = next_year
+
+            date = self.post_process_date(date)
+
+            if date:
+                return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
         return None
 
     def post_process_date(self, date: datetime.datetime) -> datetime.datetime or None:
@@ -466,3 +501,4 @@ class DateExtractor(Extractor):
             'order': order,
             'pattern': pattern
         } if match else None
+

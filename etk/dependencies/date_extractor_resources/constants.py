@@ -1,16 +1,18 @@
 singleton_regex = {
     '%Y': r'([1-2][0-9][0-9][0-9])',  # year in four digits
     '%y': r'([6-9][0-9]|[0-3][0-9])',  # year in two digits
-    '%B': r'(January|February|March|April|May|June|July|August|September|October|November|December|'
-          r'enero|febrero|marzo|abril|mayo|junio|julio?|agosto|septiembre|octubre|noviembre|diciembre)',  # month
+    '%B': r'(January|February|March|April|May|June|July|August|September|October|November|December|'    # month
+          r'enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|'  # spainish
+          r'januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december)',    # swedish
     '%b': r'(Jan\.?|Feb\.?|Mar\.?|Apr\.?|Jun\.?|Jul\.?|Aug\.?|Sep(?:t?)\.?|Oct\.?|Nov\.?|Dec\.?|'
           r'enero|feb\.?|marzo|abr\.?|mayo|jun\.?|jul\.?|agosto|sept\.?|set\.?|oct\.?|nov\.?|dic\.?)',  # month abbr.
     '%m': r'(1[0-2]|0?[1-9])',  # month in two digits: 01-12 or just 0-12
     '%d': r'(3[0-1]|[1-2][0-9]|0?[1-9])',  # day in two digits: 01-31 or juest 1-31
     'd_suffix': r'(?:st|nd|rd|th)',
     '%A': r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|'
-          r'lunes|martes|miércoles|jueves|viernes|sábado|domingo)',  # weekdays
-    '%a': r'(Mon\.?|Tue\.?|Wed\.?|Thu(?:r(?:s?)?)\.?|Fri\.?|Sat\.?|Sun\.?|L|M|X|J|V|S|D)',  # weekdays abbr.
+          r'lunes|martes|miércoles|jueves|viernes|sábado|domingo|'
+          r'Måndag|Tisdag|Onsdag|Torsdag|Fredag|Lördag|Söndag)',  # weekdays
+    '%a': r'(Mon\.?|Tue\.?|Wed\.?|Thu(?:r(?:s?)?)?\.?|Fri\.?|Sat\.?|Sun\.?|L|M|X|J|V|S|D)',  # weekdays abbr.
     '%H': r'(2[0-3]|1[0-9]|0?[0-9])',  # hour in 24-hours in two digits: 00-23 or just 0-23
     '%I': r'(1[0-2]|0?[1-9])',  # hour in 12-hour in two digits: 01-12 or just 1-12
     '%p': r'((?: ?)AM(?:\.?)|(?: ?)PM(?:\.?))',  # am/pm markers
@@ -33,7 +35,7 @@ singleton_regex = {
     # timezone like 'UTC', 'UTC + 8:30', 'GMT+1130', '+0600'
     # reference: https://en.wikipedia.org/wiki/Time_zone
     # 'splitters': r'(?:[,/ \.\-]? ?)',
-    'splitters': r'(?: of | del | de | el |\. |, |-|/| ?)'
+    'splitters': r'(?:,? of |,? del |,? de |,? el |\. |, |-|/| ?)'
 }
 
 units = {
@@ -46,10 +48,23 @@ units = {
     'SEC': '%S',
     'MARK': '%p',
     'TZ': ['%Z', '%z'],
+    'SINGLE_YEAR': ['%Y'],
+    'SINGLE_WEEK': ['%A'],
     'SINGLE_MONTH': ['%B', '%b']
 }
 
-spanish_to_english = {
+day_of_week_to_number = {
+    'monday': 0,
+    'tuesday': 1,
+    'wednesday': 2,
+    'thursday': 3,
+    'friday': 4,
+    'saturday': 5,
+    'sunday': 6
+}
+
+foreign_to_english = {
+    # spanish
     'enero': 'January',
     'febrero': 'February',
     'marzo': 'March',
@@ -57,7 +72,6 @@ spanish_to_english = {
     'mayo': 'May',
     'junio': 'June',
     'julio': 'July',
-    'juli': 'July',
     'agosto': 'August',
     'septiembre': 'September',
     'octubre': 'October',
@@ -80,7 +94,28 @@ spanish_to_english = {
     'J': 'Thu',
     'V': 'Fri',
     'S': 'Sat',
-    'D': 'Sun'
+    'D': 'Sun',
+
+    # swedish
+    'januari': 'January',
+    'februari': 'February',
+    'mars': 'March',
+    'april': 'April',
+    'maj': 'May',
+    'juni': 'June',
+    'juli': 'July',
+    'augusti': 'August',
+    'september': 'September',
+    'oktober': 'October',
+    'november': 'November',
+    'december': 'December',
+    'måndag': 'Monday',
+    'tisdag': 'Tuesday',
+    'onsdag': 'Wednesday',
+    'torsdag': 'Thursday',
+    'fredag': 'Friday',
+    'lördag': 'Saturday',
+    'söndag': 'Sunday'
 }
 
 language_date_order = {
