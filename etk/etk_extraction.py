@@ -163,14 +163,6 @@ class Extraction(Extractable):
         self._addition_inf["date_object"] = options["date_object"] if "date_object" in options else None
         self._addition_inf["original_date"] = options["original_date"] if "original_date" in options else None
         self._extractor_name = extractor_name
-        fake_provenance = {
-            "extractor_name": extractor_name,
-            "confidence": confidence,
-            "start_token": start_token,
-            "end_token": end_token,
-            "start_char": start_char,
-            "end_char": end_char
-        }
         self._offsets = {
             "start_token": start_token,
             "end_token": end_token,
@@ -220,20 +212,6 @@ class Extraction(Extractable):
         """
         return self._extractor_name
 
-
-    @property
-    def offsets(self) -> Dict:
-        """
-        Returns: the offset inf of this extraction
-        """
-        return self._offsets
-
-    @property
-    def name(self) -> str:
-        """
-        Returns: the name of this extraction
-        """
-        return self._extractor_name
 
     @property
     def tag(self) -> str:
@@ -293,12 +271,3 @@ class Extraction(Extractable):
 
         """
         return self._addition_inf["original_date"]
-
-    @property
-    def date_object(self):
-        """
-
-        Returns: the original_date associated with this Extraction.
-
-        """
-        return self._addition_inf["date_object"]
