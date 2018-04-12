@@ -1,7 +1,6 @@
 import etk.timeseries.extractSpreadsheet as extractSpreadsheet
 from typing import List
 from etk.document import Document
-import pprint
 
 class TimeseriesProcessor(object):
     def __init__(self, etk, **mapping_spec) -> None:

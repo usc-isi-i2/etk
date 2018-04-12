@@ -278,8 +278,6 @@ class ExtractSpreadsheet(object):
                 logging.debug("%s",parsed)
             timeseries.append(parsed)
 
-        print("extract spread sheet")
-        print(len(timeseries))
         return timeseries
 
     def load_annotations(self,annotations_fn):

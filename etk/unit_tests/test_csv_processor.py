@@ -1,12 +1,13 @@
 import unittest
 import json
-from etk.extractors.csv_processor import CsvProcessor
+from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
 import datetime
 
 csv_str = """text,with,Polish,non-Latin,lettes
 1,2,3,4,5,6
 a,b,c,d,e,f
+
 gęś,zółty,wąż,idzie,wąską,dróżką,
 ,b,c,s,w,f
 """
@@ -45,7 +46,7 @@ class TestCsvProcessor(unittest.TestCase):
 
         test_docs = [doc.cdr_document for doc in
                      csv_processor.tabular_extractor(table_str=csv_str, data_set='test_set')]
-
+        
         expected_docs = [
             {'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'data_set': 'test_set'},
             {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'data_set': 'test_set'}]
