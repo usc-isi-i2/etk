@@ -21,15 +21,17 @@ class EmBaseGenerator(object):
         configs = json.load(open(master_config, 'r'))
         fields = configs['fields']
         glossary_dicts = configs['glossary_dicts']
+        glossaries = configs['glossaries']
         extractors = []
         executions = []
         for f in fields:
             if 'glossaries' in fields[f] and fields[f]['glossaries']:
                 glossary_name = fields[f]['glossaries'][0]
                 glossary_path = ''
-                if glossary_name in glossary_dicts:
-                    if 'path' in glossary_dicts[glossary_name]:
-                        glossary_path = glossary_dicts[glossary_name]['path']
+                if glossary_name in glossary_dicts and 'path' in glossary_dicts[glossary_name]:
+                    glossary_path = glossary_dicts[glossary_name]['path']
+                elif glossary_name in glossaries and 'path' in glossaries[glossary_name]:
+                    glossary_path = glossaries[glossary_name]['path']
                 if glossary_path:
                     extractors.append('        ' + self.generate_glossary_extractor(f, glossary_path) + '\n')
                     executions.append('            ' + self.generate_execution(f) + '\n')
@@ -58,7 +60,3 @@ class EmBaseGenerator(object):
         template = "self.{id}_extractor = SpacyRuleExtractor(self.etk.default_nlp, " \
                    "self.etk.load_spacy_rule('./spacy_rules/{id}.json'), '{id}_extractor')"
         return template.format(id=field_id)
-
-
-ebg = EmBaseGenerator('template.txt')
-ebg.generate_em_base('master_config.json', 'test_em_base.py')
