@@ -16,3 +16,8 @@ class InvalidJsonPathError(Exception):
 class StoreExtractionError(Exception):
     def __init__(self, message=""):
         super(StoreExtractionError, self).__init__(message)
+
+
+class NotGetExtractionModuleError(Exception):
+    def __init__(self, message=""):
+        super(NotGetExtractionModuleError, self).__init__(message)

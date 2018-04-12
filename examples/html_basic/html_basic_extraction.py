@@ -4,29 +4,40 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.html_content_extractor import HTMLContentExtractor, Strategy
 from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
-from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
+from etk.extraction_module import ExtractionModule
 
 
-sample_html = json.load(codecs.open('sample_html.json', 'r')) # read sample file from disk
+class HtmlBasicExtractionModule(ExtractionModule):
+    """
+    Abstract class for extraction module
+    """
+    def __init__(self, etk):
+        ExtractionModule.__init__(self, etk)
+        self.metadata_extractor = HTMLMetadataExtractor()
+        self.content_extractor = HTMLContentExtractor()
 
-etk = ETK()
-doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
+    def process_document(self, doc):
+        """
+        Add your code for processing the document
+        """
 
-metadata_extractor = HTMLMetadataExtractor()
-content_extractor = HTMLContentExtractor()
-landmark_extractor = InferlinkExtractor(InferlinkRuleSet(InferlinkRuleSet.load_rules_file('sample_inferlink_rules.json')))
+        raw = doc.select_segments("$.raw_content")[0]
 
-root = doc.select_segments("$")[0]
-raw = doc.select_segments("$.raw_content")[0]
+        doc.store_extractions(doc.invoke_extractor(self.content_extractor, raw, strategy=Strategy.ALL_TEXT), "etk2_text")
+        doc.store_extractions(doc.invoke_extractor(self.content_extractor, raw, strategy=Strategy.MAIN_CONTENT_STRICT),
+                              "etk2_content_strict")
+        doc.store_extractions(doc.invoke_extractor(self.content_extractor, raw, strategy=Strategy.MAIN_CONTENT_RELAXED),
+                              "etk2_content_relaxed")
+        doc.store_extractions(doc.invoke_extractor(self.metadata_extractor, raw), "etk2_metadata")
 
-# root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_title=True), "title")
-# root.store_extractions(doc.invoke_extractor(metadata_extractor, extract_meta=True), "metadata")
-root.store_extractions(doc.invoke_extractor(content_extractor, raw, strategy=Strategy.ALL_TEXT), "etk2_text")
-root.store_extractions(doc.invoke_extractor(content_extractor, raw, strategy=Strategy.MAIN_CONTENT_STRICT), "etk2_content_strict")
-root.store_extractions(doc.invoke_extractor(content_extractor, raw, strategy=Strategy.MAIN_CONTENT_RELAXED), "etk2_content_relaxed")
-root.store_extractions(doc.invoke_extractor(metadata_extractor, raw), "etk2_metadata")
 
-for e in doc.invoke_extractor(landmark_extractor):
-    root.store_extractions([e], e.tag)
+if __name__ == "__main__":
 
-print(json.dumps(doc.cdr_document, indent=2))
+    sample_html = json.load(codecs.open('sample_html.json', 'r')) # read sample file from disk
+
+    etk = ETK(modules=HtmlBasicExtractionModule)
+    doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
+
+    doc, _ = etk.process_ems(doc)
+
+    print(json.dumps(doc.value, indent=2))

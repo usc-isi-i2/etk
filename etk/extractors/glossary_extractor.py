@@ -76,7 +76,13 @@ class GlossaryExtractor(Extractor):
 
     def wrap_value_with_context(self, tokens: List[Token], start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]), self.name, start_token=start, end_token=end)
+        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]),
+                          self.name,
+                          start_token=start,
+                          end_token=end,
+                          start_char=tokens[start].idx,
+                          end_char=tokens[end-1].idx+len(tokens[end-1].orth_)
+                          )
 
     @staticmethod
     def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:

@@ -5,6 +5,7 @@ from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.extraction_module import ExtractionModule
+from etk.etk_exceptions import NotGetExtractionModuleError
 
 
 class ETK(object):
@@ -16,10 +17,12 @@ class ETK(object):
         self.parsed = dict()
         self.kg_schema = kg_schema
         if modules:
-            if isinstance(modules, ExtractionModule):
-                self.em_lst = [modules]
-            elif type(modules) == str:
+            if type(modules) == str:
                 self.em_lst = self.load_ems(modules)
+            elif issubclass(modules, ExtractionModule):
+                self.em_lst = [modules(self)]
+            else:
+                raise NotGetExtractionModuleError("not getting extraction module")
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
@@ -34,7 +37,6 @@ class ETK(object):
 
         """
         return Document(self, doc, mime_type, url)
-
 
     def parse_json_path(self, jsonpath):
     
@@ -94,19 +96,6 @@ class ETK(object):
 
         Args:
             file_path (str): path to a text file containing a spacy rule sets.
-
-        Returns: Dict as the representation of spacy rules
-        """
-        with open(file_path) as fp:
-            return json.load(fp)
-
-    @staticmethod
-    def load_master_config(file_path: str) -> Dict:
-        """
-        A master config rule file is a json file.
-
-        Args:
-            file_path (str): path to a text file containing a master config file.
 
         Returns: Dict as the representation of spacy rules
         """
