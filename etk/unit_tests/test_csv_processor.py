@@ -7,7 +7,6 @@ import datetime
 csv_str = """text,with,Polish,non-Latin,lettes
 1,2,3,4,5,6
 a,b,c,d,e,f
-
 gęś,zółty,wąż,idzie,wąską,dróżką,
 ,b,c,s,w,f
 """
