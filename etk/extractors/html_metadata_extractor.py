@@ -79,7 +79,7 @@ class HTMLMetadataExtractor(Extractor):
         return e
 
     @staticmethod
-    def wrap_meta_content(meta_tags: List[str]) -> dict:
+    def wrap_meta_content(meta_tags) -> dict:
         meta = {}
         for tag in meta_tags:
             meta[tag.get("name")] = tag.get("content")
