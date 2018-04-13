@@ -442,8 +442,8 @@ class DateExtractor(Extractor):
             if date:
                 extraction_date = self.wrap_extraction(date,
                                                        relative_date.value,
-                                                       relative_date.offsets['start_char'],
-                                                       relative_date.offsets['end_char'])
+                                                       relative_date.provenance['start_char'],
+                                                       relative_date.provenance['end_char'])
                 if extraction_date:
                     ans.append(extraction_date)
         return ans
