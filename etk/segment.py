@@ -3,6 +3,7 @@ from typing import List, Dict
 from etk.etk_exceptions import StoreExtractionError
 from etk.storage_provenance_record import StorageProvenanceRecord
 
+
 class Segment(Extractable):
     """
     An individual segment in a document.
@@ -104,14 +105,12 @@ class Segment(Extractable):
         """
         return self._extractions
 
-
     def create_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
         if "provenances" not in self.document.cdr_document:
             self.document.cdr_document["provenances"] = []
         self.document.cdr_document["provenances"].append(self.get_dict_storage_provenance(storage_provenance_record))
 
-
-    def get_dict_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
+    def get_dict_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord):
         dict = {}
         dict["@type"] = "storage_provenance_record"
         dict["doc_id"] = storage_provenance_record.doc_id

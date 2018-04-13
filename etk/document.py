@@ -138,32 +138,30 @@ class Document(Segment):
 
     @property
     def doc_id(self):
-       """
-       Returns: the doc_id of the CDR document
+        """
+        Returns: the doc_id of the CDR document
 
-       """
-       return self._value.get("doc_id")
+        """
+        return self._value.get("doc_id")
 
     @doc_id.setter
     def doc_id(self, new_doc_id):
-       """
+        """
 
-       Args:
+        Args:
            new_doc_id ():
 
-       Returns:
+        Returns:
 
-       """
-       self._value["doc_id"] = new_doc_id
-
+        """
+        self._value["doc_id"] = new_doc_id
 
     def create_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
         if "provenances" not in self.cdr_document:
             self.cdr_document["provenances"] = []
         self.cdr_document["provenances"].append(self.get_dict_extraction_provenance(extractionProvenanceRecord))
 
-
-    def get_dict_extraction_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
+    def get_dict_extraction_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord):
         dict = {}
         dict["@type"] = "extraction_provenance_record"
         dict["@id"] = extractionProvenanceRecord.id

@@ -1,5 +1,6 @@
 from typing import List, Dict
 import spacy
+import copy
 import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
@@ -13,7 +14,7 @@ class ETK(object):
     def __init__(self, kg_schema=None, modules=None):
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
-        self.default_tokenizer = Tokenizer(self.default_nlp)
+        self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         self.parsed = dict()
         self.kg_schema = kg_schema
         if modules:

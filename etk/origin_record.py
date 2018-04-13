@@ -1,8 +1,8 @@
 
 
 class OriginRecord():
-    def __init__(self, json_path: str, start_char: str, end_char:str, document = None) -> None:
-        #Extractable.__init__(self)
+    def __init__(self, json_path: str, start_char: str, end_char:str, document=None) -> None:
+        # Extractable.__init__(self)
         self.json_path = json_path
         self.start_char = start_char
         self.end_char = end_char
