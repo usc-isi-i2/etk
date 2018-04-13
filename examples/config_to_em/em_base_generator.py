@@ -38,8 +38,21 @@ class EmBaseGenerator(object):
             elif 'rule_extractor_enabled' in fields[f] and fields[f]['rule_extractor_enabled']:
                 extractors.append('        ' + self.generate_spacy_rule_extractor(f) + '\n')
                 executions.append('            ' + self.generate_execution(f) + '\n')
-        final = self.template.replace('${extractor_list}',
-                                      ''.join(extractors)).replace('${execution_list}', ''.join(executions))
+            elif 'predefined_extractor' in fields[f] and fields[f]['predefined_extractor']:
+                name = fields[f]['predefined_extractor']
+                if name == 'date':
+                    statement = self.generate_date_extractor(f)
+                    extractors.append('        ' + statement + '\n')
+                    executions.append('            ' + self.generate_execution(f) + '\n')
+                elif name == 'hostname':
+                    statement = self.generate_extractor_simple(f, 'HostnameExtractor')
+                    extractors.append('        ' + statement + '\n')
+                    executions.append('            ' + self.generate_execution(f) + '\n')
+
+        final = self.template.replace('${extractor_list}', ''.join(extractors))\
+            .replace('${execution_list}', ''.join(executions))\
+            .replace('${master_config_fields}',
+                     json.dumps(configs['fields']).replace('false', 'False').replace('true', 'True'))
         with open(output, 'w') as output_file:
             output_file.write(final)
 
@@ -60,3 +73,13 @@ class EmBaseGenerator(object):
         template = "self.{id}_extractor = SpacyRuleExtractor(self.etk.default_nlp, " \
                    "self.etk.load_spacy_rule('./spacy_rules/{id}.json'), '{id}_extractor')"
         return template.format(id=field_id)
+
+    @staticmethod
+    def generate_date_extractor(field_id: str):
+        template = "self.{id}_extractor = DateExtractor(etk, '{id}_extractor')"
+        return template.format(id=field_id)
+
+    @staticmethod
+    def generate_extractor_simple(field_id: str, extractor_name: str):
+        template = "self.{id}_extractor = {name}('{id}_extractor')"
+        return template.format(id=field_id, name=extractor_name)

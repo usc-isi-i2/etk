@@ -112,6 +112,11 @@
   },
   "table_attributes": {},
   "fields": {
+    "inferlink_phone": {"type":"string"},
+    "inferlink_location": {"type":"string"},
+    "inferlink_age": {"type":"string"},
+    "inferlink_posting-date": {"type":"string"},
+    "test_date": {"type":"string", "predefined_extractor":"date"},
     "website": {
       "color": "light-green",
       "rule_extraction_target": "title_and_description",
