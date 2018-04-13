@@ -1,6 +1,7 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
 from typing import List, Any, Dict
+import re
 
 
 class ExtractableBase(object):
@@ -34,7 +35,7 @@ class ExtractableBase(object):
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
         else:
-            return str(self._value)
+            return re.sub(' +', ' ', str(self._value))
 
     def list2str(self, l: List, joiner: str) -> str:
         """
