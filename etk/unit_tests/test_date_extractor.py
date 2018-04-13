@@ -3,55 +3,42 @@ from dateutil.relativedelta import relativedelta
 from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk import ETK
 
-with open('etk/unit_tests/ground_truth/date_ground_truth.txt', 'r') as f:
-    sample = f.read()
 
 de = DateExtractor(ETK(), 'unit_test_date')
 
-
 class TestDateExtractor(unittest.TestCase):
-    def test_basic(self) -> None:
-        extractions = de.extract(sample, relative_base=datetime.datetime(2018, 1, 1), return_as_timezone_aware=False)
+    def test_ground_truth(self) -> None:
+        with open('etk/unit_tests/ground_truth/date_ground_truth.txt', 'r') as f:
+            texts = f.readlines()
+        for text in texts:
+            text = text.strip()
+            if text and text[0] != '#':
+                temp = text.split('|')
+                if len(temp) == 3:
+                    input_text, expected, format = temp
+                    ignore_before = datetime.datetime(1890, 1, 1)
+                    ignore_after = datetime.datetime(2500, 10, 10)
+                    relative_base = datetime.datetime(2018, 1, 1)
 
-        results = [e.value for e in extractions]
-
-        expected = ['2017-02-12', '2017-02-12', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02',
-                    '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02',
-                    '2015-10-01', '2015-10-01', '2015-10-01', '2015-10-01', '2015-10-02', '2015-10-02', '2015-10-02',
-                    '2015-10-02', '2015-10-03', '2015-10-03', '2015-10-03', '2015-10-03', '2015-10-04', '2015-10-04',
-                    '2015-10-04', '2015-10-04', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10',
-                    '2018-03-10', '2018-03-10', '2018-03-10', '2010-03-01', '2018-03-10', '2018-03-10', '2018-03-10',
-                    '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10',
-                    '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10',
-                    '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2018-03-10', '2014-09-04',
-                    '2012-09-09', '2009-12-20', '2009-12-20', '2013-12-04', '2014-02-01', '2013-12-06', '2014-04-16',
-                    '2014-04-16', '2016-06-27', '2016-07-04', '2016-12-01', '2006-03-08', '2006-03-08', '2006-03-08',
-                    '2006-03-08', '2006-03-08', '2006-03-08', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03',
-                    '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2003-06-08',
-                    '2006-08-03', '2003-06-08', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03',
-                    '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-03', '2006-08-01', '2020-06-01', '2006-08-03',
-                    '2006-08-03', '2006-08-03', '2018-07-01', '2018-06-01', '2019-03-01', '2017-12-01', '1998-01-09',
-                    '2020-01-07', '2020-02-05', '2017-12-23', '2017-12-31']
-
-        self.assertEqual(results, expected)
-
-    def test_range(self) -> None:
-        ignore_before = datetime.datetime(2015, 10, 1)
-        ignore_after = datetime.datetime(2015, 10, 30)
-
-        extractions = de.extract(sample,
-                                 ignore_dates_before=ignore_before,
-                                 ignore_dates_after=ignore_after,
-                                 )
-
-        results = [e.value for e in extractions]
-
-        expected = ['2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02',
-                    '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-01', '2015-10-01',
-                    '2015-10-01', '2015-10-01', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-02', '2015-10-03',
-                    '2015-10-03', '2015-10-03', '2015-10-03', '2015-10-04', '2015-10-04', '2015-10-04', '2015-10-04']
-
-        self.assertEqual(results, expected)
+                    e = de.extract(input_text,
+                                   extract_first_date_only=False,
+                                   additional_formats=[format],
+                                   use_default_formats=False,
+                                   ignore_dates_before=ignore_before,
+                                   ignore_dates_after=ignore_after,
+                                   detect_relative_dates=not format,
+                                   relative_base=relative_base,
+                                   preferred_date_order="DMY",
+                                   prefer_language_date_order=True,
+                                   return_as_timezone_aware=False,
+                                   prefer_day_of_month='first',
+                                   prefer_dates_from='current',
+                                   date_value_resolution=DateResolution.SECOND
+                                   if format and len(format) > 1 and format[1] in ['H', 'I'] else DateResolution.DAY
+                                   )
+                    expected = expected.replace('@today', DateExtractor.convert_to_iso_format(datetime.datetime.now()))
+                    if expected and expected[0] != '@':
+                        self.assertEqual(e[0].value if e else '', expected)
 
     def test_additional_formats(self) -> None:
         text = '2018@3@25  July 29 in 2018, 4/3@2018  2009-10-23 Jun 27 2017'
