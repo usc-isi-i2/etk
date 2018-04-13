@@ -262,12 +262,3 @@ class Extraction(Extractable):
 
         """
         return self._provenance
-
-    @property
-    def original_date(self):
-        """
-
-        Returns: the original_date associated with this Extraction.
-
-        """
-        return self._addition_inf["original_date"]
