@@ -4,7 +4,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.html_content_extractor import HTMLContentExtractor, Strategy
 from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
-from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
 from etk.extraction_module import ExtractionModule
 
 
@@ -16,8 +15,6 @@ class HtmlBasicExtractionModule(ExtractionModule):
         ExtractionModule.__init__(self, etk)
         self.metadata_extractor = HTMLMetadataExtractor()
         self.content_extractor = HTMLContentExtractor()
-        self.landmark_extractor = InferlinkExtractor(
-            InferlinkRuleSet(InferlinkRuleSet.load_rules_file('sample_inferlink_rules.json')))
 
     def process_document(self, doc):
         """
@@ -32,9 +29,6 @@ class HtmlBasicExtractionModule(ExtractionModule):
         doc.store_extractions(doc.invoke_extractor(self.content_extractor, raw, strategy=Strategy.MAIN_CONTENT_RELAXED),
                               "etk2_content_relaxed")
         doc.store_extractions(doc.invoke_extractor(self.metadata_extractor, raw), "etk2_metadata")
-
-        for e in doc.invoke_extractor(self.landmark_extractor):
-            doc.store_extractions([e], e.tag)
 
 
 if __name__ == "__main__":

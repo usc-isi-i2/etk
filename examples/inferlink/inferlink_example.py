@@ -22,7 +22,7 @@ class InferlinkExtractionModule(ExtractionModule):
 
         raw = doc.select_segments("$.raw_content")[0]
         extractions = doc.invoke_extractor(self.inferlink_extractor, raw)
-        doc.store_extractions(extractions, "my_location_for_inferlink")
+        doc.store_extractions(extractions, "inferlink_extraction")
 
 
 if __name__ == "__main__":
