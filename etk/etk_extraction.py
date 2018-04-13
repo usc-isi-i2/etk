@@ -1,6 +1,7 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
 from typing import List, Any, Dict
+import re
 
 
 class ExtractableBase(object):
@@ -34,7 +35,7 @@ class ExtractableBase(object):
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
         else:
-            return str(self._value)
+            return re.sub(' +', ' ', str(self._value))
 
     def list2str(self, l: List, joiner: str) -> str:
         """
@@ -85,10 +86,11 @@ class Extractable(ExtractableBase):
     A single extraction or a single segment
     """
 
-    def __init__(self, value=None) -> None:
+    def __init__(self, value=None, prov_id=None) -> None:
         ExtractableBase.__init__(self)
         self.tokenize_results = dict()
         self._value = value
+        self.prov_id = prov_id
 
     def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = False) -> List[Token]:
         """
@@ -120,6 +122,14 @@ class Extractable(ExtractableBase):
             tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens
             return tokens
+
+    @property
+    def prov_id(self):
+        return self.__prov_id
+        
+    @prov_id.setter
+    def prov_id(self, prov_id):
+       self.__prov_id = prov_id
 
 
 class Extraction(Extractable):
@@ -154,19 +164,15 @@ class Extraction(Extractable):
         self._addition_inf["date_object"] = options["date_object"] if "date_object" in options else None
         self._addition_inf["original_date"] = options["original_date"] if "original_date" in options else None
         self._extractor_name = extractor_name
-        self._offsets = {
+        self._confidence = confidence
+        self._provenance = {
             "start_token": start_token,
             "end_token": end_token,
             "start_char": start_char,
-            "end_char": end_char
+            "end_char": end_char,
+            "extractor_name": extractor_name,
+            "confidence": confidence
         }
-        self._confidence = confidence
-
-        # pseudo-code below
-        # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
-        #                   start_char=start_char, end_char=end_char)
-        # prov_id = document.add_provenance(self.provenance)
-        # self._value = ExtractionValue(value, prov_id)
         self._value = value
 
     def __str__(self):
@@ -185,13 +191,6 @@ class Extraction(Extractable):
         Returns: the confidence of this extraction
         """
         return self._confidence
-
-    @property
-    def offsets(self) -> Dict:
-        """
-        Returns: the offset inf of this extraction
-        """
-        return self._offsets
 
     @property
     def name(self) -> str:
@@ -230,17 +229,22 @@ class Extraction(Extractable):
     @property
     def original_date(self):
         """
-
         Returns: the original_date associated with this Extraction.
-
         """
         return self._addition_inf["original_date"]
 
     @property
     def date_object(self):
         """
-
         Returns: the original_date associated with this Extraction.
-
         """
         return self._addition_inf["date_object"]
+
+    @property
+    def provenance(self) -> Dict:
+        """
+
+        Returns: the tag associated with this Extraction.
+
+        """
+        return self._provenance

@@ -44,12 +44,16 @@ class DateRegexGenerator:
                         'res'] + week_reg_post + r')' + time_reg + r')(?=\b)',
                     'YMD': r'(?<=\b)(?:(?:' + week_reg_pre + all['Y']['res'] + s + all['M'][
                         'res'] + day_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)',
-                    'SINGLE_MONTH': r'(?<=\b)(?:(?:' + all['SINGLE_MONTH']['res'] + r')' + time_reg + r')(?=\b)'
+                    'SINGLE_YEAR': r'(?<=\b)(?:(?:' + all['SINGLE_YEAR']['res'] + r')' + time_reg + r')(?=\b)',
+                    'SINGLE_MONTH': r'(?<=\b)(?:(?:' + all['SINGLE_MONTH']['res'] + r')' + time_reg + r')(?=\b)',
+                    'SINGLE_WEEK': r'(?<=\b)(?:(?:' + all['SINGLE_WEEK']['res'] + r')' + time_reg + r')(?=\b)'
                 }, {
                     'MDY': all['W'][pl] + all['M'][pl] + all['D'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
                     'DMY': all['W'][pl] + all['D'][pl] + all['M'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
                     'YMD': all['W'][pl] + all['Y'][pl] + all['M'][pl] + all['D'][pl] + all['W'][pl] + time_pattern,
-                    'SINGLE_MONTH': all['SINGLE_MONTH'][pl] + time_pattern
+                    'SINGLE_YEAR': all['SINGLE_YEAR'][pl] + time_pattern,
+                    'SINGLE_MONTH': all['SINGLE_MONTH'][pl] + time_pattern,
+                    'SINGLE_WEEK': all['SINGLE_WEEK'][pl] + time_pattern
                 })
 
     def generate_regex_for_a_unit(self, key_list):
