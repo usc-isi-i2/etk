@@ -20,7 +20,7 @@ ETK is open-source software, released under the MIT license.
   <tr><td><b>Python version:</td><td>Python 3.6+</td></tr>
 <table>
 
-Clone or fork this repository, open a terminal window and in the direcotry where you downloaded ETK type the following commands:
+Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands:
 ```
 conda-env create .
 source activate etk2_env
