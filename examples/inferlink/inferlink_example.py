@@ -22,18 +22,7 @@ class InferlinkExtractionModule(ExtractionModule):
 
         raw = doc.select_segments("$.raw_content")[0]
         extractions = doc.invoke_extractor(self.inferlink_extractor, raw)
-
-        # bind the new location to a segment
-        # Store the extractions in the target segment.
-        # note: given that we allow users to get cdr_document, they could bypass the segments
-        # and store the extractions directly where they want. This would work, but ETK will not
-        # be able to record the provenance.
         doc.store_extractions(extractions, "inferlink_extraction")
-
-        # We can make the cdr_document hidden, provide a Segment.add_segment function, and then
-        # the user would define the target as follows:
-        # --- not sure what this means : ---
-        # target = doc.select_segments("$")[0].add_segmment("my_location_for_inferlink")
 
 
 if __name__ == "__main__":
