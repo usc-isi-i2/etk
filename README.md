@@ -1,6 +1,6 @@
 # ETK: Information Extraction Toolkit
 
-ETK is a Python library for information extraction from many document formats.
+ETK is a Python library for high precision information extraction from many document formats.
 It proivdes a flexible framework of **composable extractors** that enables you to combine a host of **predefined extractors** provided in ETK with custom extractors that you may need to develop for your application.
 It supports extraction from HTML pages, text documents, CSV and Excel files and JSON documents.
 ETK is open-source software, released under the MIT license.
@@ -12,6 +12,14 @@ ETK is open-source software, released under the MIT license.
 
 ## Features
 
+* Extraction from HTML, text, CSV, Excel, JSON
+* High-precision predefined extractors for common entities (dates, phones, email, cities, ...)
+* Extraction of microdata, schema.org and RDFa markup
+* Integration with [spaCy](https://github.com/explosion/spaCy) for text processing
+* Automatic identification and extraction of HTML tables containing data
+* Automatic identification and extraction of time series
+* Semi-automatic generation of Web wrappers
+* Scalable execution and management of extraction pipelines
 
 ## Installation
 
