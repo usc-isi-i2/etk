@@ -5,7 +5,9 @@ It proivdes a flexible framework of **composable extractors** that enables you t
 It supports extraction from HTML pages, text documents, CSV and Excel files and JSON documents.
 ETK is open-source software, released under the MIT license.
 
-![travis ci](https://travis-ci.org/usc-isi-i2/etk.svg?branch=etk2)
+
+
+![MIT License](https://img.shields.io/badge/license-MIT-blue.svg) ![travis ci](https://travis-ci.org/usc-isi-i2/etk.svg?branch=etk2)
 
 ## Documentation
 
