@@ -20,6 +20,7 @@ ETK is open-source software, released under the MIT license.
 * Automatic identification and extraction of time series
 * Semi-automatic generation of Web wrappers
 * Scalable execution and management of extraction pipelines
+* Automatic provenance recording
 
 ## Installation
 
