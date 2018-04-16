@@ -80,7 +80,7 @@ class TestProvenance(unittest.TestCase):
                 },
                 {
                     "@type": "storage_provenance_record", "doc_id": None, "field": None,
-                    "destination": "projects.[0].members", "provenance_record_id": [0, 1, 2, 3]
+                    "destination": "projects.[0].members", "extraction_provenance_record_id": [0, 1, 2, 3]
                 },
                 {
                     "@type": "extraction_provenance_record", "@id": 4, "method": "name_extractor",
@@ -106,7 +106,7 @@ class TestProvenance(unittest.TestCase):
                 },
                 {
                     "@type": "storage_provenance_record", "doc_id": None, "field": None,
-                    "destination": "projects.[1].members", "provenance_record_id": [4, 5, 6]
+                    "destination": "projects.[1].members", "extraction_provenance_record_id": [4, 5, 6]
                 }
             ]
         }
