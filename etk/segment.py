@@ -116,5 +116,5 @@ class Segment(Extractable):
         dict["doc_id"] = storage_provenance_record.doc_id
         dict["field"] = storage_provenance_record.field
         dict["destination"] = storage_provenance_record.destination
-        dict["provenance_record_id"] = storage_provenance_record.provenance_record_id
+        dict["extraction_provenance_record_id"] = storage_provenance_record.provenance_record_id
         return dict
