@@ -21,3 +21,13 @@ class StoreExtractionError(Exception):
 class NotGetExtractionModuleError(Exception):
     def __init__(self, message=""):
         super(NotGetExtractionModuleError, self).__init__(message)
+
+
+class InvalidArgumentsError(Exception):
+    def __init__(self, message=""):
+        super(InvalidArgumentsError, self).__init__(message)
+
+
+class InvalidFilePathError(Exception):
+    def __init__(self, message=""):
+        super(InvalidFilePathError, self).__init__(message)
