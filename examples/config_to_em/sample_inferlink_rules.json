@@ -33,7 +33,7 @@
       "begin_regex": "VIEW\\s+GIRLS\\</a\\>.*?/\\>\\<br/\\>",
       "end_regex": "\\.\\&nbsp;Call\\s+\\<",
       "include_end_regex": true,
-      "name": "inferlink_description"
+      "name": "inferlink_location-2"
     },
     {
       "rule_type": "ItemRule",
