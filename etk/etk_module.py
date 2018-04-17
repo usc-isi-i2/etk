@@ -3,7 +3,7 @@ from etk.document_selector import DefaultDocumentSelector
 from typing import List
 
 
-class ExtractionModule(object):
+class ETKModule(object):
     """
     Abstract class for extraction module
     """

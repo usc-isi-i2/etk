@@ -1,5 +1,5 @@
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from spacy.matcher import Matcher
 from spacy.attrs import LIKE_EMAIL
 from typing import List

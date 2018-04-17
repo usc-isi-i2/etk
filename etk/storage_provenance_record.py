@@ -1,7 +1,8 @@
-from etk.etk_extraction import Extractable
+from etk.extraction import Extractable
 "TODO: Why import OriginRecord but not used, probably you want to extend from this class instead of Extractable?"
 from etk.origin_record import OriginRecord
 from typing import List, Dict
+
 
 class StorageProvenanceRecord(Extractable):
     """
