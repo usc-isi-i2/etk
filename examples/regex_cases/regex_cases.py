@@ -11,7 +11,7 @@ from etk.extractors.url_extractor import URLExtractor
 from etk.etk_module import ETKModule
 
 
-class RegexExtractionModule(ETKModule):
+class RegexETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                        "https://foo_bar.example.com/   %%%###http://isi.edu/abx  dig.isi.edu/index.html"
     }
 
-    etk = ETK(modules=RegexExtractionModule)
+    etk = ETK(modules=RegexETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

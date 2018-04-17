@@ -7,7 +7,7 @@ import json
 from etk.etk_module import ETKModule
 
 
-class RuleExtractionModule(ETKModule):
+class RuleETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         ]
     }
 
-    etk = ETK(modules=RuleExtractionModule)
+    etk = ETK(modules=RuleETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

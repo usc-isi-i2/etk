@@ -3,7 +3,7 @@ from etk.document import Document
 from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 
 
-class ExtractionModuleSpacy(ETKModule):
+class ETKModuleSpacy(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         sample_rules = self.etk.load_spacy_rule("./extraction_modules/resources/sample_rules.json")

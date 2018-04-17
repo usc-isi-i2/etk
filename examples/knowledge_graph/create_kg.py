@@ -8,12 +8,12 @@ from etk.etk_module import ETKModule
 import json
 
 
-class ExampleExtractionModule(ETKModule):
+class ExampleETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.name_extractor = GlossaryExtractor(self.etk.load_glossary("./names.txt"), "name_extractor",
                                                 self.etk.default_tokenizer,
                                                 case_sensitive=False, ngrams=1)
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     }
 
     kg_schema = KGSchema(json.load(open("master_config.json", "r")))
-    etk = ETK(kg_schema=kg_schema, modules=ExampleExtractionModule)
+    etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

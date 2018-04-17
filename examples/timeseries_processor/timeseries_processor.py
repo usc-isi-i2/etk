@@ -3,23 +3,24 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 from etk.timeseries_processor import TimeseriesProcessor
 import pprint
 
-class TimeseriesExtractionModule(ExtractionModule):
+
+class TimeseriesETKModule(ETKModule):
     """
        Abstract class for extraction module
        """
 
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
 
     def process_document(self, doc):
         pass
 
 if __name__ == "__main__":
-    etk = ETK(modules=TimeseriesExtractionModule)
+    etk = ETK(modules=TimeseriesETKModule)
 
     annotation = './resources/DIESEL_june_annotation.json'
     spreadsheet = './resources/DIESEL_june_2017.xlsx'
