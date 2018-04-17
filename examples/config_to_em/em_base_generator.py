@@ -54,7 +54,6 @@ class EmBaseGenerator(object):
         """
         configs = json.load(open(master_config, 'r'))
         fields = configs['fields']
-        glossary_dicts = configs['glossary_dicts']
         glossaries = configs['glossaries']
         extractors = []
         executions = []
@@ -62,12 +61,17 @@ class EmBaseGenerator(object):
             if 'glossaries' in fields[f] and fields[f]['glossaries']:
                 glossary_name = fields[f]['glossaries'][0]
                 glossary_path = ''
-                if glossary_name in glossary_dicts and 'path' in glossary_dicts[glossary_name]:
-                    glossary_path = glossary_dicts[glossary_name]['path']
-                elif glossary_name in glossaries and 'path' in glossaries[glossary_name]:
-                    glossary_path = glossaries[glossary_name]['path']
+                ngrams = 0
+                case_sensitive = False
+                if glossary_name in glossaries:
+                    if 'path' in glossaries[glossary_name]:
+                        glossary_path = glossaries[glossary_name]['path']
+                    if 'ngram_distribution' in glossaries[glossary_name]:
+                        ngrams = max(glossaries[glossary_name]['ngram_distribution'].keys())
+                    if 'case_sensitive' in glossaries[glossary_name]:
+                        case_sensitive = glossaries[glossary_name]['case_sensitive']
                 if glossary_path:
-                    extractors.append('        ' + self.generate_glossary_extractor(f, glossary_path) + '\n')
+                    extractors.append('        ' + self.generate_glossary_extractor(f, glossary_path, ngrams, case_sensitive) + '\n')
                     executions.append('            ' + self.generate_execution(f) + '\n')
             elif 'rule_extractor_enabled' in fields[f] and fields[f]['rule_extractor_enabled']:
                 extractors.append('        ' + self.generate_spacy_rule_extractor(f) + '\n')
@@ -95,7 +99,7 @@ class EmBaseGenerator(object):
         return template.format(id=field_id)
 
     @staticmethod
-    def generate_glossary_extractor(field_id: str, glossary_path: str, ngrams: int=2, case_sensitive: bool=False) -> str:
+    def generate_glossary_extractor(field_id: str, glossary_path: str, ngrams: int=0, case_sensitive: bool=False) -> str:
         template = "self.{id}_extractor = GlossaryExtractor(self.etk.load_glossary('{path}'), " \
                    "'{id}_extractor', self.etk.default_tokenizer, case_sensitive={case_sensitive}, ngrams={ngrams})"
         return template.format(id=field_id, path=glossary_path, case_sensitive=str(case_sensitive), ngrams=str(ngrams))

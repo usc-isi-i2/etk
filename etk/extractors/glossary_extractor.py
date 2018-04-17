@@ -1,3 +1,4 @@
+from warnings import warn
 from typing import List
 from etk.extractor import Extractor, InputType
 from etk.extraction import Extraction
@@ -19,9 +20,15 @@ class GlossaryExtractor(Extractor):
                            input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
-        self.ngrams = ngrams
+
+
         self.case_sensitive = case_sensitive
         self.default_tokenizer = tokenizer
+        if not ngrams:
+            ngrams = 0
+            for word in glossary:
+                ngrams = max(ngrams, len(self.default_tokenizer.tokenize(word)))
+        self.ngrams = min(ngrams, 5)
         self.joiner = " "
         self.glossary = self.populate_trie(glossary)
 
@@ -44,8 +51,7 @@ class GlossaryExtractor(Extractor):
                                       map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
         except Exception as e:
-            print("error operator")
-            print(e)
+            warn('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
             return []
         return results
 
