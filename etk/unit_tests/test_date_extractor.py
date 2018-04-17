@@ -98,10 +98,9 @@ class TestDateExtractor(unittest.TestCase):
         text = '2018 July and 09/20 and 2017/12'
 
         results = [
-            [e.value for e in de.extract(text, prefer_day_of_month='first')],
-            [e.value for e in de.extract(text, prefer_day_of_month='last')]
+            [e.value for e in de.extract(text, prefer_day_of_month='first', preferred_date_order='DMY')],
+            [e.value for e in de.extract(text, prefer_day_of_month='last', preferred_date_order='DMY')]
         ]
-
         expected = [['2018-07-01', '2020-09-01', '2017-12-01'], ['2018-07-31', '2020-09-30', '2017-12-31']]
 
         self.assertEqual(results, expected)
