@@ -1,6 +1,6 @@
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 
 
 class DecodingValueExtractor(Extractor):

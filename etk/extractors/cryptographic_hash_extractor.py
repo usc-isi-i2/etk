@@ -1,7 +1,7 @@
 from etk.extractors.regex_extractor import RegexExtractor
 from etk.extractor import Extractor, InputType
 from typing import List
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 
 
 class CryptographicHashExtractor(Extractor):

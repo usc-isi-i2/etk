@@ -22,7 +22,7 @@ sample_input = {
 
 class TestProvenance(unittest.TestCase):
 
-    def test_Extractable(self) -> None:
+    def test_Provenance(self) -> None:
 
         self.etk = ETK()
         g = ['runqi', 'sylvia', 'dongyu', 'mayank', 'pedro', 'amandeep', 'yixiang']
@@ -34,8 +34,8 @@ class TestProvenance(unittest.TestCase):
         projects = doc.select_segments("projects[*]")
 
         for d, p in zip(descriptions, projects):
-            names = doc.invoke_extractor(self.name_extractor, d)
-            p.store_extractions(names, "members")
+            names = doc.extract(self.name_extractor, d)
+            p.store(names, "members")
 
         expected = {
             "projects": [
