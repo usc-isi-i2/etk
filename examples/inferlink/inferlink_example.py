@@ -6,7 +6,7 @@ from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRule
 from etk.etk_module import ETKModule
 
 
-class InferlinkExtractionModule(ETKModule):
+class InferlinkETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -28,7 +28,7 @@ class InferlinkExtractionModule(ETKModule):
 if __name__ == "__main__":
     sample_html = json.load(codecs.open('../html_basic/sample_html.json', 'r')) # read sample file from disk
 
-    etk = ETK(modules=InferlinkExtractionModule)
+    etk = ETK(modules=InferlinkETKModule)
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
 
     doc, _ = etk.process_ems(doc)

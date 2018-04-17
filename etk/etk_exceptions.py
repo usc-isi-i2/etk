@@ -1,6 +1,36 @@
-class KgValueInvalidError(Exception):
+from enum import Enum, auto
+
+
+class ErrorPolicy(Enum):
+    """
+    THROW_EXTRACTION: throw error extraction and return
+    THROW_DOCUMENT: throw whole document
+    PROCESS: still process by converting to processable type
+    RAISE: raise error
+    """
+    THROW_EXTRACTION = auto()
+    THROW_DOCUMENT = auto()
+    PROCESS = auto()
+    RAISE = auto()
+
+
+class ETKValueError(Exception):
+    pass
+
+
+class KgValueError(ETKValueError):
     def __init__(self, message=""):
-        super(KgValueInvalidError, self).__init__(message)
+        super(KgValueError, self).__init__(message)
+
+
+class ExtractorValueError(ETKValueError):
+    def __init__(self, message=""):
+        super(ExtractorValueError, self).__init__(message)
+
+
+class TokenizerValueError(ETKValueError):
+    def __init__(self, message=""):
+        super(TokenizerValueError, self).__init__(message)
 
 
 class ISODateError(Exception):
@@ -18,9 +48,9 @@ class StoreExtractionError(Exception):
         super(StoreExtractionError, self).__init__(message)
 
 
-class NotGetExtractionModuleError(Exception):
+class NotGetETKModuleError(Exception):
     def __init__(self, message=""):
-        super(NotGetExtractionModuleError, self).__init__(message)
+        super(NotGetETKModuleError, self).__init__(message)
 
 
 class InvalidArgumentsError(Exception):

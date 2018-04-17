@@ -6,7 +6,7 @@ from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
 
 
-class HelloWorldExtractionModule(ETKModule):
+class HelloWorldETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         ]
     }
 
-    etk = ETK(modules=HelloWorldExtractionModule)
+    etk = ETK(modules=HelloWorldETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)
