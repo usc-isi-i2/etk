@@ -1,5 +1,4 @@
 
-from datetime import datetime
 import json
 
 
@@ -7,6 +6,41 @@ class EmBaseGenerator(object):
     def __init__(self, template_path: str='template.txt'):
         with open(template_path, 'r') as f:
             self.template = f.read()
+
+        self.predefined_extractors = {
+            'bitcoin_address': {
+                'name': 'BitcoinAddressExtractor',
+                'params': ''
+            },
+            'cryptographic': {
+                'name': 'CryptographicHashExtractor',
+                'params': ''
+            },
+            'cve': {
+                'name': 'CVEExtractor',
+                'params': ''
+            },
+            'date': {
+                'name': 'DateExtractor',
+                'params': 'etk'
+            },
+            'hostname': {
+                'name': 'HostnameExtractor',
+                'params': ''
+            },
+            'ip_address': {
+                'name': 'IPAddressExtractor',
+                'params': ''
+            },
+            'table_extractor': {
+                'name': 'TableExtractor',
+                'params': ''
+            },
+            'url': {
+                'name': 'URLExtractor',
+                'params': ''
+            }
+        }
 
     def generate_em_base(self, master_config: str, output: str='em_base.py') -> None:
         """
@@ -40,12 +74,10 @@ class EmBaseGenerator(object):
                 executions.append('            ' + self.generate_execution(f) + '\n')
             elif 'predefined_extractor' in fields[f] and fields[f]['predefined_extractor']:
                 name = fields[f]['predefined_extractor']
-                if name == 'date':
-                    statement = self.generate_date_extractor(f)
-                    extractors.append('        ' + statement + '\n')
-                    executions.append('            ' + self.generate_execution(f) + '\n')
-                elif name == 'hostname':
-                    statement = self.generate_extractor_simple(f, 'HostnameExtractor')
+                if name in self.predefined_extractors:
+                    statement = self.generate_extractor_simple(f,
+                                                               self.predefined_extractors[name]['name'],
+                                                               self.predefined_extractors[name]['params'])
                     extractors.append('        ' + statement + '\n')
                     executions.append('            ' + self.generate_execution(f) + '\n')
 
@@ -75,11 +107,6 @@ class EmBaseGenerator(object):
         return template.format(id=field_id)
 
     @staticmethod
-    def generate_date_extractor(field_id: str):
-        template = "self.{id}_extractor = DateExtractor(etk, '{id}_extractor')"
-        return template.format(id=field_id)
-
-    @staticmethod
-    def generate_extractor_simple(field_id: str, extractor_name: str):
-        template = "self.{id}_extractor = {name}('{id}_extractor')"
-        return template.format(id=field_id, name=extractor_name)
+    def generate_extractor_simple(field_id: str, extractor_name: str, params: str=''):
+        template = "self.{id}_extractor = {name}({params})"
+        return template.format(id=field_id, name=extractor_name, params=params)
