@@ -1,17 +1,15 @@
 from typing import List, Dict
-import spacy
-import copy
-import json, os, jsonpath_ng, importlib
+import spacy, copy, json, os, jsonpath_ng, importlib, logging
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
-from etk.etk_exceptions import NotGetExtractionModuleError
+from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 
 
 class ETK(object):
 
-    def __init__(self, kg_schema=None, modules=None):
+    def __init__(self, kg_schema=None, modules=None, extract_error_policy="process"):
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
@@ -23,7 +21,16 @@ class ETK(object):
             elif issubclass(modules, ETKModule):
                 self.em_lst = [modules(self)]
             else:
-                raise NotGetExtractionModuleError("not getting extraction module")
+                raise NotGetETKModuleError("Not getting extraction module")
+
+        if extract_error_policy.lower() == "throw_extraction":
+            self.error_policy = ErrorPolicy.THROW_EXTRACTION
+        if extract_error_policy.lower() == "throw_document":
+            self.error_policy = ErrorPolicy.THROW_DOCUMENT
+        if extract_error_policy.lower() == "raise_error":
+            self.error_policy = ErrorPolicy.RAISE
+        else:
+            self.error_policy = ErrorPolicy.PROCESS
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
@@ -115,13 +122,22 @@ class ETK(object):
         """
         modules_path = modules_path.strip(".").strip("/")
         em_lst = []
-        for file_name in os.listdir(modules_path):
-            if file_name.startswith("em_") and file_name.endswith(".py"):
-                this_module = importlib.import_module(modules_path + "." + file_name[:-3])
-                for em in self.classes_in_module(this_module):
-                    em_lst.append(em(self))
+        try:
+            for file_name in os.listdir(modules_path):
+                if file_name.startswith("em_") and file_name.endswith(".py"):
+                    this_module = importlib.import_module(modules_path + "." + file_name[:-3])
+                    for em in self.classes_in_module(this_module):
+                        em_lst.append(em(self))
+        except:
+            raise NotGetETKModuleError("Wrong file path for ETK modules")
 
-        em_lst = self.topological_sort(em_lst)
+        try:
+            em_lst = self.topological_sort(em_lst)
+        except:
+            raise NotGetETKModuleError("Topological sort for ETK modules fails")
+
+        if not em_lst:
+            raise NotGetETKModuleError("No ETK module in dir, module file should start with em_, end with .py")
         return em_lst
 
     @staticmethod

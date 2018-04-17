@@ -1,7 +1,7 @@
-from typing import List, Dict
+from typing import Dict
 from etk.knowledge_graph_schema import KGSchema
 from etk.field_types import FieldType
-from etk.etk_exceptions import KgValueInvalidError, ISODateError, InvalidJsonPathError
+from etk.etk_exceptions import KgValueError, ISODateError
 from datetime import date, datetime
 import numbers
 
@@ -31,10 +31,7 @@ class KnowledgeGraph(object):
             if field_name not in self._kg:
                 self._kg[field_name] = []
             path = self.origin_doc.etk.parse_json_path(jsonpath)
-            try:
-                matches = path.find(self.origin_doc.value)
-            except Exception:
-                raise InvalidJsonPathError("Invalid Json Path")
+            matches = path.find(self.origin_doc.value)
 
             all_valid = True
             for a_match in matches:
@@ -51,7 +48,7 @@ class KnowledgeGraph(object):
                 else:
                     all_valid = False
             if not all_valid:
-                raise KgValueInvalidError("Some Type of Kg Value Invalid")
+                raise KgValueError("Some kg value type invalid according to schema")
 
     def add_value(self, field_name: str, value) -> None:
         """
@@ -91,9 +88,9 @@ class KnowledgeGraph(object):
                 else:
                     all_valid = False
             if not all_valid:
-                raise KgValueInvalidError("Some Type of Kg Value Invalid")
+                raise KgValueError("Some kg value type invalid according to schema")
         else:
-            raise KgValueInvalidError("Invalid type of kg value: " + str(type(value)))
+            raise KgValueError("Invalid type of kg value: " + str(type(value) + " according to schema"))
 
     @property
     def value(self) -> Dict:

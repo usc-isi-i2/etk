@@ -4,10 +4,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.date_extractor import DateExtractor
 from etk.etk_module import ETKModule
-from etk.document_selector import DefaultDocumentSelector
 
 
-class DateExtractionModule(ETKModule):
+class DateETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -96,7 +95,7 @@ if __name__ == "__main__":
         ]
     }
 
-    etk = ETK(modules=DateExtractionModule)
+    etk = ETK(modules=DateETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

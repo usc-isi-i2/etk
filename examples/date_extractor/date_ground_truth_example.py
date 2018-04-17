@@ -6,7 +6,7 @@ from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk_module import ETKModule
 
 
-class DateExtractionModule(ETKModule):
+class DateETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     with open('date_ground_truth.txt', 'r') as f:
         texts = f.readlines()
 
-    etk = ETK(modules=DateExtractionModule)
+    etk = ETK(modules=DateETKModule)
     res = []
     for text in texts:
         text = text.strip()

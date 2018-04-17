@@ -6,7 +6,7 @@ from etk.extractors.table_extractor import TableExtractor, EntityTableDataExtrac
 from etk.etk_module import ETKModule
 
 
-class TableExtractionModule(ETKModule):
+class TableETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     sample_html = json.load(codecs.open('./table_data.json', 'r')) # read sample file from disk
 
-    etk = ETK(modules=TableExtractionModule)
+    etk = ETK(modules=TableETKModule)
 
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
     doc, _ = etk.process_ems(doc)

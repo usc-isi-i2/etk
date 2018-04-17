@@ -18,7 +18,7 @@ from etk.extractors.ip_address_extractor import IPAddressExtractor
 from etk.extractors.table_extractor import TableExtractor
 from etk.extractors.url_extractor import URLExtractor
 
-class BaseExtractionModule(ETKModule):
+class BaseETKModule(ETKModule):
     """
     Abstract class for extraction module
     """

@@ -1,7 +1,7 @@
 import unittest
 from etk.knowledge_graph import KGSchema
 from etk.etk import ETK
-from etk.etk_exceptions import KgValueInvalidError
+from etk.etk_exceptions import KgValueError
 from datetime import date, datetime
 
 
@@ -64,22 +64,22 @@ class TestKnowledgeGraph(unittest.TestCase):
 
         try:
             doc.kg.add_doc_value("developer", "projects[*].members[*]")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_doc_value("test_date", "projects[*].date[*]")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_doc_value("test_location", "projects[*].place")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         expected_developers = [

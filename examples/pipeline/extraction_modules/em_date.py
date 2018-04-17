@@ -4,7 +4,7 @@ from etk.extractors.date_extractor import DateExtractor
 import datetime
 
 
-class ExtractionModuleDate(ETKModule):
+class ETKModuleDate(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'test_date_parser')
