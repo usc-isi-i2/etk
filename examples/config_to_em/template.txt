@@ -1,4 +1,4 @@
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
 
@@ -18,12 +18,12 @@ from etk.extractors.ip_address_extractor import IPAddressExtractor
 from etk.extractors.table_extractor import TableExtractor
 from etk.extractors.url_extractor import URLExtractor
 
-class BaseExtractionModule(ExtractionModule):
+class BaseExtractionModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.readability_extractor = HTMLContentExtractor()
         self.meta_extractor = HTMLMetadataExtractor()
         self.inferlink_extractor = InferlinkExtractor(InferlinkRuleSet(InferlinkRuleSet.load_rules_file('sample_inferlink_rules.json')))
@@ -36,14 +36,14 @@ ${extractor_list}
         """
         doc.value["readability_extraction"] = {}
 
-        all_text = doc.invoke_extractor(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.ALL_TEXT)
-        doc.select_segments("$.readability_extraction")[0].store_extractions(all_text, "all_text")
+        all_text = doc.extract(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.ALL_TEXT)
+        doc.select_segments("$.readability_extraction")[0].store(all_text, "all_text")
 
-        strict_text = doc.invoke_extractor(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.MAIN_CONTENT_STRICT)
-        doc.select_segments("$.readability_extraction")[0].store_extractions(strict_text, "strict_text")
+        strict_text = doc.extract(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.MAIN_CONTENT_STRICT)
+        doc.select_segments("$.readability_extraction")[0].store(strict_text, "strict_text")
 
-        relax_text = doc.invoke_extractor(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.MAIN_CONTENT_RELAXED)
-        doc.select_segments("$.readability_extraction")[0].store_extractions(relax_text, "relax_text")
+        relax_text = doc.extract(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.MAIN_CONTENT_RELAXED)
+        doc.select_segments("$.readability_extraction")[0].store(relax_text, "relax_text")
 
         if strict_text and 'description' in self.master_config_fields:
             doc.kg.add_value('description', strict_text[0].value)

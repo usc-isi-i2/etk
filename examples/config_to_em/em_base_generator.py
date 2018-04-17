@@ -90,7 +90,7 @@ class EmBaseGenerator(object):
 
     @staticmethod
     def generate_execution(field_id: str) -> str:
-        template = "for extraction in doc.invoke_extractor(self.{id}_extractor, text): " \
+        template = "for extraction in doc.extract(self.{id}_extractor, text): " \
                    "doc.kg.add_value('{id}', extraction.value)"
         return template.format(id=field_id)
 

@@ -4,11 +4,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 import json
 
 
-class ExampleExtractionModule(ExtractionModule):
+class ExampleExtractionModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -27,8 +27,8 @@ class ExampleExtractionModule(ExtractionModule):
         projects = doc.select_segments("projects[*]")
 
         for d, p in zip(descriptions, projects):
-            names = doc.invoke_extractor(self.name_extractor, d)
-            p.store_extractions(names, "members")
+            names = doc.extract(self.name_extractor, d)
+            p.store(names, "members")
 
         doc.kg.add_doc_value("developer", "projects[*].members[*]")
 

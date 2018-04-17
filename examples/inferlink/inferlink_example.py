@@ -3,15 +3,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 
 
-class InferlinkExtractionModule(ExtractionModule):
+class InferlinkExtractionModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.inferlink_extractor = InferlinkExtractor(
             InferlinkRuleSet(InferlinkRuleSet.load_rules_file('../html_basic/sample_inferlink_rules.json')))
 
@@ -21,19 +21,8 @@ class InferlinkExtractionModule(ExtractionModule):
         """
 
         raw = doc.select_segments("$.raw_content")[0]
-        extractions = doc.invoke_extractor(self.inferlink_extractor, raw)
-
-        # bind the new location to a segment
-        # Store the extractions in the target segment.
-        # note: given that we allow users to get cdr_document, they could bypass the segments
-        # and store the extractions directly where they want. This would work, but ETK will not
-        # be able to record the provenance.
-        doc.store_extractions(extractions, "inferlink_extraction")
-
-        # We can make the cdr_document hidden, provide a Segment.add_segment function, and then
-        # the user would define the target as follows:
-        # --- not sure what this means : ---
-        # target = doc.select_segments("$")[0].add_segmment("my_location_for_inferlink")
+        extractions = doc.extract(self.inferlink_extractor, raw)
+        doc.store(extractions, "inferlink_extraction")
 
 
 if __name__ == "__main__":

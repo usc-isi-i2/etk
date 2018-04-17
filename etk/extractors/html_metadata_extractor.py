@@ -1,6 +1,6 @@
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction, Extractable
+from etk.extraction import Extraction, Extractable
 from extruct.w3cmicrodata import MicrodataExtractor
 from extruct.jsonld import JsonLdExtractor
 from extruct.rdfa import RDFaExtractor
@@ -79,7 +79,7 @@ class HTMLMetadataExtractor(Extractor):
         return e
 
     @staticmethod
-    def wrap_meta_content(meta_tags: List[str]) -> dict:
+    def wrap_meta_content(meta_tags) -> dict:
         meta = {}
         for tag in meta_tags:
             meta[tag.get("name")] = tag.get("content")

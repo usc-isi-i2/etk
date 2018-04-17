@@ -3,15 +3,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.table_extractor import TableExtractor, EntityTableDataExtraction
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 
 
-class TableExtractionModule(ExtractionModule):
+class TableExtractionModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.table_extractor = TableExtractor()
 
     def process_document(self, doc):
@@ -20,9 +20,9 @@ class TableExtractionModule(ExtractionModule):
         """
         d = doc.select_segments("$.raw_content")[0]
 
-        tables = doc.invoke_extractor(self.table_extractor, d)
+        tables = doc.extract(self.table_extractor, d)
         for t in tables:
-            doc.store_extractions([t], t.tag, group_by_tags=False)
+            doc.store([t], t.tag, group_by_tags=False)
 
         table_data_extractor = EntityTableDataExtraction()
         table_data_extractor.add_glossary(etk.load_glossary("./resources/address_dict.txt"), "address")
@@ -34,8 +34,8 @@ class TableExtractionModule(ExtractionModule):
         tables = doc.select_segments("$.tables[*]")
 
         for t in tables:
-            extractions = doc.invoke_extractor(table_data_extractor, t)
-            doc.store_extractions(extractions, "table_data_extraction")
+            extractions = doc.extract(table_data_extractor, t)
+            doc.store(extractions, "table_data_extraction")
 
 
 if __name__ == "__main__":

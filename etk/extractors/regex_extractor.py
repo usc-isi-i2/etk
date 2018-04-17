@@ -1,7 +1,7 @@
 from typing import List
 from enum import Enum, auto
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 import re
 import collections
 

@@ -1,10 +1,11 @@
 from typing import List, Dict
 import spacy
+import copy
 import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 from etk.etk_exceptions import NotGetExtractionModuleError
 
 
@@ -13,13 +14,13 @@ class ETK(object):
     def __init__(self, kg_schema=None, modules=None):
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
-        self.default_tokenizer = Tokenizer(self.default_nlp)
+        self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         self.parsed = dict()
         self.kg_schema = kg_schema
         if modules:
             if type(modules) == str:
                 self.em_lst = self.load_ems(modules)
-            elif issubclass(modules, ExtractionModule):
+            elif issubclass(modules, ETKModule):
                 self.em_lst = [modules(self)]
             else:
                 raise NotGetExtractionModuleError("not getting extraction module")
@@ -124,7 +125,7 @@ class ETK(object):
         return em_lst
 
     @staticmethod
-    def topological_sort(lst: List[ExtractionModule]) -> List[ExtractionModule]:
+    def topological_sort(lst: List[ETKModule]) -> List[ETKModule]:
         """
         Return topological order of ems
 
@@ -152,6 +153,7 @@ class ETK(object):
         return [
             md[c] for c in md if (
                     isinstance(md[c], type) and
-                    issubclass(md[c], ExtractionModule) and
+                    issubclass(md[c], ETKModule
+                               ) and
                     md[c].__module__ == module.__name__)
         ]

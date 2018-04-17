@@ -1,6 +1,6 @@
 from typing import List, Dict
 from datetime import date, datetime
-from etk.etk_field_types import FieldType
+from etk.field_types import FieldType
 import numbers
 
 
