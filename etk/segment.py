@@ -108,9 +108,9 @@ class Segment(Extractable):
     def create_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
         if "provenances" not in self.document.cdr_document:
             self.document.cdr_document["provenances"] = []
-        self.document.cdr_document["provenances"].append(self.get_dict_storage_storage_provenance(storage_provenance_record))
+        self.document.cdr_document["provenances"].append(self.get_dict_storage_provenance(storage_provenance_record))
 
-    def get_dict_storage_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord):
+    def get_dict_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord):
         dict = {}
         dict["@type"] = "storage_provenance_record"
         dict["doc_id"] = storage_provenance_record.doc_id
