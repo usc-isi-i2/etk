@@ -1,4 +1,4 @@
-from etk.etk_extraction import Extractable, Extraction
+from etk.extraction import Extractable, Extraction
 from typing import List, Dict
 from etk.etk_exceptions import StoreExtractionError
 from etk.storage_provenance_record import StorageProvenanceRecord
@@ -35,7 +35,7 @@ class Segment(Extractable):
         """
         return self._document
 
-    def store_extractions(self, extractions: List[Extraction], attribute: str, group_by_tags: bool=True) -> None:
+    def store(self, extractions: List[Extraction], attribute: str, group_by_tags: bool=True) -> None:
         """
         Records extractions in the container, and for each individual extraction inserts a
         ProvenanceRecord to record where the extraction is stored.

@@ -1,6 +1,6 @@
 from typing import List, Dict
 from etk.knowledge_graph_schema import KGSchema
-from etk.etk_field_types import FieldType
+from etk.field_types import FieldType
 from etk.etk_exceptions import KgValueInvalidError, ISODateError, InvalidJsonPathError
 from datetime import date, datetime
 import numbers

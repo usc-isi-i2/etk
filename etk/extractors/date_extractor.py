@@ -8,7 +8,7 @@ from langdetect import detect
 from etk.etk import ETK
 from etk.extractor import Extractor, InputType
 from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
     spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, day_of_week_to_number
