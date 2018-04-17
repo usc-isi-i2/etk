@@ -1,6 +1,6 @@
 from typing import List, Dict
 from etk.extraction_provenance_record import ExtractionProvenanceRecord
-from etk.etk_extraction import Extractable, Extraction
+from etk.extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
@@ -69,7 +69,7 @@ class Document(Segment):
 
         return segments
 
-    def invoke_extractor(self, extractor: Extractor, extractable: Extractable = None, tokenizer: Tokenizer = None,
+    def extract(self, extractor: Extractor, extractable: Extractable = None, tokenizer: Tokenizer = None,
                          joiner: str = "  ", **options) -> List[Extraction]:
 
         """
@@ -122,7 +122,11 @@ class Document(Segment):
             _document = None
 
         for e in extracted_results:
-            extraction_provenance_record: ExtractionProvenanceRecord = ExtractionProvenanceRecord(self.extraction_provenance_id_index, jsonPath, e.provenance["extractor_name"], e.provenance["start_char"], e.provenance["end_char"],e.provenance["confidence"], _document, extractable.prov_id)
+            extraction_provenance_record: ExtractionProvenanceRecord = ExtractionProvenanceRecord(
+                self.extraction_provenance_id_index, jsonPath, e.provenance["extractor_name"],
+                e.provenance["start_char"], e.provenance["end_char"], e.provenance["confidence"], _document,
+                extractable.prov_id)
+
             e.prov_id = self.extraction_provenance_id_index # for the purpose of provenance hierarrchy tracking
             self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
             self.create_provenance(extraction_provenance_record)

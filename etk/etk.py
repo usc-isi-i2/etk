@@ -5,7 +5,7 @@ import json, os, jsonpath_ng, importlib
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 from etk.etk_exceptions import NotGetExtractionModuleError
 
 
@@ -20,7 +20,7 @@ class ETK(object):
         if modules:
             if type(modules) == str:
                 self.em_lst = self.load_ems(modules)
-            elif issubclass(modules, ExtractionModule):
+            elif issubclass(modules, ETKModule):
                 self.em_lst = [modules(self)]
             else:
                 raise NotGetExtractionModuleError("not getting extraction module")
@@ -125,7 +125,7 @@ class ETK(object):
         return em_lst
 
     @staticmethod
-    def topological_sort(lst: List[ExtractionModule]) -> List[ExtractionModule]:
+    def topological_sort(lst: List[ETKModule]) -> List[ETKModule]:
         """
         Return topological order of ems
 
@@ -153,6 +153,7 @@ class ETK(object):
         return [
             md[c] for c in md if (
                     isinstance(md[c], type) and
-                    issubclass(md[c], ExtractionModule) and
+                    issubclass(md[c], ETKModule
+                               ) and
                     md[c].__module__ == module.__name__)
         ]

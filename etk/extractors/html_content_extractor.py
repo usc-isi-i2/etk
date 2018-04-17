@@ -3,7 +3,7 @@ from enum import Enum, auto
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.extractors.readability.readability import Document
 
 

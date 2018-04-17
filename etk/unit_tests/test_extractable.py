@@ -1,5 +1,5 @@
 import unittest
-from etk.etk_extraction import Extractable
+from etk.extraction import Extractable
 from etk.tokenizer import Tokenizer
 
 

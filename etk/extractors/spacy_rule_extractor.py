@@ -1,6 +1,6 @@
 from typing import List, Dict
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.tokenizer import Tokenizer
 from spacy.matcher import Matcher
 from spacy import attrs
