@@ -1,6 +1,8 @@
 import etk.timeseries.extractSpreadsheet as extractSpreadsheet
 from typing import List
 from etk.document import Document
+from etk.etk_exceptions import InvalidArgumentsError
+
 
 class TimeseriesProcessor(object):
     def __init__(self, etk, **mapping_spec) -> None:
@@ -13,7 +15,8 @@ class TimeseriesProcessor(object):
             self.annotation = mapping_spec['annotation']
 
         if mapping_spec['spreadsheet'] is None:
-            print("Please specify spreadsheet path")
+            raise InvalidArgumentsError("for argument 'spreadsheet', please specify spreadsheet path")
+            # print("Please specify spreadsheet path")
         else:
             self.spreadsheet = mapping_spec['spreadsheet']
 
