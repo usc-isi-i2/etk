@@ -11,7 +11,8 @@ from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 from etk.extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
-    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, day_of_week_to_number
+    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, \
+    day_of_week_to_number, possible_illegal
 
 # to avoid typo:
 EXTRACT_FIRST_DATE_ONLY = 'extract_first_date_only'
@@ -272,6 +273,11 @@ class DateExtractor(Extractor):
 
         if date_info['pattern']:
             user_defined_pattern = re.findall(r'%[a-zA-Z]', date_info['pattern'])
+        else:
+            if re.match(possible_illegal, date_info['value']):
+                return None
+            elif re.match(r'^[0-9]{4}$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1:
+                return None
 
         i = 0
         pattern = list()
@@ -501,4 +507,3 @@ class DateExtractor(Extractor):
             'order': order,
             'pattern': pattern
         } if match else None
-
