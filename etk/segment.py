@@ -78,7 +78,7 @@ class Segment(Extractable):
                     provenance_ids.append(e.prov_id)
                 self._extractions[attribute] = self._extractions[attribute].union(extractions)
                 storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
-                self.create_provenance(storage_provenance_record)
+                self.create_storage_provenance(storage_provenance_record)
                 return
             except StopIteration:
                 pass
@@ -94,7 +94,7 @@ class Segment(Extractable):
             if a_extraction.value not in self._value[attribute]:
                 self._value[attribute].append(a_extraction.value)
         storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
-        self.create_provenance(storage_provenance_record)
+        self.create_storage_provenance(storage_provenance_record)
 
     @property
     def extractions(self) -> Dict:
@@ -105,7 +105,7 @@ class Segment(Extractable):
         """
         return self._extractions
 
-    def create_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
+    def create_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
         if "provenances" not in self.document.cdr_document:
             self.document.cdr_document["provenances"] = []
         self.document.cdr_document["provenances"].append(self.get_dict_storage_provenance(storage_provenance_record))
@@ -116,5 +116,5 @@ class Segment(Extractable):
         dict["doc_id"] = storage_provenance_record.doc_id
         dict["field"] = storage_provenance_record.field
         dict["destination"] = storage_provenance_record.destination
-        dict["provenance_record_id"] = storage_provenance_record.provenance_record_id
+        dict["extraction_provenance_record_id"] = storage_provenance_record.provenance_record_id
         return dict
