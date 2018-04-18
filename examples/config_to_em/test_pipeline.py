@@ -11,7 +11,7 @@ ebg.generate_em_base('master_config.json', 'ems/em_base.py')
 
 kg_schema = KGSchema(json.load(open("master_config.json", "r")))
 
-etk = ETK(kg_schema, "./ems")
+etk = ETK(kg_schema, ["./ems"])
 
 doc = etk.create_document(json.load(open('sample_html.jl', 'r')))
 
