@@ -5,6 +5,8 @@ from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
 from etk.knowledge_graph import KnowledgeGraph
+from etk.etk_exceptions import ErrorPolicy, ExtractorValueError
+import warnings
 
 
 class Document(Segment):
@@ -36,6 +38,8 @@ class Document(Segment):
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
             self._value["knowledge_graph"] = self.kg.value
+        else:
+            warnings.warn("Schema not found.")
 
     @property
     def document(self):
@@ -94,19 +98,21 @@ class Document(Segment):
         extracted_results = list()
 
         if extractor.input_type == InputType.TOKENS:
-            tokens = extractable.get_tokens(tokenizer)
+            tokens = extractable.get_tokens(tokenizer, self.etk.error_policy)
             if tokens:
                 extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
-            # TODO if the input is not as expected, throw an error, this is the case where we try to add 3 + '5'
-            if isinstance(extractable.value, list):
-                print("\n======extractor needs string, got extractable value as list, converting list to string======")
-            elif isinstance(extractable.value, dict):
-                print("\n======extractor needs string, got extractable value as dict, converting dict to string======")
-            text = extractable.get_string(joiner)
-            if text:
-                extracted_results = extractor.extract(text, **options)
+            if self.etk.error_policy == ErrorPolicy.PROCESS:
+                if isinstance(extractable.value, list):
+                    warnings.warn("Extractor needs string, got extractable value as list, converting list to string")
+                elif isinstance(extractable.value, dict):
+                    warnings.warn("Extractor needs string, got extractable value as dict, converting dict to string")
+                text = extractable.get_string(joiner)
+                if text:
+                    extracted_results = extractor.extract(text, **options)
+            else:
+                raise ExtractorValueError("Extractor needs string, got " + str(type(extractable.value)))
 
         elif extractor.input_type == InputType.OBJECT:
             extracted_results = extractor.extract(extractable.value, **options)
@@ -130,15 +136,8 @@ class Document(Segment):
             e.prov_id = self.extraction_provenance_id_index # for the purpose of provenance hierarrchy tracking
             self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
             self.create_provenance(extraction_provenance_record)
-        # TODO: the reason that extractors must return Extraction objects is so that
-        # they can communicate back the provenance.
 
         return extracted_results
-        # record provenance:
-        #  add a ProvenanceRecord for the extraction
-        #  the prov record for each extraction should point to all extractables:
-        #  If the extractables are segments, put them in the "input_segments"
-        #  If the extractables are extractions, put the prov ids of the extractions in "input_extractions"
 
     @property
     def doc_id(self):

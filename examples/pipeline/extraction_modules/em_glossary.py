@@ -3,7 +3,7 @@ from etk.document import Document
 from etk.extractors.glossary_extractor import GlossaryExtractor
 
 
-class ExtractionModuleGlossary(ETKModule):
+class ETKModuleGlossary(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.name_extractor = GlossaryExtractor(self.etk.load_glossary("./extraction_modules/resources/names.txt"),

@@ -5,8 +5,8 @@ import csv
 from etk.document import Document
 from typing import List
 from io import StringIO
-from etk.etk_exceptions import InvalidArgumentsError
-from etk.etk_exceptions import InvalidFilePathError
+from etk.etk_exceptions import InvalidArgumentsError, InvalidFilePathError
+
 
 class CsvProcessor(object):
     """

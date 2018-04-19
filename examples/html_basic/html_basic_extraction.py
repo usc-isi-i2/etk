@@ -7,7 +7,7 @@ from etk.extractors.html_metadata_extractor import HTMLMetadataExtractor
 from etk.etk_module import ETKModule
 
 
-class HtmlBasicExtractionModule(ETKModule):
+class HtmlBasicETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     sample_html = json.load(codecs.open('sample_html.json', 'r')) # read sample file from disk
 
-    etk = ETK(modules=HtmlBasicExtractionModule)
+    etk = ETK(modules=HtmlBasicETKModule)
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
 
     doc, _ = etk.process_ems(doc)
