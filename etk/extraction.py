@@ -92,7 +92,7 @@ class Extractable(ExtractableBase):
         self._value = value
         self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=False) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=True) -> List[Token]:
         """
         Tokenize this Extractable.
 

@@ -8,7 +8,7 @@ class TestExtractable(unittest.TestCase):
     def test_Extractable(self) -> None:
         e = Extractable({'extracted_value': [{1: 2, 'das': [1, 2, 3]}], 'confidence': 2.3})
         t = Tokenizer()
-        tokens = e.get_tokens(t)
+        tokens = e.get_tokens(t, keep_multi_space=False)
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})
