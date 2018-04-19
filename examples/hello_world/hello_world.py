@@ -43,7 +43,8 @@ if __name__ == "__main__":
                 "name": "rltk",
                 "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students."
             }
-        ]
+        ],
+        "doc_id": 123
     }
 
     etk = ETK(modules=HelloWorldETKModule)

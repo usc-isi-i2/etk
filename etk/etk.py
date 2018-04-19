@@ -8,8 +8,8 @@ from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 
 
 class ETK(object):
-
-    def __init__(self, kg_schema=None, modules=None, extract_error_policy="process"):
+    def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
+                 logger_path='/tmp/etk.log'):
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
@@ -31,6 +31,18 @@ class ETK(object):
             self.error_policy = ErrorPolicy.RAISE
         else:
             self.error_policy = ErrorPolicy.PROCESS
+
+        if logger:
+            self.logger = logger
+        else:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format='%(asctime)s %(name)-6s %(levelname)s doc_id: %(doc_id)s url: %(url)s %(message)s',
+                datefmt='%m-%d %H:%M',
+                filename=logger_path,
+                filemode='w'
+            )
+            self.logger = logging.getLogger('ETK')
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
         """
@@ -62,6 +74,7 @@ class ETK(object):
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
             except Exception:
+                self.log("Invalid Json Path: " + jsonpath, "error")
                 raise InvalidJsonPathError("Invalid Json Path")
 
         return self.parsed[jsonpath]
@@ -77,9 +90,24 @@ class ETK(object):
 
         """
         for a_em in self.em_lst:
-            if a_em.document_selector(doc):
-                a_em.process_document(doc)
+            try:
+                if a_em.document_selector(doc):
+                    a_em.process_document(doc)
+            except Exception as e:
+                if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
+                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Continue", "error", doc.doc_id,
+                             doc.url)
+                    continue
+                if self.error_policy == ErrorPolicy.THROW_DOCUMENT:
+                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Throw doc", "error", doc.doc_id,
+                             doc.url)
+                    return None
+                if self.error_policy == ErrorPolicy.RAISE:
+                    self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
+                    raise e
+                pass
 
+        doc.insert_kg_into_cdr()
         return doc, doc.kg
 
     @staticmethod
@@ -129,14 +157,17 @@ class ETK(object):
                     for em in self.classes_in_module(this_module):
                         em_lst.append(em(self))
         except:
+            self.log("Error when loading etk modules from " + modules_path, "error")
             raise NotGetETKModuleError("Wrong file path for ETK modules")
 
         try:
             em_lst = self.topological_sort(em_lst)
         except:
+            self.log("Topological sort for ETK modules fails", "error")
             raise NotGetETKModuleError("Topological sort for ETK modules fails")
 
         if not em_lst:
+            self.log("No ETK module in " + modules_path, "error")
             raise NotGetETKModuleError("No ETK module in dir, module file should start with em_, end with .py")
         return em_lst
 
@@ -173,3 +204,22 @@ class ETK(object):
                                ) and
                     md[c].__module__ == module.__name__)
         ]
+
+    def log(self, message, level, doc_id=None, url=None, extra=None):
+        if not extra:
+            extra = dict()
+            extra["doc_id"] = doc_id
+            extra["url"] = url
+
+        if level == "error":
+            self.logger.error(message, extra=extra)
+        elif level == "warning":
+            self.logger.warning(message, extra=extra)
+        elif level == "info":
+            self.logger.info(message, extra=extra)
+        elif level == "debug":
+            self.logger.debug(message, extra=extra)
+        elif level == "critical":
+            self.logger.critical(message, extra=extra)
+        elif level == "exception":
+            self.logger.exception(message, extra=extra)

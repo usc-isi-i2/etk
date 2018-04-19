@@ -1,13 +1,15 @@
-import unittest
+import unittest, json
 from etk.extractors.email_extractor import EmailExtractor
 from etk.etk import ETK
+from etk.knowledge_graph_schema import KGSchema
 
 
 class TestEmailExtractor(unittest.TestCase):
 
     def test_EmailExtractor(self) -> None:
+        kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 
-        etk = ETK()
+        etk = ETK(kg_schema=kg_schema)
 
         text = "runqisha@usc.edu 231.45.se.ere@gmail.com " \
                "3233@no.s nefwe.de-ef@l.net  E-mail:anna@wanadoo.fr.com office@fantasie-escort.at"
