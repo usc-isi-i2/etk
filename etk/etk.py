@@ -37,14 +37,15 @@ class ETK(object):
         else:
             logging.basicConfig(
                 level=logging.DEBUG,
-                format='%(asctime)s %(name)-6s %(levelname)s doc_id: %(doc_id)s url: %(url)s %(message)s',
+                format='%(asctime)s %(name)-6s %(levelname)s %(message)s',
                 datefmt='%m-%d %H:%M',
                 filename=logger_path,
                 filemode='w'
             )
             self.logger = logging.getLogger('ETK')
 
-    def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123") -> Document:
+    def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123",
+                        doc_id=None) -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -52,11 +53,12 @@ class ETK(object):
             doc (object): a JSON object containing a document in CDR format.
             mime_type (str): if doc is a string, the mime_type tells what it is
             url (str): if the doc came from the web, specifies the URL for it
+            doc_id
 
         Returns: wrapped Document
 
         """
-        return Document(self, doc, mime_type, url)
+        return Document(self, doc, mime_type, url, doc_id=doc_id)
 
     def parse_json_path(self, jsonpath):
     
@@ -92,6 +94,7 @@ class ETK(object):
         for a_em in self.em_lst:
             try:
                 if a_em.document_selector(doc):
+                    self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
                     a_em.process_document(doc)
             except Exception as e:
                 if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
@@ -105,7 +108,6 @@ class ETK(object):
                 if self.error_policy == ErrorPolicy.RAISE:
                     self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
                     raise e
-                pass
 
         doc.insert_kg_into_cdr()
         return doc, doc.kg
@@ -205,21 +207,18 @@ class ETK(object):
                     md[c].__module__ == module.__name__)
         ]
 
-    def log(self, message, level, doc_id=None, url=None, extra=None):
-        if not extra:
-            extra = dict()
-            extra["doc_id"] = doc_id
-            extra["url"] = url
+    def log(self, message, level, doc_id=None, url=None):
+        message = message + " doc_id: {}".format(doc_id) + " url: {}".format(url)
 
         if level == "error":
-            self.logger.error(message, extra=extra)
+            self.logger.error(message)
         elif level == "warning":
-            self.logger.warning(message, extra=extra)
+            self.logger.warning(message)
         elif level == "info":
-            self.logger.info(message, extra=extra)
+            self.logger.info(message)
         elif level == "debug":
-            self.logger.debug(message, extra=extra)
+            self.logger.debug(message)
         elif level == "critical":
-            self.logger.critical(message, extra=extra)
+            self.logger.critical(message)
         elif level == "exception":
-            self.logger.exception(message, extra=extra)
+            self.logger.exception(message)

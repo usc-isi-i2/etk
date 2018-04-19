@@ -16,7 +16,7 @@ class Document(Segment):
         to query elements of the document and to update the document with the results
         of extractors.
         """
-    def __init__(self, etk, cdr_document: Dict, mime_type, url) -> None:
+    def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None) -> None:
 
         """
         Wrapper object for CDR documents.
@@ -33,6 +33,8 @@ class Document(Segment):
         self.cdr_document = cdr_document
         self.mime_type = mime_type
         self.url = url
+        if doc_id:
+            self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = []
         self.extraction_provenance_id_index = 0
         if self.etk.kg_schema:
@@ -167,7 +169,7 @@ class Document(Segment):
         Returns: the doc_id of the CDR document
 
         """
-        return self._value.get("doc_id")
+        return self.cdr_document.get("doc_id")
 
     @doc_id.setter
     def doc_id(self, new_doc_id):
@@ -179,7 +181,7 @@ class Document(Segment):
         Returns:
 
         """
-        self._value["doc_id"] = new_doc_id
+        self.cdr_document["doc_id"] = new_doc_id
 
     def create_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
         if "provenances" not in self.cdr_document:
