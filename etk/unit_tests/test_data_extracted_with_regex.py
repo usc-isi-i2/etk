@@ -1,4 +1,4 @@
-import unittest, json
+import unittest
 from etk.extractors.bitcoin_address_extractor import BitcoinAddressExtractor
 from etk.extractors.cryptographic_hash_extractor import CryptographicHashExtractor
 from etk.extractors.cve_extractor import CVEExtractor

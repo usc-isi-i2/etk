@@ -1,10 +1,7 @@
-import unittest
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
+import unittest, json
 from etk.etk import ETK
 from etk.extractors.glossary_extractor import GlossaryExtractor
-
+from etk.knowledge_graph_schema import KGSchema
 
 sample_input = {
         "projects": [
@@ -23,8 +20,9 @@ sample_input = {
 class TestProvenance(unittest.TestCase):
 
     def test_Provenance(self) -> None:
+        kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 
-        self.etk = ETK()
+        self.etk = ETK(kg_schema=kg_schema)
         g = ['runqi', 'sylvia', 'dongyu', 'mayank', 'pedro', 'amandeep', 'yixiang']
         self.name_extractor = GlossaryExtractor(g, "name_extractor",
                                                 self.etk.default_tokenizer,

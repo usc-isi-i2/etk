@@ -6,7 +6,6 @@ from etk.segment import Segment
 from etk.tokenizer import Tokenizer
 from etk.knowledge_graph import KnowledgeGraph
 from etk.etk_exceptions import ErrorPolicy, ExtractorValueError
-import warnings
 
 
 class Document(Segment):
@@ -32,14 +31,13 @@ class Document(Segment):
         self.cdr_document = cdr_document
         self.mime_type = mime_type
         self.url = url
-        self.kg = None
         self.extraction_provenance_records = []
         self.extraction_provenance_id_index = 0
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
-            self._value["knowledge_graph"] = self.kg.value
         else:
-            warnings.warn("Schema not found.")
+            self.kg = None
+            self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
 
     @property
     def document(self):
@@ -51,7 +49,6 @@ class Document(Segment):
         """
         return self
 
-    # TODO the below 2 methods belong in etk, will discuss with Pedro
     def select_segments(self, jsonpath: str) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
@@ -98,21 +95,35 @@ class Document(Segment):
         extracted_results = list()
 
         if extractor.input_type == InputType.TOKENS:
-            tokens = extractable.get_tokens(tokenizer, self.etk.error_policy)
+            if self.etk.error_policy == ErrorPolicy.PROCESS:
+                if isinstance(extractable.value, list):
+                    self.etk.log(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got list, converting to string",
+                        "warning", self.doc_id, self.url)
+                elif isinstance(extractable.value, dict):
+                    self.etk.log(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got dict, converting to string",
+                        "warning", self.doc_id, self.url)
+            else:
+                raise ExtractorValueError(
+                    "Extractor needs string, tokenizer needs string to tokenize, got " + str(type(extractable.value)))
+            tokens = extractable.get_tokens(tokenizer)
             if tokens:
                 extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
             if self.etk.error_policy == ErrorPolicy.PROCESS:
                 if isinstance(extractable.value, list):
-                    warnings.warn("Extractor needs string, got extractable value as list, converting list to string")
+                    self.etk.log("Extractor needs string, got extractable value as list, converting to string",
+                                 "warning", self.doc_id, self.url)
                 elif isinstance(extractable.value, dict):
-                    warnings.warn("Extractor needs string, got extractable value as dict, converting dict to string")
-                text = extractable.get_string(joiner)
-                if text:
-                    extracted_results = extractor.extract(text, **options)
+                    self.etk.log("Extractor needs string, got extractable value as dict, converting to string",
+                                 "warning", self.doc_id, self.url)
             else:
                 raise ExtractorValueError("Extractor needs string, got " + str(type(extractable.value)))
+            text = extractable.get_string(joiner)
+            if text:
+                extracted_results = extractor.extract(text, **options)
 
         elif extractor.input_type == InputType.OBJECT:
             extracted_results = extractor.extract(extractable.value, **options)
@@ -181,3 +192,6 @@ class Document(Segment):
             dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
         return dict
 
+    def combine_kg_with_doc(self):
+        if self.kg.value:
+            self._value["knowledge_graph"] = self.kg.value

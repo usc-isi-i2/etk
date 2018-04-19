@@ -1,8 +1,7 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
 from typing import List, Any, Dict
-from etk.etk_exceptions import ErrorPolicy, TokenizerValueError
-import re, warnings
+import re
 
 
 class ExtractableBase(object):
@@ -93,7 +92,7 @@ class Extractable(ExtractableBase):
         self._value = value
         self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=False, error_policy=ErrorPolicy.PROCESS) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=False) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -108,7 +107,6 @@ class Extractable(ExtractableBase):
         Args:
             tokenizer (Tokenizer)
             keep_multi_space
-            error_policy
 
         Returns: a sequence of tokens.
         """
@@ -116,17 +114,10 @@ class Extractable(ExtractableBase):
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
-            if error_policy == ErrorPolicy.PROCESS:
-                if isinstance(self._value, list):
-                    warnings.warn("Extractor needs string, got extractable value as list, converting list to string")
-                elif isinstance(self._value, dict):
-                    warnings.warn("Extractor needs string, got extractable value as dict, converting dict to string")
-                segment_value_for_tokenize = self.get_string()
-                tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
-                self.tokenize_results[(self, tokenizer)] = tokens
-                return tokens
-            else:
-                raise TokenizerValueError("Tokenizer needs string to tokenize, got " + str(type(self._value)))
+            segment_value_for_tokenize = self.get_string()
+            tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
+            self.tokenize_results[(self, tokenizer)] = tokens
+            return tokens
 
     @property
     def prov_id(self):
