@@ -48,6 +48,10 @@ Build image
 
 `docker build -t etk:test .`
 
-Run docker:
+Run container
 
-`docker run -it etk:test /bin/bash`
+`docker run -it etk:dev /bin/bash`
+
+Mount local volume for test
+
+`docker run -it -v $(pwd):/app/etk etk:dev /bin/bash`
