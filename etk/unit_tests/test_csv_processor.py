@@ -1,8 +1,8 @@
-import unittest
-import json
+import unittest, json
 from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
 import datetime
+from etk.knowledge_graph_schema import KGSchema
 
 csv_str = """text,with,Polish,non-Latin,lettes
 1,2,3,4,5,6
@@ -12,7 +12,8 @@ gęś,zółty,wąż,idzie,wąską,dróżką,
 ,b,c,s,w,f
 """
 
-etk = ETK()
+kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
+etk = ETK(kg_schema=kg_schema)
 
 
 class TestCsvProcessor(unittest.TestCase):

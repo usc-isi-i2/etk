@@ -392,6 +392,7 @@ class DateExtractor(Extractor):
         except Exception as e:
             warn('DateExtractor: Failed to compare dates ' + '. Catch ' + str(e))
 
+        # TODO: support more timezones abbr. (Only support what pytz supports currently)
         if self.settings[TO_TIMEZONE] and self.settings[RETURN_AS_TIMEZONE_AWARE]:
             try:
                 date = date.astimezone(pytz.timezone(self.settings[TO_TIMEZONE]))

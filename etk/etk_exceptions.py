@@ -61,3 +61,8 @@ class InvalidArgumentsError(Exception):
 class InvalidFilePathError(Exception):
     def __init__(self, message=""):
         super(InvalidFilePathError, self).__init__(message)
+
+
+class ExtractorError(Exception):
+    def __init__(self, message=""):
+        super(ExtractorError, self).__init__(message)
