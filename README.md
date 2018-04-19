@@ -41,3 +41,17 @@ python -m spacy download en_core_web_sm
 ## Run Tests
 
 `python -m unittest discover`
+
+## Docker
+
+Build image
+
+`docker build -t etk:test .`
+
+Run container
+
+`docker run -it etk:dev /bin/bash`
+
+Mount local volume for test
+
+`docker run -it -v $(pwd):/app/etk etk:dev /bin/bash`
