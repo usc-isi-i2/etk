@@ -28,16 +28,17 @@ RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh &
 ENV PATH=/app/miniconda/bin:${PATH}
 RUN conda update -y conda
 
-# add etk
+# install etk dependencies (install them here for cache of image building)
 RUN mkdir /app/etk
 ADD environment.yml /app/etk
 
-# create and config conda-env (install flask) for etk
+# create and config conda-env for etk
 RUN cd /app/etk && conda-env create .
 # set etk2_env as default env
 ENV PATH /app/miniconda/envs/etk2_env/bin:$PATH
 RUN /bin/bash -c "python -m spacy download en_core_web_sm"
 
+# add etk
 ADD . /app/etk
 
 CMD /bin/bash
