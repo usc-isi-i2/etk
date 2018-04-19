@@ -17,7 +17,7 @@ class Tokenizer(object):
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text: str, keep_multi_space: bool = False) -> List[Token]:
+    def tokenize(self, text: str, keep_multi_space: bool = True) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 

@@ -1,5 +1,6 @@
-import unittest
+import unittest, json
 from etk.etk import ETK
+from etk.knowledge_graph_schema import KGSchema
 
 sample_input = {
     "projects": [
@@ -18,7 +19,9 @@ sample_input = {
 class TestSegment(unittest.TestCase):
 
     def test_segment(self) -> None:
-        etk = ETK()
+        kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
+
+        etk = ETK(kg_schema=kg_schema)
         doc = etk.create_document(sample_input)
         descriptions = doc.select_segments("projects[*].description")
         description_value = [i.value for i in descriptions]

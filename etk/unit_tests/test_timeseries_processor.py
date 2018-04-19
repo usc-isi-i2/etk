@@ -1,8 +1,12 @@
-import unittest
+import unittest, json
 from etk.timeseries_processor import TimeseriesProcessor
 from etk.etk import ETK
+from etk.knowledge_graph_schema import KGSchema
 
-etk = ETK()
+
+kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
+
+etk = ETK(kg_schema=kg_schema)
 
 
 class TestTimeseriesProcessor(unittest.TestCase):
