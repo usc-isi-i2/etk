@@ -62,7 +62,8 @@ class CsvProcessor(object):
     def tabular_extractor(self, table_str: str = None, filename: str = None,
                           sheet_name:str = None,
                           data_set: str = None,
-                          nested_key: str = None) -> List[Document]:
+                          nested_key: str = None,
+                          doc_id_field: str = None) -> List[Document]:
         data = list()
 
         if table_str is not None and filename is not None:
@@ -108,7 +109,7 @@ class CsvProcessor(object):
 
         table_content, header = self.content_recognizer(data)
 
-        return self.create_documents(table_content, header, filename, data_set, nested_key)
+        return self.create_documents(table_content, header, filename, data_set, nested_key, doc_id_field=doc_id_field)
 
     def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
@@ -192,7 +193,8 @@ class CsvProcessor(object):
                          header: List[str] = None,
                          file_name: str = None,
                          data_set: str = None,
-                         nested_key: str = None) -> List[Document]:
+                         nested_key: str = None,
+                         doc_id_field: str = None) -> List[Document]:
         documents = list()
         # etk = ETK()
         if self.heading_row is None and self.required_columns is not None:
@@ -240,6 +242,9 @@ class CsvProcessor(object):
             if data_set is not None:
                 cdr_doc['data_set'] = data_set
 
-            documents.append(self.etk.create_document(cdr_doc))
+            doc_id = None
+            if doc_id_field:
+                doc_id = cdr_doc.get(doc_id_field, None)
+            documents.append(self.etk.create_document(cdr_doc, doc_id=doc_id))
 
         return documents
