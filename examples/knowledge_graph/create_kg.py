@@ -47,7 +47,7 @@ if __name__ == "__main__":
         ]
     }
 
-    kg_schema = KGSchema(json.load(open("test_config.json", "r")))
+    kg_schema = KGSchema(json.load(open("master_config.json", "r")))
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
     doc = etk.create_document(sample_input)
 

@@ -32,7 +32,7 @@ class TestExtractable(unittest.TestCase):
 
         self.assertEqual(token_attrs, expected_token)
         text = e.get_string()
-        expected_str = "extracted_value : 1 : 2  das : 1  2  3        confidence : 2.3  "
+        expected_str = "extracted_value : 1 : 2 das : 1 2 3    confidence : 2.3 "
 
         self.assertEqual(text, expected_str)
 

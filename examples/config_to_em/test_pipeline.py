@@ -7,9 +7,9 @@ from examples.config_to_em.em_base_generator import EmBaseGenerator
 
 
 ebg = EmBaseGenerator('template.txt')
-ebg.generate_em_base('test_config.json', 'ems/em_base.py')
+ebg.generate_em_base('master_config.json', 'ems/em_base.py')
 
-kg_schema = KGSchema(json.load(open("test_config.json", "r")))
+kg_schema = KGSchema(json.load(open("master_config.json", "r")))
 
 etk = ETK(kg_schema, "./ems")
 

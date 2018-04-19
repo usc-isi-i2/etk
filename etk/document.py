@@ -1,4 +1,5 @@
 from typing import List, Dict
+from bs4 import BeautifulSoup
 from etk.extraction_provenance_record import ExtractionProvenanceRecord
 from etk.extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
@@ -6,6 +7,7 @@ from etk.segment import Segment
 from etk.tokenizer import Tokenizer
 from etk.knowledge_graph import KnowledgeGraph
 from etk.etk_exceptions import ErrorPolicy, ExtractorValueError
+import warnings
 
 
 class Document(Segment):
@@ -100,36 +102,45 @@ class Document(Segment):
                     self.etk.log(
                         "Extractor needs tokens, tokenizer needs string to tokenize, got list, converting to string",
                         "warning", self.doc_id, self.url)
+                    warnings.warn(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got list, converting to string")
                 elif isinstance(extractable.value, dict):
                     self.etk.log(
                         "Extractor needs tokens, tokenizer needs string to tokenize, got dict, converting to string",
                         "warning", self.doc_id, self.url)
+                    warnings.warn(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got dict, converting to string")
+                tokens = extractable.get_tokens(tokenizer)
+                if tokens:
+                    extracted_results = extractor.extract(tokens, **options)
             else:
                 raise ExtractorValueError(
                     "Extractor needs string, tokenizer needs string to tokenize, got " + str(type(extractable.value)))
-            tokens = extractable.get_tokens(tokenizer)
-            if tokens:
-                extracted_results = extractor.extract(tokens, **options)
 
         elif extractor.input_type == InputType.TEXT:
             if self.etk.error_policy == ErrorPolicy.PROCESS:
                 if isinstance(extractable.value, list):
                     self.etk.log("Extractor needs string, got extractable value as list, converting to string",
                                  "warning", self.doc_id, self.url)
+                    warnings.warn("Extractor needs string, got extractable value as list, converting to string")
                 elif isinstance(extractable.value, dict):
                     self.etk.log("Extractor needs string, got extractable value as dict, converting to string",
                                  "warning", self.doc_id, self.url)
+                    warnings.warn("Extractor needs string, got extractable value as dict, converting to string")
+                text = extractable.get_string(joiner)
+                if text:
+                    extracted_results = extractor.extract(text, **options)
             else:
                 raise ExtractorValueError("Extractor needs string, got " + str(type(extractable.value)))
-            text = extractable.get_string(joiner)
-            if text:
-                extracted_results = extractor.extract(text, **options)
 
         elif extractor.input_type == InputType.OBJECT:
             extracted_results = extractor.extract(extractable.value, **options)
 
         elif extractor.input_type == InputType.HTML:
-            extracted_results = extractor.extract(extractable.value, **options)
+            if bool(BeautifulSoup(extractable.value, "html.parser").find()):
+                extracted_results = extractor.extract(extractable.value, **options)
+            else:
+                raise ExtractorValueError("Extractor needs HTML, got non HTML string")
 
         try:
             jsonPath = extractable.full_path
@@ -192,6 +203,6 @@ class Document(Segment):
             dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
         return dict
 
-    def combine_kg_with_doc(self):
-        if self.kg.value:
-            self._value["knowledge_graph"] = self.kg.value
+    def insert_kg_into_cdr(self):
+        if self.kg and self.kg.value:
+            self.cdr_document["knowledge_graph"] = self.kg.value

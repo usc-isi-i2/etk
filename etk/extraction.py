@@ -19,7 +19,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, joiner: str ="  ") -> str:
+    def get_string(self, joiner: str =" ") -> str:
         """
         Args:
             joiner(str): if the value of an extractable is not a string, join the elements
@@ -35,7 +35,7 @@ class ExtractableBase(object):
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
         else:
-            return re.sub(' +', ' ', str(self._value))
+            return self._value
 
     def list2str(self, l: List, joiner: str) -> str:
         """

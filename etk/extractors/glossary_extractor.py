@@ -3,6 +3,7 @@ from typing import List
 from etk.extractor import Extractor, InputType
 from etk.extraction import Extraction
 from etk.tokenizer import Tokenizer
+from etk.etk_exceptions import ExtractorError
 from spacy.tokens import Token
 from pygtrie import CharTrie
 from itertools import *
@@ -51,8 +52,7 @@ class GlossaryExtractor(Extractor):
                                       map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
         except Exception as e:
-            warn('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
-            return []
+            raise ExtractorError('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
         return results
 
     def generate_ngrams_with_context(self, tokens: List[Token]) -> chain:

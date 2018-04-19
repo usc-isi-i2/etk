@@ -107,7 +107,7 @@ class ETK(object):
                     raise e
                 pass
 
-        doc.combine_kg_with_doc()
+        doc.insert_kg_into_cdr()
         return doc, doc.kg
 
     @staticmethod
