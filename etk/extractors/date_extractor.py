@@ -466,6 +466,8 @@ class DateExtractor(Extractor):
         Returns: string of iso format date
 
         """
+        # TODO: currently the resolution is specified by the user, should it be decided what we have extracted,
+        # E.g.: like if only year exists, use DateResolution.YEAR as resolution
         try:
             if date:
                 date_str = date.isoformat()
