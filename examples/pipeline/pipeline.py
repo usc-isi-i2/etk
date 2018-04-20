@@ -38,7 +38,7 @@ master_config = {
 
 kg_schema = KGSchema(master_config)
 
-etk = ETK(kg_schema, "./extraction_modules/")
+etk = ETK(kg_schema, ["./extraction_modules/"])
 
 doc = etk.create_document(sample_input)
 
