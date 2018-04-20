@@ -4,15 +4,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 import json
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 
 
-class RuleExtractionModule(ExtractionModule):
+class RuleETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.rule_extractor = SpacyRuleExtractor(self.etk.default_nlp, self.etk.load_spacy_rule("sample_rules.json"),
                                                  "test_extractor")
 
@@ -25,8 +25,8 @@ class RuleExtractionModule(ExtractionModule):
         projects = doc.select_segments("projects[*]")
 
         for d, p in zip(descriptions, projects):
-            names = doc.invoke_extractor(self.rule_extractor, d)
-            p.store_extractions(names, "members")
+            names = doc.extract(self.rule_extractor, d)
+            p.store(names, "members")
 
 
 if __name__ == "__main__":
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         ]
     }
 
-    etk = ETK(modules=RuleExtractionModule)
+    etk = ETK(modules=RuleETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

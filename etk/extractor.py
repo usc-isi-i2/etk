@@ -1,6 +1,6 @@
 from enum import Enum, auto
 from typing import List
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 
 
 class InputType(Enum):

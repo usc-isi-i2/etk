@@ -3,16 +3,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.date_extractor import DateExtractor, DateResolution
-from etk.extraction_module import ExtractionModule
-from etk.document_selector import DefaultDocumentSelector
+from etk.etk_module import ETKModule
 
 
-class DateExtractionModule(ExtractionModule):
+class DateETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'test_date_parser')
 
     def process_document(self, doc):
@@ -26,7 +25,7 @@ class DateExtractionModule(ExtractionModule):
         ignore_after = datetime.datetime(2500, 10, 10)
         relative_base = datetime.datetime(2018, 1, 1)
 
-        dates = doc.invoke_extractor(
+        dates = doc.extract(
             self.date_extractor,
             input_text,
             extract_first_date_only=False,  # first valid
@@ -68,7 +67,7 @@ class DateExtractionModule(ExtractionModule):
             # date_value_resolution: DateResolution = DateResolution.DAY
             date_value_resolution = DateResolution.SECOND if format._value and format._value[1] in ['H','I'] else DateResolution.DAY
         )
-        doc.select_segments('$')[0].store_extractions(dates, "extracted_date")
+        doc.select_segments('$')[0].store(dates, "extracted_date")
 
 
 if __name__ == "__main__":
@@ -76,7 +75,7 @@ if __name__ == "__main__":
     with open('date_ground_truth.txt', 'r') as f:
         texts = f.readlines()
 
-    etk = ETK(modules=DateExtractionModule)
+    etk = ETK(modules=DateETKModule)
     res = []
     for text in texts:
         text = text.strip()

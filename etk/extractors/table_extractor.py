@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 
 from bs4 import BeautifulSoup
 from bs4.element import Comment
-import json
 import re
-from enum import Enum, auto
+
 
 class Toolkit:
     # def __init__(self):

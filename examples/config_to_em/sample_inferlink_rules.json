@@ -1,0 +1,47 @@
+[
+    {
+      "rule_type": "ItemRule",
+      "removehtml": true,
+      "strip_end_regex": "\\</h2\\>\\s+\\</",
+      "begin_regex": ";\\s+margin:none;\\s+display.*?:inline;\"\\>",
+      "end_regex": "\\</h2\\>\\s+\\</",
+      "include_end_regex": true,
+      "name": "inferlink_phone"
+    },
+    {
+      "rule_type": "ItemRule",
+      "removehtml": true,
+      "strip_end_regex": "\\</span\\>\\s+\\<br",
+      "begin_regex": "\"\\>Escort's\\s+Location.*?span\\s+class=\"mugshotData\".*?\\>",
+      "end_regex": "\\</span\\>\\s+\\<br",
+      "include_end_regex": true,
+      "name": "inferlink_location"
+    },
+    {
+      "rule_type": "ItemRule",
+      "removehtml": true,
+      "strip_end_regex": "\\</span\\>\\s+\\<br",
+      "begin_regex": "\"mugshotDataCat\"\\>Escort's\\s+Age.*?span\\s+class=\"mugshotData\".*?\\>",
+      "end_regex": "\\</span\\>\\s+\\<br",
+      "include_end_regex": true,
+      "name": "inferlink_age"
+    },
+    {
+      "rule_type": "ItemRule",
+      "removehtml": true,
+      "strip_end_regex": "\\.\\&nbsp;Call\\s+\\<",
+      "begin_regex": "VIEW\\s+GIRLS\\</a\\>.*?/\\>\\<br/\\>",
+      "end_regex": "\\.\\&nbsp;Call\\s+\\<",
+      "include_end_regex": true,
+      "name": "inferlink_location-2"
+    },
+    {
+      "rule_type": "ItemRule",
+      "removehtml": true,
+      "strip_end_regex": ":00\\<br/\\>",
+      "begin_regex": "\\.\\<br/\\>Date.*?of\\s+ad:",
+      "end_regex": ":00\\<br/\\>",
+      "include_end_regex": true,
+      "name": "inferlink_posting-date"
+    }
+]

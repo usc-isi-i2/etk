@@ -1,3 +1,4 @@
+from warnings import warn
 from typing import List
 from enum import Enum, auto
 import datetime, re, calendar, pytz
@@ -8,10 +9,11 @@ from langdetect import detect
 from etk.etk import ETK
 from etk.extractor import Extractor, InputType
 from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
-    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, day_of_week_to_number
+    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, \
+    day_of_week_to_number, possible_illegal
 
 # to avoid typo:
 EXTRACT_FIRST_DATE_ONLY = 'extract_first_date_only'
@@ -28,7 +30,7 @@ TO_TIMEZONE = 'to_timezone'
 RETURN_AS_TIMEZONE_AWARE = 'return_as_timezone_aware'
 PREFER_DAY_OF_MONTH = 'prefer_day_of_month'
 PREFER_DATES_FROM = 'prefer_dates_from'
-DATE_VALUE_RESOLUTION= 'date_value_resolution'
+DATE_VALUE_RESOLUTION = 'date_value_resolution'
 
 
 class DateResolution(Enum):
@@ -123,11 +125,12 @@ class DateExtractor(Extractor):
             if relative_base and relative_base.tzinfo:
                 relative_base = relative_base.replace(tzinfo=None)
 
-        try:
-            self.lan = detect(text)
-        except Exception as e:
-            # print('LangDetectException: ', e)
-            pass
+        if prefer_language_date_order:
+            try:
+                self.lan = detect(text)
+            except Exception as e:
+                warn('DateExtractor: Catch LangDetectException ' + str(e))
+
         self.settings = {
             EXTRACT_FIRST_DATE_ONLY: extract_first_date_only,
             ADDITIONAL_FORMATS: additional_formats,
@@ -175,7 +178,7 @@ class DateExtractor(Extractor):
                     if matches:
                         results.append(matches)
                 except:
-                    pass
+                    warn('DateExtractor: Failed to extract with additional format ' + str(r) + '.')
             if use_default_formats:
                 for order in self.final_regex.keys():
                     matches = [self.wrap_date_match(order, match) for match
@@ -214,8 +217,8 @@ class DateExtractor(Extractor):
                            original_date=original_text)
             return e
         except Exception as e:
-            print('!Exception', e)
-            print(date_object)
+            warn('DateExtractor: Failed to wrap result ' + str(original_text) + ' with Extraction class.\n'
+                                                                                'Catch ' + str(e))
             return None
 
     def remove_overlapped_date_str(self, results: List[List[dict]]) -> List[Extraction]:
@@ -272,6 +275,11 @@ class DateExtractor(Extractor):
 
         if date_info['pattern']:
             user_defined_pattern = re.findall(r'%[a-zA-Z]', date_info['pattern'])
+        else:
+            if re.match(possible_illegal, date_info['value']):
+                return None
+            elif re.match(r'^[0-9]{4}$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1:
+                return None
 
         i = 0
         pattern = list()
@@ -305,6 +313,9 @@ class DateExtractor(Extractor):
                 try:
                     date = datetime.datetime.strptime('-'.join(formatted[:-1]), '-'.join(pattern[:-1]))
                 except ValueError:
+                    warn('DateExtractor: Failed to parse string to datetime object. \n'
+                         'Patterns are not matched with string or the formats are not supported. ' +
+                         '-'.join(formatted) + ' with ' + '-'.join(pattern))
                     return None
 
             if miss_year and miss_month and miss_day:
@@ -370,8 +381,7 @@ class DateExtractor(Extractor):
             try:
                 date = date.astimezone(self.default_tz)
             except ValueError as e:
-                # print(e)
-                pass
+                warn('DateExtractor: Failed to set timezone as ' + str(self.default_tz) + '. Catch ' + str(e))
         elif not self.settings[RETURN_AS_TIMEZONE_AWARE]:
             date = date.replace(tzinfo=None)
 
@@ -380,17 +390,13 @@ class DateExtractor(Extractor):
                     (self.settings[IGNORE_DATES_AFTER] and date > self.settings[IGNORE_DATES_AFTER]):
                 return None
         except Exception as e:
-            print('!Exception: ', e)
-            print(self.settings[IGNORE_DATES_BEFORE], self.settings[IGNORE_DATES_BEFORE].tzinfo)
-            print(self.settings[IGNORE_DATES_AFTER], self.settings[IGNORE_DATES_AFTER].tzinfo)
-            print(date, date.tzinfo)
+            warn('DateExtractor: Failed to compare dates ' + '. Catch ' + str(e))
 
         if self.settings[TO_TIMEZONE] and self.settings[RETURN_AS_TIMEZONE_AWARE]:
             try:
                 date = date.astimezone(pytz.timezone(self.settings[TO_TIMEZONE]))
             except Exception as e:
-                print(e)
-                print('UnknownTimeZoneError for user defined timezone, set to local timezone', self.settings[TIMEZONE])
+                warn('DateExtractor: Failed to set timezone as ' + str(self.settings[TIMEZONE]) + '. Catch ' + str(e))
 
         return date
 
@@ -477,8 +483,9 @@ class DateExtractor(Extractor):
                     return date_str[:19]
                 return date_str
         except Exception as e:
-            print('Exception: {}, failed to convert {} to isoformat '.format(e, date))
+            warn('DateExtractor: Failed to convert {} to ISO format. Catch {}.'.format(date, e))
             return None
+        warn('DateExtractor: Failed to convert {} to ISO format.'.format(date))
         return None
 
     @staticmethod
@@ -501,4 +508,3 @@ class DateExtractor(Extractor):
             'order': order,
             'pattern': pattern
         } if match else None
-

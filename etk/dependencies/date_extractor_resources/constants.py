@@ -35,8 +35,14 @@ singleton_regex = {
     # timezone like 'UTC', 'UTC + 8:30', 'GMT+1130', '+0600'
     # reference: https://en.wikipedia.org/wiki/Time_zone
     # 'splitters': r'(?:[,/ \.\-]? ?)',
-    'splitters': r'(?:,? of |,? del |,? de |,? el |\. |, |-|/| ?)'
+    'splitters': r'(?:,? of |,? del |,? de |,? el |\. |, |-|/| ?)',
+    'y_prefix': r'in |at |by |year ',
+    'w_prefix': r'on ',
 }
+
+possible_illegal = r'^\b(?:[0-9]{3}[-/ ,\.] ?[0-9]{4}|[0-9]{3}|[0-9]{5}|[0-9]{2}[-/ ,\.] ?[0-9]{4}|' \
+                   r'[0-9]{4}[-/ ,\.] ?[0-9]{3}|[0-9]{2}[-/ ,\.] ?[0-9]{1}|[0-9]{1}[-/ ,\.] ?[0-9]{2}|' \
+                   r'[0-9]{2}|[0-9]{1}|[0-9]{1}[-/ ,\.][0-9]{1})\b$'
 
 units = {
     'Y': ['%Y', '%y'],
@@ -48,8 +54,8 @@ units = {
     'SEC': '%S',
     'MARK': '%p',
     'TZ': ['%Z', '%z'],
-    'SINGLE_YEAR': ['%Y'],
-    'SINGLE_WEEK': ['%A'],
+    'SINGLE_YEAR': [['y_prefix', '%Y']],
+    'SINGLE_WEEK': ['%A', ['w_prefix', '%a']],
     'SINGLE_MONTH': ['%B', '%b']
 }
 

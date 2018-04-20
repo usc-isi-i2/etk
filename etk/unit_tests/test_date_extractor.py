@@ -1,10 +1,13 @@
-import unittest, datetime, pytz
+import unittest, datetime, pytz, json
 from dateutil.relativedelta import relativedelta
 from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk import ETK
+from etk.knowledge_graph_schema import KGSchema
 
 
-de = DateExtractor(ETK(), 'unit_test_date')
+kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
+de = DateExtractor(ETK(kg_schema=kg_schema), 'unit_test_date')
+
 
 class TestDateExtractor(unittest.TestCase):
     def test_ground_truth(self) -> None:
@@ -98,10 +101,9 @@ class TestDateExtractor(unittest.TestCase):
         text = '2018 July and 09/20 and 2017/12'
 
         results = [
-            [e.value for e in de.extract(text, prefer_day_of_month='first')],
-            [e.value for e in de.extract(text, prefer_day_of_month='last')]
+            [e.value for e in de.extract(text, prefer_day_of_month='first', preferred_date_order='DMY')],
+            [e.value for e in de.extract(text, prefer_day_of_month='last', preferred_date_order='DMY')]
         ]
-
         expected = [['2018-07-01', '2020-09-01', '2017-12-01'], ['2018-07-31', '2020-09-30', '2017-12-31']]
 
         self.assertEqual(results, expected)

@@ -1,9 +1,9 @@
 import json
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
-from etk.dependencies.landmark.landmark_extractor.extraction.Landmark \
-    import ItemRule, IterationRule
+from etk.extraction import Extraction
+from etk.etk_exceptions import ExtractorError
+from etk.dependencies.landmark.landmark_extractor.extraction.Landmark import ItemRule, IterationRule
 
 
 class InferlinkRule(object):
@@ -108,5 +108,4 @@ class InferlinkExtractor(Extractor):
             else:
                 return list()
         except Exception as e:
-            print('Error in extracting landmark %s' % e)
-            return list()
+            raise ExtractorError('Error in extracting landmark %s' % e)

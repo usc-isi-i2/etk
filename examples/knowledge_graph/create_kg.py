@@ -4,16 +4,16 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 import json
 
 
-class ExampleExtractionModule(ExtractionModule):
+class ExampleETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.name_extractor = GlossaryExtractor(self.etk.load_glossary("./names.txt"), "name_extractor",
                                                 self.etk.default_tokenizer,
                                                 case_sensitive=False, ngrams=1)
@@ -27,8 +27,8 @@ class ExampleExtractionModule(ExtractionModule):
         projects = doc.select_segments("projects[*]")
 
         for d, p in zip(descriptions, projects):
-            names = doc.invoke_extractor(self.name_extractor, d)
-            p.store_extractions(names, "members")
+            names = doc.extract(self.name_extractor, d)
+            p.store(names, "members")
 
         doc.kg.add_doc_value("developer", "projects[*].members[*]")
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     }
 
     kg_schema = KGSchema(json.load(open("master_config.json", "r")))
-    etk = ETK(kg_schema=kg_schema, modules=ExampleExtractionModule)
+    etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

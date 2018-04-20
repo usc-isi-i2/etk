@@ -19,7 +19,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, joiner: str ="  ") -> str:
+    def get_string(self, joiner: str =" ") -> str:
         """
         Args:
             joiner(str): if the value of an extractable is not a string, join the elements
@@ -35,7 +35,7 @@ class ExtractableBase(object):
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
         else:
-            return re.sub(' +', ' ', str(self._value))
+            return self._value
 
     def list2str(self, l: List, joiner: str) -> str:
         """
@@ -92,7 +92,7 @@ class Extractable(ExtractableBase):
         self._value = value
         self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = False) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=True) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -100,7 +100,7 @@ class Extractable(ExtractableBase):
         get_string method
 
         As it is common to need the same tokens for multiple extractors, the Extractable should cache the
-        tokenization results, keyed by segment and tokenizer so that given the same segment and tokenizer,
+        tokenize results, keyed by segment and tokenizer so that given the same segment and tokenizer,
         the same results are returned. If the same segment is given, but different tokenizer, the different
         results are cached separately.
 
@@ -114,10 +114,6 @@ class Extractable(ExtractableBase):
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
-            if isinstance(self._value, list):
-                print("\n========tokenizer needs string, got list, converting list to string========")
-            elif isinstance(self._value, dict):
-                print("\n========tokenizer needs string, got dict, converting dict to string========")
             segment_value_for_tokenize = self.get_string()
             tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens

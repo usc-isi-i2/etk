@@ -5,6 +5,7 @@ import csv
 from etk.document import Document
 from typing import List
 from io import StringIO
+from etk.etk_exceptions import InvalidArgumentsError, InvalidFilePathError
 
 
 class CsvProcessor(object):
@@ -61,12 +62,15 @@ class CsvProcessor(object):
     def tabular_extractor(self, table_str: str = None, filename: str = None,
                           sheet_name:str = None,
                           data_set: str = None,
-                          nested_key: str = None) -> List[Document]:
+                          nested_key: str = None,
+                          doc_id_field: str = None) -> List[Document]:
         data = list()
 
         if table_str is not None and filename is not None:
-            print("please only specify one argument!")
-            return list()
+            raise InvalidArgumentsError(message="for arguments 'table_str' and 'filename', please specify only one "
+                                                "argument!")
+            # print("please only specify one argument!")
+            # return list()
         elif table_str is not None:
             f = StringIO(table_str)
             reader = csv.reader(f, delimiter=',')
@@ -79,8 +83,9 @@ class CsvProcessor(object):
             if extension in self._get_data_function:
                 get_data = self._get_data_function[extension]
             else:
-                print("file extension can not read")
-                return list()
+                raise InvalidFilePathError("file extension can not read")
+                # print("file extension can not read")
+                # return list()
 
             try:
                 data = get_data(filename, auto_detect_datetime=False,
@@ -104,7 +109,7 @@ class CsvProcessor(object):
 
         table_content, header = self.content_recognizer(data)
 
-        return self.create_documents(table_content, header, filename, data_set, nested_key)
+        return self.create_documents(table_content, header, filename, data_set, nested_key, doc_id_field=doc_id_field)
 
     def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
@@ -154,7 +159,6 @@ class CsvProcessor(object):
 
         return valid_row
 
-    # TODO: refactor this method
     # remove all leading empty rows and figure out the start and end col
     def process_by_row(self, sheet: List[List[str]]) -> tuple((List[List[str]], int, int, int)):
         col_min = float("inf")
@@ -189,12 +193,14 @@ class CsvProcessor(object):
                          header: List[str] = None,
                          file_name: str = None,
                          data_set: str = None,
-                         nested_key: str = None) -> List[Document]:
+                         nested_key: str = None,
+                         doc_id_field: str = None) -> List[Document]:
         documents = list()
         # etk = ETK()
         if self.heading_row is None and self.required_columns is not None:
-            print("cannot match the required columns since heading is not specified")
-            return list()
+            raise InvalidArgumentsError("cannot match the required columns since heading is not specified")
+            # print("cannot match the required columns since heading is not specified")
+            # return list()
 
         # get the header line index of required columns
         list_idx = list()
@@ -236,6 +242,9 @@ class CsvProcessor(object):
             if data_set is not None:
                 cdr_doc['data_set'] = data_set
 
-            documents.append(self.etk.create_document(cdr_doc))
+            doc_id = None
+            if doc_id_field:
+                doc_id = cdr_doc.get(doc_id_field, None)
+            documents.append(self.etk.create_document(cdr_doc, doc_id=doc_id))
 
         return documents

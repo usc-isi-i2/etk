@@ -1,6 +1,7 @@
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
+from etk.etk_exceptions import ExtractorError
 
 
 class DecodingValueExtractor(Extractor):
@@ -87,5 +88,4 @@ class DecodingValueExtractor(Extractor):
             return e
         except Exception as e:
             print('fail to wrap dictionary extraction: ', original_key, value)
-            print('Exception: ', e)
-            return None
+            raise ExtractorError('Exception: ' + str(e))

@@ -3,16 +3,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.date_extractor import DateExtractor
-from etk.extraction_module import ExtractionModule
-from etk.document_selector import DefaultDocumentSelector
+from etk.etk_module import ETKModule
 
 
-class DateExtractionModule(ExtractionModule):
+class DateETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'test_date_parser')
 
     def process_document(self, doc):
@@ -27,7 +26,7 @@ class DateExtractionModule(ExtractionModule):
         relative_base = datetime.datetime(2018, 1, 1)
 
         for m_d, m in zip(member_descriptions, members):
-            dates = doc.invoke_extractor(
+            dates = doc.extract(
                 self.date_extractor,
                 m_d,
                 extract_first_date_only=False,  # first valid
@@ -68,7 +67,7 @@ class DateExtractionModule(ExtractionModule):
 
                 # date_value_resolution: DateResolution = DateResolution.DAY
             )
-            m.store_extractions(dates, "related_dates")
+            m.store(dates, "related_dates")
 
 
 if __name__ == "__main__":
@@ -96,7 +95,7 @@ if __name__ == "__main__":
         ]
     }
 
-    etk = ETK(modules=DateExtractionModule)
+    etk = ETK(modules=DateETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

@@ -3,15 +3,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.extractors.inferlink_extractor import InferlinkExtractor, InferlinkRuleSet
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 
 
-class InferlinkExtractionModule(ExtractionModule):
+class InferlinkETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.inferlink_extractor = InferlinkExtractor(
             InferlinkRuleSet(InferlinkRuleSet.load_rules_file('../html_basic/sample_inferlink_rules.json')))
 
@@ -21,14 +21,14 @@ class InferlinkExtractionModule(ExtractionModule):
         """
 
         raw = doc.select_segments("$.raw_content")[0]
-        extractions = doc.invoke_extractor(self.inferlink_extractor, raw)
-        doc.store_extractions(extractions, "inferlink_extraction")
+        extractions = doc.extract(self.inferlink_extractor, raw)
+        doc.store(extractions, "inferlink_extraction")
 
 
 if __name__ == "__main__":
     sample_html = json.load(codecs.open('../html_basic/sample_html.json', 'r')) # read sample file from disk
 
-    etk = ETK(modules=InferlinkExtractionModule)
+    etk = ETK(modules=InferlinkETKModule)
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
 
     doc, _ = etk.process_ems(doc)
