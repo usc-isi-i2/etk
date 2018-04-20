@@ -130,6 +130,7 @@ class DateExtractor(Extractor):
                 self.lan = detect(text)
             except Exception as e:
                 warn('DateExtractor: Catch LangDetectException ' + str(e))
+                warn(message='DateExtractor: Catch LangDetectException {}'.format(str(e)))
 
         self.settings = {
             EXTRACT_FIRST_DATE_ONLY: extract_first_date_only,
@@ -390,7 +391,7 @@ class DateExtractor(Extractor):
                     (self.settings[IGNORE_DATES_AFTER] and date > self.settings[IGNORE_DATES_AFTER]):
                 return None
         except Exception as e:
-            warn('DateExtractor: Failed to compare dates ' + '. Catch ' + str(e))
+            warn('DateExtractor: Failed to compare dates. Catch ' + str(e))
 
         # TODO: support more timezones abbr. (Only support what pytz supports currently)
         if self.settings[TO_TIMEZONE] and self.settings[RETURN_AS_TIMEZONE_AWARE]:
