@@ -89,8 +89,9 @@ if __name__ == "__main__":
 
     for r in res:
         extracted = r['extracted_date'][0] if 'extracted_date' in r and r['extracted_date'] else '            '
+        expected = r['expected'].replace('@today', datetime.datetime.now().isoformat()[:10])
         print('extracted: ', extracted,
-              '\texpected:', r['expected'],
-              '\tSAME' if extracted == r['expected'] else '\t    ',
+              '\texpected:', expected,
+              '\tSAME' if extracted == expected else '\t    ',
               '\tinput: ', r['input'],
               '\tformat: ', r['format'], )

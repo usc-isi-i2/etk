@@ -86,9 +86,7 @@ class EmBaseGenerator(object):
                     executions.append('            ' + self.generate_execution(f) + '\n')
 
         final = self.template.replace('${extractor_list}', ''.join(extractors))\
-            .replace('${execution_list}', ''.join(executions))\
-            .replace('${master_config_fields}',
-                     json.dumps(configs['fields']).replace('false', 'False').replace('true', 'True'))
+            .replace('${execution_list}', ''.join(executions))
         with open(output, 'w') as output_file:
             output_file.write(final)
 

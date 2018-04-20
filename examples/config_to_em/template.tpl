@@ -29,7 +29,8 @@ class BaseETKModule(ETKModule):
         self.readability_extractor = HTMLContentExtractor()
         self.meta_extractor = HTMLMetadataExtractor()
         self.inferlink_extractor = InferlinkExtractor(InferlinkRuleSet(InferlinkRuleSet.load_rules_file('sample_inferlink_rules.json')))
-        self.master_config_fields = ${master_config_fields}
+        self.master_config_fields = etk.kg_schema.fields_dict
+
 ${extractor_list}
 
     def process_document(self, doc: Document):
