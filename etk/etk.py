@@ -1,5 +1,5 @@
 from typing import List, Dict
-import spacy, copy, json, os, jsonpath_ng, importlib, logging
+import spacy, copy, json, os, jsonpath_ng, importlib, logging, sys
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
@@ -154,11 +154,11 @@ class ETK(object):
         if modules_paths:
             for modules_path in modules_paths:
                 em_lst = []
-                modules_path = modules_path.strip(".").strip("/")
                 try:
                     for file_name in os.listdir(modules_path):
                         if file_name.startswith("em_") and file_name.endswith(".py"):
-                            this_module = importlib.import_module(modules_path + "." + file_name[:-3])
+                            sys.path.append(modules_path) # append module dir path
+                            this_module = importlib.import_module(file_name[:-3])
                             for em in self.classes_in_module(this_module):
                                 em_lst.append(em(self))
                 except:
@@ -173,9 +173,9 @@ class ETK(object):
             self.log("Topological sort for ETK modules fails", "error")
             raise NotGetETKModuleError("Topological sort for ETK modules fails")
 
-        if not all_em_lst:
-            self.log("No ETK module in " + str(modules_paths), "error")
-            raise NotGetETKModuleError("No ETK module in dir, module file should start with em_, end with .py")
+        # if not all_em_lst:
+        #     self.log("No ETK module in " + str(modules_paths), "error")
+        #     raise NotGetETKModuleError("No ETK module in dir, module file should start with em_, end with .py")
         return all_em_lst
 
 
