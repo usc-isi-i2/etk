@@ -10,6 +10,18 @@ from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
                  logger_path='/tmp/etk.log'):
+        if logger:
+            self.logger = logger
+        else:
+            logging.basicConfig(
+                level=logging.DEBUG,
+                format='%(asctime)s %(name)-6s %(levelname)s %(message)s',
+                datefmt='%m-%d %H:%M',
+                filename=logger_path,
+                filemode='w'
+            )
+            self.logger = logging.getLogger('ETK')
+
         self.parser = jsonpath_ng.parse
         self.default_nlp = spacy.load('en_core_web_sm')
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
@@ -31,18 +43,6 @@ class ETK(object):
             self.error_policy = ErrorPolicy.RAISE
         else:
             self.error_policy = ErrorPolicy.PROCESS
-
-        if logger:
-            self.logger = logger
-        else:
-            logging.basicConfig(
-                level=logging.DEBUG,
-                format='%(asctime)s %(name)-6s %(levelname)s %(message)s',
-                datefmt='%m-%d %H:%M',
-                filename=logger_path,
-                filemode='w'
-            )
-            self.logger = logging.getLogger('ETK')
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123",
                         doc_id=None) -> Document:
