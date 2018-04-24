@@ -204,7 +204,7 @@ Aug-06|2006-08-01|%b-%y
 Aug|2018-08-01|%b
 
 # weekday	Tuesday
-Tuesday|@nearest[1]|%A
+Tuesday|@nearestTuesday|%A
 
 # time24	18:55:30
 18:55:30|@todayT18:55:30|%H:%M:%S

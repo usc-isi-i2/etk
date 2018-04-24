@@ -28,7 +28,13 @@ class HtmlBasicETKModule(ETKModule):
                               "etk2_content_strict")
         doc.store(doc.extract(self.content_extractor, raw, strategy=Strategy.MAIN_CONTENT_RELAXED),
                               "etk2_content_relaxed")
-        doc.store(doc.extract(self.metadata_extractor, raw), "etk2_metadata")
+        doc.store(doc.extract(self.metadata_extractor,
+                              raw,
+                              extract_title=True,
+                              extract_meta=True,
+                              extract_microdata=True,
+                              extract_rdfa=True,
+                              ), "etk2_metadata")
 
 
 if __name__ == "__main__":

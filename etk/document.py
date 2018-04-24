@@ -1,4 +1,5 @@
 from typing import List, Dict
+from bs4 import BeautifulSoup
 from etk.extraction_provenance_record import ExtractionProvenanceRecord
 from etk.extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
@@ -15,7 +16,7 @@ class Document(Segment):
         to query elements of the document and to update the document with the results
         of extractors.
         """
-    def __init__(self, etk, cdr_document: Dict, mime_type, url) -> None:
+    def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None) -> None:
 
         """
         Wrapper object for CDR documents.
@@ -32,14 +33,15 @@ class Document(Segment):
         self.cdr_document = cdr_document
         self.mime_type = mime_type
         self.url = url
-        self.kg = None
+        if doc_id:
+            self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = []
         self.extraction_provenance_id_index = 0
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
-            self._value["knowledge_graph"] = self.kg.value
         else:
-            warnings.warn("Schema not found.")
+            self.kg = None
+            self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
 
     @property
     def document(self):
@@ -51,7 +53,6 @@ class Document(Segment):
         """
         return self
 
-    # TODO the below 2 methods belong in etk, will discuss with Pedro
     def select_segments(self, jsonpath: str) -> List[Segment]:
         """
         Dereferences the json_path inside the document and returns the selected elements.
@@ -98,16 +99,36 @@ class Document(Segment):
         extracted_results = list()
 
         if extractor.input_type == InputType.TOKENS:
-            tokens = extractable.get_tokens(tokenizer, self.etk.error_policy)
-            if tokens:
-                extracted_results = extractor.extract(tokens, **options)
+            if self.etk.error_policy == ErrorPolicy.PROCESS:
+                if isinstance(extractable.value, list):
+                    self.etk.log(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got list, converting to string",
+                        "warning", self.doc_id, self.url)
+                    warnings.warn(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got list, converting to string")
+                elif isinstance(extractable.value, dict):
+                    self.etk.log(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got dict, converting to string",
+                        "warning", self.doc_id, self.url)
+                    warnings.warn(
+                        "Extractor needs tokens, tokenizer needs string to tokenize, got dict, converting to string")
+                tokens = extractable.get_tokens(tokenizer)
+                if tokens:
+                    extracted_results = extractor.extract(tokens, **options)
+            else:
+                raise ExtractorValueError(
+                    "Extractor needs string, tokenizer needs string to tokenize, got " + str(type(extractable.value)))
 
         elif extractor.input_type == InputType.TEXT:
             if self.etk.error_policy == ErrorPolicy.PROCESS:
                 if isinstance(extractable.value, list):
-                    warnings.warn("Extractor needs string, got extractable value as list, converting list to string")
+                    self.etk.log("Extractor needs string, got extractable value as list, converting to string",
+                                 "warning", self.doc_id, self.url)
+                    warnings.warn("Extractor needs string, got extractable value as list, converting to string")
                 elif isinstance(extractable.value, dict):
-                    warnings.warn("Extractor needs string, got extractable value as dict, converting dict to string")
+                    self.etk.log("Extractor needs string, got extractable value as dict, converting to string",
+                                 "warning", self.doc_id, self.url)
+                    warnings.warn("Extractor needs string, got extractable value as dict, converting to string")
                 text = extractable.get_string(joiner)
                 if text:
                     extracted_results = extractor.extract(text, **options)
@@ -118,7 +139,10 @@ class Document(Segment):
             extracted_results = extractor.extract(extractable.value, **options)
 
         elif extractor.input_type == InputType.HTML:
-            extracted_results = extractor.extract(extractable.value, **options)
+            if bool(BeautifulSoup(extractable.value, "html.parser").find()):
+                extracted_results = extractor.extract(extractable.value, **options)
+            else:
+                raise ExtractorValueError("Extractor needs HTML, got non HTML string")
 
         try:
             jsonPath = extractable.full_path
@@ -145,7 +169,7 @@ class Document(Segment):
         Returns: the doc_id of the CDR document
 
         """
-        return self._value.get("doc_id")
+        return self.cdr_document.get("doc_id")
 
     @doc_id.setter
     def doc_id(self, new_doc_id):
@@ -157,7 +181,7 @@ class Document(Segment):
         Returns:
 
         """
-        self._value["doc_id"] = new_doc_id
+        self.cdr_document["doc_id"] = new_doc_id
 
     def create_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
         if "provenances" not in self.cdr_document:
@@ -181,3 +205,6 @@ class Document(Segment):
             dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
         return dict
 
+    def insert_kg_into_cdr(self):
+        if self.kg and self.kg.value:
+            self.cdr_document["knowledge_graph"] = self.kg.value
