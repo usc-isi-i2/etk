@@ -1,6 +1,7 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
 from typing import List, Any, Dict
+import re
 
 
 class ExtractableBase(object):
@@ -18,7 +19,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, joiner: str ="  ") -> str:
+    def get_string(self, joiner: str =" ") -> str:
         """
         Args:
             joiner(str): if the value of an extractable is not a string, join the elements
@@ -34,7 +35,7 @@ class ExtractableBase(object):
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
         else:
-            return str(self._value)
+            return self._value
 
     def list2str(self, l: List, joiner: str) -> str:
         """
@@ -85,12 +86,13 @@ class Extractable(ExtractableBase):
     A single extraction or a single segment
     """
 
-    def __init__(self, value=None) -> None:
+    def __init__(self, value=None, prov_id=None) -> None:
         ExtractableBase.__init__(self)
         self.tokenize_results = dict()
         self._value = value
+        self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = False) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=True) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -98,7 +100,7 @@ class Extractable(ExtractableBase):
         get_string method
 
         As it is common to need the same tokens for multiple extractors, the Extractable should cache the
-        tokenization results, keyed by segment and tokenizer so that given the same segment and tokenizer,
+        tokenize results, keyed by segment and tokenizer so that given the same segment and tokenizer,
         the same results are returned. If the same segment is given, but different tokenizer, the different
         results are cached separately.
 
@@ -112,14 +114,18 @@ class Extractable(ExtractableBase):
         if (self, tokenizer) in self.tokenize_results:
             return self.tokenize_results[(self, tokenizer)]
         else:
-            if isinstance(self._value, list):
-                print("\n========tokenizer needs string, got list, converting list to string========")
-            elif isinstance(self._value, dict):
-                print("\n========tokenizer needs string, got dict, converting dict to string========")
             segment_value_for_tokenize = self.get_string()
             tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
             self.tokenize_results[(self, tokenizer)] = tokens
             return tokens
+
+    @property
+    def prov_id(self):
+        return self.__prov_id
+        
+    @prov_id.setter
+    def prov_id(self, prov_id):
+       self.__prov_id = prov_id
 
 
 class Extraction(Extractable):
@@ -147,26 +153,23 @@ class Extraction(Extractable):
         Returns:
 
         """
-
-        self._tag = options["tag"] if "tag" in options else None
-        self._rule_id = options["rule_id"] if "rule_id" in options else None
-        self._spacy_rule_mapping = options["match_mapping"] if "match_mapping" in options else None
-
-        fake_provenance = {
-            "extractor_name": extractor_name,
-            "confidence": confidence,
+        self._addition_inf = dict()
+        self._addition_inf["tag"] = options["tag"] if "tag" in options else None
+        self._addition_inf["spacy_rule_id"] = options["rule_id"] if "rule_id" in options else None
+        self._addition_inf["spacy_rule_mapping"] = options["match_mapping"] if "match_mapping" in options else None
+        self._addition_inf["date_object"] = options["date_object"] if "date_object" in options else None
+        self._addition_inf["original_date"] = options["original_date"] if "original_date" in options else None
+        self._extractor_name = extractor_name
+        self._confidence = confidence
+        self._provenance = {
             "start_token": start_token,
             "end_token": end_token,
             "start_char": start_char,
-            "end_char": end_char
+            "end_char": end_char,
+            "extractor_name": extractor_name,
+            "confidence": confidence
         }
-        # pseudo-code below
-        # self.provenance = Provenance(extractor_name=extractor_name, confidence=confidence, start_token=start_token, end_token=end_token,
-        #                   start_char=start_char, end_char=end_char)
-        # prov_id = document.add_provenance(self.provenance)
-        # self._value = ExtractionValue(value, prov_id)
         self._value = value
-        self._provenance = fake_provenance
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -178,12 +181,19 @@ class Extraction(Extractable):
         """
         return self._value
 
-    # @property
-    # def confidence(self) -> float:
-    #     """
-    #     Returns: the confidence of this extraction
-    #     """
-    #     return self._value["confidence"]
+    @property
+    def confidence(self) -> float:
+        """
+        Returns: the confidence of this extraction
+        """
+        return self._confidence
+
+    @property
+    def name(self) -> str:
+        """
+        Returns: the name of this extraction
+        """
+        return self._extractor_name
 
     @property
     def tag(self) -> str:
@@ -192,7 +202,7 @@ class Extraction(Extractable):
         Returns: the tag associated with this Extraction.
 
         """
-        return self._tag
+        return self._addition_inf["tag"]
 
     @property
     def rule_id(self) -> str:
@@ -201,7 +211,7 @@ class Extraction(Extractable):
         Returns: the rule_id associated with this Extraction.
 
         """
-        return self._rule_id
+        return self._addition_inf["spacy_rule_id"]
 
     @property
     def spacy_rule_mapping(self) -> Dict:
@@ -210,4 +220,27 @@ class Extraction(Extractable):
         Returns: the spacy_rule_mapping associated with this Extraction.
 
         """
-        return self._spacy_rule_mapping
+        return self._addition_inf["spacy_rule_mapping"]
+
+    @property
+    def original_date(self):
+        """
+        Returns: the original_date associated with this Extraction.
+        """
+        return self._addition_inf["original_date"]
+
+    @property
+    def date_object(self):
+        """
+        Returns: the original_date associated with this Extraction.
+        """
+        return self._addition_inf["date_object"]
+
+    @property
+    def provenance(self) -> Dict:
+        """
+
+        Returns: the tag associated with this Extraction.
+
+        """
+        return self._provenance

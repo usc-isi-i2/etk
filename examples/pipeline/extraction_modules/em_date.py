@@ -1,12 +1,12 @@
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 from etk.document import Document
 from etk.extractors.date_extractor import DateExtractor
 import datetime
 
 
-class ExtractionModuleDate(ExtractionModule):
+class ETKModuleDate(ETKModule):
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'test_date_parser')
 
     def process_document(self, doc: Document):
@@ -19,7 +19,7 @@ class ExtractionModuleDate(ExtractionModule):
         relative_base = datetime.datetime(2018, 1, 1)
 
         for d, p in zip(date_text, descriptions):
-            extracted_date = doc.invoke_extractor(
+            extracted_date = doc.extract(
                 self.date_extractor,
                 d,
                 extract_first_date_only=False,   # first valid
@@ -61,6 +61,6 @@ class ExtractionModuleDate(ExtractionModule):
                 # date_value_resolution: DateResolution = DateResolution.DAY
             )
 
-            p.store_extractions(extracted_date, "extracted_date")
+            p.store(extracted_date, "extracted_date")
 
         doc.kg.add_doc_value("date", "date_description.extracted_date[*]")

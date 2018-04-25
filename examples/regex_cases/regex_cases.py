@@ -8,15 +8,15 @@ from etk.extractors.cve_extractor import CVEExtractor
 from etk.extractors.hostname_extractor import HostnameExtractor
 from etk.extractors.ip_address_extractor import IPAddressExtractor
 from etk.extractors.url_extractor import URLExtractor
-from etk.extraction_module import ExtractionModule
+from etk.etk_module import ETKModule
 
 
-class RegexExtractionModule(ExtractionModule):
+class RegexETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
     def __init__(self, etk):
-        ExtractionModule.__init__(self, etk)
+        ETKModule.__init__(self, etk)
         bae = BitcoinAddressExtractor()
         ce = CVEExtractor()
         che = CryptographicHashExtractor()
@@ -32,8 +32,8 @@ class RegexExtractionModule(ExtractionModule):
 
         segment = doc.select_segments("target_text")[0]
         for e in self.e_list:
-            res = doc.invoke_extractor(e, segment)
-            doc.store_extractions(res, e.name)
+            res = doc.extract(e, segment)
+            doc.store(res, e.name)
 
 
 if __name__ == "__main__":
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                        "https://foo_bar.example.com/   %%%###http://isi.edu/abx  dig.isi.edu/index.html"
     }
 
-    etk = ETK(modules=RegexExtractionModule)
+    etk = ETK(modules=RegexETKModule)
     doc = etk.create_document(sample_input)
 
     doc, _ = etk.process_ems(doc)

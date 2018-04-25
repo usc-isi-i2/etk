@@ -3,7 +3,7 @@ from enum import Enum, auto
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.extractors.readability.readability import Document
 
 
@@ -43,24 +43,20 @@ class HTMLContentExtractor(Extractor):
         Returns: a list of Extraction(s) of a str, typically a singleton list with the extracted text
         """
 
-        try:
-            if html_text:
-                if strategy == Strategy.ALL_TEXT:
-                    soup = BeautifulSoup(html_text, 'html.parser')
-                    texts = soup.findAll(text=True)
-                    visible_texts = filter(self.tag_visible, texts)
-                    all_text = u" ".join(t.strip() for t in visible_texts)
-                    return [Extraction(all_text, self.name)]
-                else:
-                    relax = strategy == Strategy.MAIN_CONTENT_RELAXED
-                    readable = Document(html_text, recallPriority=relax).summary(html_partial=False)
-                    clean_text = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
-                    readability_text = ' '.join(clean_text)
-                    return [Extraction(readability_text, self.name)]
+        if html_text:
+            if strategy == Strategy.ALL_TEXT:
+                soup = BeautifulSoup(html_text, 'html.parser')
+                texts = soup.findAll(text=True)
+                visible_texts = filter(self.tag_visible, texts)
+                all_text = u" ".join(t.strip() for t in visible_texts)
+                return [Extraction(all_text, self.name)]
             else:
-                return []
-        except Exception as e:
-            print('Error in extracting readability %s' % e)
+                relax = strategy == Strategy.MAIN_CONTENT_RELAXED
+                readable = Document(html_text, recallPriority=relax).summary(html_partial=False)
+                clean_text = BeautifulSoup(readable.encode('utf-8'), 'lxml').strings
+                readability_text = ' '.join(clean_text)
+                return [Extraction(readability_text, self.name)]
+        else:
             return []
 
     @staticmethod

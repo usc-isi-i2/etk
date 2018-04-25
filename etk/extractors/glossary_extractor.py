@@ -1,7 +1,9 @@
+from warnings import warn
 from typing import List
 from etk.extractor import Extractor, InputType
-from etk.etk_extraction import Extraction
+from etk.extraction import Extraction
 from etk.tokenizer import Tokenizer
+from etk.etk_exceptions import ExtractorError
 from spacy.tokens import Token
 from pygtrie import CharTrie
 from itertools import *
@@ -19,9 +21,15 @@ class GlossaryExtractor(Extractor):
                            input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
-        self.ngrams = ngrams
+
+
         self.case_sensitive = case_sensitive
         self.default_tokenizer = tokenizer
+        if not ngrams:
+            ngrams = 0
+            for word in glossary:
+                ngrams = max(ngrams, len(self.default_tokenizer.tokenize(word)))
+        self.ngrams = min(ngrams, 5)
         self.joiner = " "
         self.glossary = self.populate_trie(glossary)
 
@@ -44,9 +52,7 @@ class GlossaryExtractor(Extractor):
                                       map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
         except Exception as e:
-            print("error operator")
-            print(e)
-            return []
+            raise ExtractorError('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
         return results
 
     def generate_ngrams_with_context(self, tokens: List[Token]) -> chain:
@@ -76,7 +82,13 @@ class GlossaryExtractor(Extractor):
 
     def wrap_value_with_context(self, tokens: List[Token], start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]), self.name, start_token=start, end_token=end)
+        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]),
+                          self.name,
+                          start_token=start,
+                          end_token=end,
+                          start_char=tokens[start].idx,
+                          end_char=tokens[end-1].idx+len(tokens[end-1].orth_)
+                          )
 
     @staticmethod
     def generate_ngrams_with_context_helper(ngrams_iter: iter, ngrams_len: int) -> map:

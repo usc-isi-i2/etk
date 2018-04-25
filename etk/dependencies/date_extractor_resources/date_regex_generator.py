@@ -34,22 +34,29 @@ class DateRegexGenerator:
         day_reg_post = r'(?:' + s + all['D']['res'] + r')?'
         day_reg_pre = r'(?:' + all['D']['res'] + s + r')?'
 
+        year_reg_post = r'(?:' + s + all['Y']['res'] + r')?'
+        year_reg_pre = r'(?:' + all['Y']['res'] + s + r')?'
+
         pl = 'pattern_list'
         time_pattern = all['HOUR'][pl] + all['MIN'][pl] + all['SEC'][pl] + all['MARK'][pl] + all['TZ'][pl]
 
         return ({
-                    'MDY': r'(?<=\b)(?:(?:' + week_reg_pre + all['M']['res'] + day_reg_post + s + all['Y'][
-                        'res'] + week_reg_post + r')' + time_reg + r')(?=\b)',
-                    'DMY': r'(?<=\b)(?:(?:' + week_reg_pre + day_reg_pre + all['M']['res'] + s + all['Y'][
-                        'res'] + week_reg_post + r')' + time_reg + r')(?=\b)',
-                    'YMD': r'(?<=\b)(?:(?:' + week_reg_pre + all['Y']['res'] + s + all['M'][
+                    'MDY': r'(?<=\b)(?:(?:' + week_reg_pre + all['M']['res'] + day_reg_post +
+                           year_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)',
+                    'DMY': r'(?<=\b)(?:(?:' + week_reg_pre + day_reg_pre + all['M']['res'] +
+                           year_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)',
+                    'YMD': r'(?<=\b)(?:(?:' + week_reg_pre + year_reg_pre + all['M'][
                         'res'] + day_reg_post + week_reg_post + r')' + time_reg + r')(?=\b)',
-                    'SINGLE_MONTH': r'(?<=\b)(?:(?:' + all['SINGLE_MONTH']['res'] + r')' + time_reg + r')(?=\b)'
+                    'SINGLE_YEAR': r'(?<=\b)(?:(?:' + all['SINGLE_YEAR']['res'] + r')' + time_reg + r')(?=\b)',
+                    'SINGLE_MONTH': r'(?<=\b)(?:(?:' + all['SINGLE_MONTH']['res'] + r')' + time_reg + r')(?=\b)',
+                    'SINGLE_WEEK': r'(?<=\b)(?:(?:' + all['SINGLE_WEEK']['res'] + r')' + time_reg + r')(?=\b)'
                 }, {
                     'MDY': all['W'][pl] + all['M'][pl] + all['D'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
                     'DMY': all['W'][pl] + all['D'][pl] + all['M'][pl] + all['Y'][pl] + all['W'][pl] + time_pattern,
                     'YMD': all['W'][pl] + all['Y'][pl] + all['M'][pl] + all['D'][pl] + all['W'][pl] + time_pattern,
-                    'SINGLE_MONTH': all['SINGLE_MONTH'][pl] + time_pattern
+                    'SINGLE_YEAR': all['SINGLE_YEAR'][pl] + time_pattern,
+                    'SINGLE_MONTH': all['SINGLE_MONTH'][pl] + time_pattern,
+                    'SINGLE_WEEK': all['SINGLE_WEEK'][pl] + time_pattern
                 })
 
     def generate_regex_for_a_unit(self, key_list):

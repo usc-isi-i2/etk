@@ -1,7 +1,7 @@
-import unittest
+import unittest, json
 from etk.knowledge_graph import KGSchema
 from etk.etk import ETK
-from etk.etk_exceptions import KgValueInvalidError
+from etk.etk_exceptions import KgValueError
 from datetime import date, datetime
 
 
@@ -37,49 +37,29 @@ class TestKnowledgeGraph(unittest.TestCase):
           ]
         }
 
-        master_config = {
-            "fields": {
-                "developer": {
-                    "type": "string"
-                },
-                "test_date": {
-                    "type": "date"
-                },
-                "test_location": {
-                    "type": "location"
-                },
-                "test_number": {
-                    "type": "number"
-                },
-                "test_add_value_date": {
-                    "type": "date"
-                }
-            }
-        }
-
-        kg_schema = KGSchema(master_config)
+        kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 
         etk = ETK(kg_schema)
         doc = etk.create_document(sample_doc)
 
         try:
             doc.kg.add_doc_value("developer", "projects[*].members[*]")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_doc_value("test_date", "projects[*].date[*]")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         try:
             doc.kg.add_doc_value("test_location", "projects[*].place")
-        except KgValueInvalidError:
+        except KgValueError:
             pass
 
         expected_developers = [

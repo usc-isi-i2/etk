@@ -17,7 +17,7 @@ class Tokenizer(object):
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text: str, keep_multi_space: bool = False) -> List[Token]:
+    def tokenize(self, text: str, keep_multi_space: bool = True) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
@@ -61,7 +61,7 @@ class Tokenizer(object):
         For future improvement, look at https://spacy.io/api/tokenizer, https://github.com/explosion/spaCy/issues/1494
         """
         prefix_re = re.compile(r'''^[\[()\-.,@#$%^&*?|<~+_:;>!"']''')
-        infix_re = re.compile(r'''[\[()\-,@#$%^&*?|<~+_:;>!"']|(?![0-9])\.(?![0-9])|\n+ ''')
+        infix_re = re.compile(r'''[\[()\-,@#$%^&*?|<~+_:;>!"']|(?<![0-9])\.|\.(?![0-9])|\n+ ''')
         return spacyTokenizer(self.nlp.vocab, rules=None, prefix_search=prefix_re.search, suffix_search=None,
                               infix_finditer=infix_re.finditer, token_match=None)
 

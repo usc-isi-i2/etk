@@ -9,7 +9,7 @@ class TestTokenizer(unittest.TestCase):
         text = "dsa@isi.edu 32.4 -32.1 (123)-345-6789, #1  \n \n   "
         reconstruct_text = re.sub(' +', ' ', text)
         t = Tokenizer()
-        tokens = t.tokenize(text)
+        tokens = t.tokenize(text, keep_multi_space=False)
         token_attrs = []
         for i in tokens:
             token_attrs.append({"orth": i.orth_, "offset": i.idx, "full_shape": i._.full_shape})

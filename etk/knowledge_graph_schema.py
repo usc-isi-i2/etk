@@ -1,7 +1,7 @@
 from typing import List, Dict
 from datetime import date, datetime
-from etk.etk_field_types import FieldType
-import numbers
+from etk.field_types import FieldType
+import numbers, re
 
 
 class KGSchema(object):
@@ -108,14 +108,17 @@ class KGSchema(object):
         if isinstance(v, date):
             return True
         try:
-            datetime.strptime(v, '%Y-%m-%d')
-            return True
-        except:
-            try:
-                datetime.strptime(v, '%Y-%m-%dT%H:%M:%S')
+            reg = r'^([0-9]{4})(?:-(0[1-9]|1[0-2])(?:-(0[1-9]|[1-2][0-9]|3[0-1])(?:T' \
+                  r'([0-5][0-9])(?::([0-5][0-9])(?::([0-5][0-9]))?)?)?)?)?$'
+            match = re.match(reg, v)
+            if match:
+                groups = match.groups()
+                patterns = ['%Y', '%m', '%d', '%H', '%M', '%S']
+                datetime.strptime('-'.join([x for x in groups if x]),
+                                  '-'.join([patterns[i] for i in range(len(patterns)) if groups[i]]))
                 return True
-            except:
-                pass
+        except:
+            pass
         return False
 
     @staticmethod
