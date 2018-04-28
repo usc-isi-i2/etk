@@ -7,18 +7,19 @@ from etk.document import Document
 
 class DocRetrieveProcessor(object):
 
-    def __init__(self, etk, ifp_id: str, ifp_title: str) -> None:
+    def __init__(self, etk, ifp_id: str, ifp_title: str, orig_ifp_title: str) -> None:
         self.etk = etk
         self.ifp_id = ifp_id
         self.ifp_title = ifp_title
         self.nlp = spacy.load('en_core_web_lg')
         self.query_tokens = self.nlp(self.ifp_title)
+        self.orig_ifp_title = orig_ifp_title
 
         sentence_tokenizer = '(?<!\w\.\w)(?<![A-Z][a-z]\.)(?<=\.|\?)\s+(?=[A-Z])'
         self.sentence_tokenizer_pattern = re.compile(sentence_tokenizer)
 
     # process document sentence by sentence
-    def process(self, doc: Document, threshold: float) -> Document:
+    def process_by_sentence(self, doc: Document, threshold: float) -> Document:
         json_obj = doc.cdr_document
 
         # secondary key
@@ -37,10 +38,34 @@ class DocRetrieveProcessor(object):
             output_cdr_doc = {
                 'type': 'News/IPF Relevance',
                 'date': timestamp,
-                'ifp': self.ifp_title,
+                'ifp': self.orig_ifp_title,
                 'news_story': doc_id,
                 'similarity': max_score,
                 'matched_sentence': max_score_sentence
             }
 
         return self.etk.create_document(output_cdr_doc)
+
+    def process_by_title(self, doc: Document, threshold: float) -> Document:
+        json_obj = doc.cdr_document
+
+        # secondary key
+        timestamp = json_obj['@timestamp']
+        date = pd.to_datetime(timestamp, infer_datetime_format=True)
+        doc_id = json_obj['doc_id']
+
+        title = json_obj['lexisnexis']['doc_title']
+        title_token = self.nlp(title)
+        similarity = self.query_tokens.similarity(title_token)
+
+        if similarity > threshold:
+            output_obj = {
+                'type': 'News/IPF Relevance',
+                'date': timestamp,
+                'ifp': self.orig_ifp_title,
+                'news_story': doc_id,
+                'title': title,
+                'similarity': similarity
+            }
+
+        return self.etk.create_document(output_obj)
