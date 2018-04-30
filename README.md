@@ -24,6 +24,11 @@ ETK is open-source software, released under the MIT license.
 * Scalable execution and management of extraction pipelines
 * Automatic provenance recording
 
+# Releases
+
+- [Source code](https://github.com/usc-isi-i2/etk/releases)
+- [Docker images](https://hub.docker.com/r/uscisii2/etk/tags/)
+
 ## Installation
 
 <table>
@@ -55,3 +60,4 @@ Run container
 Mount local volume for test
 
 `docker run -it -v $(pwd):/app/etk etk:dev /bin/bash`
+

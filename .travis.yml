@@ -27,7 +27,7 @@ notifications:
 
 deploy:
 - provider: script
-  script: ./docker_deploy.sh
+  script: bash docker_deploy.sh
   on:
     tags: true
     branch: etk2
