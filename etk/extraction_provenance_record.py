@@ -1,6 +1,4 @@
 from etk.extraction import Extractable
-"TODO: Why import OriginRecord but not used, probably you want to extend from this class instead of Extractable?"
-from etk.origin_record import OriginRecord
 from typing import List, Dict
 
 from etk.origin_record import OriginRecord
@@ -21,14 +19,6 @@ class ExtractionProvenanceRecord(Extractable):
         self.extraction_confidence = confidence
         self._document = _document
         self._parent_extraction_provenance = parent_extraction_provenance
-
-    @property
-    def full_path(self) -> str:
-        """
-        Returns: The full path of a JSONPath match
-        """
-        "TODO: What is json_path here, when it this attribute get created"
-        return self.json_path
 
     @property
     def parent_extraction_provenance(self):
