@@ -2117,7 +2117,7 @@ class Core(object):
             return str(text)
 
         try:
-            text = text.strip().replace('\n', '').replace('\t', '')
+            text = text.strip().replace('\n', '').replace('\t', '').replace(',', '')
             num = str(float(text)) if '.' in text else str(int(text))
             return num
         except:
