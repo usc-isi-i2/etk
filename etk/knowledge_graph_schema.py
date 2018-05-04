@@ -21,7 +21,9 @@ class KGSchema(object):
         self.fields_dict = {}
         try:
             for field in config["fields"]:
-                if config["fields"][field]["type"] == "number":
+                if config["fields"][field]["type"] == "kg_id":
+                    self.fields_dict[field] = FieldType.KG_ID
+                elif config["fields"][field]["type"] == "number":
                     self.fields_dict[field] = FieldType.NUMBER
                 elif config["fields"][field]["type"] == "date":
                     self.fields_dict[field] = FieldType.DATE
@@ -82,6 +84,8 @@ class KGSchema(object):
         Returns: bool
         """
         if self.has_field(field_name):
+            if self.fields_dict[field_name] == FieldType.KG_ID:
+                return True
             if isinstance(value, numbers.Number) and self.fields_dict[field_name] == FieldType.NUMBER:
                 return True
             if isinstance(value, str) and self.fields_dict[field_name] == FieldType.STRING:

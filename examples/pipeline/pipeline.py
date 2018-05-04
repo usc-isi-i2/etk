@@ -6,6 +6,7 @@ from etk.knowledge_graph import KGSchema
 
 
 sample_input = {
+    "doc_id": "DASJDASH",
     "projects": [
         {
             "name": "etk",
@@ -32,6 +33,9 @@ master_config = {
         },
         "date": {
             "type": "date"
+        },
+        "id": {
+            "type": "kg_id"
         }
     }
 }
