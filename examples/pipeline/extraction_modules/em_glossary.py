@@ -34,3 +34,5 @@ class ETKModuleGlossary(ETKModule):
 
         doc.kg.add_doc_value("developer", "projects[*].members[*]")
         doc.kg.add_doc_value("student_developer", "projects[*].students[*]")
+
+        doc.kg.add_doc_value("id", '$.doc_id')

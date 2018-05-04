@@ -167,7 +167,9 @@ class KnowledgeGraph(object):
 
         """
         key = value
-        if (isinstance(key, str) or isinstance(key, numbers.Number)) and self.schema.field_type(
+        if self.schema.field_type(field_name) == FieldType.KG_ID:
+            pass
+        elif (isinstance(key, str) or isinstance(key, numbers.Number)) and self.schema.field_type(
                 field_name) != FieldType.DATE:
             # try except block because unicode characters will not be lowered
             try:
