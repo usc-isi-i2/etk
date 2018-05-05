@@ -10,9 +10,12 @@ class ETKModule(object):
     def __init__(self, etk):
         self.etk = etk
 
-    def process_document(self, doc: Document):
+    def process_document(self, doc: Document) -> List[Document]:
         """
         Add your code for processing the document
+
+        Returns:
+            A list of new Document(s) created in this function, otherwise empty list()
         """
         pass
 
