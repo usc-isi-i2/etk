@@ -50,9 +50,8 @@ if __name__ == "__main__":
                       heading_row=1)
 
     data_set = 'test_data_set_csv'
-    docs = [doc for doc in
-                 cp.tabular_extractor(filename="acled_raw_data.csv", data_set='acled', doc_id_field="data_id")]
+    docs = cp.tabular_extractor(filename="acled_raw_data.csv", data_set='acled', doc_id_field="data_id")
 
-    doc, _ = etk.process_ems(docs[1])
+    results = etk.process_ems(docs[0])
 
-    print(json.dumps(doc.value, indent=2))
+    print(json.dumps(results[0].value, indent=2))

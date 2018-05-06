@@ -1,6 +1,9 @@
 
 
 class OriginRecord():
+    """
+    An individual Origin Record of an extraction result from a document.
+    """
     def __init__(self, json_path: str, start_char: str, end_char:str, document=None) -> None:
         # Extractable.__init__(self)
         self.json_path = json_path
