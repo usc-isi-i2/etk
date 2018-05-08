@@ -26,7 +26,11 @@ class CsvProcessor(object):
         if self.heading_row is not None:
             self.heading_row = self.heading_row - 1
 
-        self.content_start_row = mapping_spec.get("content_start_row", 2) - 1
+        if self.heading_row is not None:
+            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row+2) - 1
+
+        if self.heading_row is None:
+            self.content_start_row = mapping_spec.get("content_start_row", 1) - 1
 
         # how about if heading_col is not present? read until first empty cell?
         self.heading_columns = mapping_spec.get("heading_columns")
@@ -107,20 +111,24 @@ class CsvProcessor(object):
                 file_name = fn.split('/')[-1] + extension
                 data = data[file_name]
 
-        table_content, header = self.content_recognizer(data)
+        table_content, heading = self.content_recognizer(data)
 
-        return self.create_documents(table_content, header, filename, data_set, nested_key, doc_id_field=doc_id_field)
+        return self.create_documents(table_content, heading, filename, data_set, nested_key, doc_id_field=doc_id_field)
 
     def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
+        # process heading
         if self.heading_row is not None:
-            heading, col_start, col_end = self.process_header(data[self.heading_row])
+            heading, col_start, col_end = self.process_heading(data[self.heading_row])
             # if heading_row is specified, discards/overwrite the heading_columns
             self.heading_columns = (col_start, col_end)
         else:
             heading = None
 
         # handle row first:
+        if self.content_end_row is None:
+            data = data[self.content_start_row:]
+
         if self.content_end_row is not None:
             data = data[self.content_start_row:self.content_end_row]
 
@@ -134,22 +142,22 @@ class CsvProcessor(object):
         return data, heading
 
     @staticmethod
-    def process_header(header: List[str]) -> tuple((List[str], int, int)):
-        processed_header = list()
-        col_start, col_end = 0, len(header)
-        for i in range(len(header)):
-            if not header[i] and col_start == 0:
+    def process_heading(heading: List[str]) -> tuple((List[str], int, int)):
+        processed_heading = list()
+        col_start, col_end = 0, len(heading)
+        for i in range(len(heading)):
+            if not heading[i] and col_start == 0:
                 continue
-            elif header[i] and col_start == 0:
+            elif heading[i] and col_start == 0:
                 col_start = i
-                processed_header.append(header[i])
-            elif not header[i] and col_start != 0:
+                processed_heading.append(heading[i])
+            elif not heading[i] and col_start != 0:
                 col_end = i
                 break
             else:
-                processed_header.append(header[i])
+                processed_heading.append(heading[i])
 
-        return processed_header, col_start-1, col_end
+        return processed_heading, col_start-1, col_end
 
     # slicing table by start and end col
     def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:
@@ -190,7 +198,7 @@ class CsvProcessor(object):
         return valid_row, col_min, col_max, row_count
 
     def create_documents(self, rows: List[List[str]],
-                         header: List[str] = None,
+                         heading: List[str] = None,
                          file_name: str = None,
                          data_set: str = None,
                          nested_key: str = None,
@@ -202,11 +210,11 @@ class CsvProcessor(object):
             # print("cannot match the required columns since heading is not specified")
             # return list()
 
-        # get the header line index of required columns
+        # get the heading line index of required columns
         list_idx = list()
         if self.required_columns is not None:
-            for i in range(len(header)):
-                if header[i] in self.required_columns:
+            for i in range(len(heading)):
+                if heading[i] in self.required_columns:
                     list_idx.append(i)
         # filter each row
         for row in rows:
@@ -221,8 +229,8 @@ class CsvProcessor(object):
             doc = dict()
             for i in range(0, self.heading_columns[1] - self.heading_columns[0]):
                 # range(len(row)):
-                if header is not None:
-                    key = header[i]
+                if heading is not None:
+                    key = heading[i]
                 else:
                     key = str(i)
 

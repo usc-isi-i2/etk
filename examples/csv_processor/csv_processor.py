@@ -30,7 +30,6 @@ if __name__ == "__main__":
     etk = ETK(modules=CsvETKModule)
     cp = CsvProcessor(etk=etk,
                         heading_row=1,
-                        content_start_row=2,
                         heading_columns=(1, 3),
                         content_end_row=3,
                         ends_with_blank_row=True,
