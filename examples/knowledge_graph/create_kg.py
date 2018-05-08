@@ -51,6 +51,6 @@ if __name__ == "__main__":
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
     doc = etk.create_document(sample_input)
 
-    doc, _ = etk.process_ems(doc)
+    docs = etk.process_ems(doc)
 
-    print(json.dumps(doc.kg.value, indent=2))
+    print(json.dumps(docs[0].kg.value, indent=2))
