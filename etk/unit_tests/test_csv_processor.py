@@ -201,7 +201,7 @@ class TestCsvProcessor(unittest.TestCase):
 
         self.assertEqual(test_docs, expected_docs)
 
-    def test_real_csv_file_3(self) -> None:
+    def test_real_excel_with_sheetname(self) -> None:
         csv_processor = CsvProcessor(etk=etk,
                                      heading_row=1,
                                      content_start_row=10,
@@ -256,5 +256,20 @@ class TestCsvProcessor(unittest.TestCase):
                           'Sources 2': 'http://www.google.com/hostednews/afp/article/ALeqM5hofvKayKKAFFtiX9-Ic5bG2ptVmg?docId=CNG.fafcacea0287fbeab90256732f165e1e.771',
                           'Sources 3': '', 'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria',
                           'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'data_set': 'test_set'}]
+
+        self.assertEqual(test_docs, expected_docs)
+
+    def test_real_excel_without_sheetname(self) -> None:
+        csv_processor = CsvProcessor(etk=etk,
+                                     heading_row=1,
+                                     content_start_row=10,
+                                     content_end_row=12)
+
+        file_path = 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx'
+
+        test_docs = [doc.cdr_document for doc in
+                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+
+        expected_docs = []
 
         self.assertEqual(test_docs, expected_docs)
