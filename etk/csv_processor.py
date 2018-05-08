@@ -104,7 +104,7 @@ class CsvProcessor(object):
 
             if extension == '.xls' or extension == '.xlsx':
                 if sheet_name is None:
-                    sheet_name = data.key()[0]
+                    sheet_name = list(data.keys())[0]
 
                 data = data[sheet_name]
             else:
