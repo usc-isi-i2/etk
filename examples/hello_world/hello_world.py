@@ -27,6 +27,7 @@ class HelloWorldETKModule(ETKModule):
         for d, p in zip(descriptions, projects):
             names = doc.extract(self.name_extractor, d)
             p.store(names, "members")
+        return list()
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class ExampleETKModule(ETKModule):
             p.store(names, "members")
 
         doc.kg.add_doc_value("developer", "projects[*].members[*]")
+        return list()
 
 if __name__ == "__main__":
 
