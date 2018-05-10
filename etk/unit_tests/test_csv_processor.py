@@ -28,7 +28,7 @@ class TestCsvProcessor(unittest.TestCase):
                                      required_columns=['text'])
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(table_str=csv_str, data_set='test_csv_str_with_all_args')]
+                     csv_processor.tabular_extractor(table_str=csv_str, dataset='test_csv_str_with_all_args')]
 
         expected_docs = [{'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'data_set': 'test_csv_str_with_all_args'},
                         {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'data_set': 'test_csv_str_with_all_args'}]
@@ -46,7 +46,7 @@ class TestCsvProcessor(unittest.TestCase):
                                      required_columns=['text'])
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(table_str=csv_str, data_set='test_set')]
+                     csv_processor.tabular_extractor(table_str=csv_str, dataset='test_set')]
         
         expected_docs = [
             {'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'data_set': 'test_set'},
@@ -63,7 +63,7 @@ class TestCsvProcessor(unittest.TestCase):
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=filename, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
         expected_docs = [{'0': 'name1', '1': 'name2', 'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'}]
 
@@ -78,7 +78,7 @@ class TestCsvProcessor(unittest.TestCase):
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=filename, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
         expected_docs = [{'0': '', '1': 'name1', '2': 'name2', '3': '', '4': '',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'},
@@ -100,7 +100,7 @@ class TestCsvProcessor(unittest.TestCase):
         file_path = 'etk/unit_tests/ground_truth/acled_raw_data.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
 
         expected_docs = [{'data_id': 336907, 'iso': 180, 'event_id_cnty': 'DRC11776', 'event_id_no_cnty': 11776,
                           'event_date': '2018-01-13', 'year': 2018, 'time_precision': 1, 'event_type':
@@ -164,7 +164,7 @@ class TestCsvProcessor(unittest.TestCase):
         file_path = 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
 
         expected_docs=[{'yyyyddd': 2006008, ' (0) Northern_Hemisphere': '13536736.84', ' (1) Beaufort_Sea': ' 1069710.81',
                         ' (2) Chukchi_Sea': '  966006.16', ' (3) East_Siberian_Sea': ' 1087102.72', ' (4) Laptev_Sea': '  897773.37',
@@ -212,7 +212,7 @@ class TestCsvProcessor(unittest.TestCase):
         sheets_name = 'NST Main Dataset'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, sheet_name=sheets_name, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, sheet_name=sheets_name, dataset='test_set')]
 
         expected_docs = [{'Title': 'David Usman and  Shot Dead', 'Date': datetime.date(2011, 6, 7),
                           'Community (city,town, ward)': 'Maiduguri', 'LGA': 'Maiduguri', 'State': 'Borno', 'Total Deaths': 2,
@@ -268,7 +268,7 @@ class TestCsvProcessor(unittest.TestCase):
         file_path = 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
 
         expected_docs = []
 
