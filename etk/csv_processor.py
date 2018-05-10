@@ -248,7 +248,7 @@ class CsvProcessor(object):
             if file_name is not None:
                 cdr_doc['file_name'] = file_name
             if data_set is not None:
-                cdr_doc['data_set'] = data_set
+                cdr_doc['dataset'] = data_set
 
             doc_id = None
             if doc_id_field:

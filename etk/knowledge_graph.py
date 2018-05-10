@@ -33,24 +33,28 @@ class KnowledgeGraph(object):
                 self._kg[field_name] = []
             path = self.origin_doc.etk.parse_json_path(jsonpath)
             matches = path.find(self.origin_doc.value)
-
             all_valid = True
             for a_match in matches:
-                if self.schema.is_valid(field_name, a_match.value):
-                    
-                    this_value = self.value_pre_process(a_match.value, field_name)
-                    if {
-                        "value": this_value,
-                        "key": self.create_key_from_value(this_value, field_name)
-                    } not in self._kg[field_name]:
-                        self._kg[field_name].append({
+                match_value = a_match.value
+                if not isinstance(match_value, list):
+                    match_value = [match_value]
+
+                for x in match_value:
+                    if self.schema.is_valid(field_name, x):
+
+                        this_value = self.value_pre_process(x, field_name)
+                        if {
                             "value": this_value,
                             "key": self.create_key_from_value(this_value, field_name)
-                        })
-                        self.create_kg_provenance("storage_location", str(this_value), str(a_match.full_path))
+                        } not in self._kg[field_name]:
+                            self._kg[field_name].append({
+                                "value": this_value,
+                                "key": self.create_key_from_value(this_value, field_name)
+                            })
+                            self.create_kg_provenance("storage_location", str(this_value), str(a_match.full_path))
 
-                else:
-                    all_valid = False
+                    else:
+                        all_valid = False
 
             if not all_valid:
                 raise KgValueError("Some kg value type invalid according to schema")
