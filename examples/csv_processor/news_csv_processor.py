@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     data_set = 'test_data_set_csv'
     test_docs = [doc.cdr_document for doc in
-                 csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                 csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
     """docs = [doc.cdr_document for doc in
                  cp.tabular_extractor(table_str=filename, data_set='test_csv_str_with_all_args')]"""
     news_path = 'etk/unit_tests/ground_truth/queryResults.jl'

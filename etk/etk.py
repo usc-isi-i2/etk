@@ -99,22 +99,25 @@ class ETK(object):
         new_docs = list()
 
         for a_em in self.em_lst:
-            try:
-                if a_em.document_selector(doc):
-                    self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
-                    new_docs.extend(a_em.process_document(doc))
-            except Exception as e:
-                if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
-                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Continue", "error", doc.doc_id,
-                             doc.url)
-                    continue
-                if self.error_policy == ErrorPolicy.THROW_DOCUMENT:
-                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Throw doc", "error", doc.doc_id,
-                             doc.url)
-                    return list()
-                if self.error_policy == ErrorPolicy.RAISE:
-                    self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
-                    raise e
+            if a_em.document_selector(doc):
+                self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
+                new_docs.extend(a_em.process_document(doc))
+            # try:
+            #     if a_em.document_selector(doc):
+            #         self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
+            #         new_docs.extend(a_em.process_document(doc))
+            # except Exception as e:
+            #     if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
+            #         self.log(str(e) + " processing with " + str(type(a_em)) + ". Continue", "error", doc.doc_id,
+            #                  doc.url)
+            #         continue
+            #     if self.error_policy == ErrorPolicy.THROW_DOCUMENT:
+            #         self.log(str(e) + " processing with " + str(type(a_em)) + ". Throw doc", "error", doc.doc_id,
+            #                  doc.url)
+            #         return list()
+            #     if self.error_policy == ErrorPolicy.RAISE:
+            #         self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
+            #         raise e
 
         doc.insert_kg_into_cdr()
 
