@@ -1,6 +1,8 @@
 from spacy.tokens import Token
 from etk.tokenizer import Tokenizer
 from typing import List, Any, Dict
+import numbers
+import datetime
 import re
 
 
@@ -34,6 +36,12 @@ class ExtractableBase(object):
             return self.list2str(self._value, joiner)
         elif isinstance(self._value, dict):
             return self.dict2str(self._value, joiner)
+        elif isinstance(self.value, numbers.Number):
+            return str(self.value)
+        elif isinstance(self._value, datetime.date):
+            return self._value.strftime("%Y-%m-%d")
+        elif isinstance(self._value, datetime.datetime):
+            return self._value.isoformat()
         else:
             return self._value
 

@@ -50,7 +50,7 @@ if __name__ == "__main__":
                       heading_row=1)
 
     data_set = 'test_data_set_csv'
-    docs = cp.tabular_extractor(filename="acled_raw_data.csv", data_set='acled', doc_id_field="data_id")
+    docs = cp.tabular_extractor(filename="acled_raw_data.csv", dataset='acled', doc_id_field="data_id")
 
     results = etk.process_ems(docs[0])
 

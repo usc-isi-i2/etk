@@ -11,6 +11,7 @@ from etk.extractors.decoding_value_extractor import DecodingValueExtractor
 from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
 from etk.knowledge_graph_schema import KGSchema
+from etk.etk_exceptions import ErrorPolicy
 
 
 class UCDPModule(ETKModule):
@@ -49,8 +50,6 @@ class UCDPModule(ETKModule):
                 cdr[k] = DateExtractor.convert_to_iso_format(v, DateResolution.DAY)
 
     def process_document(self, doc: Document):
-        self.fix_cdr_document(doc)
-
         doc.kg.add_doc_value("country", "$.Location")
 
         doc.store(doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]), "incomp_type")
@@ -68,6 +67,7 @@ class UCDPModule(ETKModule):
 
         doc.kg.add_doc_value("event_date", "$.StartDate")
 
+        self.fix_cdr_document(doc)
         print(json.dumps(doc.cdr_document, indent=2))
         print(json.dumps(doc.kg.value, indent=2))
 
@@ -93,6 +93,6 @@ if __name__ == "__main__":
     etk = ETK(modules=UCDPModule, kg_schema=kg_schema)
     cp = CsvProcessor(etk=etk, heading_row=1)
 
-    for doc in cp.tabular_extractor(filename="ucdp_sample.xls", data_set='ucdp'):
+    for doc in cp.tabular_extractor(filename="ucdp_sample.xls", dataset='ucdp'):
         etk.process_ems(doc)
         # print(doc.cdr_document)
