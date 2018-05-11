@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 import copy
 import re
@@ -21,6 +21,19 @@ class ExcelExtractor(Extractor):
         self.etk = etk
 
     def extract(self, file_name: str, sheet_name: str, region: List, variables: Dict) -> List[Extraction]:
+        """
+        Args:
+            file_name: str - file name
+            sheet_name: str - sheet name
+            region: List - from upper left cell to bottom right cell, e.g., ['A,1', 'Z,10']
+            variables: Dict - key is variable name, value can be:
+                              1. a single expression 2. comma separated expression, will be treated as location
+                              $row, $col are built-in variables can be used in expression
+                              constant row and column value can be noted as $NAME (e.g., $1, $10, $A, $GG)
+        
+        Returns: List[Extraction] - A list of extracted variables dictionary
+            
+        """
         extractions = []
 
         book = pyexcel.get_book(file_name=file_name)
@@ -50,7 +63,7 @@ class ExcelExtractor(Extractor):
         return extractions
 
     @staticmethod
-    def col_name_to_num(name: str):
+    def col_name_to_num(name: str) -> int:
         name = name.upper()
         pow = 1
         col_num = 0
@@ -60,7 +73,7 @@ class ExcelExtractor(Extractor):
         return col_num - 1
 
     @staticmethod
-    def row_name_to_num(name: str):
+    def row_name_to_num(name: str) -> int:
         try:
             num = int(name) - 1
             if num >= 0:
@@ -70,12 +83,12 @@ class ExcelExtractor(Extractor):
             raise ValueError('Invalid row name')
 
     @staticmethod
-    def excel_coord_to_location(s: str):
+    def excel_coord_to_location(s: str) -> Tuple:
         ss = s.split(',')
-        return (ExcelExtractor.row_name_to_num(ss[1]), ExcelExtractor.col_name_to_num(ss[0]))
+        return ExcelExtractor.row_name_to_num(ss[1]), ExcelExtractor.col_name_to_num(ss[0])
 
     @staticmethod
-    def parse_variable(s: str, curr_row: int, curr_col: int):
+    def parse_variable(s: str, curr_row: int, curr_col: int) -> Tuple:
         '''
         $A,$2 <- constant col and row
         $row,$2 <- current col, row 2
@@ -95,9 +108,9 @@ class ExcelExtractor(Extractor):
 
         ss = s.split(',')
         if len(ss) == 1:
-            return (parse_expression(ss[0], curr_row, curr_col),)
+            return parse_expression(ss[0], curr_row, curr_col),
         elif len(ss) == 2:
             rr, cc = (ss[1], ss[0])
-            return (parse_expression(rr, curr_row, curr_col), parse_expression(cc, curr_row, curr_col))
+            return parse_expression(rr, curr_row, curr_col), parse_expression(cc, curr_row, curr_col)
         else:
             raise ValueError('Invalid variable')
