@@ -25,13 +25,13 @@ class Utility(object):
                 doc[k] = v.isoformat()
 
     @staticmethod
-    def create_doc_id_from_json(doc):
+    def create_doc_id_from_json(doc) -> str:
         """
-
+        Docs with identical contents get the same ID.
         Args:
             doc:
 
-        Returns:
+        Returns: a string with the hash of the given document.
 
         """
         return hashlib.sha256(json.dumps(doc, sort_keys=True).encode('utf-8')).hexdigest()
