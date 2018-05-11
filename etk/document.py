@@ -130,7 +130,6 @@ class Document(Segment):
                                  "warning", self.doc_id, self.url)
                     warnings.warn("Extractor needs string, got extractable value as dict, converting to string")
                 text = extractable.get_string(joiner)
-                print(text)
                 if text:
                     extracted_results = extractor.extract(text, **options)
             else:
