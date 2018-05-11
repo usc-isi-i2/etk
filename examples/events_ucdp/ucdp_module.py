@@ -10,6 +10,22 @@ from etk.extractors.decoding_value_extractor import DecodingValueExtractor
 from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
 from etk.knowledge_graph_schema import KGSchema
+from etk.utilities import Utility
+
+
+class UCDPActorModule(ETKModule):
+
+    def __init__(self, etk):
+        ETKModule.__init__(self, etk)
+
+    def document_selector(self, doc) -> bool:
+        return doc.cdr_document["dataset"] == "ucdp-actor"
+
+    def process_document(self, doc: Document) -> List[Document]:
+        doc.kg.add_doc_value("country", "$.SideA")
+        doc.kg.add_value("type", "Group")
+        doc.kg.add_value("type", "Country")
+        return []
 
 
 class UCDPModule(ETKModule):
@@ -39,6 +55,9 @@ class UCDPModule(ETKModule):
         self.int_causeex_decoder = DecodingValueExtractor(self.int_causeex_type, 'Int CauseEx Type', default_action="delete")
 
     def process_document(self, doc: Document) -> List[Document]:
+        Utility.make_json_serializable(doc.cdr_document)
+        doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
+
         doc.kg.add_doc_value("country", "$.Location")
 
         doc.store(doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]), "incomp_type")
@@ -56,19 +75,39 @@ class UCDPModule(ETKModule):
 
         doc.kg.add_doc_value("event_date", "$.StartDate")
 
-        return []
+        actor1_dict = {
+            "SideA": doc.cdr_document["SideA"],
+            "dataset": "ucdp-actor"
+        }
+        actor1_doc = etk.create_document(actor1_dict)
+        actor1_doc.doc_id = doc.doc_id + "_actor1"
+        doc.kg.add_value("actor", actor1_doc.doc_id)
+
+        actor2_dict = {
+            "SideB": doc.cdr_document["SideB"],
+            "dataset": "ucdp-actor"
+        }
+        actor2_doc = etk.create_document(actor2_dict)
+        actor2_doc.doc_id = doc.doc_id + "_actor2"
+        doc.kg.add_value("actor", actor2_doc.doc_id)
+        return [
+            actor1_doc,
+            actor2_doc
+        ]
 
     def document_selector(self, doc) -> bool:
-        return self.doc_selector.select_document(doc, datasets=["ucdp"])
+        # return self.doc_selector.select_document(doc, datasets=["ucdp"])
+        return doc.cdr_document["dataset"] == "ucdp"
 
 
 if __name__ == "__main__":
 
     kg_schema = KGSchema(json.load(open('master_config.json')))
-    etk = ETK(modules=UCDPModule, kg_schema=kg_schema)
+    etk = ETK(modules=[UCDPModule, UCDPActorModule], kg_schema=kg_schema)
     cp = CsvProcessor(etk=etk, heading_row=1)
 
     with open("ucdp.jl", "w") as f:
         for doc in cp.tabular_extractor(filename="ucdp_sample.xls", dataset='ucdp'):
-            etk.process_ems(doc)
-            f.write(json.dumps(doc.cdr_document) + "\n")
+            for result in etk.process_ems(doc):
+                # print(result.cdr_document)
+                f.write(json.dumps(result.cdr_document) + "\n")
