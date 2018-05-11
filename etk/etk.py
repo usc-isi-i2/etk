@@ -9,7 +9,7 @@ from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path='/tmp/etk.log'):
+                 logger_path='./tmp/etk.log'):
         if logger:
             self.logger = logger
         else:
