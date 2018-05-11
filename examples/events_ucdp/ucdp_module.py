@@ -1,17 +1,15 @@
 import os
 import sys, json
-import datetime
+from typing import List
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.etk_module import ETKModule
 from etk.csv_processor import CsvProcessor
-from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.extractors.decoding_value_extractor import DecodingValueExtractor
 from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
 from etk.knowledge_graph_schema import KGSchema
-from etk.etk_exceptions import ErrorPolicy
 
 
 class UCDPModule(ETKModule):
@@ -40,16 +38,7 @@ class UCDPModule(ETKModule):
         self.int_decoder = DecodingValueExtractor(self.int_event_type, 'Int Decoder')
         self.int_causeex_decoder = DecodingValueExtractor(self.int_causeex_type, 'Int CauseEx Type', default_action="delete")
 
-    def fix_cdr_document(self, doc):
-        """make all attributes strings"""
-        cdr = doc.cdr_document
-        for k, v in cdr.items():
-            if isinstance(v, int):
-                cdr[k] = str(v)
-            elif isinstance(v, datetime.date):
-                cdr[k] = DateExtractor.convert_to_iso_format(v, DateResolution.DAY)
-
-    def process_document(self, doc: Document):
+    def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_doc_value("country", "$.Location")
 
         doc.store(doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]), "incomp_type")
@@ -67,20 +56,6 @@ class UCDPModule(ETKModule):
 
         doc.kg.add_doc_value("event_date", "$.StartDate")
 
-        self.fix_cdr_document(doc)
-        print(json.dumps(doc.cdr_document, indent=2))
-        print(json.dumps(doc.kg.value, indent=2))
-
-
-        # event_date = doc.select_segments(jsonpath='$.event_date')
-        # for segment in event_date:
-        #     extractions = doc.extract(extractor=self.date_extractor, extractable=segment)
-        #
-        #     for extraction in extractions:
-        #         doc.kg.add_value("event_date", extraction.value)
-        #
-        # doc.kg.add_doc_value("description", '$.notes')
-
         return []
 
     def document_selector(self, doc) -> bool:
@@ -93,6 +68,7 @@ if __name__ == "__main__":
     etk = ETK(modules=UCDPModule, kg_schema=kg_schema)
     cp = CsvProcessor(etk=etk, heading_row=1)
 
-    for doc in cp.tabular_extractor(filename="ucdp_sample.xls", dataset='ucdp'):
-        etk.process_ems(doc)
-        # print(doc.cdr_document)
+    with open("ucdp.jl", "w") as f:
+        for doc in cp.tabular_extractor(filename="ucdp_sample.xls", dataset='ucdp'):
+            etk.process_ems(doc)
+            f.write(json.dumps(doc.cdr_document) + "\n")
