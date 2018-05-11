@@ -1,3 +1,5 @@
+import platform
+import tempfile
 from typing import List, Dict
 import spacy, copy, json, os, jsonpath_ng, importlib, logging, sys
 from etk.tokenizer import Tokenizer
@@ -7,10 +9,11 @@ from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 from etk.utilities import Utility
 
+TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path='./tmp/etk.log'):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log')):
         if logger:
             self.logger = logger
         else:
