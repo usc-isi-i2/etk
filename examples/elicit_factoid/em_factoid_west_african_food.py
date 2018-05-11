@@ -82,7 +82,7 @@ class ElicitWestAmericanFoodModule(ETKModule):
                     'code': code,
                     'nutrition': e['nutrition'],
                     'metadata': {
-                        'file_name': doc.cdr_document['file_path'],
+                        'file_name': os.path.basename(doc.cdr_document['file_path']),
                         'sheet_name': 'USERDATABASE',
                         'row': str(e['row']),
                         'col': str(e['col'])
