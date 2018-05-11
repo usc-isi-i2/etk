@@ -1,4 +1,6 @@
 import datetime
+import hashlib
+import json
 from typing import Dict
 
 
@@ -21,3 +23,15 @@ class Utility(object):
                 doc[k] = v.strftime("%Y-%m-%d")
             elif isinstance(v, datetime.datetime):
                 doc[k] = v.isoformat()
+
+    @staticmethod
+    def create_doc_id_from_json(doc):
+        """
+
+        Args:
+            doc:
+
+        Returns:
+
+        """
+        return hashlib.sha256(json.dumps(doc, sort_keys=True).encode('utf-8')).hexdigest()

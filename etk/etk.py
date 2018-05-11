@@ -120,8 +120,11 @@ class ETK(object):
             #         self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
             #         raise e
 
+        # Do house cleaning.
         doc.insert_kg_into_cdr()
         Utility.make_json_serializable(doc.cdr_document)
+        if not doc.doc_id:
+            doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
         results = [doc]
         for new_doc in new_docs:
