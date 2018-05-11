@@ -1,10 +1,4 @@
-from warnings import warn
-from typing import List
-from enum import Enum, auto
-import datetime, re, calendar, pytz
-from tzlocal import get_localzone
-from dateutil.relativedelta import relativedelta
-from langdetect import detect
+from typing import List, Dict
 
 import copy
 import re
@@ -12,26 +6,21 @@ import pyexcel
 
 from etk.etk import ETK
 from etk.extractor import Extractor, InputType
-from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 from etk.extraction import Extraction
-from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
-from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
-    spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, \
-    day_of_week_to_number, possible_illegal
 
 
 class ExcelExtractor(Extractor):
     re_row_identifier = re.compile(r'(\$[0-9]+)')
     re_col_identifier = re.compile(r'(\$[A-Za-z]+)')
 
-    def __init__(self, etk: ETK=None, extractor_name: str='excel extractor') -> None:
+    def __init__(self, etk: ETK = None, extractor_name: str = 'excel extractor') -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="data extractor",
                            name=extractor_name)
         self.etk = etk
 
-    def extract(self, file_name, sheet_name, region, variables) -> List[Extraction]:
+    def extract(self, file_name: str, sheet_name: str, region: List, variables: Dict) -> List[Extraction]:
         extractions = []
 
         book = pyexcel.get_book(file_name=file_name)
@@ -48,9 +37,9 @@ class ExcelExtractor(Extractor):
                 # per variable
                 for k, v in var.items():
                     parsed_v = ExcelExtractor.parse_variable(v, r, c)
-                    if len(parsed_v) == 1: # normal variable
+                    if len(parsed_v) == 1:  # normal variable
                         var[k] = parsed_v[0]
-                    else: # location
+                    else:  # location
                         rr, cc = parsed_v
                         var[k] = sheet[rr, cc]
                     extractions.append(var)
@@ -61,7 +50,7 @@ class ExcelExtractor(Extractor):
         return extractions
 
     @staticmethod
-    def col_name_to_num(name):
+    def col_name_to_num(name: str):
         name = name.upper()
         pow = 1
         col_num = 0
@@ -71,7 +60,7 @@ class ExcelExtractor(Extractor):
         return col_num - 1
 
     @staticmethod
-    def row_name_to_num(name):
+    def row_name_to_num(name: str):
         try:
             num = int(name) - 1
             if num >= 0:
@@ -81,12 +70,12 @@ class ExcelExtractor(Extractor):
             raise ValueError('Invalid row name')
 
     @staticmethod
-    def excel_coord_to_location(s):
+    def excel_coord_to_location(s: str):
         ss = s.split(',')
         return (ExcelExtractor.row_name_to_num(ss[1]), ExcelExtractor.col_name_to_num(ss[0]))
 
     @staticmethod
-    def parse_variable(s, curr_row, curr_col):
+    def parse_variable(s: str, curr_row: int, curr_col: int):
         '''
         $A,$2 <- constant col and row
         $row,$2 <- current col, row 2
@@ -106,7 +95,7 @@ class ExcelExtractor(Extractor):
 
         ss = s.split(',')
         if len(ss) == 1:
-            return (parse_expression(ss[0], curr_row, curr_col), )
+            return (parse_expression(ss[0], curr_row, curr_col),)
         elif len(ss) == 2:
             rr, cc = (ss[1], ss[0])
             return (parse_expression(rr, curr_row, curr_col), parse_expression(cc, curr_row, curr_col))

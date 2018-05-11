@@ -1,6 +1,5 @@
 import unittest
 from etk.extractors.excel_extractor import ExcelExtractor
-from etk.etk import ETK
 
 ee = ExcelExtractor()
 
@@ -26,7 +25,6 @@ class TestExcelExtractor(unittest.TestCase):
         self.assertEquals(ee.parse_variable('$col,$1', 10, 10), (0, 10))
         self.assertEquals(ee.parse_variable('$A,$row', 10, 10), (10, 0))
         self.assertEquals(ee.parse_variable('$A+2,$row', 10, 10), (10, 2))
-
 
 
 if __name__ == '__main__':
