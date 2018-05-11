@@ -38,5 +38,5 @@ if __name__ == "__main__":
 
     data_set = 'test_data_set_csv'
     docs = [doc.cdr_document for doc in
-                 cp.tabular_extractor(table_str=csv_str, data_set='test_csv_str_with_all_args')]
+            cp.tabular_extractor(table_str=csv_str, dataset='test_csv_str_with_all_args')]
     pprint.pprint(docs)

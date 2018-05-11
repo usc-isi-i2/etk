@@ -5,11 +5,12 @@ from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
+from etk.utilities import Utility
 
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path='/tmp/etk.log'):
+                 logger_path='./tmp/etk.log'):
         if logger:
             self.logger = logger
         else:
@@ -99,24 +100,31 @@ class ETK(object):
         new_docs = list()
 
         for a_em in self.em_lst:
-            try:
-                if a_em.document_selector(doc):
-                    self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
-                    new_docs.extend(a_em.process_document(doc))
-            except Exception as e:
-                if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
-                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Continue", "error", doc.doc_id,
-                             doc.url)
-                    continue
-                if self.error_policy == ErrorPolicy.THROW_DOCUMENT:
-                    self.log(str(e) + " processing with " + str(type(a_em)) + ". Throw doc", "error", doc.doc_id,
-                             doc.url)
-                    return list()
-                if self.error_policy == ErrorPolicy.RAISE:
-                    self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
-                    raise e
+            if a_em.document_selector(doc):
+                self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
+                new_docs.extend(a_em.process_document(doc))
+            # try:
+            #     if a_em.document_selector(doc):
+            #         self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
+            #         new_docs.extend(a_em.process_document(doc))
+            # except Exception as e:
+            #     if self.error_policy == ErrorPolicy.THROW_EXTRACTION:
+            #         self.log(str(e) + " processing with " + str(type(a_em)) + ". Continue", "error", doc.doc_id,
+            #                  doc.url)
+            #         continue
+            #     if self.error_policy == ErrorPolicy.THROW_DOCUMENT:
+            #         self.log(str(e) + " processing with " + str(type(a_em)) + ". Throw doc", "error", doc.doc_id,
+            #                  doc.url)
+            #         return list()
+            #     if self.error_policy == ErrorPolicy.RAISE:
+            #         self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
+            #         raise e
 
+        # Do house cleaning.
         doc.insert_kg_into_cdr()
+        Utility.make_json_serializable(doc.cdr_document)
+        if not doc.doc_id:
+            doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
         results = [doc]
         for new_doc in new_docs:
