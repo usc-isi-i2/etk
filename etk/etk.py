@@ -5,6 +5,7 @@ from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
+from etk.utilities import Utility
 
 
 class ETK(object):
@@ -120,6 +121,7 @@ class ETK(object):
             #         raise e
 
         doc.insert_kg_into_cdr()
+        Utility.make_json_serializable(doc.cdr_document)
 
         results = [doc]
         for new_doc in new_docs:
