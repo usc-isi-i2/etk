@@ -46,6 +46,6 @@ etk = ETK(kg_schema, ["./extraction_modules/"])
 
 doc = etk.create_document(sample_input)
 
-doc, knowledge_graph = etk.process_ems(doc)
+docs = etk.process_ems(doc)
 
-print(json.dumps(doc.value, indent=2))
+print(json.dumps(docs[0].value, indent=2))

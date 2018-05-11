@@ -35,6 +35,7 @@ class HtmlBasicETKModule(ETKModule):
                               extract_microdata=True,
                               extract_rdfa=True,
                               ), "etk2_metadata")
+        return list()
 
 
 if __name__ == "__main__":
@@ -44,6 +45,6 @@ if __name__ == "__main__":
     etk = ETK(modules=HtmlBasicETKModule)
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
 
-    doc, _ = etk.process_ems(doc)
+    docs= etk.process_ems(doc)
 
-    print(json.dumps(doc.value, indent=2))
+    print(json.dumps(docs[0].value, indent=2))

@@ -27,6 +27,7 @@ class HelloWorldETKModule(ETKModule):
         for d, p in zip(descriptions, projects):
             names = doc.extract(self.name_extractor, d)
             p.store(names, "members")
+        return list()
 
 
 if __name__ == "__main__":
@@ -50,6 +51,5 @@ if __name__ == "__main__":
     etk = ETK(modules=HelloWorldETKModule)
     doc = etk.create_document(sample_input)
 
-    doc, _ = etk.process_ems(doc)
-
-    print(json.dumps(doc.value, indent=2))
+    docs = etk.process_ems(doc)
+    print(json.dumps(docs[0].value, indent=2))

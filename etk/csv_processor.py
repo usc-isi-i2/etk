@@ -65,7 +65,7 @@ class CsvProcessor(object):
 
     def tabular_extractor(self, table_str: str = None, filename: str = None,
                           sheet_name:str = None,
-                          data_set: str = None,
+                          dataset: str = None,
                           nested_key: str = None,
                           doc_id_field: str = None) -> List[Document]:
         data = list()
@@ -113,7 +113,7 @@ class CsvProcessor(object):
 
         table_content, heading = self.content_recognizer(data)
 
-        return self.create_documents(table_content, heading, filename, data_set, nested_key, doc_id_field=doc_id_field)
+        return self.create_documents(table_content, heading, filename, dataset, nested_key, doc_id_field=doc_id_field)
 
     def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
@@ -248,7 +248,7 @@ class CsvProcessor(object):
             if file_name is not None:
                 cdr_doc['file_name'] = file_name
             if data_set is not None:
-                cdr_doc['data_set'] = data_set
+                cdr_doc['dataset'] = data_set
 
             doc_id = None
             if doc_id_field:
