@@ -1,7 +1,6 @@
 import unittest, json
 from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
-import datetime
 from etk.knowledge_graph_schema import KGSchema
 
 csv_str = """text,with,Polish,non-Latin,lettes
@@ -214,7 +213,7 @@ class TestCsvProcessor(unittest.TestCase):
         test_docs = [doc.cdr_document for doc in
                      csv_processor.tabular_extractor(filename=file_path, sheet_name=sheets_name, dataset='test_set')]
 
-        expected_docs = [{'Title': 'David Usman and  Shot Dead', 'Date': datetime.date(2011, 6, 7),
+        expected_docs = [{'Title': 'David Usman and  Shot Dead', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Maiduguri', 'LGA': 'Maiduguri', 'State': 'Borno', 'Total Deaths': 2,
                           'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': '', 'Sectarian Actor (excluding BH) (P)': '',
                           'Other Armed Actor (P)': '', 'Kidnapper (P)': '', 'Robber (P)': '', 'Other (P)': '',
@@ -228,7 +227,7 @@ class TestCsvProcessor(unittest.TestCase):
                           'Sources 3': '', 'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria',
                           'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx',
                           'dataset': 'test_set'},
-                         {'Title': 'Explosion, Firefight at Gwange Police Station', 'Date': datetime.date(2011, 6, 7),
+                         {'Title': 'Explosion, Firefight at Gwange Police Station', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Gwange Police Station, Maiduguri', 'LGA': 'Maiduguri', 'State': 'Borno',
                           'Total Deaths': 3, 'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': 'State Actor',
                           'Sectarian Actor (excluding BH) (P)': '', 'Other Armed Actor (P)': '', 'Kidnapper (P)': '',
@@ -242,7 +241,7 @@ class TestCsvProcessor(unittest.TestCase):
                           'Sources 2': 'http://news.xinhuanet.com/english2010/world/2011-06/08/c_13915959.htm', 'Sources 3': '',
                           'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria', 'country': 'Nigeria',
                           'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'dataset': 'test_set'},
-                         {'Title': 'Explosions at Dandal Police Station', 'Date': datetime.date(2011, 6, 7),
+                         {'Title': 'Explosions at Dandal Police Station', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Dandal Police Station, Maiduguri', 'LGA': 'Maiduguri',
                           'State': 'Borno', 'Total Deaths': 0, 'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': '',
                           'Sectarian Actor (excluding BH) (P)': '', 'Other Armed Actor (P)': '', 'Kidnapper (P)': '',

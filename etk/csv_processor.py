@@ -2,6 +2,7 @@ import pyexcel_io
 import pyexcel_xlsx
 import os
 import csv
+import datetime
 from etk.document import Document
 from typing import List
 from io import StringIO
@@ -40,8 +41,6 @@ class CsvProcessor(object):
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
-        # if self.content_end_row is not None:
-        #     self.content_end_row = self.content_end_row
 
         # if set to false, read until EOF
         self.blank_row_ends_content = mapping_spec.get("ends_with_blank_row", True)
@@ -73,8 +72,7 @@ class CsvProcessor(object):
         if table_str is not None and filename is not None:
             raise InvalidArgumentsError(message="for arguments 'table_str' and 'filename', please specify only one "
                                                 "argument!")
-            # print("please only specify one argument!")
-            # return list()
+
         elif table_str is not None:
             f = StringIO(table_str)
             reader = csv.reader(f, delimiter=',')
@@ -88,8 +86,6 @@ class CsvProcessor(object):
                 get_data = self._get_data_function[extension]
             else:
                 raise InvalidFilePathError("file extension can not read")
-                # print("file extension can not read")
-                # return list()
 
             try:
                 data = get_data(filename, auto_detect_datetime=False,
@@ -113,7 +109,12 @@ class CsvProcessor(object):
 
         table_content, heading = self.content_recognizer(data)
 
-        return self.create_documents(table_content, heading, filename, dataset, nested_key, doc_id_field=doc_id_field)
+        return self.create_documents(row=table_content,
+                                     heading=heading,
+                                     filename=filename,
+                                     dataset=dataset,
+                                     nested_key=nested_key,
+                                     doc_id_field=doc_id_field)
 
     def content_recognizer(self, data: List[List[str]]) -> tuple((List[List[str]], List[str])):
         heading = list()
@@ -200,15 +201,13 @@ class CsvProcessor(object):
     def create_documents(self, rows: List[List[str]],
                          heading: List[str] = None,
                          file_name: str = None,
-                         data_set: str = None,
+                         dataset: str = None,
                          nested_key: str = None,
                          doc_id_field: str = None) -> List[Document]:
         documents = list()
         # etk = ETK()
         if self.heading_row is None and self.required_columns is not None:
             raise InvalidArgumentsError("cannot match the required columns since heading is not specified")
-            # print("cannot match the required columns since heading is not specified")
-            # return list()
 
         # get the heading line index of required columns
         list_idx = list()
@@ -221,14 +220,15 @@ class CsvProcessor(object):
             # if the row is empty, skip it
             if not any(row):
                 continue
-
+            # if some required field is missing, skip it
             is_required_not_empty = all(row[i] for i in list_idx)
             if not is_required_not_empty:
                 continue
-
+            # convert datetime obj to ISO format str
+            row = self.datetime_to_string(row)
+            # create doc for each row
             doc = dict()
             for i in range(0, self.heading_columns[1] - self.heading_columns[0]):
-                # range(len(row)):
                 if heading is not None:
                     key = heading[i]
                 else:
@@ -247,8 +247,8 @@ class CsvProcessor(object):
 
             if file_name is not None:
                 cdr_doc['file_name'] = file_name
-            if data_set is not None:
-                cdr_doc['dataset'] = data_set
+            if dataset is not None:
+                cdr_doc['dataset'] = dataset
 
             doc_id = None
             if doc_id_field:
@@ -256,3 +256,12 @@ class CsvProcessor(object):
             documents.append(self.etk.create_document(cdr_doc, doc_id=doc_id))
 
         return documents
+
+    # convert datetime object of list to ISO format string
+    @staticmethod
+    def datetime_to_string(row: List[object]) -> List[object]:
+        for i in range(len(row)):
+            if type(row[i]) is datetime.date:
+                row[i] = row[i].isoformat()
+
+        return row
