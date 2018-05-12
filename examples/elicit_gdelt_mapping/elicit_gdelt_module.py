@@ -80,6 +80,10 @@ class GdeltModule(ETKModule):
         "SOURCEURL"
     ]
 
+    ontology_prefixes = {
+        "event": "http://ontology.causeex.com/ontology/odps/EventHierarchy#"
+    }
+
     header_translation_table = {}
 
     def __init__(self, etk):
@@ -98,6 +102,13 @@ class GdeltModule(ETKModule):
         """
         return doc.cdr_document.get(self.header_translation_table[attribute_name])
 
+    def expand_prefix(self, uri: str):
+        prefix, name = uri.split(":")
+        if prefix and name:
+            return self.ontology_prefixes.get(prefix) + name
+        else:
+            return None
+
     def document_selector(self, doc: Document) -> bool:
         return doc.cdr_document.get("dataset") == "gdelt"
 
@@ -108,6 +119,7 @@ class GdeltModule(ETKModule):
         if self.mapping.has_cameo_code(cameo_code):
             for t in self.mapping.event_type("event1", cameo_code):
                 doc.kg.add_value("type", t)
+                doc.kg.add_value("causeex_class", self.expand_prefix(t))
 
         return []
 
