@@ -109,9 +109,9 @@ class CsvProcessor(object):
 
         table_content, heading = self.content_recognizer(data)
 
-        return self.create_documents(row=table_content,
+        return self.create_documents(rows=table_content,
                                      heading=heading,
-                                     filename=filename,
+                                     file_name=filename,
                                      dataset=dataset,
                                      nested_key=nested_key,
                                      doc_id_field=doc_id_field)
