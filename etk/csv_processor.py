@@ -36,7 +36,7 @@ class CsvProcessor(object):
         self.heading_columns = mapping_spec.get("heading_columns")
 
         if self.heading_columns is not None:
-            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1] + 1)
+            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1])
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
@@ -83,6 +83,7 @@ class CsvProcessor(object):
         elif filename is not None:
             # always read the entire file first
             fn, extension = os.path.splitext(filename)
+            extension = extension.lower()
 
             if extension in self._get_data_function:
                 get_data = self._get_data_function[extension]
