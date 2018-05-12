@@ -35,7 +35,7 @@ class ElicitWestAmericanFoodModule(ETKModule):
             'col': '$col'
         }
 
-        raw_extractions = self.ee.extract(doc.cdr_document['file_path'], 'USERDATABASE', ['F,3', 'AG,5'], variables)
+        raw_extractions = self.ee.extract(doc.cdr_document['file_path'], 'USERDATABASE', ['F,3', 'AG,971'], variables)
 
         # post processing
         re_code = re.compile(r'^[0-9]{2}_[0-9]{3}$')
@@ -56,16 +56,19 @@ class ElicitWestAmericanFoodModule(ETKModule):
                 in_bracket_value = re_value_in_bracket.search(e['value'])
                 value = in_bracket_value.groups(1)[0]
             elif isinstance(value, str):
+                value = value.strip()
                 in_square_bracket_value = re_value_in_square_bracket.search(e['value'])
-                value = in_square_bracket_value.groups(1)[0]
+                if in_square_bracket_value:
+                    value = in_square_bracket_value.groups(1)[0]
 
                 # if it's a range, get the lower bound
                 dash_pos = value.find('-')
                 if dash_pos != -1:
                     value = value[:dash_pos]
-            if value == '':
-                value = 0
-            value = float(value)
+            try:
+                value = float(value)
+            except:
+                value = 0.0
 
 
             extracted_doc = {
@@ -115,15 +118,17 @@ class ElicitWestAmericanFoodModule(ETKModule):
 
 
 if __name__ == "__main__":
-    # elicit_alignment/m9/datasets/orig/structured/west_african_food_composition/example/West African Food Composition.xls
-    input_path = sys.argv[1]
-    # output_path = sys.argv[2]
+    # elicit_alignment/m9/datasets/orig/structured/west_african_food_composition/example/
+    dir_path = sys.argv[1]
+    file_name = 'West African Food Composition.xls'
+    input_path = os.path.join(dir_path, file_name)
+    output_path = os.path.join(dir_path, file_name + '.jl')
 
     kg_schema = KGSchema(json.load(open('master_config.json')))
     etk = ETK(modules=ElicitWestAmericanFoodModule, kg_schema=kg_schema)
     doc = etk.create_document({'file_path': input_path})
 
     docs = etk.process_ems(doc)
-
-    for d in docs:
-        print(json.dumps(d.value, indent=2))
+    with open(output_path, 'w') as f:
+        for i in range(1, len(docs)): # ignore the first
+            f.write(json.dumps(docs[i].value) + '\n')
