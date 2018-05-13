@@ -6,6 +6,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.etk_module import ETKModule
 from etk.csv_processor import CsvProcessor
+from etk.extractors.date_extractor import DateExtractor
 from etk.extractors.decoding_value_extractor import DecodingValueExtractor
 from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
@@ -91,9 +92,22 @@ class GdeltModule(ETKModule):
         self.mapping = GdeltMapping(json.load(open("ODP-Mappings-V3.1.json")))
         # As our input files have no header, create a translation table to go from names to indices.
         for i in range(0, len(self.header_fields)):
-            self.header_translation_table[self.header_fields[i]] = str(i)
+            self.header_translation_table[self.header_fields[i]] = "COL" + str(i)
+        # Extractors
+        self.date_extractor = DateExtractor(self.etk, "Date Extractor")
 
-    def attribute(self, doc: Document, attribute_name: str):
+    def attribute(self, attribute_name: str):
+        """
+        Translate an attribute_name to the key in the JSON
+        Args:
+            attribute_name: attribute names as given in the code book
+
+        Returns: the key in the JSON document
+
+        """
+        return self.header_translation_table[attribute_name]
+
+    def attribute_value(self, doc: Document, attribute_name: str):
         """
         Access data using attribute name rather than the numeric indices
 
@@ -113,13 +127,21 @@ class GdeltModule(ETKModule):
         return doc.cdr_document.get("dataset") == "gdelt"
 
     def process_document(self, doc: Document) -> List[Document]:
-        cameo_code = self.attribute(doc, "EventCode")
+        cameo_code = self.attribute_value(doc, "EventCode")
 
         doc.kg.add_value("type", "Event")
         if self.mapping.has_cameo_code(cameo_code):
+            # Add type fields
             for t in self.mapping.event_type("event1", cameo_code):
                 doc.kg.add_value("type", t)
                 doc.kg.add_value("causeex_class", self.expand_prefix(t))
+
+            # Add event_date
+            for s in doc.select_segments("$." + self.attribute("SQLDATE")):
+                doc.kg.add_value("event_date", doc.extract(self.date_extractor, s,
+                                                           prefer_language_date_order=None,
+                                                           additional_formats=["%Y%m%d"],
+                                                           use_default_formats=False))
 
         return []
 
@@ -132,7 +154,9 @@ if __name__ == "__main__":
     etk = ETK(modules=[GdeltModule], kg_schema=kg_schema)
 
     # Create a CSV processor to create documents for the relevant rows in the TSV file
-    cp = CsvProcessor(etk=etk, heading_columns=(1, len(GdeltModule.header_fields)))
+    cp = CsvProcessor(etk=etk,
+                      heading_columns=(1, len(GdeltModule.header_fields)),
+                      column_name_prefix="COL")
 
     with open("gdelt.jl", "w") as f:
         # Iterate over all the rows in the spredsheet
