@@ -74,19 +74,20 @@ class TestCsvProcessor(unittest.TestCase):
                                      content_start_row=1,
                                      content_end_row=8,
                                      ends_with_blank_row=False,
-                                     remove_leading_empty_rows=True)
+                                     remove_leading_empty_rows=True,
+                                     column_name_prefix='')
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
                      csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
-        expected_docs = [{'0': '', '1': 'name1', '2': 'name2', '3': '', '4': '',
+        expected_docs = [{'C0': '', 'C1': 'name1', 'C2': 'name2', 'C3': '', 'C4': '',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
-                         {'0': 'col11', '1': 'col12', '2': 'col13', '3': '', '4': 'col15',
+                         {'C0': 'col11', 'C1': 'col12', 'C2': 'col13', 'C3': '', 'C4': 'col15',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
-                         {'0': 'col21', '1': 'col22', '2': 'col23', '3': 'col24', '4': 'col25',
+                         {'0': 'col21', 'C1': 'col22', 'C2': 'col23', 'C3': 'col24', 'C4': 'col25',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
-                         {'0': 'col31', '1': 'col32', '2': 'col33', '3': 'col34', '4': 'col35',
+                         {'0': 'col31', 'C1': 'col32', 'C2': 'col33', 'C3': 'col34', 'C4': 'col35',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)

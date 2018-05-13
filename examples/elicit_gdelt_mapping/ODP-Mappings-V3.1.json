@@ -1,0 +1,4665 @@
+{
+  "010": {
+    "GDELT/CAMEO event": "Make statement, not specified elsewhere,",
+    "OE event": "Make_Public_Statement",
+    "CAMEO code": "010",
+    "event1": "event:IssuingPublishingOrReleasing",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "011": {
+    "GDELT/CAMEO event": "Decline comment,",
+    "OE event": "Decline_comment",
+    "CAMEO code": "011",
+    "event1": "event:DeclineToComment",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "012": {
+    "GDELT/CAMEO event": "Make pessimistic comment,",
+    "OE event": "Make_pessimistic_comment",
+    "CAMEO code": "012",
+    "event1": "event:CommunicationConveyingPessimism",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "013": {
+    "GDELT/CAMEO event": "Make optimistic comment,",
+    "OE event": "Make_optimistic_comment",
+    "CAMEO code": "013",
+    "event1": "event:CommunicationConveyingOptimism",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "014": {
+    "GDELT/CAMEO event": "Consider policy option",
+    "OE event": "Consider_policy_option",
+    "CAMEO code": "014",
+    "event1": "event:ConsiderationOrExploration",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "015": {
+    "GDELT/CAMEO event": "Acknowledge or claim responsibility,",
+    "OE event": "Acknowledge_or_claim_responsibility",
+    "CAMEO code": "015",
+    "event1": "event:ClaimingOfResponsibility",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "016": {
+    "GDELT/CAMEO event": "Deny responsibility,",
+    "OE event": "Reject_accusation,_deny_responsibility",
+    "CAMEO code": "016",
+    "event1": "event:DenialOfResponsibility",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "017": {
+    "GDELT/CAMEO event": "Engage in symbolic act,",
+    "OE event": "Engage_in_symbolic_act",
+    "CAMEO code": "017",
+    "event1": "event:SymbolicAct",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "018": {
+    "GDELT/CAMEO event": "Make empathetic comment,",
+    "OE event": "Make_empathetic_comment",
+    "CAMEO code": "018",
+    "event1": "event:CommunicationConveyingEmpathy",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "019": {
+    "GDELT/CAMEO event": "Express accord,",
+    "OE event": "Express_accord",
+    "CAMEO code": "019",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "020": {
+    "GDELT/CAMEO event": "Make an appeal or request, not specified elsewhere,",
+    "OE event": "Appeal",
+    "CAMEO code": "020",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "021": {
+    "GDELT/CAMEO event": "Appeal for material cooperation, not specified,",
+    "OE event": "Appeal_for_material_cooperation",
+    "CAMEO code": "021",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0211": {
+    "GDELT/CAMEO event": "Appeal for economic cooperation,",
+    "OE event": "Appeal_for_economic_cooperation",
+    "CAMEO code": "0211",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:EconomicCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0212": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Appeal_for_military_cooperation",
+    "CAMEO code": "0212",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0213": {
+    "GDELT/CAMEO event": "Appeal for judicial cooperation,",
+    "OE event": "Appeal_for_judicial_cooperation",
+    "CAMEO code": "0213",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:JudicialCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0214": {
+    "GDELT/CAMEO event": "Appeal for intelligence, ",
+    "OE event": "Appeal_for_intelligence_cooperation",
+    "CAMEO code": "0214",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SharingOfInformation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "022": {
+    "GDELT/CAMEO event": "Appeal for diplomatic cooperation (such as policy support),",
+    "OE event": "Appeal_for_diplomatic_cooperation_(such_as_policy_support)",
+    "CAMEO code": "022",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:DiplomaticCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "023": {
+    "GDELT/CAMEO event": "Appeal for aid, not specified elsewhere,",
+    "OE event": "Appeal_for_material_aid",
+    "CAMEO code": "023",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0231": {
+    "GDELT/CAMEO event": "Appeal for economic aid,",
+    "OE event": "Appeal_for_economic_aid",
+    "CAMEO code": "0231",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfEconomicAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0232": {
+    "GDELT/CAMEO event": "Appeal for military aid,",
+    "OE event": "Appeal_for_military_aid.",
+    "CAMEO code": "0232",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfMilitaryAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0233": {
+    "GDELT/CAMEO event": "Appeal for humanitarian aid,",
+    "OE event": "Appeal_for_humanitarian_aid",
+    "CAMEO code": "0233",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfHumanitarianAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0234": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Appeal_for_military_protection_or_peacekeeping",
+    "CAMEO code": "0234",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "024": {
+    "GDELT/CAMEO event": "Appeal for political reform, not specified elsewhere,",
+    "OE event": "Appeal_for_political_reform",
+    "CAMEO code": "024",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:PoliticalReform",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0241": {
+    "GDELT/CAMEO event": "Appeal for change in leadership,",
+    "OE event": "Appeal_for_leadership_change",
+    "CAMEO code": "0241",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0242": {
+    "GDELT/CAMEO event": "Appeal for policy change,",
+    "OE event": "Appeal_for_policy_change",
+    "CAMEO code": "0242",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0243": {
+    "GDELT/CAMEO event": "Appeal for rights,",
+    "OE event": "Appeal_for_rights",
+    "CAMEO code": "0243",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0244": {
+    "GDELT/CAMEO event": "Appeal for change in institutions, regime, ",
+    "OE event": "Appeal_for_change_in_institutions,_regime",
+    "CAMEO code": "0244",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "025": {
+    "GDELT/CAMEO event": "Appeal to yield, not specified elsewhere,",
+    "OE event": "Appeal_to_yield",
+    "CAMEO code": "025",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SurrenderOrYielding",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0251": {
+    "GDELT/CAMEO event": "Appeal for easing of administrative sanctions,",
+    "OE event": "Appeal_for_easing_of_administrative_sanction",
+    "CAMEO code": "0251",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:AdministrativeSanctions",
+    "event3-arguments": "event:has_affected_actor actor1",
+    "Comments": ""
+  },
+  "0252": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Appeal_for_easing_of_political_dissent",
+    "CAMEO code": "0252",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalDissent",
+    "event3-arguments": "event:has_active_actor actor2",
+    "Comments": ""
+  },
+  "0253": {
+    "GDELT/CAMEO event": "Appeal for release of persons or property,",
+    "OE event": "Appeal_for_release_of_persons_or_property",
+    "CAMEO code": "0253",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReturnOrRelease",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "(event:has_affected_actor actor3 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Return of people (actor3) or things (artifact1); Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "0254": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Appeal_for_easing_of_economic_sanctions,_boycott,_or_embargo",
+    "CAMEO code": "0254",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event3-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "Comments": ""
+  },
+  "0255": {
+    "GDELT/CAMEO event": "Appeal for target to allow international involvement (non-mediation),",
+    "OE event": "Appeal_to_allow_international_involvement_(non-mediation)",
+    "CAMEO code": "0255",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Permission",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:InspectionOrObservation",
+    "event3-arguments": "event:has_affected_actor actor1 || general:located_at: loc1",
+    "Comments": "Actor1 or loc1 is \"observed\""
+  },
+  "0256": {
+    "GDELT/CAMEO event": "Appeal for de-escalation of military engagement,",
+    "OE event": "Appeal_for_target_to_de-escalation_of_military_engagement",
+    "CAMEO code": "0256",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryDeescalation",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "026": {
+    "GDELT/CAMEO event": "Appeal to others to meet or negotiate,",
+    "OE event": "Appeal_to_others_to_meet_or_negotiate",
+    "CAMEO code": "026",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MeetingEncounterOrNegotiation",
+    "event2-arguments": "event:has_active_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Others\" implies that actor2 is a GroupOfActors"
+  },
+  "027": {
+    "GDELT/CAMEO event": "Appeal to others to settle dispute,",
+    "OE event": "Appeal_to_others_to_settle_dispute",
+    "CAMEO code": "027",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SettlementOfDisagreementOrDispute",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Others\" implies that actor2 is a GroupOfActors"
+  },
+  "028": {
+    "GDELT/CAMEO event": "Appeal to engage in or accept mediation,",
+    "OE event": "Appeal_to_others_to_engage_in_or_accept_mediation",
+    "CAMEO code": "028",
+    "event1": "event:RequestOrAppeal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation",
+    "event2-arguments": "event:has_affected_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Others\" implies that actor2 is a GroupOfActors"
+  },
+  "030": {
+    "GDELT/CAMEO event": "Express intent to cooperate, not specified elsewhere,",
+    "OE event": "Express_intent_to_cooperate",
+    "CAMEO code": "030",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "031": {
+    "GDELT/CAMEO event": "Express intent to engage in material cooperation, not specified elsewhere,",
+    "OE event": "Express_intent_to_engage_in_material_cooperation",
+    "CAMEO code": "031",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0311": {
+    "GDELT/CAMEO event": "Express intent to cooperate economically,",
+    "OE event": "Express_intent_to_cooperate_economically",
+    "CAMEO code": "0311",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:EconomicCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0312": {
+    "GDELT/CAMEO event": "Express intent to cooperate militarily,",
+    "OE event": "Express_intent_to_cooperate_militarily",
+    "CAMEO code": "0312",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0313": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_cooperate_on_judicial_matters",
+    "CAMEO code": "0313",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:JudicialCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0314": {
+    "GDELT/CAMEO event": "Express intent to cooperate on intelligence,",
+    "OE event": "Express_intent_to_cooperate_on_intelligence",
+    "CAMEO code": "0314",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SharingOfInformation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "032": {
+    "GDELT/CAMEO event": "Express intent to engage in diplomatic cooperation (such as policy support),",
+    "OE event": "Express_intent_to_engage_in_diplomatic_cooperation_(such_as_policy_support)",
+    "CAMEO code": "032",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:DiplomaticCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "033": {
+    "GDELT/CAMEO event": "Express intent to provide material aid, not specified elsewhere,",
+    "OE event": "Express_intent_to_provide_material_aid",
+    "CAMEO code": "033",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfAid",
+    "event2-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0331": {
+    "GDELT/CAMEO event": "Express intent to provide economic aid,",
+    "OE event": "Express_intent_to_provide_economic_aid",
+    "CAMEO code": "0331",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfEconomicAid",
+    "event2-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0332": {
+    "GDELT/CAMEO event": "Express intent to provide military aid,",
+    "OE event": "Express_intent_to_provide_military_aid",
+    "CAMEO code": "0332",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfMilitaryAid",
+    "event2-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0333": {
+    "GDELT/CAMEO event": "Express intent to provide humanitarian aid,",
+    "OE event": "Express_intent_to_provide_humanitarian_aid",
+    "CAMEO code": "0333",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfHumanitarianAid",
+    "event2-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0334": {
+    "GDELT/CAMEO event": "Express intent to provide military protection or peacekeeping,",
+    "OE event": "Express_intent_to_provide_military_protection_or_peacekeeping",
+    "CAMEO code": "0334",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event2-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "034": {
+    "GDELT/CAMEO event": "Express intent to institute political reform, not specified elsewhere,",
+    "OE event": "Express_intent_to_institute_political_reform",
+    "CAMEO code": "034",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PoliticalReform",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0341": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_change_leadership",
+    "CAMEO code": "0341",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0342": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_change_policy",
+    "CAMEO code": "0342",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0343": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_provide_rights",
+    "CAMEO code": "0343",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0344": {
+    "GDELT/CAMEO event": "Express intent to change institutions or regimes ",
+    "OE event": "Express_intent_to_change_institutions,_regime",
+    "CAMEO code": "0344",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "035": {
+    "GDELT/CAMEO event": "Express intent to yield, not specified elsewhere,",
+    "OE event": "Express_intent_to_yield",
+    "CAMEO code": "035",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SurrenderOrYielding",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property loc1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Surrender may be to actor2 and/or of a location loc1"
+  },
+  "0351": {
+    "GDELT/CAMEO event": "Express intent to ease administrative sanctions,",
+    "OE event": "Express_intent_to_ease_administrative_sanctions",
+    "CAMEO code": "0351",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:AdministrativeSanctions",
+    "event3-arguments": "event:has_affected_actor actor2",
+    "Comments": ""
+  },
+  "0352": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_ease_popular_dissent",
+    "CAMEO code": "0352",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalDissent",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "0353": {
+    "GDELT/CAMEO event": "Express intent to release persons or property,",
+    "OE event": "Express_intent_to_release_persons_or_property",
+    "CAMEO code": "0353",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReturnOrRelease",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Return of people (actor2) or things (artifact1); Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "0354": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_ease_economic_sanctions,_boycott,_or_embargo",
+    "CAMEO code": "0354",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "0355": {
+    "GDELT/CAMEO event": "Express intent to allow international involvement (non-mediation),",
+    "OE event": "Express_intent_to_allow_international_involvement_(non-mediation)",
+    "CAMEO code": "0355",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Permission",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:InspectionOrObservation",
+    "event3-arguments": "event:has_affected_actor actor2 || general:located_at loc1",
+    "Comments": "Actor2 or loc1 is \"observed\""
+  },
+  "0356": {
+    "GDELT/CAMEO event": "Express intent to de-escalate military engagement,",
+    "OE event": "Express_intent_to_de-escalate_military_engagement",
+    "CAMEO code": "0356",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryDeescalation",
+    "event2-arguments": "event:has_active_actor actor1 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "036": {
+    "GDELT/CAMEO event": "Express intent to meet or negotiate,",
+    "OE event": "Express_intent_to_meet_or_negotiate",
+    "CAMEO code": "036",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MeetingEncounterOrNegotiation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "037": {
+    "GDELT/CAMEO event": "Express intent to settle dispute,",
+    "OE event": "Express_intent_to_settle_dispute",
+    "CAMEO code": "037",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SettlementOfDisagreementOrDispute",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "038": {
+    "GDELT/CAMEO event": "Express intent to accept mediation,",
+    "OE event": "Express_intent_to_accept_mediation",
+    "CAMEO code": "038",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation",
+    "event2-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "039": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Express_intent_to_mediate",
+    "CAMEO code": "039",
+    "event1": "event:ExpressionOfIntent",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation",
+    "event2-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "040": {
+    "GDELT/CAMEO event": "Consult, not specified elsewhere",
+    "OE event": "Consult",
+    "CAMEO code": "040",
+    "event1": "event:Advising",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Active\" actor is the consultant or advisor"
+  },
+  "041": {
+    "GDELT/CAMEO event": "Discuss by telephone",
+    "OE event": "Discuss_by_telephone",
+    "CAMEO code": "041",
+    "event1": "event:CommunicationViaPhone",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "042": {
+    "GDELT/CAMEO event": "Make a visit,",
+    "OE event": "Make_a_visit",
+    "CAMEO code": "042",
+    "event1": "event:Visit",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Active\" actor makes the visit to the \"affected\" actor"
+  },
+  "043": {
+    "GDELT/CAMEO event": "Host a visit,",
+    "OE event": "Host_a_visit",
+    "CAMEO code": "043",
+    "event1": "event:SponsorOrHost",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "\"Active\" actor hosts the \"affected\" actor"
+  },
+  "044": {
+    "GDELT/CAMEO event": "Meet at a 'third' location,",
+    "OE event": "Meet_at_a_\u2018third\u2019_location",
+    "CAMEO code": "044",
+    "event1": "event:MeetingOrEncounter",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Either the location is known (general:located_at some location) or use the general:location property to indicate the text, \"third location\""
+  },
+  "045": {
+    "GDELT/CAMEO event": "Mediate,",
+    "OE event": "Engage_in_mediation",
+    "CAMEO code": "045",
+    "event1": "event:Mediation",
+    "event1-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "046": {
+    "GDELT/CAMEO event": "Engage in negotiation,",
+    "OE event": "Engage_in_negotiation",
+    "CAMEO code": "046",
+    "event1": "event:Negotiation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "050": {
+    "GDELT/CAMEO event": "Engage in diplomatic cooperation, not specified elsewhere,",
+    "OE event": "Engage_in_diplomatic_cooperation",
+    "CAMEO code": "050",
+    "event1": "event:DiplomaticCooperation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "051": {
+    "GDELT/CAMEO event": "Praise or endorse,",
+    "OE event": "Praise_or_endorse",
+    "CAMEO code": "051",
+    "event1": "event:PraisingOrEndorsing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "052": {
+    "GDELT/CAMEO event": "Defend verbally,",
+    "OE event": "Defend_verbally",
+    "CAMEO code": "052",
+    "event1": "event:DefenseOrSupport",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "053": {
+    "GDELT/CAMEO event": "Rally support on behalf of,",
+    "OE event": "Rally_support_on_behalf_of",
+    "CAMEO code": "053",
+    "event1": "event:CollectingOrRallying",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:DefenseOrSupport",
+    "event2-arguments": "event:has_affected_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "054": {
+    "GDELT/CAMEO event": "Grant diplomatic recognition,",
+    "OE event": "Grant_diplomatic_recognition",
+    "CAMEO code": "054",
+    "event1": "event:DiplomaticRecognition",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "055": {
+    "GDELT/CAMEO event": "Apologize,",
+    "OE event": "Apologize",
+    "CAMEO code": "055",
+    "event1": "event:Apology",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "056": {
+    "GDELT/CAMEO event": "Forgive,",
+    "OE event": "Forgive",
+    "CAMEO code": "056",
+    "event1": "event:Forgiving",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "057": {
+    "GDELT/CAMEO event": "Sign formal agreement",
+    "OE event": "Sign_formal_agreement",
+    "CAMEO code": "057",
+    "event1": "event:FormalAgreement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "060": {
+    "GDELT/CAMEO event": "Engage in material cooperation, not specified elsewhere,",
+    "OE event": "Engage_in_material_cooperation",
+    "CAMEO code": "060",
+    "event1": "event:Cooperation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "061": {
+    "GDELT/CAMEO event": "Cooperate economically,",
+    "OE event": "Cooperate_economically",
+    "CAMEO code": "061",
+    "event1": "event:EconomicCooperation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "062": {
+    "GDELT/CAMEO event": "Cooperate militarily,",
+    "OE event": "Cooperate_militarily",
+    "CAMEO code": "062",
+    "event1": "event:MilitaryCooperation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "063": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_judicial_cooperation",
+    "CAMEO code": "063",
+    "event1": "event:JudicialCooperation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "064": {
+    "GDELT/CAMEO event": "Share intelligence or information,",
+    "OE event": "Share_intelligence_or_information",
+    "CAMEO code": "064",
+    "event1": "event:SharingOfInformation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "070": {
+    "GDELT/CAMEO event": "Provide aid, not specified elsewhere,",
+    "OE event": "Provide_aid",
+    "CAMEO code": "070",
+    "event1": "event:ProvisionOfAid",
+    "event1-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "071": {
+    "GDELT/CAMEO event": "Provide economic aid,",
+    "OE event": "Provide_economic_aid",
+    "CAMEO code": "071",
+    "event1": "event:ProvisionOfEconomicAid",
+    "event1-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "072": {
+    "GDELT/CAMEO event": "Provide military aid,",
+    "OE event": "Provide_military_aid",
+    "CAMEO code": "072",
+    "event1": "event:ProvisionOfMilitaryAid",
+    "event1-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "073": {
+    "GDELT/CAMEO event": "Provide humanitarian aid,",
+    "OE event": "Provide_humanitarian_aid",
+    "CAMEO code": "073",
+    "event1": "event:ProvisionOfHumanitarianAid",
+    "event1-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "074": {
+    "GDELT/CAMEO event": "Provide military protection or peacekeeping,",
+    "OE event": "Provide_military_protection_or_peacekeeping",
+    "CAMEO code": "074",
+    "event1": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event1-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "075": {
+    "GDELT/CAMEO event": "Grant asylum,",
+    "OE event": "Grant_asylum",
+    "CAMEO code": "075",
+    "event1": "event:GrantingOfAsylum",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "080": {
+    "GDELT/CAMEO event": "Yield, not specified elsewhere,",
+    "OE event": "Yield",
+    "CAMEO code": "080",
+    "event1": "event:SurrenderOrYielding",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "081": {
+    "GDELT/CAMEO event": "Ease administrative sanctions, not specifispecified elsewhere,",
+    "OE event": "Ease_administrative_sanctions",
+    "CAMEO code": "081",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:AdministrativeSanctions",
+    "event2-arguments": "event:has_affected_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0811": {
+    "GDELT/CAMEO event": "Ease restrictions on political freedoms,",
+    "OE event": "Ease_restrictions_on_political_freedoms",
+    "CAMEO code": "0811",
+    "event1": [
+      "event:Increase",
+      "event:RespectForRightsFreedoms"
+    ],
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0812": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Ease_ban_on_political_parties_or_politicians",
+    "CAMEO code": "0812",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BanOrProhibition",
+    "event2-arguments": "event:has_affected_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:PoliticalParty, with general:generic \"true\", or has type, actor:Person with a general:position_or_role of \"politician\""
+  },
+  "0813": {
+    "GDELT/CAMEO event": "Ease curfew,",
+    "OE event": "Ease_curfew",
+    "CAMEO code": "0813",
+    "event1": [
+      "event:Decrease",
+      "event:Curfew"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Curfew is at some location identified by general:located_at"
+  },
+  "0814": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Ease_state_of_emergency_or_martial_law",
+    "CAMEO code": "0814",
+    "event1": [
+      "event:Decrease",
+      "event:StateOfEmergencyOrMartialLaw"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "State of emergency is at some location identified by general:located_at"
+  },
+  "082": {
+    "GDELT/CAMEO event": "Ease political dissent,",
+    "OE event": "Ease_political_dissent",
+    "CAMEO code": "082",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PoliticalDissent",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "083": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Accede_to_requests_or_demands_for_political_reform",
+    "CAMEO code": "083",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestAppealOrDemand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalReform",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "0831": {
+    "GDELT/CAMEO event": "Accede to demands for change in leadership,",
+    "OE event": "Accede_to_demands_for_change_in_leadership",
+    "CAMEO code": "0831",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Demand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:TransferOfLeadership",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "0832": {
+    "GDELT/CAMEO event": "Accede to demands for change in policy,",
+    "OE event": "Accede_to_demands_for_change_in_policy",
+    "CAMEO code": "0832",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Demand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PolicyChange",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "0833": {
+    "GDELT/CAMEO event": "Accede to demands for rights,",
+    "OE event": "Accede_to_demands_for_rights",
+    "CAMEO code": "0833",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Demand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:RespectForRightsFreedoms",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "0834": {
+    "GDELT/CAMEO event": "Accede to demands for change in institutions, regimes ",
+    "OE event": "Accede_to_demands_for_change_in_institutions,_regime",
+    "CAMEO code": "0834",
+    "event1": "event:AgreementOrPromise",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Demand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:TransferOfLeadershipOrPolicyChange",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "084": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Return,_release",
+    "CAMEO code": "084",
+    "event1": "event:ReturnOrRelease",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Return of people (actor2) or thing (artifact1), if known; Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "0841": {
+    "GDELT/CAMEO event": "Return, release person(s),",
+    "OE event": "Return,_release_persons",
+    "CAMEO code": "0841",
+    "event1": "event:ReturnOrRelease",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 are the person \"returned\""
+  },
+  "0842": {
+    "GDELT/CAMEO event": "Return, release property,",
+    "OE event": "Return,_release_property",
+    "CAMEO code": "0842",
+    "event1": "event:ReturnOrRelease",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Property may be returned to a specific actor (actor2); Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "085": {
+    "GDELT/CAMEO event": "Ease economic sanctions, boycott, embargo, ",
+    "OE event": "",
+    "CAMEO code": "085",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "086": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Allow_international_involvement",
+    "CAMEO code": "086",
+    "event1": "event:Permission ",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:InspectionOrObservation",
+    "event2-arguments": "event:has_affected_actor actor2 || general:located_at loc1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 or loc1 is \"observed\""
+  },
+  "0861": {
+    "GDELT/CAMEO event": "Receive deployment of peacekeepers,",
+    "OE event": "Receive_deployment_of_peacekeepers",
+    "CAMEO code": "0861",
+    "event1": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event1-arguments": "event:has_recipient actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0862": {
+    "GDELT/CAMEO event": "Receive inspectors,",
+    "OE event": "Receive_inspectors",
+    "CAMEO code": "0862",
+    "event1": "event:ProvisionOfInspectorsOrObservers",
+    "event1-arguments": "event:has_recipient actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0863": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Allow_for_humanitarian_access",
+    "CAMEO code": "0863",
+    "event1": "event:Permission ",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfHumanitarianAid",
+    "event2-arguments": "event:has_active_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "087": {
+    "GDELT/CAMEO event": "De-escalate military engagement",
+    "OE event": "De-escalate_military_engagement",
+    "CAMEO code": "087",
+    "event1": "event:MilitaryDeescalation",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0871": {
+    "GDELT/CAMEO event": "Declare truce, ceasefire,",
+    "OE event": "Declare_truce,_cease\ufb01re",
+    "CAMEO code": "0871",
+    "event1": "event:CeasefireOrTruce",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0872": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Ease_military_blockade",
+    "CAMEO code": "0872",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BlockadeOrRestrictionOfMovement",
+    "event2-arguments": "general:located_at loc1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "0873": {
+    "GDELT/CAMEO event": "Demobilize armed forces,",
+    "OE event": "Demobilize_armed_forces",
+    "CAMEO code": "0873",
+    "event1": "event:Demobilization",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:MilitaryForce, and general:generic \"true\""
+  },
+  "0874": {
+    "GDELT/CAMEO event": "Retreat or surrender militarily, ",
+    "OE event": "Retreat_or_surrender_militarily",
+    "CAMEO code": "0874",
+    "event1": "event:RetreatSurrenderOrYielding",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor1 has type, actor:MilitaryForce, and if know location, it is specified using general:located_at"
+  },
+  "090": {
+    "GDELT/CAMEO event": "Investigate, not specified elsewhere,",
+    "OE event": "Investigate",
+    "CAMEO code": "090",
+    "event1": "event:Investigation",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "091": {
+    "GDELT/CAMEO event": "Investigate crime, corruption",
+    "OE event": "Investigate_crime,_corruption",
+    "CAMEO code": "091",
+    "event1": "event:Investigation",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:CriminalActOrCorruption",
+    "event2-arguments": "event:has_active_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "092": {
+    "GDELT/CAMEO event": "Investigate human rights abuses,",
+    "OE event": "Investigate_human_rights_abuses",
+    "CAMEO code": "092",
+    "event1": "event:Investigation",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:HumanRightsAbuse",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "093": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Investigate_military_action",
+    "CAMEO code": "093",
+    "event1": "event:Investigation",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryAction",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:MilitaryForce and an instance of type, Event, is used since there is no detail"
+  },
+  "094": {
+    "GDELT/CAMEO event": "Investigate war crimes,",
+    "OE event": "Investigate_war_crimes",
+    "CAMEO code": "094",
+    "event1": "event:Investigation",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:WarCrime",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "100": {
+    "GDELT/CAMEO event": "Demand, not specified elsewhere,",
+    "OE event": "Demand",
+    "CAMEO code": "100",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "101": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_material_cooperation",
+    "CAMEO code": "101",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1011": {
+    "GDELT/CAMEO event": "Demand economic cooperation,",
+    "OE event": "Demand_economic_cooperation",
+    "CAMEO code": "1011",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:EconomicCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1012": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_military_cooperation",
+    "CAMEO code": "1012",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1013": {
+    "GDELT/CAMEO event": "Demand judicial cooperation,",
+    "OE event": "Demand_judicial_cooperation",
+    "CAMEO code": "1013",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:JudicialCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1014": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_intelligence_cooperation",
+    "CAMEO code": "1014",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SharingOfInformation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "102": {
+    "GDELT/CAMEO event": "Demand diplomatic cooperation (such as policy support),",
+    "OE event": "Demand_for_diplomatic_cooperation_(such_as_policy_support)",
+    "CAMEO code": "102",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:DiplomaticCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "103": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_material_aid",
+    "CAMEO code": "103",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1031": {
+    "GDELT/CAMEO event": "Demand economic aid,",
+    "OE event": "Demand_economic_aid",
+    "CAMEO code": "1031",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfEconomicAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1032": {
+    "GDELT/CAMEO event": "Demand military aid,",
+    "OE event": "Demand_military_aid",
+    "CAMEO code": "1032",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfMilitaryAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1033": {
+    "GDELT/CAMEO event": "Demand humanitarian aid,",
+    "OE event": "Demand_humanitarian_aid",
+    "CAMEO code": "1033",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfHumanitarianAid",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1034": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_military_protection_or_peacekeeping",
+    "CAMEO code": "1034",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event2-arguments": [
+      "event:has_provider actor2",
+      "event:has_recipient actor1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "104": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_political_reform",
+    "CAMEO code": "104",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:PoliticalReform",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1041": {
+    "GDELT/CAMEO event": "Demand change in leadership,",
+    "OE event": "Demand_leadership_change",
+    "CAMEO code": "1041",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1042": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_policy_change",
+    "CAMEO code": "1042",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1043": {
+    "GDELT/CAMEO event": "Demand rights,",
+    "OE event": "Demand_rights",
+    "CAMEO code": "1043",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1044": {
+    "GDELT/CAMEO event": "Demand change in institutions, regime, ",
+    "OE event": "Demand_change_in_institutions,_regime",
+    "CAMEO code": "1044",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "105": {
+    "GDELT/CAMEO event": "Demand that target yields, not specified elsewhere,",
+    "OE event": "Demand_that_target_yield",
+    "CAMEO code": "105",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SurrenderOrYielding",
+    "event2-arguments": "event:has_active_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1051": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_easing_of_administrative_sanctions",
+    "CAMEO code": "1051",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:AdministrativeSanctions",
+    "event3-arguments": "event:has_affected_actor actor1",
+    "Comments": ""
+  },
+  "1052": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_easing_of_political_dissent",
+    "CAMEO code": "1052",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalDissent",
+    "event3-arguments": "event:has_active_actor actor2",
+    "Comments": ""
+  },
+  "1053": {
+    "GDELT/CAMEO event": "Demand release of persons or property,",
+    "OE event": "Demand_release_of_persons_or_property",
+    "CAMEO code": "1053",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReturnOrRelease",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "(event:has_affected_actor actor3 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Return of people (actor2) or things (artifact1); Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "1054": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_easing_of_economic_sanctions,_boycott,_or_embargo",
+    "CAMEO code": "1054",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event3-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "Comments": ""
+  },
+  "1055": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_to_allow_international_involvement_(non-mediation)",
+    "CAMEO code": "1055",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Permission",
+    "event2-arguments": [
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "event:InspectionOrObservation",
+    "event3-arguments": "event:has_affected_actor actor1 |& general:located_at: loc1",
+    "Comments": "Actor1 or loc1 is \"observed\""
+  },
+  "1056": {
+    "GDELT/CAMEO event": "Demand de-escalation of military engagement,",
+    "OE event": "Demand_de-escalation_of_military_engagement",
+    "CAMEO code": "1056",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryDeescalation",
+    "event2-arguments": "event:has_active_actor actor2 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "106": {
+    "GDELT/CAMEO event": "Demand meeting, negotiation,",
+    "OE event": "Demand_meeting,_negotiation",
+    "CAMEO code": "106",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:MeetingEncounterOrNegotiation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "107": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demand_settling_of_dispute",
+    "CAMEO code": "107",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:SettlementOfDisagreementOrDispute",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "108": {
+    "GDELT/CAMEO event": "Demand mediation,",
+    "OE event": "Demand_mediation",
+    "CAMEO code": "108",
+    "event1": "event:Demand",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation",
+    "event2-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "110": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Disapprove",
+    "CAMEO code": "110",
+    "event1": "event:DisapprovalOrDenunciaton",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "111": {
+    "GDELT/CAMEO event": "Criticize or denounce,",
+    "OE event": "Criticize_or_denounce",
+    "CAMEO code": "111",
+    "event1": "event:DisapprovalOrDenunciaton",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "112": {
+    "GDELT/CAMEO event": "Accuse, not specified elsewhere,",
+    "OE event": "Accuse",
+    "CAMEO code": "112",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1121": {
+    "GDELT/CAMEO event": "Accuse of crime, corruption ",
+    "OE event": "Accuse_of_crime,_corruption",
+    "CAMEO code": "1121",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:CriminalActOrCorruption",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1122": {
+    "GDELT/CAMEO event": "Accuse of human rights abuses,",
+    "OE event": "Accuse_of_human_rights_abuses",
+    "CAMEO code": "1122",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:HumanRightsAbuse",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1123": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Accuse_of_aggression",
+    "CAMEO code": "1123",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:Aggression",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1124": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Accuse_of_war_crimes",
+    "CAMEO code": "1124",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:WarCrime",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1125": {
+    "GDELT/CAMEO event": "Accuse of espionage, treason,",
+    "OE event": "Accuse_of_espionage,_treason",
+    "CAMEO code": "1125",
+    "event1": "event:Accusation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "event:EspionageOrTreason",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "113": {
+    "GDELT/CAMEO event": "Rally opposition against,",
+    "OE event": "Rally_opposition_against",
+    "CAMEO code": "113",
+    "event1": "event:CollectingOrRallying",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "DisapprovalOrDenunciaton",
+    "event2-arguments": "event:has_affected_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "114": {
+    "GDELT/CAMEO event": "Complain officially,",
+    "OE event": "Complain_officially",
+    "CAMEO code": "114",
+    "event1": "event:Complaint",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "115": {
+    "GDELT/CAMEO event": "Bring lawsuit against,",
+    "OE event": "Bring_lawsuit_against",
+    "CAMEO code": "115",
+    "event1": "event:FilingOfLawsuit",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "116": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Find_guilty_or_liable_(legally)",
+    "CAMEO code": "116",
+    "event1": "event:FindingOfGuilty",
+    "event1-arguments": "event:has_affected_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "120": {
+    "GDELT/CAMEO event": "Reject, not specified elsewhere,",
+    "OE event": "Reject",
+    "CAMEO code": "120",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "121": {
+    "GDELT/CAMEO event": "Reject material cooperation,",
+    "OE event": "Reject_material_cooperation",
+    "CAMEO code": "121",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1211": {
+    "GDELT/CAMEO event": "Reject economic cooperation,",
+    "OE event": "Reject_economic_cooperation",
+    "CAMEO code": "1211",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:EconomicCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1212": {
+    "GDELT/CAMEO event": "Reject military cooperation,",
+    "OE event": "Reject_military_cooperation",
+    "CAMEO code": "1212",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1213": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reject_judicial_cooperation",
+    "CAMEO code": "1213",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:JudicialCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1214": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reject_intelligence_cooperation",
+    "CAMEO code": "1214",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SharingOfInformation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "122": {
+    "GDELT/CAMEO event": "Reject request or demand for material aid, not specified elsewhere,",
+    "OE event": "Reject_request_or_demand_for_material_aid",
+    "CAMEO code": "122",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestAppealOrDemand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisonOfAid",
+    "event3-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "Comments": ""
+  },
+  "1221": {
+    "GDELT/CAMEO event": "Reject request for economic aid,",
+    "OE event": "Reject_request_for_economic_aid",
+    "CAMEO code": "1221",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisonOfEconomicAid",
+    "event3-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "Comments": ""
+  },
+  "1222": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reject_request_for_military_aid",
+    "CAMEO code": "1222",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisionOfMilitaryAid",
+    "event3-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "Comments": ""
+  },
+  "1223": {
+    "GDELT/CAMEO event": "Reject request for humanitarian aid,",
+    "OE event": "Reject_request_for_humanitarian_aid",
+    "CAMEO code": "1223",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisionOfHumanitarianAid",
+    "event3-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "Comments": ""
+  },
+  "1224": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reject_request_for_military_protection_or_peacekeeping",
+    "CAMEO code": "1224",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisionOfProtectionOrPeacekeepers",
+    "event3-arguments": [
+      "event:has_provider actor1",
+      "event:has_recipient actor2"
+    ],
+    "Comments": ""
+  },
+  "123": {
+    "GDELT/CAMEO event": "Reject request or demand for political reform, not specified elsewhere,",
+    "OE event": "Reject_request_or_demand_for_political_reform",
+    "CAMEO code": "123",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestAppealOrDemand",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalReform",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1231": {
+    "GDELT/CAMEO event": "Reject request for change in leadership,",
+    "OE event": "Reject_request_to_change_leadership",
+    "CAMEO code": "1231",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:TransferOfLeadership",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1232": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reject_request_to_change_policy",
+    "CAMEO code": "1232",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PolicyChange",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1233": {
+    "GDELT/CAMEO event": "Reject request for rights, ",
+    "OE event": "Reject_request_for_rights",
+    "CAMEO code": "1233",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:RespectForRightsFreedoms",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1234": {
+    "GDELT/CAMEO event": "Reject request for change in institutions, regime",
+    "OE event": "Reject_request_for_change_in_institutions,_regime",
+    "CAMEO code": "1234",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RequestOrAppeal",
+    "event2-arguments": [
+      "event:has_active_actor actor2",
+      "event:has_affected_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:TransferOfLeadershipOrPolicyChange",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "124": {
+    "GDELT/CAMEO event": "Refuse to yield, not specified elsewhere,",
+    "OE event": "Refuse_to_yield",
+    "CAMEO code": "124",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SurrenderOrYielding",
+    "event2-arguments": "event:has_active_actor actor1 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1241": {
+    "GDELT/CAMEO event": "Refuse to ease administrative sanctions,",
+    "OE event": "Refuse_to_ease_administrative_sanctions",
+    "CAMEO code": "1241",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:AdministrativeSanctions",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "1242": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Refuse_to_ease_popular_dissent",
+    "CAMEO code": "1242",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:PoliticalDissent",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1243": {
+    "GDELT/CAMEO event": "Refuse to release persons or property,",
+    "OE event": "Refuse_to_release_persons_or_property",
+    "CAMEO code": "1243",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReturnOrRelease",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Return of people (actor2) or things (artifact1); Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "1244": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Refuse_to_ease_economic_sanctions,_boycott,_or_embargo",
+    "CAMEO code": "1244",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "1245": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Refuse_to_allow_international_involvement_(non-mediation)",
+    "CAMEO code": "1245",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Permission",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:InspectionOrObservation",
+    "event3-arguments": "event:has_affected_actor actor2 || general:located_at loc1",
+    "Comments": "Actor2 or loc1 is \"observed\""
+  },
+  "1246": {
+    "GDELT/CAMEO event": "Refuse to de-escalate military engagement,",
+    "OE event": "Refuse_to_de-escalate_military_engagement",
+    "CAMEO code": "1246",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryDeescalation",
+    "event2-arguments": "event:has_active_actor actor1 ",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "125": {
+    "GDELT/CAMEO event": "Reject proposal to meet, discuss, or negotiate ",
+    "OE event": "",
+    "CAMEO code": "125",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MeetingEncounterOrNegotiation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "126": {
+    "GDELT/CAMEO event": "Reject mediation,",
+    "OE event": "Reject_mediation",
+    "CAMEO code": "126",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation",
+    "event2-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "127": {
+    "GDELT/CAMEO event": "Reject plan, agreement to settle dispute,",
+    "OE event": "Reject_plan,_agreement_to_settle_dispute",
+    "CAMEO code": "127",
+    "event1": "event:RefusalOrRejection",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:SettlementOfDisagreementOrDispute",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "128": {
+    "GDELT/CAMEO event": "Defy norms, law,",
+    "OE event": "Defy_norms,_law",
+    "CAMEO code": "128",
+    "event1": "event:DefyingLawsNormsDirectives",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "129": {
+    "GDELT/CAMEO event": "Veto,",
+    "OE event": "Veto",
+    "CAMEO code": "129",
+    "event1": "event:Veto",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:DecisionOrRecommendation",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "130": {
+    "GDELT/CAMEO event": "Threaten, not specified elsewhere,",
+    "OE event": "Threaten",
+    "CAMEO code": "130",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "131": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_non-force",
+    "CAMEO code": "131",
+    "event1": "event:ThreateningNonForce",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1311": {
+    "GDELT/CAMEO event": "Threaten to reduce or stop aid,",
+    "OE event": "Threaten_to_reduce_or_stop_aid",
+    "CAMEO code": "1311",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:ProvisionOfAid",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "1312": {
+    "GDELT/CAMEO event": "Threaten with sanctions, boycott, embargo,",
+    "OE event": "Threaten_to_boycott,_embargo,_or_sanction",
+    "CAMEO code": "1312",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BoycottEmbargoSanctionsOrStrike",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1313": {
+    "GDELT/CAMEO event": "Threaten to reduce or break relations,",
+    "OE event": "Threaten_to_reduce_or_break_relations",
+    "CAMEO code": "1313",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:Cooperation",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "132": {
+    "GDELT/CAMEO event": "Threaten with administrative sanctions, ",
+    "OE event": "Threaten_with_administrative_sanctions",
+    "CAMEO code": "132",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:AdministrativeSanctions",
+    "event2-arguments": "event:has_affected_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1321": {
+    "GDELT/CAMEO event": "Threaten with restrictions on political freedoms,",
+    "OE event": "Threaten_with_restrictions_on_political_freedoms",
+    "CAMEO code": "1321",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:RespectForRightsFreedoms",
+    "event3-arguments": "event:has_active_actor actor1",
+    "Comments": ""
+  },
+  "1322": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_to_ban_political_parties_or_politicians",
+    "CAMEO code": "1322",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BanOrProhibition",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:PoliticalParty, with general:generic \"true\", or has type, actor:Person with a general:position_or_role of \"politician\""
+  },
+  "1323": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_to_impose_curfew",
+    "CAMEO code": "1323",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Curfew",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Curfew is at some location identified by general:located_at"
+  },
+  "1324": {
+    "GDELT/CAMEO event": "Threaten to impose state of emergency or martial law,",
+    "OE event": "Threaten_to_impose_state_of_emergency_or_martial_law",
+    "CAMEO code": "1324",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:StateOfEmergencyOrMartialLaw",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "State of emergency is at some location identified by general:located_at"
+  },
+  "133": {
+    "GDELT/CAMEO event": "Threaten with political dissent, protest,",
+    "OE event": "Threaten_political_dissent",
+    "CAMEO code": "133",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PoliticalDissent",
+    "event2-arguments": "event:has_active_actor actor1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "134": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_to_halt_negotiations",
+    "CAMEO code": "134",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:Negotiation",
+    "event3-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "135": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_to_halt_mediation",
+    "CAMEO code": "135",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:Mediation",
+    "event3-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "Comments": ""
+  },
+  "136": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_to_halt_international_involvement_(non-mediation)",
+    "CAMEO code": "136",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ReductionRestrictionOrRemoval",
+    "event2-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event3 (has_topic of event2)": "event:InspectionOrObservation ",
+    "event3-arguments": "event:has_affected_actor actor2 || general:located_at loc1",
+    "Comments": "Actor2 or loc1 is \"observed\""
+  },
+  "137": {
+    "GDELT/CAMEO event": "Threaten with repression,",
+    "OE event": "Threaten_with_repression",
+    "CAMEO code": "137",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Repression",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "138": {
+    "GDELT/CAMEO event": "Threaten with military force, not specific,",
+    "OE event": "Threaten_with_military_force",
+    "CAMEO code": "138",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:MilitaryAction",
+    "event2-arguments": [
+      "event:has_active_actor actor3",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor3 has type, actor:MilitaryForce, and general:generic \"true\""
+  },
+  "1381": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_blockade",
+    "CAMEO code": "1381",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:BlockadeOrRestrictionOfMovement",
+    "event2-arguments": "general:located_at loc1",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1382": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_occupation",
+    "CAMEO code": "1382",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:OccupationOfTerritory",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:located_at loc1)"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Occupation of territory of Actor2 and/or a specific location, loc1"
+  },
+  "1383": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_unconventional_attack",
+    "CAMEO code": "1383",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Attack",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1384": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_conventional_attack",
+    "CAMEO code": "1384",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Attack",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1385": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Threaten_unconventional_mass_violence",
+    "CAMEO code": "1385",
+    "event1": "event:Threatening",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:StrongOrIntense"
+    ],
+    "event2 (has_topic of event1)": [
+      "event:Violence",
+      "event:StrongOrIntense"
+    ],
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "139": {
+    "GDELT/CAMEO event": "Give ultimatum,",
+    "OE event": "Give_ultimatum",
+    "CAMEO code": "139",
+    "event1": "event:Ultimatum",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "140": {
+    "GDELT/CAMEO event": "Engage in political dissent, not specified elsewhere",
+    "OE event": "Engage_in_political_dissent.",
+    "CAMEO code": "140",
+    "event1": "event:PoliticalDissent",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "141": {
+    "GDELT/CAMEO event": "Demonstrate or rally, not specified elsewhere,",
+    "OE event": "Demonstrate_or_rally",
+    "CAMEO code": "141",
+    "event1": "event:DemonstrationOrProtest",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1411": {
+    "GDELT/CAMEO event": "Demonstrate for leadership change,",
+    "OE event": "Demonstrate_or_rally_for_leadership_change",
+    "CAMEO code": "1411",
+    "event1": "event:DemonstrationOrProtest ",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1412": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demonstrate_or_rally_for_policy_change",
+    "CAMEO code": "1412",
+    "event1": "event:DemonstrationOrProtest",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1413": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demonstrate_for_rights",
+    "CAMEO code": "1413",
+    "event1": "event:DemonstrationOrProtest",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1414": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Demonstrate_for_change_in_institutions,_regime",
+    "CAMEO code": "1414",
+    "event1": "event:DemonstrationOrProtest",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "142": {
+    "GDELT/CAMEO event": "Conduct hunger strike, not specified elsewhere,",
+    "OE event": "Conduct_hunger_strike",
+    "CAMEO code": "142",
+    "event1": "event:HungerStrike",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1421": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_hunger_strike_for_leadership_change",
+    "CAMEO code": "1421",
+    "event1": "event:HungerStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1422": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_hunger_strike_for_policy_change",
+    "CAMEO code": "1422",
+    "event1": "event:HungerStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1423": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_hunger_strike_for_rights",
+    "CAMEO code": "1423",
+    "event1": "event:HungerStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1424": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_hunger_strike_for_change_in_institutions,_regime",
+    "CAMEO code": "1424",
+    "event1": "event:HungerStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "143": {
+    "GDELT/CAMEO event": "Conduct strike or boycott, not specified elsewhere",
+    "OE event": "Conduct_strike_or_boycott",
+    "CAMEO code": "143",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1431": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_strike_or_boycott_for_leadership_change",
+    "CAMEO code": "1431",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1432": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_strike_or_boycott_for_policy_change",
+    "CAMEO code": "1432",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1433": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_strike_or_boycott_for_rights",
+    "CAMEO code": "1433",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1434": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Conduct_strike_or_boycott_for_change_in_institutions,_regime",
+    "CAMEO code": "1434",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "144": {
+    "GDELT/CAMEO event": "Obstruct passage, block, not specified elsewhere,",
+    "OE event": "Obstruct_passage,_block",
+    "CAMEO code": "144",
+    "event1": "event:BlockadeOrRestrictionOfMovement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1441": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Obstruct_passage_to_demand_leadership_change",
+    "CAMEO code": "1441",
+    "event1": "event:BlockadeOrRestrictionOfMovement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1442": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Obstruct_passage_to_demand_policy_change",
+    "CAMEO code": "1442",
+    "event1": "event:BlockadeOrRestrictionOfMovement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1443": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Obstruct_passage_to_demand_rights",
+    "CAMEO code": "1443",
+    "event1": "event:BlockadeOrRestrictionOfMovement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1444": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Obstruct_passage_to_demand_change_in_institutions,_regime",
+    "CAMEO code": "1444",
+    "event1": "event:BlockadeOrRestrictionOfMovement",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "145": {
+    "GDELT/CAMEO event": "Protest violently, riot, not specified elsewhere,",
+    "OE event": "Protest_violently,_riot",
+    "CAMEO code": "145",
+    "event1": "event:Riot",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1451": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_violent_protest_for_leadership_change",
+    "CAMEO code": "1451",
+    "event1": "event:Riot",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadership",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1452": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_violent_protest_to_demand_policy_change",
+    "CAMEO code": "1452",
+    "event1": "event:Riot",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:PolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1453": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_violent_protest_to_demand_rights",
+    "CAMEO code": "1453",
+    "event1": "event:Riot",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:RespectForRightsFreedoms",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1454": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_violent_protest_to_demand_change_in_institutions,_regime",
+    "CAMEO code": "1454",
+    "event1": "event:Riot",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:TransferOfLeadershipOrPolicyChange",
+    "event2-arguments": "event:has_active_actor actor2",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "150": {
+    "GDELT/CAMEO event": "Demonstrate military or police power, not specified elsewhere,",
+    "OE event": "Exhibit_military_or_police_power",
+    "CAMEO code": "150",
+    "event1": "event:ExhibitionOfPower ",
+    "event1-arguments": "event:has_active_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor1 has type, actor:ArmedForce"
+  },
+  "151": {
+    "GDELT/CAMEO event": "Increase police alert status,",
+    "OE event": "Increase_police_alert_status",
+    "CAMEO code": "151",
+    "event1": [
+      "event:AlertStatus",
+      "event:Increase"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:PoliceForce"
+  },
+  "152": {
+    "GDELT/CAMEO event": "Increase military alert status,",
+    "OE event": "Increase_military_alert_status",
+    "CAMEO code": "152",
+    "event1": [
+      "event:AlertStatus",
+      "event:Increase"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:MilitaryForce"
+  },
+  "153": {
+    "GDELT/CAMEO event": "Mobilize or increase police power,",
+    "OE event": "Mobilize_or_increase_police_power",
+    "CAMEO code": "153",
+    "event1": "event:Mobilization",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:PoliceForce"
+  },
+  "154": {
+    "GDELT/CAMEO event": "Mobilize or increase armed forces,",
+    "OE event": "Mobilize_or_increase_armed_forces",
+    "CAMEO code": "154",
+    "event1": "event:Mobilization",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:MilitaryForce"
+  },
+  "155": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Mobilize_or_increase_cyber-forces",
+    "CAMEO code": "155",
+    "event1": "event:Mobilization",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:CyberSpecialist and actor:GroupOfPersons"
+  },
+  "160": {
+    "GDELT/CAMEO event": "Reduce relations, not specified elsewhere,",
+    "OE event": "Reduce_relations",
+    "CAMEO code": "160",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Cooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "161": {
+    "GDELT/CAMEO event": "Reduce or break diplomatic relations,",
+    "OE event": "Reduce_or_break_diplomatic_relations",
+    "CAMEO code": "161",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:DiplomaticCooperation",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "162": {
+    "GDELT/CAMEO event": "Reduce or stop material aid, not specified elsewhere,",
+    "OE event": "Reduce_or_stop_material_aid",
+    "CAMEO code": "162",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfAid",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1621": {
+    "GDELT/CAMEO event": "Reduce or stop economic assistance,",
+    "OE event": "Reduce_or_stop_economic_assistance",
+    "CAMEO code": "1621",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfEconomicAid",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1622": {
+    "GDELT/CAMEO event": "Reduce or stop military assistance,",
+    "OE event": "Reduce_or_stop_military_assistance",
+    "CAMEO code": "1622",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfMilitaryAid",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1623": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Reduce_or_stop_humanitarian_assistance",
+    "CAMEO code": "1623",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:ProvisionOfHumanitarianAid",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "163": {
+    "GDELT/CAMEO event": "Impose embargo, boycott, or sanctions, ",
+    "OE event": "Impose_embargo,_boycott,_or_sanctions",
+    "CAMEO code": "163",
+    "event1": "event:BoycottEmbargoSanctionsOrStrike",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "164": {
+    "GDELT/CAMEO event": "Halt negotiations,",
+    "OE event": "Halt_negotiations",
+    "CAMEO code": "164",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Negotiation ",
+    "event2-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_active_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "165": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Halt_mediation",
+    "CAMEO code": "165",
+    "event1": "event:ReductionRestrictionOrRemoval",
+    "event1-arguments": [
+      "event:has_active_actor actor1"
+    ],
+    "event2 (has_topic of event1)": "event:Mediation ",
+    "event2-arguments": [
+      "event:has_affected_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "166": {
+    "GDELT/CAMEO event": "Expel or withdraw, not specified elsewhere, ",
+    "OE event": "Expel_or_withdraw",
+    "CAMEO code": "166",
+    "event1": "event:ExpulsionDeportationOrWithdrawal",
+    "event1-arguments": "event:has_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1661": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Expel_or_withdraw_peacekeepers",
+    "CAMEO code": "1661",
+    "event1": "event:ExpulsionDeportationOrWithdrawal",
+    "event1-arguments": "event:has_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor1 is of types, actor:GroupOfPersons with general:position_or_role \"peacekeeper\""
+  },
+  "1662": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Expel_or_withdraw_inspectors,_observers",
+    "CAMEO code": "1662",
+    "event1": "event:ExpulsionDeportationOrWithdrawal",
+    "event1-arguments": "event:has_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor1 is of types, actor:GroupOfPersons with general:position_or_role \"inspectors or observers\""
+  },
+  "1663": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Expel_or_withdraw_aid_agencies",
+    "CAMEO code": "1663",
+    "event1": "event:ExpulsionDeportationOrWithdrawal",
+    "event1-arguments": "event:has_actor actor1 ",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor1 is of types, actor:GroupOfPersons with general:position_or_role \"aid worker\""
+  },
+  "170": {
+    "GDELT/CAMEO event": "Coerce, not specified elsewhere,",
+    "OE event": "Coerce",
+    "CAMEO code": "170",
+    "event1": "event:IntimidationCoercion",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "171": {
+    "GDELT/CAMEO event": "Seize or damage property, not specified elsewhere,",
+    "OE event": "Seize_or_damage_property",
+    "CAMEO code": "171",
+    "event1": "event:ConfiscationDamageOrDestruction",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Property may be seized from Actor2; Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "1711": {
+    "GDELT/CAMEO event": "Confiscate property,",
+    "OE event": "Confiscate_property",
+    "CAMEO code": "1711",
+    "event1": "event:Confiscation",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Property may be confiscated from Actor2; Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "1712": {
+    "GDELT/CAMEO event": "Destroy property,",
+    "OE event": "Destroy_property",
+    "CAMEO code": "1712",
+    "event1": "event:DamageOrDestruction",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "(event:has_affected_actor actor2 |& general:involves_goods_or_property artifact1)"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Property may be damaged from Actor2; Artifact1 has type, cco:Artifact, and general:generic \"true\" if the specific property that is returned is not known"
+  },
+  "172": {
+    "GDELT/CAMEO event": "Impose administrative sanctions, not specified elsewhere,",
+    "OE event": "Impose_administrative_sanctions",
+    "CAMEO code": "172",
+    "event1": [
+      "event:AdministrativeSanctions",
+      "event:InitiationOrStart"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1721": {
+    "GDELT/CAMEO event": "Impose restrictions on political freedoms, ",
+    "OE event": "Impose_restrictions_on_political_freedoms",
+    "CAMEO code": "1721",
+    "event1": [
+      "event:Decrease",
+      "event:RespectForRightsFreedoms",
+      "event:InitiationOrStart"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1722": {
+    "GDELT/CAMEO event": "Ban political parties or politicians,",
+    "OE event": "Ban_political_parties_or_politicians",
+    "CAMEO code": "1722",
+    "event1": "event:BanOrProhibition",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": "Actor2 has type, actor:PoliticalParty, with general:generic \"true\", or has type, actor:Person with a general:position_or_role of \"politician\""
+  },
+  "1723": {
+    "GDELT/CAMEO event": "Impose curfew,",
+    "OE event": "Impose_curfew",
+    "CAMEO code": "1723",
+    "event1": [
+      "event:Curfew",
+      "event:InitiationOrStart"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1724": {
+    "GDELT/CAMEO event": "Impose state of emergency or martial law,",
+    "OE event": "Impose_state_of_emergency_or_martial_law",
+    "CAMEO code": "1724",
+    "event1": [
+      "event:StateOfEmergencyOrMartialLaw",
+      "event:InitiationOrStart"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "173": {
+    "GDELT/CAMEO event": "Arrest, detain, or charge with legal action,",
+    "OE event": "Arrest,_detain",
+    "CAMEO code": "173",
+    "event1": "event:ArrestOrDetention",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "174": {
+    "GDELT/CAMEO event": "Expel or deport individuals,",
+    "OE event": "Expel_or_deport_individuals",
+    "CAMEO code": "174",
+    "event1": "event:ExpulsionDeportationOrWithdrawal",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "175": {
+    "GDELT/CAMEO event": "Use tactics of violent repression,",
+    "OE event": "Use_repression",
+    "CAMEO code": "175",
+    "event1": [
+      "event:Repression",
+      "event:Violence"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "176": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Attack_cybernetically",
+    "CAMEO code": "176",
+    "event1": "event:CyberAttack",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "180": {
+    "GDELT/CAMEO event": "Use unconventional violence, not specified elsewhere",
+    "OE event": "Use_unconventional_violence",
+    "CAMEO code": "180",
+    "event1": "event:Violence",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "181": {
+    "GDELT/CAMEO event": "Abduct, hijack, or take hostage,",
+    "OE event": "Abduct,_hijack,_take_hostage",
+    "CAMEO code": "181",
+    "event1": "event:AbductionHostageTakingOrHijacking",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "182": {
+    "GDELT/CAMEO event": "Physically assault, not specified elsewhere,",
+    "OE event": "Physically_assault",
+    "CAMEO code": "182",
+    "event1": "event:PhysicalAssault",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1821": {
+    "GDELT/CAMEO event": "Sexually assault,",
+    "OE event": "Sexually_assault",
+    "CAMEO code": "1821",
+    "event1": "event:SexualAssault",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1822": {
+    "GDELT/CAMEO event": "Torture,",
+    "OE event": "Torture",
+    "CAMEO code": "1822",
+    "event1": "event:Torture",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1823": {
+    "GDELT/CAMEO event": "Kill by physical assault,",
+    "OE event": "Kill_by_physical_assault",
+    "CAMEO code": "1823",
+    "event1": [
+      "event:MurderOrHomicide",
+      "event:PhysicalAssault"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "183": {
+    "GDELT/CAMEO event": "Conduct suicide, car, or other non-military bombing, not specified elsewhere,",
+    "OE event": "Conduct_suicide,_car,_or_other_non-military_bombing",
+    "CAMEO code": "183",
+    "event1": "event:Bombing ",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1831": {
+    "GDELT/CAMEO event": "Carry out suicide bombing,",
+    "OE event": "Carry_out_suicide_bombing",
+    "CAMEO code": "1831",
+    "event1": "event:SuicideBombing",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1832": {
+    "GDELT/CAMEO event": "Carry out car bombing,",
+    "OE event": "Carry_out_vehicular_bombing",
+    "CAMEO code": "1832",
+    "event1": [
+      "event:VehicularAttack",
+      "event:Bombing"
+    ],
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1833": {
+    "GDELT/CAMEO event": "Carry out roadside bombing,",
+    "OE event": "Carry_out_roadside_bombing",
+    "CAMEO code": "1833",
+    "event1": "event:RoadsideBombing",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1834": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Carry_out_location_bombing",
+    "CAMEO code": "1834",
+    "event1": "event:Bombing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "184": {
+    "GDELT/CAMEO event": "Use as human shield",
+    "OE event": "Use_as_human_shield",
+    "CAMEO code": "184",
+    "event1": "event:PlacementAsHumanShield",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "185": {
+    "GDELT/CAMEO event": "Attempt to assassinate,",
+    "OE event": "Attempt_to_assassinate",
+    "CAMEO code": "185",
+    "event1": [
+      "event:Attempt",
+      "event:Assassination"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "186": {
+    "GDELT/CAMEO event": "Assassinate,",
+    "OE event": "Assassinate",
+    "CAMEO code": "186",
+    "event1": "event:Assassination",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "190": {
+    "GDELT/CAMEO event": "Use conventional military force, not specified elsewhere,",
+    "OE event": "Use_conventional_military_force",
+    "CAMEO code": "190",
+    "event1": "event:MilitaryAction",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "191": {
+    "GDELT/CAMEO event": "Impose blockade, restrict movement,",
+    "OE event": "Impose_blockade,_restrict_movement",
+    "CAMEO code": "191",
+    "event1": [
+      "event:BlockadeOrRestrictionOfMovement",
+      "event:InitiationOrStart"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "192": {
+    "GDELT/CAMEO event": "Occupy territory,",
+    "OE event": "Occupy_territory",
+    "CAMEO code": "192",
+    "event1": "event:OccupationOfTerritory",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "193": {
+    "GDELT/CAMEO event": "Fight with small arms and light weapons,",
+    "OE event": "Fight_with_small_arms_and_light_weapons",
+    "CAMEO code": "193",
+    "event1": "event:Attack",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2",
+      "event:has_instrument event:SmallArmsAndLightWeapons",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "194": {
+    "GDELT/CAMEO event": "Fight with artillery and tanks,",
+    "OE event": "Fight_with_artillery_and_tanks",
+    "CAMEO code": "194",
+    "event1": "event:Attack",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2",
+      "general:has_instrument cco:Cannon",
+      "general:has_instrument cco:Tank",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "195": {
+    "GDELT/CAMEO event": "Employ aerial weapons,",
+    "OE event": "Employ_aerial_weapons",
+    "CAMEO code": "195",
+    "event1": "event:Bombing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_instrument cco:Aircraft",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1951": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Employ_precision-guided_aerial_munitions",
+    "CAMEO code": "1951",
+    "event1": "event:Bombing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_instrument cco:PrecisionGuidedMissile",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "1952": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Employ_remotely_piloted_aerial_munitions",
+    "CAMEO code": "1952",
+    "event1": "event:Bombing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_instrument cco:PrecisionGuidedMissile",
+      "general:located_at loc1"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "196": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Violate_ceasefire",
+    "CAMEO code": "196",
+    "event1": "event:ViolationOfCeasefire",
+    "event1-arguments": "event:has_active_actor actor1",
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "200": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Use_massive_unconventional_force",
+    "CAMEO code": "200",
+    "event1": [
+      "event:Attack",
+      "event:StrongOrIntense"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "201": {
+    "GDELT/CAMEO event": "Engage in mass expulsion,",
+    "OE event": "Engage_in_mass_expulsion",
+    "CAMEO code": "201",
+    "event1": [
+      "event:Expulsion",
+      "event:StrongOrIntense"
+    ],
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "202": {
+    "GDELT/CAMEO event": "Engage in mass killings,",
+    "OE event": "Engage_in_mass_killings",
+    "CAMEO code": "202",
+    "event1": "event:MassKilling",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "203": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Engage_in_ethnic_cleansing",
+    "CAMEO code": "203",
+    "event1": "event:EthnicCleansing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "204": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Use_weapons_of_mass_destruction",
+    "CAMEO code": "204",
+    "event1": "event:Attack",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2",
+      "event:has_instrument  event:WeaponOfMassDestruction"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "2041": {
+    "GDELT/CAMEO event": "Use chemical, biological, or radiological weapons",
+    "OE event": "Use_chemical,_biological,_or_radiological_weapons",
+    "CAMEO code": "2041",
+    "event1": "event:Attack",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2",
+      "event:has_instrument  event:WeaponOfMassDestruction"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  },
+  "2042": {
+    "GDELT/CAMEO event": "",
+    "OE event": "Detonate_nuclear_weapons",
+    "CAMEO code": "2042",
+    "event1": "event:Bombing",
+    "event1-arguments": [
+      "event:has_active_actor actor1",
+      "event:has_affected_actor actor2",
+      "event:has_instrument cco:RadiologicalWeapon"
+    ],
+    "event2 (has_topic of event1)": "",
+    "event2-arguments": "",
+    "event3 (has_topic of event2)": "",
+    "event3-arguments": "",
+    "Comments": ""
+  }
+}

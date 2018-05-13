@@ -5,6 +5,7 @@ from etk.etk_exceptions import KgValueError, ISODateError
 from datetime import date, datetime
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 import numbers
+from etk.extraction import Extraction
 
 
 class KnowledgeGraph(object):
@@ -17,6 +18,43 @@ class KnowledgeGraph(object):
         self._kg = {}
         self.origin_doc = doc
         self.schema = schema
+
+    def _add_single_value(self, field_name: str, value, provenance_path=None) -> bool:
+        if self.schema.is_valid(field_name, value):
+
+            this_value = self.value_pre_process(value, field_name)
+            if {
+                "value": this_value,
+                "key": self.create_key_from_value(this_value, field_name)
+            } not in self._kg[field_name]:
+                self._kg[field_name].append({
+                    "value": this_value,
+                    "key": self.create_key_from_value(this_value, field_name)
+                })
+                if provenance_path:
+                    self.create_kg_provenance("storage_location", str(this_value), provenance_path)
+            return True
+        else:
+            return False
+
+    def _add_value(self, field_name: str, value, provenance_path=None) -> bool:
+        """
+        Helper function to add values to a knowledge graph
+        Args:
+            field_name: a field in the knowledge graph, assumed correct
+            value: any Python type
+
+        Returns: True if the value is compliant with the field schema, False otherwise
+
+        """
+        if not isinstance(value, list):
+            value = [value]
+
+        all_valid = True
+        for x in value:
+            valid = self._add_single_value(field_name, x, provenance_path=provenance_path)
+            all_valid = all_valid and valid
+        return all_valid
 
     def add_doc_value(self, field_name: str, jsonpath: str) -> None:
         """
@@ -35,26 +73,8 @@ class KnowledgeGraph(object):
             matches = path.find(self.origin_doc.value)
             all_valid = True
             for a_match in matches:
-                match_value = a_match.value
-                if not isinstance(match_value, list):
-                    match_value = [match_value]
-
-                for x in match_value:
-                    if self.schema.is_valid(field_name, x):
-
-                        this_value = self.value_pre_process(x, field_name)
-                        if {
-                            "value": this_value,
-                            "key": self.create_key_from_value(this_value, field_name)
-                        } not in self._kg[field_name]:
-                            self._kg[field_name].append({
-                                "value": this_value,
-                                "key": self.create_key_from_value(this_value, field_name)
-                            })
-                            self.create_kg_provenance("storage_location", str(this_value), str(a_match.full_path))
-
-                    else:
-                        all_valid = False
+                valid = self._add_value(field_name, a_match.value, provenance_path=str(a_match.full_path))
+                all_valid = all_valid and valid
 
             if not all_valid:
                 raise KgValueError("Some kg value type invalid according to schema")
@@ -72,6 +92,7 @@ class KnowledgeGraph(object):
         if field_name not in self._kg:
             self._kg[field_name] = []
         if self.schema.is_valid(field_name, value):
+            # The following code needs refactoring as it suffers from egregious copy/paste
             value = self.value_pre_process(value, field_name)
             if {
                 "value": value,
@@ -86,7 +107,13 @@ class KnowledgeGraph(object):
         elif isinstance(value, list):
             all_valid = True
             for a_value in value:
-                if self.schema.is_valid(field_name, a_value):
+
+                # Pedro added the following code for adding extraction
+                if isinstance(a_value, Extraction):
+                    self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+
+                # The following code needs refactoring as it suffers from egregious copy/paste
+                elif self.schema.is_valid(field_name, a_value):
                     a_value = self.value_pre_process(a_value, field_name)
                     if {
                         "value": a_value,
