@@ -71,6 +71,6 @@ if __name__ == "__main__":
     gdelt = GdeltMapping(json.load(open("ODP-Mappings-V3.1.json")))
     # print(gdelt.event_type("event1", "010"))
     for k in gdelt.mapping.keys():
-        # print("{}: {}".format(k, gdelt.event_type("event3", k)))
-        print("{}: {}".format(k, gdelt.actor2_property("event2", k)))
+        # print("{}: {}".format(k, gdelt.event_type("event1", k)))
+        print("{}: {}".format(k, gdelt.actor2_property("event1", k)))
 
