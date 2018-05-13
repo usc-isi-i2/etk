@@ -59,12 +59,10 @@ class UCDPModule(ETKModule):
         doc.kg.add_doc_value("country", "$.Location")
 
         # map incomp to type, after using a decoding dict
-        doc.store(doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]), "incomp_type")
-        doc.kg.add_doc_value("type", "$.incomp_type")
+        doc.kg.add_value("type", doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]))
 
         # map Int to type, also after using a decoding dict
-        doc.store(doc.extract(self.int_decoder, doc.select_segments("$.Int")[0]), "int_type")
-        doc.kg.add_doc_value("type", "$.int_type")
+        doc.kg.add_value("type", doc.extract(self.int_decoder, doc.select_segments("$.Int")[0]))
 
         # Add "Event" to type, as all these documents are events
         doc.kg.add_value("type", "Event")
@@ -112,12 +110,10 @@ class UCDPModule(ETKModule):
         fatalities_doc = etk.create_document({"Int": doc.cdr_document["Int"]})
         fatalities_doc.doc_id = doc.doc_id + "_fatalities"
         doc.kg.add_value("fatalities", fatalities_doc.doc_id)
-        fatalities_doc.store(
-            fatalities_doc.extract(self.int_fatalities_decoder, fatalities_doc.select_segments("$.Int")[0]),
-            "int_fatalities")
-        fatalities_doc.kg.add_doc_value("title", "$.int_fatalities")
-        fatalities_doc.kg.add_value("type", "Group")
-        fatalities_doc.kg.add_value("type", "Dead People")
+        fatalities_doc.kg.add_value(
+            "title",
+            fatalities_doc.extract(self.int_fatalities_decoder, fatalities_doc.select_segments("$.Int")[0]))
+        fatalities_doc.kg.add_value("type", ["Group", "Dead People"])
 
         # Return the list of new documents that we created to be processed by ETK.
         # Note that fatalities_dco is in the list as it is a newly created document. It does not have an
@@ -146,8 +142,7 @@ class UCDPActorModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         # Record the type of the actor
-        doc.kg.add_value("type", "Group")
-        doc.kg.add_value("type", "Country")
+        doc.kg.add_value("type", ["Group", "Country"])
 
         # Record the country of this actor
         doc.kg.add_doc_value("country", "$.Side")
@@ -177,5 +172,5 @@ if __name__ == "__main__":
             # Note that each invocation of process_ems will also process any new documents created while
             # processing each doc
             for result in etk.process_ems(doc):
-                # print(result.cdr_document["knowledge_graph"])
+                print(result.cdr_document["knowledge_graph"])
                 f.write(json.dumps(result.cdr_document) + "\n")
