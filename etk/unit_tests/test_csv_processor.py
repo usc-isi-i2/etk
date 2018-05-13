@@ -84,9 +84,9 @@ class TestCsvProcessor(unittest.TestCase):
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
                          {'C0': 'col11', 'C1': 'col12', 'C2': 'col13', 'C3': '', 'C4': 'col15',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
-                         {'0': 'col21', 'C1': 'col22', 'C2': 'col23', 'C3': 'col24', 'C4': 'col25',
+                         {'C0': 'col21', 'C1': 'col22', 'C2': 'col23', 'C3': 'col24', 'C4': 'col25',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
-                         {'0': 'col31', 'C1': 'col32', 'C2': 'col33', 'C3': 'col34', 'C4': 'col35',
+                         {'C0': 'col31', 'C1': 'col32', 'C2': 'col33', 'C3': 'col34', 'C4': 'col35',
                           'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
