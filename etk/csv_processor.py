@@ -18,6 +18,7 @@ class CsvProcessor(object):
                         blank_row_ends_content: bool,
                         remove_leading_trailing_whitespace: bool,
                         required_columns: list[str]
+                        column_name_prefix: str
     """
 
     def __init__(self, etk, **mapping_spec) -> None:
@@ -37,7 +38,7 @@ class CsvProcessor(object):
         self.heading_columns = mapping_spec.get("heading_columns")
 
         if self.heading_columns is not None:
-            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1] + 1)
+            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1])
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
@@ -54,6 +55,11 @@ class CsvProcessor(object):
             mapping_spec.get("remove_leading_empty_rows", True)
 
         self.required_columns = mapping_spec.get("required_columns")
+
+        if mapping_spec.get("column_name_prefix"):
+            self.column_name_prefix = mapping_spec.get("column_name_prefix")
+        else:
+            self.column_name_prefix = "C"
 
         self._get_data_function = {
             ".csv": pyexcel_io.get_data,
@@ -81,6 +87,7 @@ class CsvProcessor(object):
         elif filename is not None:
             # always read the entire file first
             fn, extension = os.path.splitext(filename)
+            extension = extension.lower()
 
             if extension in self._get_data_function:
                 get_data = self._get_data_function[extension]
@@ -232,7 +239,7 @@ class CsvProcessor(object):
                 if heading is not None:
                     key = heading[i]
                 else:
-                    key = str(i)
+                    key = self.column_name_prefix + str(i)
 
                 if i >= len(row):
                     doc[key] = ''
