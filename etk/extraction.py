@@ -180,7 +180,10 @@ class Extraction(Extractable):
         self._value = value
 
     def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
+        return str(self.__class__) + ", value: " + str(self._value)
+
+    def __repr__(self):
+        return str(self.__class__) + ", value: " + str(self._value)
 
     @property
     def value(self) -> Dict or str:
