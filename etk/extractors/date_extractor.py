@@ -68,7 +68,7 @@ class DateExtractor(Extractor):
                 use_default_formats: bool = False,
                 ignore_dates_before: datetime.datetime = None,
                 ignore_dates_after: datetime.datetime = None,
-                detect_relative_dates: bool = True,
+                detect_relative_dates: bool = False,
                 relative_base: datetime.datetime = None,
                 preferred_date_order: str = "MDY",
                 prefer_language_date_order: bool = True,
