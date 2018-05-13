@@ -74,7 +74,8 @@ class TestCsvProcessor(unittest.TestCase):
                                      content_start_row=1,
                                      content_end_row=8,
                                      ends_with_blank_row=False,
-                                     remove_leading_empty_rows=True)
+                                     remove_leading_empty_rows=True,
+                                     column_name_prefix='')
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
