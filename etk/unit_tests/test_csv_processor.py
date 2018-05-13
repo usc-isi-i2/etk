@@ -64,7 +64,7 @@ class TestCsvProcessor(unittest.TestCase):
         test_docs = [doc.cdr_document for doc in
                      csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
-        expected_docs = [{'0': 'name1', '1': 'name2', 'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
+        expected_docs = [{'C0': 'name1', 'C1': 'name2', 'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -73,8 +73,7 @@ class TestCsvProcessor(unittest.TestCase):
                                      content_start_row=1,
                                      content_end_row=8,
                                      ends_with_blank_row=False,
-                                     remove_leading_empty_rows=True,
-                                     column_name_prefix='')
+                                     remove_leading_empty_rows=True)
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
