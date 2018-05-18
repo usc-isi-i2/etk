@@ -21,7 +21,6 @@ class KnowledgeGraph(object):
     def _add_single_value(self, field_name: str, value, provenance_path=None) -> bool:
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if valid:
-            # this_value = self.value_pre_process(v, field_name)
             if {
                 "value": this_value,
                 "key": self.create_key_from_value(this_value, field_name)

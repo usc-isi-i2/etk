@@ -72,24 +72,6 @@ class KGSchema(object):
             return self.fields_dict[field_name]
         else:
             print(field_name + " field not defined")
-    def value_pre_process(self, v, field_name):
-        """
-        Pre process value
-
-        Args:
-            v: value
-            field_name: str
-
-        Returns: v
-        """
-        result = v
-        if isinstance(result, str):
-            result = result.strip()
-
-        if self.schema.field_type(field_name) == FieldType.DATE:
-            result = self.iso_date(result)
-
-        return result
 
     @staticmethod
     def iso_date(d) -> str:
@@ -140,14 +122,14 @@ class KGSchema(object):
                     return False, value
             if self.fields_dict[field_name] == FieldType.STRING:
                 if isinstance(value, str):
-                    return True, value
+                    return True, value.strip()
                 else:
-                    return True, str(value)
+                    return True, str(value).strip()
 
             if self.fields_dict[field_name] == FieldType.DATE:
                 valid, d = self.is_date(value)
                 if valid:
-                    return True, value
+                    return True, d.isoformat()
                 else:
                     return False, value
 
@@ -170,7 +152,6 @@ class KGSchema(object):
         Returns: bool
 
         """
-
         if isinstance(v, date):
             return True, v
         try:
