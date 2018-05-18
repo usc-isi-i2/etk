@@ -118,7 +118,6 @@ class KnowledgeGraph(object):
                 else:
                     (valid, a_value) = self.schema.is_valid(field_name, a_value)
                     if valid:
-                        a_value = self.value_pre_process(a_value, field_name)
                         if {
                             "value": a_value,
                             "key": self.create_key_from_value(a_value, field_name)
