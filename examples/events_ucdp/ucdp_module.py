@@ -36,6 +36,15 @@ class UCDPModule(ETKModule):
         "2": "At least 1,000 battle-related deaths in a given year"
     }
 
+    int_fatalities_size_lower = {
+        "1": 25,
+        "2": 1000
+    }
+
+    int_fatalities_size_upper = {
+        "1": 999
+    }
+
     int_causeex_type = {
         "1": event_prefix + "War"
     }
@@ -46,7 +55,14 @@ class UCDPModule(ETKModule):
         self.incomp_decoder = DecodingValueExtractor(self.incomp_type, 'Incomp Decoder')
         self.int_decoder = DecodingValueExtractor(self.int_event_type, 'Int Decoder')
         self.int_fatalities_decoder = DecodingValueExtractor(self.int_fatalities, 'Int Fatalities Decoder')
-        self.int_causeex_decoder = DecodingValueExtractor(self.int_causeex_type, 'Int CauseEx Type', default_action="delete")
+        self.int_fatalities_size_lower_decoder = DecodingValueExtractor(self.int_fatalities_size_lower,
+                                                                        'Int Fatalities Lower Bound Size Decoder')
+        self.int_fatalities_size_upper_decoder = DecodingValueExtractor(self.int_fatalities_size_upper,
+                                                                        'Int Fatalities Upper Bound Size Decoder',
+                                                                        default_action="delete")
+        self.int_causeex_decoder = DecodingValueExtractor(self.int_causeex_type,
+                                                          'Int CauseEx Type',
+                                                          default_action="delete")
 
     def process_document(self, doc: Document) -> List[Document]:
         # pyexcel produces dics with date objects, which are not JSON serializable, fix that.
@@ -79,8 +95,9 @@ class UCDPModule(ETKModule):
         doc.kg.add_doc_value("causeex_class", "$.int_causeex_class")
         doc.kg.add_value("causeex_class", self.event_prefix+"ArmedConflict")
 
-        # Map StartDate to event_date, we are ignoring other dates for now
+        # Map dates to event_date
         doc.kg.add_doc_value("event_date", "$.StartDate")
+        doc.kg.add_doc_value("event_date_end", "$.EpEndDate")
 
         # Create a CDR document for an actor, we only put the SideA attribute in it,
         # and we give it a new dataset identifier so we can match it in an ETKModule
@@ -114,6 +131,12 @@ class UCDPModule(ETKModule):
             "title",
             fatalities_doc.extract(self.int_fatalities_decoder, fatalities_doc.select_segments("$.Int")[0]))
         fatalities_doc.kg.add_value("type", ["Group", "Dead People"])
+        fatalities_doc.kg.add_value(
+            "size_lower_bound",
+            fatalities_doc.extract(self.int_fatalities_size_lower_decoder, fatalities_doc.select_segments("$.Int")[0]))
+        fatalities_doc.kg.add_value(
+            "size_upper_bound",
+            fatalities_doc.extract(self.int_fatalities_size_upper_decoder, fatalities_doc.select_segments("$.Int")[0]))
 
         # Return the list of new documents that we created to be processed by ETK.
         # Note that fatalities_dco is in the list as it is a newly created document. It does not have an
