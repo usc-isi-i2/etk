@@ -11,6 +11,7 @@ from etk.utilities import Utility
 
 TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
+
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
                  logger_path=os.path.join(TEMP_DIR, 'etk.log')):
@@ -80,7 +81,6 @@ class ETK(object):
         Returns: a parsed json path
 
         """
-
         if jsonpath not in self.parsed:
             try:
                 self.parsed[jsonpath] = self.parser(jsonpath)
