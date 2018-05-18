@@ -1,10 +1,9 @@
 from typing import Dict
+import numbers
 from etk.knowledge_graph_schema import KGSchema
 from etk.field_types import FieldType
-from etk.etk_exceptions import KgValueError, ISODateError
-from datetime import date, datetime
+from etk.etk_exceptions import KgValueError
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
-import numbers
 from etk.extraction import Extraction
 
 
@@ -20,9 +19,9 @@ class KnowledgeGraph(object):
         self.schema = schema
 
     def _add_single_value(self, field_name: str, value, provenance_path=None) -> bool:
-        if self.schema.is_valid(field_name, value):
-
-            this_value = self.value_pre_process(value, field_name)
+        (valid, this_value) = self.schema.is_valid(field_name, value)
+        if valid:
+            # this_value = self.value_pre_process(v, field_name)
             if {
                 "value": this_value,
                 "key": self.create_key_from_value(this_value, field_name)
@@ -93,9 +92,10 @@ class KnowledgeGraph(object):
         """
         if field_name not in self._kg:
             self._kg[field_name] = []
-        if self.schema.is_valid(field_name, value):
+
+        (valid, value) = self.schema.is_valid(field_name, value)
+        if valid:
             # The following code needs refactoring as it suffers from egregious copy/paste
-            value = self.value_pre_process(value, field_name)
             if {
                 "value": value,
                 "key": self.create_key_from_value(value, field_name)
@@ -115,20 +115,22 @@ class KnowledgeGraph(object):
                     self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
 
                 # The following code needs refactoring as it suffers from egregious copy/paste
-                elif self.schema.is_valid(field_name, a_value):
-                    a_value = self.value_pre_process(a_value, field_name)
-                    if {
-                        "value": a_value,
-                        "key": self.create_key_from_value(a_value, field_name)
-                    } not in self._kg[field_name]:
-                        self._kg[field_name].append({
+                else:
+                    (valid, a_value) = self.schema.is_valid(field_name, a_value)
+                    if valid:
+                        a_value = self.value_pre_process(a_value, field_name)
+                        if {
                             "value": a_value,
                             "key": self.create_key_from_value(a_value, field_name)
-                        })
-                        if json_path_extraction != None:
-                            self.create_kg_provenance("extraction_location", str(a_value), str(json_path_extraction))
-                else:
-                    all_valid = False
+                        } not in self._kg[field_name]:
+                            self._kg[field_name].append({
+                                "value": a_value,
+                                "key": self.create_key_from_value(a_value, field_name)
+                            })
+                            if json_path_extraction != None:
+                                self.create_kg_provenance("extraction_location", str(a_value), str(json_path_extraction))
+                    else:
+                        all_valid = False
             if not all_valid:
                 raise KgValueError("Some kg value type invalid according to schema")
         else:
@@ -144,51 +146,6 @@ class KnowledgeGraph(object):
         Returns: Dict
         """
         return self._kg
-
-    def value_pre_process(self, v, field_name):
-        """
-        Pre process value
-
-        Args:
-            v: value
-            field_name: str
-
-        Returns: v
-        """
-        result = v
-        if isinstance(result, str):
-            result = result.strip()
-
-        if self.schema.field_type(field_name) == FieldType.DATE:
-            result = self.iso_date(result)
-
-        return result
-
-    @staticmethod
-    def iso_date(d) -> str:
-        """
-        Return iso format of a date
-
-        Args:
-            d:
-        Returns: str
-
-        """
-        if isinstance(d, datetime):
-            return d.isoformat()
-        elif isinstance(d, date):
-            return datetime.combine(d, datetime.min.time()).isoformat()
-        else:
-            try:
-                datetime.strptime(d, '%Y-%m-%dT%H:%M:%S')
-                return d
-            except ValueError:
-                try:
-                    datetime.strptime(d, '%Y-%m-%d')
-                    return d + "T00:00:00"
-                except ValueError:
-                    pass
-        raise ISODateError("Can not convert value to ISO format for kg")
 
     def create_key_from_value(self, value, field_name):
         """
