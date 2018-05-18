@@ -28,11 +28,14 @@ class GdeltMapping(object):
 
         """
         key = self.event_name[event]
-        result = self.mapping[cameo_code][key]
-        if result == "":
-            return None
-        elif not isinstance(result, list):
-            result = [result]
+        entry = self.mapping.get(cameo_code)
+        result = None
+        if entry:
+            result = entry[key]
+            if result is None or result == "":
+                return None
+            elif not isinstance(result, list):
+                result = [result]
         return result
 
     actor1_regex = re.compile(r'(\w+\:\w+)\sactor1')
