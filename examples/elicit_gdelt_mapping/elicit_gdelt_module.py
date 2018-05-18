@@ -85,6 +85,7 @@ class GdeltModule(ETKModule):
         "event": "http://ontology.causeex.com/ontology/odps/EventHierarchy#"
     }
 
+    # Gets populated in the init method
     header_translation_table = {}
 
     def __init__(self, etk):
@@ -128,20 +129,34 @@ class GdeltModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         cameo_code = self.attribute_value(doc, "EventCode")
-
+        print("Processing {}".format(cameo_code))
         doc.kg.add_value("type", "Event")
         if self.mapping.has_cameo_code(cameo_code):
-            # Add type fields
+            # Type fields
             for t in self.mapping.event_type("event1", cameo_code):
                 doc.kg.add_value("type", t)
                 doc.kg.add_value("causeex_class", self.expand_prefix(t))
 
-            # Add event_date
-            for s in doc.select_segments("$." + self.attribute("SQLDATE")):
-                doc.kg.add_value("event_date", doc.extract(self.date_extractor, s,
-                                                           prefer_language_date_order=None,
-                                                           additional_formats=["%Y%m%d"],
-                                                           use_default_formats=False))
+        # Event_date
+        for s in doc.select_segments("$." + self.attribute("SQLDATE")):
+            doc.kg.add_value("event_date", doc.extract(self.date_extractor, s,
+                                                       prefer_language_date_order=None,
+                                                       additional_formats=["%Y%m%d"],
+                                                       detect_relative_dates=False,
+                                                       use_default_formats=False))
+
+        # CAMEO code
+        cameo_code_label = "CAMEO Code: " + str(doc.select_segments("$." + self.attribute("EventCode"))[0].value)
+        doc.kg.add_value("code", cameo_code_label)
+        # simpler without provenance:
+        # doc.kg.add_value("code", "CAMEO Code: " + doc.cdr_document[self.attribute("EventCode")])
+
+        # Identifier
+        doc.kg.add_doc_value("identifier", "$." + self.attribute("GLOBALEVENTID"))
+
+        # Geographical information
+        doc.kg.add_doc_value("country_code", "$." + self.attribute("ActionGeo_CountryCode"))
+        doc.kg.add_doc_value("location", "$." + self.attribute("ActionGeo_FullName"))
 
         return []
 
@@ -162,6 +177,6 @@ if __name__ == "__main__":
         # Iterate over all the rows in the spredsheet
         for d in cp.tabular_extractor(filename="20170912.export_sample.tsv", dataset='gdelt'):
             for result in etk.process_ems(d):
-                print(d.cdr_document)
+                # print(d.cdr_document)
                 print(result.cdr_document["knowledge_graph"])
                 f.write(json.dumps(result.cdr_document) + "\n")
