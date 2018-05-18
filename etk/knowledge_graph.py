@@ -73,8 +73,10 @@ class KnowledgeGraph(object):
             matches = path.find(self.origin_doc.value)
             all_valid = True
             for a_match in matches:
-                valid = self._add_value(field_name, a_match.value, provenance_path=str(a_match.full_path))
-                all_valid = all_valid and valid
+                # If the value is the empty string, we treat is a None.
+                if a_match.value:
+                    valid = self._add_value(field_name, a_match.value, provenance_path=str(a_match.full_path))
+                    all_valid = all_valid and valid
 
             if not all_valid:
                 raise KgValueError("Some kg value type invalid according to schema")
