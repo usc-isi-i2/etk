@@ -71,19 +71,19 @@ class TestKnowledgeGraph(unittest.TestCase):
             "@type": "kg_provenance_record",
             "reference_type": "storage_location",
             "value": "amandeep",
-            "json_path": "projects.[0].members.[2]"
+            "json_path": "projects.[0].members.[1]"
           },
           {
             "@type": "kg_provenance_record",
             "reference_type": "storage_location",
             "value": "sylvia",
-            "json_path": "projects.[0].members.[3]"
+            "json_path": "projects.[0].members.[2]"
           },
           {
             "@type": "kg_provenance_record",
             "reference_type": "storage_location",
             "value": "Runqi12",
-            "json_path": "projects.[0].members.[4]"
+            "json_path": "projects.[0].members.[3]"
           },
           {
             "@type": "kg_provenance_record",
@@ -112,7 +112,7 @@ class TestKnowledgeGraph(unittest.TestCase):
           {
             "@type": "kg_provenance_record",
             "reference_type": "extraction_location",
-            "value": "2018-03-28T00:00:00",
+            "value": "2018-03-28", # was "value": "2018-03-28T00:00:00",
             "json_path": "projects[0].date"
           },
           {
@@ -129,5 +129,5 @@ class TestKnowledgeGraph(unittest.TestCase):
           }
         ]
 
-        #print(json.dumps(doc.value, indent=2))
+        print(json.dumps(doc.cdr_document, indent=2))
         self.assertEqual(expeced_provenances, doc.value["provenances"])
