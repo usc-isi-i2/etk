@@ -15,7 +15,6 @@ class TestKnowledgeGraph(unittest.TestCase):
               "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
               "members": [
                 "dongyu",
-                -32.1,
                 "amandeep",
                 "sylvia",
                 "Runqi12"
@@ -28,8 +27,7 @@ class TestKnowledgeGraph(unittest.TestCase):
               "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
               "members": [
                 "mayank",
-                "yixiang",
-                12
+                "yixiang"
               ],
               "date": ["2007-12-05T23:19:00"],
               "cost": -3213.32
