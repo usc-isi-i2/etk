@@ -92,20 +92,23 @@ class KnowledgeGraph(object):
         if field_name not in self._kg:
             self._kg[field_name] = []
 
-        (valid, value) = self.schema.is_valid(field_name, value)
-        if valid:
-            # The following code needs refactoring as it suffers from egregious copy/paste
-            if {
-                "value": value,
-                "key": self.create_key_from_value(value, field_name)
-            } not in self._kg[field_name]:
-                self._kg[field_name].append({
-                    "value": value,
-                    "key": self.create_key_from_value(value, field_name)
-                })
-                if json_path_extraction != None:
-                    self.create_kg_provenance("extraction_location", str(value), str(json_path_extraction))
-        elif isinstance(value, list):
+        # (valid, value) = self.schema.is_valid(field_name, value)
+        # if valid:
+        #     # The following code needs refactoring as it suffers from egregious copy/paste
+        #     if {
+        #         "value": value,
+        #         "key": self.create_key_from_value(value, field_name)
+        #     } not in self._kg[field_name]:
+        #         self._kg[field_name].append({
+        #             "value": value,
+        #             "key": self.create_key_from_value(value, field_name)
+        #         })
+        #         if json_path_extraction != None:
+        #             self.create_kg_provenance("extraction_location", str(value), str(json_path_extraction))
+        if not isinstance(value, list):
+            value = [value]
+
+        if isinstance(value, list):
             all_valid = True
             for a_value in value:
 
