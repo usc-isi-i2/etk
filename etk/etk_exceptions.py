@@ -66,3 +66,8 @@ class InvalidFilePathError(Exception):
 class ExtractorError(Exception):
     def __init__(self, message=""):
         super(ExtractorError, self).__init__(message)
+
+
+class UndefinedFieldError(Exception):
+    def __init__(self, message=""):
+        super(UndefinedFieldError, self).__init__(message)
