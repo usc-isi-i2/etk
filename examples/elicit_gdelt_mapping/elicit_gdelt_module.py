@@ -274,7 +274,7 @@ class GdeltModule(ETKModule):
 
             # Link the main event and the topic_event
             # In the ODP file, the pattern is always (has_topic of event1), so we use has_topic all the time
-            doc.kg.add_value("event_topic", topic_event.doc_id)
+            topic_event.kg.add_value("event_topic", doc.doc_id)
 
             # Title
             topic_event.kg.add_value("title", topic_event_type)
