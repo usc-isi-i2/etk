@@ -41,7 +41,7 @@ class GdeltMapping(object):
     actor1_regex = re.compile(r'(\w+\:\w+)\sactor1')
     actor2_regex = re.compile(r'(\w+\:\w+)\sactor2')
 
-    def actor_property(self, event, cameo_code, actor_regex):
+    def _actor_property(self, event, cameo_code, actor_regex):
         """
         Determine the property to use for modeling an actor
         Args:
@@ -52,6 +52,9 @@ class GdeltMapping(object):
         Returns:
 
         """
+        if cameo_code not in self.mapping:
+            return None
+
         arguments = self.mapping[cameo_code][event + "-arguments"]
         if not isinstance(arguments, list):
             arguments = [arguments]
@@ -63,11 +66,29 @@ class GdeltMapping(object):
                 result.append(match.group(1))
         return result[0] if len(result) > 0 else None
 
-    def actor1_property(self, event, cameo_code):
-        return self.actor_property(event, cameo_code, self.actor1_regex)
+    def actor_property(self, event: str, actor_role: str, cameo_code):
+        if actor_role == "actor1":
+            return self._actor_property(event, cameo_code, self.actor1_regex)
+        elif actor_role == "actor2":
+            return self._actor_property(event, cameo_code, self.actor2_regex)
+        else:
+            raise ValueError("actor_role should be 'actor1' or 'actor2'")
 
-    def actor2_property(self, event, cameo_code):
-        return self.actor_property(event, cameo_code, self.actor2_regex)
+    def has_event(self, event, cameo_code):
+        """
+        Test whether there is an "event2" or "event3" entry for the given cameo code
+        Args:
+            event:
+            cameo_code:
+
+        Returns:
+
+        """
+        if self.has_cameo_code(cameo_code):
+            entry = self.mapping.get(cameo_code)
+            if entry:
+                return entry[self.event_name[event]]
+        return False
 
 
 if __name__ == "__main__":
@@ -75,5 +96,5 @@ if __name__ == "__main__":
     # print(gdelt.event_type("event1", "010"))
     for k in gdelt.mapping.keys():
         # print("{}: {}".format(k, gdelt.event_type("event1", k)))
-        print("{}: {}".format(k, gdelt.actor2_property("event1", k)))
+        print("{}: {}".format(k, gdelt.actor1_property("event1", k)))
 
