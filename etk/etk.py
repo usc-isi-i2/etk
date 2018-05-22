@@ -105,7 +105,10 @@ class ETK(object):
         for a_em in self.em_lst:
             if a_em.document_selector(doc):
                 self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
-                new_docs.extend(a_em.process_document(doc))
+                fresh_docs = a_em.process_document(doc)
+                # Allow ETKModules to return nothing in lieu of an empty list (people forget to return empty list)
+                if fresh_docs:
+                    new_docs.extend(fresh_docs)
             # try:
             #     if a_em.document_selector(doc):
             #         self.log(" processing with " + str(type(a_em)) + ". Process", "info", doc.doc_id, doc.url)
