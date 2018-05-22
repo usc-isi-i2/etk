@@ -71,7 +71,7 @@ class UCDPModule(ETKModule):
         # Add an ID based on the full contents of the raw document
         doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
-        # Mapp location to country
+        # Map location to country
         doc.kg.add_doc_value("country", "$.Location")
 
         # map incomp to type, after using a decoding dict
@@ -91,8 +91,7 @@ class UCDPModule(ETKModule):
         ))
 
         # Add the specific CauseEx ontology classes that we want to use for this event
-        doc.store(doc.extract(self.int_causeex_decoder, doc.select_segments("$.Int")[0]), "int_causeex_class")
-        doc.kg.add_doc_value("causeex_class", "$.int_causeex_class")
+        doc.kg.add_value("causeex_class", doc.extract(self.int_causeex_decoder, doc.select_segments("$.Int")[0]))
         doc.kg.add_value("causeex_class", self.event_prefix+"ArmedConflict")
 
         # Map dates to event_date
