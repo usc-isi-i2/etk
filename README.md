@@ -41,6 +41,7 @@ Clone or fork this repository, open a terminal window and in the directory where
 conda-env create .
 source activate etk2_env
 python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_lg
 ```
 
 ## Run Tests
