@@ -1,7 +1,6 @@
 import unittest, json
 from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
-import datetime
 from etk.knowledge_graph_schema import KGSchema
 
 csv_str = """text,with,Polish,non-Latin,lettes
@@ -28,10 +27,10 @@ class TestCsvProcessor(unittest.TestCase):
                                      required_columns=['text'])
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(table_str=csv_str, data_set='test_csv_str_with_all_args')]
+                     csv_processor.tabular_extractor(table_str=csv_str, dataset='test_csv_str_with_all_args')]
 
-        expected_docs = [{'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'data_set': 'test_csv_str_with_all_args'},
-                        {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'data_set': 'test_csv_str_with_all_args'}]
+        expected_docs = [{'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'dataset': 'test_csv_str_with_all_args'},
+                        {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'dataset': 'test_csv_str_with_all_args'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -46,11 +45,11 @@ class TestCsvProcessor(unittest.TestCase):
                                      required_columns=['text'])
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(table_str=csv_str, data_set='test_set')]
+                     csv_processor.tabular_extractor(table_str=csv_str, dataset='test_set')]
         
         expected_docs = [
-            {'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'data_set': 'test_set'},
-            {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'data_set': 'test_set'}]
+            {'text': '1', 'with': '2', 'Polish': '3', 'non-Latin': '4', 'lettes': '5', 'dataset': 'test_set'},
+            {'text': 'a', 'with': 'b', 'Polish': 'c', 'non-Latin': 'd', 'lettes': 'e', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -63,9 +62,9 @@ class TestCsvProcessor(unittest.TestCase):
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=filename, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
-        expected_docs = [{'0': 'name1', '1': 'name2', 'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'}]
+        expected_docs = [{'C0': 'name1', 'C1': 'name2', 'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -78,16 +77,16 @@ class TestCsvProcessor(unittest.TestCase):
         filename = 'etk/unit_tests/ground_truth/sample_csv.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=filename, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=filename, dataset='test_set')]
 
-        expected_docs = [{'0': '', '1': 'name1', '2': 'name2', '3': '', '4': '',
-                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'},
-                         {'0': 'col11', '1': 'col12', '2': 'col13', '3': '', '4': 'col15',
-                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'},
-                         {'0': 'col21', '1': 'col22', '2': 'col23', '3': 'col24', '4': 'col25',
-                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'},
-                         {'0': 'col31', '1': 'col32', '2': 'col33', '3': 'col34', '4': 'col35',
-                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'data_set': 'test_set'}]
+        expected_docs = [{'C0': '', 'C1': 'name1', 'C2': 'name2', 'C3': '', 'C4': '',
+                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
+                         {'C0': 'col11', 'C1': 'col12', 'C2': 'col13', 'C3': '', 'C4': 'col15',
+                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
+                         {'C0': 'col21', 'C1': 'col22', 'C2': 'col23', 'C3': 'col24', 'C4': 'col25',
+                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'},
+                         {'C0': 'col31', 'C1': 'col32', 'C2': 'col33', 'C3': 'col34', 'C4': 'col35',
+                          'file_name': 'etk/unit_tests/ground_truth/sample_csv.csv', 'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -100,7 +99,7 @@ class TestCsvProcessor(unittest.TestCase):
         file_path = 'etk/unit_tests/ground_truth/acled_raw_data.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
 
         expected_docs = [{'data_id': 336907, 'iso': 180, 'event_id_cnty': 'DRC11776', 'event_id_no_cnty': 11776,
                           'event_date': '2018-01-13', 'year': 2018, 'time_precision': 1, 'event_type':
@@ -119,7 +118,7 @@ class TestCsvProcessor(unittest.TestCase):
                                    "Mbau, Kamango and Eringeti. The reports are not confirmed by the military.",
                           'fatalities': 0,
                           'timestamp': 1516117305, 'file_name': 'etk/unit_tests/ground_truth/acled_raw_data.csv',
-                          'data_set': 'test_set'},
+                          'dataset': 'test_set'},
                          {'data_id': 336908, 'iso': 180, 'event_id_cnty': 'DRC11777', 'event_id_no_cnty': 11777,
                           'event_date': '2018-01-13', 'year': 2018, 'time_precision': 1,
                           'event_type': 'Battle-No change of territory',
@@ -134,7 +133,7 @@ class TestCsvProcessor(unittest.TestCase):
                           'notes': 'The FARDC launched, on January 13th, an offensive against the ADF in Beni and Lubero, '
                                    'in response to the recents attacks by the group. Gunfires and explosions were heard '
                                    'in Beni all throughout Saturday (13th).', 'fatalities': 0, 'timestamp': 1516117305,
-                          'file_name': 'etk/unit_tests/ground_truth/acled_raw_data.csv', 'data_set': 'test_set'},
+                          'file_name': 'etk/unit_tests/ground_truth/acled_raw_data.csv', 'dataset': 'test_set'},
                          {'data_id': 336909, 'iso': 180, 'event_id_cnty': 'DRC11778', 'event_id_no_cnty': 11778,
                           'event_date': '2018-01-13', 'year': 2018, 'time_precision': 1,
                           'event_type': 'Battle-No change '
@@ -151,7 +150,7 @@ class TestCsvProcessor(unittest.TestCase):
                                                                   'against the ADF in Beni and Lubero, in response to the recents attacks by the group.',
                           'fatalities': 0, 'timestamp': 1516117305,
                           'file_name': 'etk/unit_tests/ground_truth/acled_raw_data.csv',
-                          'data_set': 'test_set'}]
+                          'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
@@ -164,7 +163,7 @@ class TestCsvProcessor(unittest.TestCase):
         file_path = 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
 
         expected_docs=[{'yyyyddd': 2006008, ' (0) Northern_Hemisphere': '13536736.84', ' (1) Beaufort_Sea': ' 1069710.81',
                         ' (2) Chukchi_Sea': '  966006.16', ' (3) East_Siberian_Sea': ' 1087102.72', ' (4) Laptev_Sea': '  897773.37',
@@ -173,7 +172,7 @@ class TestCsvProcessor(unittest.TestCase):
                         ' (10) Hudson_Bay': ' 1260779.00', ' (11) Central_Arctic': ' 3240326.47', ' (12) Bering_Sea': '  692832.54',
                         ' (13) Baltic_Sea': '   21327.46', ' (14) Sea_of_Okhotsk': '  424563.54', ' (15) Yellow_Sea': '   14830.45',
                         ' (16) Cook_Inlet': '    8202.95', 'file_name': 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv',
-                        'data_set': 'test_set'},
+                        'dataset': 'test_set'},
                        {'yyyyddd': 2006009, ' (0) Northern_Hemisphere': '13536887.64', ' (1) Beaufort_Sea': ' 1069710.81',
                         ' (2) Chukchi_Sea': '  966006.16', ' (3) East_Siberian_Sea': ' 1087102.72', ' (4) Laptev_Sea': '  897773.37',
                         ' (5) Kara_Sea': '  927602.17', ' (6) Barents_Sea': '  474574.82', ' (7) Greenland_Sea': '  590029.18',
@@ -181,7 +180,7 @@ class TestCsvProcessor(unittest.TestCase):
                         ' (10) Hudson_Bay': ' 1260779.00', ' (11) Central_Arctic': ' 3240326.47', ' (12) Bering_Sea': '  692832.54',
                         ' (13) Baltic_Sea': '   21478.25', ' (14) Sea_of_Okhotsk': '  424563.54', ' (15) Yellow_Sea': '   14830.45',
                         ' (16) Cook_Inlet': '    8202.95', 'file_name': 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv',
-                        'data_set': 'test_set'},
+                        'dataset': 'test_set'},
                        {'yyyyddd': 2006010, ' (0) Northern_Hemisphere': '13505426.35', ' (1) Beaufort_Sea': ' 1069710.81',
                         ' (2) Chukchi_Sea': '  966006.16', ' (3) East_Siberian_Sea': ' 1087102.72', ' (4) Laptev_Sea': '  897773.37',
                         ' (5) Kara_Sea': '  933999.29', ' (6) Barents_Sea': '  448185.27', ' (7) Greenland_Sea': '  588279.64',
@@ -189,7 +188,7 @@ class TestCsvProcessor(unittest.TestCase):
                         ' (10) Hudson_Bay': ' 1260779.00', ' (11) Central_Arctic': ' 3217380.82', ' (12) Bering_Sea': '  705348.17',
                         ' (13) Baltic_Sea': '   21493.81', ' (14) Sea_of_Okhotsk': '  414191.19', ' (15) Yellow_Sea': '   14830.45',
                         ' (16) Cook_Inlet': '    8202.95', 'file_name': 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv',
-                        'data_set': 'test_set'},
+                        'dataset': 'test_set'},
                        {'yyyyddd': 2006011, ' (0) Northern_Hemisphere': '13493030.93', ' (1) Beaufort_Sea': ' 1069710.81',
                         ' (2) Chukchi_Sea': '  966006.16', ' (3) East_Siberian_Sea': ' 1087102.72', ' (4) Laptev_Sea': '  897773.37',
                         ' (5) Kara_Sea': '  933999.29', ' (6) Barents_Sea': '  448185.27', ' (7) Greenland_Sea': '  588279.64',
@@ -197,11 +196,11 @@ class TestCsvProcessor(unittest.TestCase):
                         ' (10) Hudson_Bay': ' 1260779.00', ' (11) Central_Arctic': ' 3217380.82', ' (12) Bering_Sea': '  696719.33',
                         ' (13) Baltic_Sea': '   21493.81', ' (14) Sea_of_Okhotsk': '  414191.19', ' (15) Yellow_Sea': '   14830.45',
                         ' (16) Cook_Inlet': '    8202.95', 'file_name': 'etk/unit_tests/ground_truth/masie_4km_allyears_extent_sqkm.csv',
-                        'data_set': 'test_set'}]
+                        'dataset': 'test_set'}]
 
         self.assertEqual(test_docs, expected_docs)
 
-    def test_real_csv_file_3(self) -> None:
+    def test_real_excel_with_sheetname(self) -> None:
         csv_processor = CsvProcessor(etk=etk,
                                      heading_row=1,
                                      content_start_row=10,
@@ -212,9 +211,9 @@ class TestCsvProcessor(unittest.TestCase):
         sheets_name = 'NST Main Dataset'
 
         test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename=file_path, sheet_name=sheets_name, data_set='test_set')]
+                     csv_processor.tabular_extractor(filename=file_path, sheet_name=sheets_name, dataset='test_set')]
 
-        expected_docs = [{'Title': 'David Usman and  Shot Dead', 'Date': datetime.date(2011, 6, 7),
+        expected_docs = [{'Title': 'David Usman and  Shot Dead', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Maiduguri', 'LGA': 'Maiduguri', 'State': 'Borno', 'Total Deaths': 2,
                           'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': '', 'Sectarian Actor (excluding BH) (P)': '',
                           'Other Armed Actor (P)': '', 'Kidnapper (P)': '', 'Robber (P)': '', 'Other (P)': '',
@@ -227,8 +226,8 @@ class TestCsvProcessor(unittest.TestCase):
                           'Sources 1': 'http://allafrica.com/stories/201106100373.html', 'Sources 2': 'http://www.bbc.co.uk/news/world-africa-13724349',
                           'Sources 3': '', 'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria',
                           'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx',
-                          'data_set': 'test_set'},
-                         {'Title': 'Explosion, Firefight at Gwange Police Station', 'Date': datetime.date(2011, 6, 7),
+                          'dataset': 'test_set'},
+                         {'Title': 'Explosion, Firefight at Gwange Police Station', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Gwange Police Station, Maiduguri', 'LGA': 'Maiduguri', 'State': 'Borno',
                           'Total Deaths': 3, 'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': 'State Actor',
                           'Sectarian Actor (excluding BH) (P)': '', 'Other Armed Actor (P)': '', 'Kidnapper (P)': '',
@@ -241,8 +240,8 @@ class TestCsvProcessor(unittest.TestCase):
                           'Other Location': '', 'Notes': '', 'Sources 1': 'http://www.google.com/hostednews/afp/article/ALeqM5hofvKayKKAFFtiX9-Ic5bG2ptVmg?docId=CNG.fafcacea0287fbeab90256732f165e1e.771',
                           'Sources 2': 'http://news.xinhuanet.com/english2010/world/2011-06/08/c_13915959.htm', 'Sources 3': '',
                           'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria', 'country': 'Nigeria',
-                          'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'data_set': 'test_set'},
-                         {'Title': 'Explosions at Dandal Police Station', 'Date': datetime.date(2011, 6, 7),
+                          'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'dataset': 'test_set'},
+                         {'Title': 'Explosions at Dandal Police Station', 'Date': '2011-06-07',
                           'Community (city,town, ward)': 'Dandal Police Station, Maiduguri', 'LGA': 'Maiduguri',
                           'State': 'Borno', 'Total Deaths': 0, 'Boko Haram (P)': 'Boko Haram', 'State Actor (P)': '',
                           'Sectarian Actor (excluding BH) (P)': '', 'Other Armed Actor (P)': '', 'Kidnapper (P)': '',
@@ -255,6 +254,21 @@ class TestCsvProcessor(unittest.TestCase):
                           'Bank': '', 'School': '', 'Other Location': '', 'Notes': '', 'Sources 1': 'http://news.xinhuanet.com/english2010/world/2011-06/08/c_13915959.htm',
                           'Sources 2': 'http://www.google.com/hostednews/afp/article/ALeqM5hofvKayKKAFFtiX9-Ic5bG2ptVmg?docId=CNG.fafcacea0287fbeab90256732f165e1e.771',
                           'Sources 3': '', 'Latitude': '', 'Longitude': '', 'full place name': 'Maiduguri, Borno, Nigeria',
-                          'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'data_set': 'test_set'}]
+                          'country': 'Nigeria', 'file_name': 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx', 'dataset': 'test_set'}]
+
+        self.assertEqual(test_docs, expected_docs)
+
+    def test_real_excel_without_sheetname(self) -> None:
+        csv_processor = CsvProcessor(etk=etk,
+                                     heading_row=1,
+                                     content_start_row=10,
+                                     content_end_row=12)
+
+        file_path = 'etk/unit_tests/ground_truth/NST-Main Sheet.xlsx'
+
+        test_docs = [doc.cdr_document for doc in
+                     csv_processor.tabular_extractor(filename=file_path, dataset='test_set')]
+
+        expected_docs = []
 
         self.assertEqual(test_docs, expected_docs)

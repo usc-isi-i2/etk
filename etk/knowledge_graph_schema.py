@@ -1,7 +1,8 @@
 from typing import List, Dict
+import numbers, re
 from datetime import date, datetime
 from etk.field_types import FieldType
-import numbers, re
+from etk.etk_exceptions import ISODateError
 
 
 class KGSchema(object):
@@ -72,34 +73,77 @@ class KGSchema(object):
         else:
             print(field_name + " field not defined")
 
-    def is_valid(self, field_name, value) -> bool:
+    @staticmethod
+    def iso_date(d) -> str:
         """
-        Return true if the value type matches the defined type in schema, otherwise false.
+        Return iso format of a date
+
+        Args:
+            d:
+        Returns: str
+
+        """
+        if isinstance(d, datetime):
+            return d.isoformat()
+        elif isinstance(d, date):
+            return datetime.combine(d, datetime.min.time()).isoformat()
+        else:
+            try:
+                datetime.strptime(d, '%Y-%m-%dT%H:%M:%S')
+                return d
+            except ValueError:
+                try:
+                    datetime.strptime(d, '%Y-%m-%d')
+                    return d + "T00:00:00"
+                except ValueError:
+                    pass
+        raise ISODateError("Can not convert value to ISO format for kg")
+
+    def is_valid(self, field_name, value) -> (bool, object):
+        """
+        Return true if the value type matches or can be coerced to the defined type in schema, otherwise false.
         If field not defined, return none
 
         Args:
             field_name: str
             value:
 
-        Returns: bool
+        Returns: bool, value, where the value may have been coerced to the required type.
         """
         if self.has_field(field_name):
             if self.fields_dict[field_name] == FieldType.KG_ID:
-                return True
-            if isinstance(value, numbers.Number) and self.fields_dict[field_name] == FieldType.NUMBER:
-                return True
-            if isinstance(value, str) and self.fields_dict[field_name] == FieldType.STRING:
-                return True
-            if self.is_date(value) and self.fields_dict[field_name] == FieldType.DATE:
-                return True
-            if self.is_location(value) and self.fields_dict[field_name] == FieldType.LOCATION:
-                return True
-            return False
+                return True, value
+
+            if self.fields_dict[field_name] == FieldType.NUMBER:
+                if isinstance(value, numbers.Number):
+                    return True, value
+                else:
+                    # todo: Should try to parse the string as a number
+                    return False, value
+            if self.fields_dict[field_name] == FieldType.STRING:
+                if isinstance(value, str):
+                    return True, value.strip()
+                else:
+                    return True, str(value).strip()
+
+            if self.fields_dict[field_name] == FieldType.DATE:
+                valid, d = self.is_date(value)
+                if valid:
+                    return True, d.isoformat()
+                else:
+                    return False, value
+
+            if self.fields_dict[field_name] == FieldType.LOCATION:
+                valid, l = self.is_location(value)
+                if valid:
+                    return True, l
+                else:
+                    return False, value
         else:
             print(field_name + " field not defined")
 
     @staticmethod
-    def is_date(v):
+    def is_date(v) -> (bool, date):
         """
         Boolean function for checking if v is a date
 
@@ -108,9 +152,8 @@ class KGSchema(object):
         Returns: bool
 
         """
-
         if isinstance(v, date):
-            return True
+            return True, v
         try:
             reg = r'^([0-9]{4})(?:-(0[1-9]|1[0-2])(?:-(0[1-9]|[1-2][0-9]|3[0-1])(?:T' \
                   r'([0-5][0-9])(?::([0-5][0-9])(?::([0-5][0-9]))?)?)?)?)?$'
@@ -118,15 +161,15 @@ class KGSchema(object):
             if match:
                 groups = match.groups()
                 patterns = ['%Y', '%m', '%d', '%H', '%M', '%S']
-                datetime.strptime('-'.join([x for x in groups if x]),
-                                  '-'.join([patterns[i] for i in range(len(patterns)) if groups[i]]))
-                return True
+                d = datetime.strptime('-'.join([x for x in groups if x]),
+                                      '-'.join([patterns[i] for i in range(len(patterns)) if groups[i]]))
+                return True, d
         except:
             pass
-        return False
+        return False, v
 
     @staticmethod
-    def is_location(v):
+    def is_location(v) -> (bool, str):
         """
         Boolean function for checking if v is a location format
 
@@ -144,16 +187,16 @@ class KGSchema(object):
                 return False
 
         if not isinstance(v, str):
-            return False
+            return False, v
         split_lst = v.split(":")
         if len(split_lst) != 5:
-            return False
+            return False, v
         if convert2float(split_lst[3]):
             longitude = abs(convert2float(split_lst[3]))
             if longitude > 90:
-                return False
+                return False, v
         if convert2float(split_lst[4]):
             latitude = abs(convert2float(split_lst[3]))
             if latitude > 180:
-                return False
-        return True
+                return False, v
+        return True, v

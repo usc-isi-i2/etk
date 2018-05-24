@@ -72,7 +72,7 @@ class DefaultDocumentSelector(DocumentSelector):
             return False
 
         if datasets is not None:
-            res = self.check_content(json_doc, "$.datasets", datasets, False)
+            res = self.check_content(json_doc, "$.dataset", datasets, False)
             if not res:
                 return False
 

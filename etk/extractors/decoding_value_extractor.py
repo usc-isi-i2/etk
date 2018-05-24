@@ -84,7 +84,7 @@ class DecodingValueExtractor(Extractor):
         """
         try:
             value = value.strip() if self.strip_value else value
-            e = Extraction(value, self.name, start_char=0, end_char=len(value))
+            e = Extraction(value, self.name, start_char=0, end_char=len(str(value)))
             return e
         except Exception as e:
             print('fail to wrap dictionary extraction: ', original_key, value)

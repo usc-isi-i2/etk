@@ -36,6 +36,7 @@ class TableETKModule(ETKModule):
         for t in tables:
             extractions = doc.extract(table_data_extractor, t)
             doc.store(extractions, "table_data_extraction")
+        return list()
 
 
 if __name__ == "__main__":
@@ -45,6 +46,6 @@ if __name__ == "__main__":
     etk = ETK(modules=TableETKModule)
 
     doc = etk.create_document(sample_html, mime_type="text/html", url="http://ex.com/123")
-    doc, _ = etk.process_ems(doc)
+    docs = etk.process_ems(doc)
 
-    print(json.dumps(doc.value, indent=2))
+    print(json.dumps(docs[0].value, indent=2))

@@ -5,7 +5,7 @@ from etk.etk import ETK
 from etk.knowledge_graph_schema import KGSchema
 
 sample_input = {
-    "datasets": "unittestUnittestUNITTEST",
+    "dataset": "unittestUnittestUNITTEST",
     "website": "abcABCAbc",
     "url": "zxcZXCZxc",
     "projects": [

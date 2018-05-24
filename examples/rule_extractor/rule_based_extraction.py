@@ -27,6 +27,7 @@ class RuleETKModule(ETKModule):
         for d, p in zip(descriptions, projects):
             names = doc.extract(self.rule_extractor, d)
             p.store(names, "members")
+        return list()
 
 
 if __name__ == "__main__":
@@ -47,6 +48,6 @@ if __name__ == "__main__":
     etk = ETK(modules=RuleETKModule)
     doc = etk.create_document(sample_input)
 
-    doc, _ = etk.process_ems(doc)
+    docs = etk.process_ems(doc)
 
-    print(json.dumps(doc.value, indent=2))
+    print(json.dumps(docs[0].value, indent=2))

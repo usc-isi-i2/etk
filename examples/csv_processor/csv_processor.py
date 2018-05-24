@@ -30,7 +30,6 @@ if __name__ == "__main__":
     etk = ETK(modules=CsvETKModule)
     cp = CsvProcessor(etk=etk,
                         heading_row=1,
-                        content_start_row=2,
                         heading_columns=(1, 3),
                         content_end_row=3,
                         ends_with_blank_row=True,
@@ -39,5 +38,5 @@ if __name__ == "__main__":
 
     data_set = 'test_data_set_csv'
     docs = [doc.cdr_document for doc in
-                 cp.tabular_extractor(table_str=csv_str, data_set='test_csv_str_with_all_args')]
+            cp.tabular_extractor(table_str=csv_str, dataset='test_csv_str_with_all_args')]
     pprint.pprint(docs)

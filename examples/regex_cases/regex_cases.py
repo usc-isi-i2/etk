@@ -34,7 +34,7 @@ class RegexETKModule(ETKModule):
         for e in self.e_list:
             res = doc.extract(e, segment)
             doc.store(res, e.name)
-
+        return list()
 
 if __name__ == "__main__":
 
@@ -56,6 +56,6 @@ if __name__ == "__main__":
     etk = ETK(modules=RegexETKModule)
     doc = etk.create_document(sample_input)
 
-    doc, _ = etk.process_ems(doc)
+    docs = etk.process_ems(doc)
 
-    print(json.dumps(doc.value, indent=2))
+    print(json.dumps(docs[0].value, indent=2))
