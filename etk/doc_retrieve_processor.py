@@ -45,9 +45,6 @@ class DocRetrieveProcessor(object):
                 'matched_sentence': max_score_sentence
             }
         else:
-            print('Max similarity score: {}'.format(max_score))
-            print('  Expected to be above {}'.format(threshold))
-            print('    Creating empty DocObj...')
             output_cdr_doc = {
                 'type': None,
                 'date': None,
@@ -82,9 +79,6 @@ class DocRetrieveProcessor(object):
                 'similarity': similarity
             }
         else:
-            print('Similarity score: {}'.format(similarity))
-            print('  Expected to be above {}'.format(threshold))
-            print('    Creating empty DocObj...')
             output_obj = {
                 'type': None,
                 'date': None,
