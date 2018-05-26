@@ -50,8 +50,8 @@ class DocRetrieveProcessor(object):
                 'date': None,
                 'ifp': None,
                 'news_story': None,
-                'title': None,
-                'similarity': 0.0
+                'similarity': 0.0,
+                'matched_sentence': None
             }
 
         return self.etk.create_document(output_cdr_doc)
