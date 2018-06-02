@@ -30,6 +30,7 @@ class DocRetrieveProcessor(object):
         sentences = self.sentence_tokenizer_pattern.split(content)
 
         scores = list(map(self.query_tokens.similarity, list(map(self.nlp, sentences))))
+        # Note: ^ this is returning the cosSim of the AVERAGED .vectors in the list of tokens being compared
         max_score = max(scores)
         max_score_idx = scores.index(max_score)
         max_score_sentence = sentences[max_score_idx]
@@ -42,6 +43,15 @@ class DocRetrieveProcessor(object):
                 'news_story': doc_id,
                 'similarity': max_score,
                 'matched_sentence': max_score_sentence
+            }
+        else:
+            output_cdr_doc = {
+                'type': None,
+                'date': None,
+                'ifp': None,
+                'news_story': None,
+                'similarity': 0.0,
+                'matched_sentence': None
             }
 
         return self.etk.create_document(output_cdr_doc)
@@ -57,6 +67,7 @@ class DocRetrieveProcessor(object):
         title = json_obj['lexisnexis']['doc_title']
         title_token = self.nlp(title)
         similarity = self.query_tokens.similarity(title_token)
+        # Note: ^ this is returning the cosSim of the AVERAGED .vectors in the list of tokens being compared
 
         if similarity > threshold:
             output_obj = {
@@ -66,6 +77,15 @@ class DocRetrieveProcessor(object):
                 'news_story': doc_id,
                 'title': title,
                 'similarity': similarity
+            }
+        else:
+            output_obj = {
+                'type': None,
+                'date': None,
+                'ifp': None,
+                'news_story': None,
+                'title': None,
+                'similarity': 0.0
             }
 
         return self.etk.create_document(output_obj)
