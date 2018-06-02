@@ -10,7 +10,7 @@ from etk.extraction import Extraction
 class KnowledgeGraph(object):
     """
     This class is a knowledge graph object, provides API for user to construct their kg.
-    Add field and value to the kg object, analysis on provenence
+    Add field and value to the kg object, analysis on provenance
     """
 
     def __init__(self, schema: KGSchema, doc) -> None:
@@ -101,6 +101,7 @@ class KnowledgeGraph(object):
         Args:
             field_name: str
             value:
+            json_path_extraction:
 
         Returns:
         """
@@ -124,34 +125,35 @@ class KnowledgeGraph(object):
         if not isinstance(value, list):
             value = [value]
 
-        if isinstance(value, list):
-            all_valid = True
-            for a_value in value:
+        # if isinstance(value, list):
+        all_valid = True
+        for a_value in value:
 
-                # Pedro added the following code for adding extraction
-                if isinstance(a_value, Extraction):
-                    self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+            # Pedro added the following code for adding extraction
+            if isinstance(a_value, Extraction):
+                self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
 
-                # The following code needs refactoring as it suffers from egregious copy/paste
-                else:
-                    (valid, a_value) = self.schema.is_valid(field_name, a_value)
-                    if valid:
-                        if {
+            # The following code needs refactoring as it suffers from egregious copy/paste
+            else:
+                (valid, a_value) = self.schema.is_valid(field_name, a_value)
+                if valid:
+                    if {
+                        "value": a_value,
+                        "key": self.create_key_from_value(a_value, field_name)
+                    } not in self._kg[field_name]:
+                        self._kg[field_name].append({
                             "value": a_value,
                             "key": self.create_key_from_value(a_value, field_name)
-                        } not in self._kg[field_name]:
-                            self._kg[field_name].append({
-                                "value": a_value,
-                                "key": self.create_key_from_value(a_value, field_name)
-                            })
-                            if json_path_extraction != None:
-                                self.create_kg_provenance("extraction_location", str(a_value), str(json_path_extraction))
-                    else:
-                        all_valid = False
-            if not all_valid:
-                raise KgValueError("Some kg value type invalid according to schema")
-        else:
-            raise KgValueError("Invalid type of kg value: " + str(type(value) + " according to schema"))
+                        })
+                        if json_path_extraction != None:
+                            self.create_kg_provenance("extraction_location", str(a_value),
+                                                      str(json_path_extraction))
+                else:
+                    all_valid = False
+        if not all_valid:
+            raise KgValueError("Some kg value type invalid according to schema")
+        # else:
+        #     raise KgValueError("Invalid type of kg value: " + str(type(value) + " according to schema"))
 
     @property
     def value(self) -> Dict:
@@ -203,10 +205,12 @@ class KnowledgeGraph(object):
         return key
 
     def create_kg_provenance(self, reference_type, value, json_path) -> None:
-        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord("kg_provenance_record", reference_type, value, json_path, None)
-        #if "provenances" not in self.cdr_document:
+        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord("kg_provenance_record",
+                                                                                              reference_type, value,
+                                                                                              json_path, None)
+        # if "provenances" not in self.cdr_document:
         #    self.cdr_document["provenances"] = {}
-        #if "kg_provenances" not in self.cdr_document["provenances"]:
+        # if "kg_provenances" not in self.cdr_document["provenances"]:
         #    self.cdr_document["provenances"]["kg_provenances"] = []
         if "provenances" not in self.origin_doc.cdr_document:
             self.origin_doc.cdr_document["provenances"] = []
