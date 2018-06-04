@@ -126,18 +126,9 @@ class KnowledgeGraph(object):
                     else self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
                                                 reference_type="extraction_location")
                 all_valid = all_valid and valid
-                # # Pedro added the following code for adding extraction
-                # if isinstance(a_value, Extraction):
-                #     self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
-                #
-                # # The following code needs refactoring as it suffers from egregious copy/paste
-                # else:
-                #     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction)
-                #     all_valid = all_valid and valid
+
             if not all_valid:
                 raise KgValueError("Some kg value type invalid according to schema")
-            # else:
-            #     raise KgValueError("Invalid type of kg value: " + str(type(value) + " according to schema"))
 
     @property
     def value(self) -> Dict:
@@ -192,10 +183,7 @@ class KnowledgeGraph(object):
         kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord("kg_provenance_record",
                                                                                               reference_type, value,
                                                                                               json_path, None)
-        # if "provenances" not in self.cdr_document:
-        #    self.cdr_document["provenances"] = {}
-        # if "kg_provenances" not in self.cdr_document["provenances"]:
-        #    self.cdr_document["provenances"]["kg_provenances"] = []
+
         if "provenances" not in self.origin_doc.cdr_document:
             self.origin_doc.cdr_document["provenances"] = []
         _dict = self.get_dict_kg_provenance(kg_provenance_record)
