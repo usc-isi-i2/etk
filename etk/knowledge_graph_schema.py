@@ -19,7 +19,7 @@ class KGSchema(object):
             config: Dict
         """
 
-        self.fields_dict = {}
+        self.fields_dict = dict()
         try:
             for field in config["fields"]:
                 if config["fields"][field]["type"] == "kg_id":
@@ -57,7 +57,7 @@ class KGSchema(object):
 
         Returns: bool
         """
-        return field_name in self.fields_dict.keys()
+        return field_name in self.fields_dict
 
     def field_type(self, field_name: str) -> FieldType:
         """
@@ -68,10 +68,13 @@ class KGSchema(object):
 
         Returns: FieldType
         """
-        if self.has_field(field_name):
-            return self.fields_dict[field_name]
-        else:
-            print(field_name + " field not defined")
+        return self.fields_dict.get(field_name, None)
+
+        # Amandeep: The code below does not do what the description of the function says, replaced with line above
+        # if self.has_field(field_name):
+        #     return self.fields_dict[field_name]
+        # else:
+        #     print(field_name + " field not defined")
 
     @staticmethod
     def iso_date(d) -> str:
@@ -110,6 +113,7 @@ class KGSchema(object):
 
         Returns: bool, value, where the value may have been coerced to the required type.
         """
+
         if self.has_field(field_name):
             if self.fields_dict[field_name] == FieldType.KG_ID:
                 return True, value
@@ -140,7 +144,9 @@ class KGSchema(object):
                 else:
                     return False, value
         else:
-            print(field_name + " field not defined")
+            return False, value
+            # Amandeep: returning False instead of printing a message
+            # print(field_name + " field not defined")
 
     @staticmethod
     def is_date(v) -> (bool, date):
