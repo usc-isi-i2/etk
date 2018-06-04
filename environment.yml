@@ -19,7 +19,7 @@ dependencies:
   - pyexcel=0.5.7=py_0
   - pyexcel-io=0.5.6=py_0
   - pyexcel-xls=0.5.6=py_0
-  - pyexcel-xlsx=0.5.5=py_0
+  - pyexcel-xlsx=0.5.6=py_0
   - pip:
     - chardet==3.0.4
     - cssselect==1.0.3
