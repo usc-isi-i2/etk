@@ -9,30 +9,30 @@ class TestKnowledgeGraph(unittest.TestCase):
 
     def test_KnowledgeGraph(self) -> None:
         sample_doc = {
-          "projects": [
-            {
-              "name": "etk",
-              "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
-              "members": [
-                "dongyu",
-                "amandeep",
-                "sylvia",
-                "Runqi12"
-              ],
-              "date": "2007-12-05",
-              "place": "columbus:georgia:united states:-84.98771:32.46098"
-            },
-            {
-              "name": "rltk",
-              "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
-              "members": [
-                "mayank",
-                "yixiang"
-              ],
-              "date": ["2007-12-05T23:19:00"],
-              "cost": -3213.32
-            }
-          ]
+            "projects": [
+                {
+                    "name": "etk",
+                    "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
+                    "members": [
+                        "dongyu",
+                        "amandeep",
+                        "sylvia",
+                        "Runqi12"
+                    ],
+                    "date": "2007-12-05",
+                    "place": "columbus:georgia:united states:-84.98771:32.46098"
+                },
+                {
+                    "name": "rltk",
+                    "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
+                    "members": [
+                        "mayank",
+                        "yixiang"
+                    ],
+                    "date": ["2007-12-05T23:19:00"],
+                    "cost": -3213.32
+                }
+            ]
         }
 
         kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
@@ -41,78 +41,78 @@ class TestKnowledgeGraph(unittest.TestCase):
         doc = etk.create_document(sample_doc)
 
         try:
-            doc.kg.add_doc_value("developer", "projects[*].members[*]")
+            doc.kg.add_value("developer", json_path="projects[*].members[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_doc_value("test_date", "projects[*].date[*]")
+            doc.kg.add_value("test_date", json_path="projects[*].date[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
+            doc.kg.add_value("test_add_value_date", value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)])
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_doc_value("test_location", "projects[*].place")
+            doc.kg.add_value("test_location", json_path="projects[*].place")
         except KgValueError:
             pass
 
         expected_developers = [
             {
-              "value": "dongyu",
-              "key": "dongyu"
+                "value": "dongyu",
+                "key": "dongyu"
             },
             {
-              "value": "amandeep",
-              "key": "amandeep"
+                "value": "amandeep",
+                "key": "amandeep"
             },
             {
-              "value": "sylvia",
-              "key": "sylvia"
+                "value": "sylvia",
+                "key": "sylvia"
             },
             {
-              "value": "Runqi12",
-              "key": "runqi12"
+                "value": "Runqi12",
+                "key": "runqi12"
             },
             {
-              "value": "mayank",
-              "key": "mayank"
+                "value": "mayank",
+                "key": "mayank"
             },
             {
-              "value": "yixiang",
-              "key": "yixiang"
+                "value": "yixiang",
+                "key": "yixiang"
             }
         ]
 
         expected_date = [
             {
-              "value": "2007-12-05T00:00:00",
-              "key": "2007-12-05T00:00:00"
+                "value": "2007-12-05T00:00:00",
+                "key": "2007-12-05T00:00:00"
             },
             {
-              "value": "2007-12-05T23:19:00",
-              "key": "2007-12-05T23:19:00"
+                "value": "2007-12-05T23:19:00",
+                "key": "2007-12-05T23:19:00"
             }
         ]
 
         expected_add_value_date = [
             {
-              "value": "2018-03-28",
-              "key": "2018-03-28"
+                "value": "2018-03-28",
+                "key": "2018-03-28"
             },
             {
-              "value": "2018-03-28T01:01:01",
-              "key": "2018-03-28T01:01:01"
+                "value": "2018-03-28T01:01:01",
+                "key": "2018-03-28T01:01:01"
             }
         ]
 
         expected_location = [
             {
-              "value": "columbus:georgia:united states:-84.98771:32.46098",
-              "key": "columbus:georgia:united states:-84.98771:32.46098"
+                "value": "columbus:georgia:united states:-84.98771:32.46098",
+                "key": "columbus:georgia:united states:-84.98771:32.46098"
             }
         ]
         self.assertEqual(expected_developers, doc.kg.value["developer"])
