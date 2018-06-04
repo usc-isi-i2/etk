@@ -114,7 +114,8 @@ class KnowledgeGraph(object):
 
         if json_path:
             self._add_doc_value(field_name, json_path)
-        elif value:
+
+        if value:
             if not isinstance(value, list):
                 value = [value]
 
