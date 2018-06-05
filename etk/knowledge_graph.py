@@ -5,6 +5,7 @@ from etk.field_types import FieldType
 from etk.etk_exceptions import KgValueError, UndefinedFieldError
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
+from etk.segment import Segment
 
 
 class KnowledgeGraph(object):
@@ -33,7 +34,8 @@ class KnowledgeGraph(object):
             raise UndefinedFieldError("'{}' should be present in the knowledge graph schema.".format(field_name))
         return result
 
-    def _add_single_value(self, field_name: str, value, provenance_path=None) -> bool:
+    def _add_single_value(self, field_name: str, value, provenance_path=None,
+                          reference_type="location") -> bool:
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if valid:
             if {
@@ -44,10 +46,7 @@ class KnowledgeGraph(object):
                     "value": this_value,
                     "key": self.create_key_from_value(this_value, field_name)
                 })
-                if provenance_path:
-                    self.create_kg_provenance("location", str(this_value), provenance_path)
-                else:
-                    self.create_kg_provenance("constant", str(this_value))
+               self.create_kg_provenance(reference_type, str(this_value), provenance_path) if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
             return True
         else:
             return False
@@ -71,7 +70,7 @@ class KnowledgeGraph(object):
             all_valid = all_valid and valid
         return all_valid
 
-    def add_doc_value(self, field_name: str, jsonpath: str) -> None:
+    def _add_doc_value(self, field_name: str, jsonpath: str) -> None:
         """
         Add a value to knowledge graph by giving a jsonpath
 
@@ -81,9 +80,6 @@ class KnowledgeGraph(object):
 
         Returns:
         """
-        self.validate_field(field_name)
-        if field_name not in self._kg:
-            self._kg[field_name] = []
         path = self.origin_doc.etk.parse_json_path(jsonpath)
         matches = path.find(self.origin_doc.value)
         all_valid = True
@@ -96,14 +92,19 @@ class KnowledgeGraph(object):
         if not all_valid:
             raise KgValueError("Some kg value type invalid according to schema")
 
-    def add_value(self, field_name: str, value, json_path_extraction: str = None) -> None:
+    def add_value(self, field_name: str, value: object = None, json_path: str = None,
+                  json_path_extraction: str = None) -> None:
         """
-        Add a value to knowledge graph by giving a jsonpath
+        Add a value to knowledge graph.
+        Input can either be a value or a json_path. If the input is json_path, the helper function _add_doc_value is
+        called.
+        If the input is a value, then it is handled
 
         Args:
-            field_name: str
-            value:
-            json_path_extraction:
+            field_name: str, the field name in the knowledge graph
+            value: the value to be added to the knowledge graph
+            json_path: str, if json_path is provided, then get the value at this path in the doc
+            json_path_extraction: str,
 
         Returns:
         """
@@ -111,49 +112,27 @@ class KnowledgeGraph(object):
         if field_name not in self._kg:
             self._kg[field_name] = []
 
-        # (valid, value) = self.schema.is_valid(field_name, value)
-        # if valid:
-        #     # The following code needs refactoring as it suffers from egregious copy/paste
-        #     if {
-        #         "value": value,
-        #         "key": self.create_key_from_value(value, field_name)
-        #     } not in self._kg[field_name]:
-        #         self._kg[field_name].append({
-        #             "value": value,
-        #             "key": self.create_key_from_value(value, field_name)
-        #         })
-        #         if json_path_extraction != None:
-        #             self.create_kg_provenance("extraction_location", str(value), str(json_path_extraction))
-        if not isinstance(value, list):
-            value = [value]
+        if json_path:
+            self._add_doc_value(field_name, json_path)
 
-        # if isinstance(value, list):
-        all_valid = True
-        for a_value in value:
+        if value:
+            if not isinstance(value, list):
+                value = [value]
 
-            # Pedro added the following code for adding extraction
-            if isinstance(a_value, Extraction):
-                self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
-
-            # The following code needs refactoring as it suffers from egregious copy/paste
-            else:
-                (valid, a_value) = self.schema.is_valid(field_name, a_value)
-                if valid:
-                    if {
-                        "value": a_value,
-                        "key": self.create_key_from_value(a_value, field_name)
-                    } not in self._kg[field_name]:
-                        self._kg[field_name].append({
-                            "value": a_value,
-                            "key": self.create_key_from_value(a_value, field_name)
-                        })
-                        self.create_kg_provenance("constant", str(a_value))
+            # if isinstance(value, list):
+            all_valid = True
+            for a_value in value:
+                if isinstance(a_value, Extraction):
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+                elif isinstance(a_value, Segment):
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
                 else:
-                    all_valid = False
-        if not all_valid:
-            raise KgValueError("Some kg value type invalid according to schema")
-        # else:
-        #     raise KgValueError("Invalid type of kg value: " + str(type(value) + " according to schema"))
+                    valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
+                                                   reference_type="constant")
+                all_valid = all_valid and valid
+
+            if not all_valid:
+                raise KgValueError("Some kg value type invalid according to schema")
 
     @property
     def value(self) -> Dict:

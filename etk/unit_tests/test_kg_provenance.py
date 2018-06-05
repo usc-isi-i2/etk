@@ -10,30 +10,30 @@ class TestKnowledgeGraphProvenance(unittest.TestCase):
 
     def test_KnowledgeGraph_provenance(self) -> None:
         sample_doc = {
-          "projects": [
-            {
-              "name": "etk",
-              "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
-              "members": [
-                "dongyu",
-                "amandeep",
-                "sylvia",
-                "Runqi12"
-              ],
-              "date": "2007-12-05",
-              "place": "columbus:georgia:united states:-84.98771:32.46098"
-            },
-            {
-              "name": "rltk",
-              "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
-              "members": [
-                "mayank",
-                "yixiang"
-              ],
-              "date": ["2007-12-05T23:19:00"],
-              "cost": -3213.32
-            }
-          ]
+            "projects": [
+                {
+                    "name": "etk",
+                    "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
+                    "members": [
+                        "dongyu",
+                        "amandeep",
+                        "sylvia",
+                        "Runqi12"
+                    ],
+                    "date": "2007-12-05",
+                    "place": "columbus:georgia:united states:-84.98771:32.46098"
+                },
+                {
+                    "name": "rltk",
+                    "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
+                    "members": [
+                        "mayank",
+                        "yixiang"
+                    ],
+                    "date": ["2007-12-05T23:19:00"],
+                    "cost": -3213.32
+                }
+            ]
         }
 
         kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
@@ -42,22 +42,23 @@ class TestKnowledgeGraphProvenance(unittest.TestCase):
         doc = etk.create_document(sample_doc)
 
         try:
-            doc.kg.add_doc_value("developer", "projects[*].members[*]")
+            doc.kg.add_value("developer", json_path="projects[*].members[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_doc_value("test_date", "projects[*].date[*]")
+            doc.kg.add_value("test_date", json_path="projects[*].date[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_value("test_add_value_date", [date(2018,3,28), {}, datetime(2018,3,28, 1,1,1)])
+            doc.kg.add_value("test_add_value_date", value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)],
+                             json_path_extraction="projects[0].date")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_doc_value("test_location", "projects[*].place")
+            doc.kg.add_value("test_location", json_path="projects[*].place")
         except KgValueError:
             pass
 
@@ -139,6 +140,7 @@ class TestKnowledgeGraphProvenance(unittest.TestCase):
                 "value": "columbus:georgia:united states:-84.98771:32.46098",
                 "json_path": "projects.[0].place"
               }
+
         ]
 
         #print(json.dumps(doc.cdr_document, indent=2))
