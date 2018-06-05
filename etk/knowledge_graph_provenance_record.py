@@ -1,20 +1,20 @@
 from etk.extraction import Extractable
-from typing import List, Dict
 from etk.origin_record import OriginRecord
+
 
 class KnowledgeGraphProvenanceRecord(Extractable):
     """
     A Provenance Record containing details of Extraction Results history.
     """
 
-    def __init__(self, _id, _type: str, reference_type:str, _value: str, json_path: str, doc) -> None:
+    def __init__(self, _id, _type: str, reference_type: str, _value: str, json_path: str, doc) -> None:
 
         Extractable.__init__(self)
         self.id = _id
         self._type = _type
         self._value = _value
         self.json_path = json_path
-        self.reference_type =reference_type
+        self.reference_type = reference_type
         self.origin_doc = doc
 
     def get_origins(self, value):
