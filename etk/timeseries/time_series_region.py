@@ -1,21 +1,20 @@
 import sys
-import os
-import re
-import argparse
-import pyexcel
-import numpy
 from datetime import date, datetime
-import pyexcel
 import logging
-import re
-import demjson
 import json
 import copy
-import LocationRange as lr
-import LocationParser as lp
+import decimal
+import etk.timeseries.location_range as lr
+import etk.timeseries.location_parser as lp
+import hashlib
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.WARN)
 
+class DecimalJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalJSONEncoder, self).default(o)
 
 class TimeSeriesRegion(object):
     def __init__(self, orientation='row', series_range=None, data_range=None, metadata_spec = None,
@@ -36,17 +35,11 @@ class TimeSeriesRegion(object):
         return self.time_series
 
     def data_to_string(self, data):
-        if type(data) is unicode:
-            return data
-        if type(data) is str:
-            return unicode(data, errors='replace')
-        else:
-            return unicode(str(data), errors='replace')
-
+        return str(data)
 
     def parse_global_metadata(self,data, sheet_name):
         metadata = {}
-        for mdname, mdspec in self.global_metadata.iteritems():
+        for mdname, mdspec in self.global_metadata.items():
             if mdspec['source'] == 'sheet_name':
                 metadata[mdname] = sheet_name
             elif mdspec['source'] == 'cell':
@@ -101,6 +94,12 @@ class TimeSeriesRegion(object):
         else:
             return (dataidx, tsidx)
 
+    def get_uid(self, metadata):
+        md_str = json.dumps(metadata, sort_keys=True, cls=DecimalJSONEncoder).encode('utf-8')
+        hash_object = hashlib.sha1(md_str)
+        return hash_object.hexdigest()
+
+
     def generate_time_label(self, data, d_idx):
         time_labels = []
         for tc in self.time_coordinates['locs']:
@@ -117,7 +116,7 @@ class TimeSeriesRegion(object):
         if self.time_coordinates['post_process']:
             func = eval('lambda v: ' + self.time_coordinates['post_process'])
             time_label = func(time_label)
-        return time_label
+        return {'instant':time_label}
 
     def parse_ts(self, data, metadata):
         self.time_series = []
@@ -136,10 +135,10 @@ class TimeSeriesRegion(object):
                     logging.error("metadata specifcation indexing error for time series index {}".format(ts_idx))
                     raise ie
 
-            inline_md_curr = {}
+            inline_md_curr = dict()
             inline_md_prev = None
-
             for d_idx in self.data_range:
+                measurement = dict()
                 time_label = ''
                 try:
                     time_label = self.generate_time_label(data, d_idx)
@@ -178,149 +177,24 @@ class TimeSeriesRegion(object):
                             timeseries = []
 
                         inline_md_prev = inline_md_curr
-                        inline_md_curr = {}
+                        inline_md_curr = dict()
 
                     else:
                         inline_md_prev = inline_md_curr
-                        inline_md_curr = {}
+                        inline_md_curr = dict()
 
                 coords = self.orient_coords(ts_idx, d_idx)
-                timeseries.append((time_label,data[coords[0]][coords[1]]))
-
+                measurement['value'] = data[coords[0]][coords[1]]
+                measurement['time'] = time_label
+                measurement['provenance'] = copy.deepcopy(ts_metadata['provenance'])
+                measurement['provenance']['row']=coords[0]
+                measurement['provenance']['col']=coords[1]
+                measurement['uid'] = self.get_uid(measurement)
+                timeseries.append(measurement)
+                
+            ts_metadata['uid'] = self.get_uid(ts_metadata)
             self.time_series.append(dict(metadata=ts_metadata, ts=timeseries))
 
     def is_blank(self, data):
         return len(data.strip()) == 0
 
-
-class SpreadsheetAnnotation(object):
-    def __init__(self, annotation, fn):
-        self.locparser = lp.LocationParser()
-
-        self.properties = annotation['Properties']
-        self.sheet_indices = self.locparser.parse_range(annotation['Properties']['sheet_indices'])
-
-        self.metadata = self.parse_md(annotation['GlobalMetadata'])
-        self.provenance = dict(filename=fn)
-
-        self.timeseries_regions = []
-        for tsr in annotation['TimeSeriesRegions']:
-            self.timeseries_regions.append(self.parse_tsr(tsr))
-
-    def parse_md(self, md_json):
-        md_dict = {}
-        for mdspec in md_json:
-            mdname = mdspec['name']
-            md_dict[mdname] = {}
-            md_dict[mdname]['source'] = mdspec['source']
-            if mdspec['source'] == 'cell':
-                (md_dict[mdname]['row'], md_dict[mdname]['col']) = self.locparser.parse_coords(mdspec['loc'])
-            if mdspec['source'] == 'const':
-                md_dict[mdname]['val'] = mdspec['val']
-        return md_dict
-
-    def parse_tsr(self, tsr_json):
-        orientation = tsr_json['orientation']
-        series_range = None
-        if orientation == 'row':
-            series_range = self.locparser.parse_range(tsr_json['rows'])
-        else:
-            series_range = self.locparser.parse_range(tsr_json['cols'])
-
-        data_range = self.locparser.parse_range(tsr_json['locs'])
-
-        time_coords = {}
-        time_coords['locs'] = self.locparser.parse_range(tsr_json['times']['locs'])
-        if 'mode' in tsr_json['times']:
-            time_coords['mode'] = tsr_json['times']['mode']
-        else:
-            time_coords['mode'] = None
-
-        time_coords['post_process'] = tsr_json['times'].get('post_process')
-
-        mdspec = self.parse_tsr_metadata(tsr_json['metadata'], orientation)
-
-        return TimeSeriesRegion(orientation=orientation, series_range=series_range, data_range=data_range,
-                                metadata_spec=mdspec, time_coordinates=time_coords, global_metadata=self.metadata,
-                                provenance = self.provenance)
-
-    def parse_tsr_metadata(self, md_json, orientation):
-        md_dict = {}
-        reverse_orientation = {'row': 'col', 'col': 'row'}
-        for md_sec in md_json:
-            name = md_sec['name']
-            md_dict[name] = {}
-
-            if 'source' in md_sec:
-                md_dict[name]['source'] = md_sec['source']
-            else:
-                md_dict[name]['source'] = reverse_orientation[orientation]
-
-            loc = None
-            if 'loc' in md_sec:
-                loc = md_sec['loc']
-
-            if md_dict[name]['source'] == 'cell':
-                md_dict[name]['loc'] = self.locparser.parse_coords(loc)
-
-            elif md_dict[name]['source'] == 'row':
-                md_dict[name]['loc'] = self.locparser.parse_range(loc)
-
-            elif md_dict[name]['source'] == 'col':
-                md_dict[name]['loc'] = self.locparser.parse_range(loc)
-
-            elif md_dict[name]['source'] == 'const':
-                md_dict[name]['val'] = md_sec['val']
-
-            if 'mode' in md_sec:
-                md_dict[name]['mode'] = md_sec['mode']
-            else:
-                md_dict[name]['mode'] = 'normal'
-
-        return md_dict
-
-
-class ExtractSpreadsheet(object):
-
-    def __init__(self, spreadsheet_fn, annotations_fn):
-        self.normalized_source_file = os.path.basename(spreadsheet_fn)
-        self.book = pyexcel.get_book(file_name=spreadsheet_fn, auto_detect_datetime=False)
-        self.annotations = self.load_annotations(annotations_fn)
-
-    def process(self):
-        timeseries = []
-        for annotation in self.annotations:
-            ssa = SpreadsheetAnnotation(annotation, self.normalized_source_file)
-            parsed = []
-            for anidx in ssa.sheet_indices:
-                sheet = self.book.sheet_by_index(anidx)
-                data = sheet.to_array()
-                for tsr in ssa.timeseries_regions:
-                    tsr.provenance['sheet']=anidx
-                    for parsed_tsr in tsr.parse(data, sheet.name):
-                        parsed.append(parsed_tsr)
-                logging.debug("%s",parsed)
-            timeseries.append(parsed)
-        return timeseries
-    def load_annotations(self,annotations_fn):
-        anfile = open(annotations_fn)
-        annotations_decoded = demjson.decode(anfile.read(), return_errors=True)
-        for msg in annotations_decoded[1]:
-            if msg.severity == "error":
-                logging.error(msg.pretty_description())
-        return annotations_decoded[0]
-
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("annotation", help='Annotation of time series in custom JSON format')
-    ap.add_argument("spreadsheet", help='Excel spreadsheet file')
-    ap.add_argument("outfile", help='file to write results')
-    args = ap.parse_args()
-    es = ExtractSpreadsheet(args.spreadsheet, args.annotation)
-    timeseries = es.process()
-    
-    with open(args.outfile, 'w') as outfile:
-        json.dump(timeseries, outfile)
-
-if __name__ == "__main__":
-    main()
