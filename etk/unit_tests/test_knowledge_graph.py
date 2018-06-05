@@ -47,6 +47,10 @@ class TestKnowledgeGraph(unittest.TestCase):
         expected_segments = ["segment_test_1", "segment_test_2"]
         self.assertTrue(sample_doc.kg.value["segment"][0]["key"] in expected_segments)
         self.assertTrue(sample_doc.kg.value["segment"][1]["key"] in expected_segments)
+        self.assertTrue('provenances' in sample_doc.value)
+        provenances = sample_doc.value['provenances']
+        self.assertTrue(len(provenances) == 2)
+        self.assertTrue(provenances[0]['reference_type'] == 'storage_location')
 
     def test_KnowledgeGraph(self) -> None:
         sample_doc = self.doc
