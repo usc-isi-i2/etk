@@ -36,12 +36,35 @@ class Document(Segment):
         if doc_id:
             self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = []
-        self.extraction_provenance_id_index = 0
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
         else:
             self.kg = None
             self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
+        self._provenance_id_index = 0
+        self._provenances = {} #(id: provenance)
+        self._jsonpath_provenances = {} #(json_path:[provenance_ids])
+        self._kg_provenances = {} #(value:kg_provenance_id)
+
+    @property
+    def provenance_id_index(self) -> int:
+        return self._provenance_id_index
+
+    @property
+    def provenances(self) -> Dict:
+        return self._provenances
+
+    @property
+    def jsonpath_provenances(self) -> Dict:
+        return self._jsonpath_provenances
+
+    @property
+    def kg_provenances(self) -> Dict:
+        return self._kg_provenances
+
+
+    def provenance_id_index_incrementer(self):
+        self._provenance_id_index += 1
 
     @property
     def document(self):
@@ -152,13 +175,14 @@ class Document(Segment):
             _document = None
 
         for e in extracted_results:
+            e.prov_id = self.provenance_id_index # for the purpose of provenance hierarrchy tracking, a parent's id for next generation.
             extraction_provenance_record: ExtractionProvenanceRecord = ExtractionProvenanceRecord(
-                self.extraction_provenance_id_index, jsonPath, e.provenance["extractor_name"],
-                e.provenance["start_char"], e.provenance["end_char"], e.provenance["confidence"], _document,
+                e.prov_id, jsonPath, e.provenance["extractor_name"],
+                e.provenance["start_char"], e.provenance["end_char"], e.provenance["confidence"], self,
                 extractable.prov_id)
-
-            e.prov_id = self.extraction_provenance_id_index # for the purpose of provenance hierarrchy tracking
-            self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
+            self._provenances[e.prov_id] = extraction_provenance_record
+            self.provenance_id_index_incrementer() # for the purpose of provenance hierarrchy tracking
+            #self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
             self.create_provenance(extraction_provenance_record)
 
         return extracted_results
@@ -190,19 +214,23 @@ class Document(Segment):
 
     def get_dict_extraction_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord):
         dict = {}
-        dict["@type"] = "extraction_provenance_record"
         dict["@id"] = extractionProvenanceRecord.id
+        dict["@type"] = "extraction_provenance_record"
         dict["method"] = extractionProvenanceRecord.method
         dict["confidence"] = extractionProvenanceRecord.extraction_confidence
         if extractionProvenanceRecord.origin_record.full_path is not None:
-            dict["origin_record"] = []
+            jsonpath = extractionProvenanceRecord.origin_record.full_path
+            if jsonpath in self._jsonpath_provenances:
+                self._jsonpath_provenances[jsonpath].append(extractionProvenanceRecord.id)
+            else:
+                self._jsonpath_provenances[jsonpath] = [extractionProvenanceRecord.id]
             origin_dict = {}
-            origin_dict["path"] = extractionProvenanceRecord.origin_record.full_path
+            origin_dict["path"] = jsonpath
             origin_dict["start_char"] = extractionProvenanceRecord.origin_record.start_char
             origin_dict["end_char"] = extractionProvenanceRecord.origin_record.end_char
-            dict["origin_record"].append(origin_dict)
+            dict["origin_record"] = origin_dict
         if extractionProvenanceRecord.parent_extraction_provenance is not None:
-            dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
+            dict["parent_provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
         return dict
 
     def insert_kg_into_cdr(self):

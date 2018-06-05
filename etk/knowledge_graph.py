@@ -35,7 +35,7 @@ class KnowledgeGraph(object):
         return result
 
     def _add_single_value(self, field_name: str, value, provenance_path=None,
-                          reference_type="storage_location") -> bool:
+                          reference_type="location") -> bool:
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if valid:
             if {
@@ -46,8 +46,7 @@ class KnowledgeGraph(object):
                     "value": this_value,
                     "key": self.create_key_from_value(this_value, field_name)
                 })
-                if provenance_path:
-                    self.create_kg_provenance(reference_type, str(this_value), provenance_path)
+               self.create_kg_provenance(reference_type, str(this_value), provenance_path) if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
             return True
         else:
             return False
@@ -129,7 +128,7 @@ class KnowledgeGraph(object):
                     valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                   reference_type="extraction_location")
+                                                   reference_type="constant")
                 all_valid = all_valid and valid
 
             if not all_valid:
@@ -184,11 +183,16 @@ class KnowledgeGraph(object):
 
         return key
 
-    def create_kg_provenance(self, reference_type, value, json_path) -> None:
-        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord("kg_provenance_record",
-                                                                                              reference_type, value,
-                                                                                              json_path, None)
-
+    def create_kg_provenance(self, reference_type, value, json_path:str = None) -> None:
+        new_id = self.origin_doc.provenance_id_index
+        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord(new_id, "kg_provenance_record", reference_type, value, json_path, self.origin_doc)
+        self.origin_doc.provenance_id_index_incrementer()
+        if value in self.origin_doc.kg_provenances:
+            self.origin_doc.kg_provenances[value].append(new_id)
+        else:
+            self.origin_doc.kg_provenances[value] = [new_id]
+        #self.origin_doc.kg_provenances[value]
+        self.origin_doc.provenances[new_id] = kg_provenance_record
         if "provenances" not in self.origin_doc.cdr_document:
             self.origin_doc.cdr_document["provenances"] = []
         _dict = self.get_dict_kg_provenance(kg_provenance_record)
@@ -196,8 +200,10 @@ class KnowledgeGraph(object):
 
     def get_dict_kg_provenance(self, kg_provenance_record: KnowledgeGraphProvenanceRecord):
         _dict = {}
+        _dict["@id"] = kg_provenance_record.id
         _dict["@type"] = kg_provenance_record._type
         _dict["reference_type"] = kg_provenance_record.reference_type
         _dict["value"] = kg_provenance_record._value
-        _dict["json_path"] = kg_provenance_record.json_path
+        if kg_provenance_record.json_path is not None:
+            _dict["json_path"] = kg_provenance_record.json_path
         return _dict

@@ -67,7 +67,7 @@ class Segment(Extractable):
                 if attribute not in self._extractions:
                     self._extractions[attribute] = set([])
                     self._value[attribute] = {}
-                provenance_ids = []
+                extraction_provenances = {}
                 for e in extractions:
                     tag = e.tag if e.tag else 'NO_TAGS'
                     if tag not in self.value[attribute]:
@@ -75,26 +75,34 @@ class Segment(Extractable):
                     else:
                         if e.value not in self.value[attribute][tag]:
                             self.value[attribute][tag].append(e.value)
-                    provenance_ids.append(e.prov_id)
+                    extraction_provenances[e.value] = e.prov_id
                 self._extractions[attribute] = self._extractions[attribute].union(extractions)
-                storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
+                new_id = self._document.provenance_id_index # for the purpose of provenance hierarrchy tracking
+                storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path, attribute, extraction_provenances, self.document)
+                self._document.provenance_id_index_incrementer()
+                self._document.provenances[new_id] = storage_provenance_record
                 self.create_storage_provenance(storage_provenance_record)
                 return
             except StopIteration:
                 pass
-
+        
         if attribute not in self._extractions:
-            self._extractions[attribute] = set([])
-            self._value[attribute] = []
-
+                self._extractions[attribute] = set([])
+                self._value[attribute] = []
+        
         self._extractions[attribute] = self._extractions[attribute].union(extractions)
-        provenance_ids = []
+        extraction_provenances = {}
         for a_extraction in extractions:
-            provenance_ids.append(a_extraction.prov_id)
+            extraction_provenances[a_extraction.value] = a_extraction.prov_id
             if a_extraction.value not in self._value[attribute]:
                 self._value[attribute].append(a_extraction.value)
-        storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
+       
+        new_id = self._document.provenance_id_index # for the purpose of provenance hierarrchy tracking
+        storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path, attribute, extraction_provenances, self.document)
+        self._document.provenance_id_index_incrementer()
+        self._document.provenances[new_id] = storage_provenance_record
         self.create_storage_provenance(storage_provenance_record)
+        
 
     @property
     def extractions(self) -> Dict:
@@ -112,9 +120,15 @@ class Segment(Extractable):
 
     def get_dict_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord):
         dict = {}
+        dict["@id"] = storage_provenance_record.id
         dict["@type"] = "storage_provenance_record"
         dict["doc_id"] = storage_provenance_record.doc_id
         dict["field"] = storage_provenance_record.field
-        dict["destination"] = storage_provenance_record.destination
-        dict["extraction_provenance_record_id"] = storage_provenance_record.provenance_record_id
+        jsonpath = storage_provenance_record.destination
+        dict["destination"] = jsonpath
+        if jsonpath in self._document.jsonpath_provenances:
+            self._document.jsonpath_provenances[jsonpath].append(storage_provenance_record.id)
+        else:
+            self._document.jsonpath_provenances[jsonpath] = [storage_provenance_record.id]
+        dict["parent_provenances"] = storage_provenance_record.extraction_provenances
         return dict

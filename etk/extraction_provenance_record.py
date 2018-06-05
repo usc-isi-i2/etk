@@ -9,8 +9,8 @@ class ExtractionProvenanceRecord(Extractable):
     A Provenance Record containing details of Extraction Results history.
     """
 
-    def __init__(self, id: int, json_path: str, method: str, start_char: str, end_char: str, confidence, _document=None,
-                 parent_extraction_provenance: List[int] = None) -> None:
+    def __init__(self, id: int, json_path: str, method: str, start_char: str, end_char: str, confidence, _document,
+                 parent_extraction_provenance: int = None) -> None:
 
         Extractable.__init__(self)
         self.id = id
@@ -26,3 +26,12 @@ class ExtractionProvenanceRecord(Extractable):
         Returns: the parent extraction provenance id.
         """
         return self._parent_extraction_provenance
+
+    def get_origins(self, value):
+        if self._parent_extraction_provenance is None:
+            return [self.origin_record]
+        else:
+            parent_id = self._parent_extraction_provenance
+            parent = self._document.provenances[parent_id]
+            origins = parent.get_origins(value)
+            return origins
