@@ -2,6 +2,7 @@ from etk.extraction import Extractable
 from typing import List, Dict
 from etk.origin_record import OriginRecord
 
+
 class StorageProvenanceRecord(Extractable):
     """
     An individual storage provenance record of a storage of set of a set of extraction results from a document.
@@ -14,7 +15,7 @@ class StorageProvenanceRecord(Extractable):
         self.id = id
         self.field = None
         self._destination = json_path + '.' + attribute
-        self.extraction_provenances = extraction_provenances # will be assigned later_provenances
+        self.extraction_provenances = extraction_provenances  # will be assigned later_provenances
         self._document = _document
         self.doc_id = None
 

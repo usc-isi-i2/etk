@@ -21,7 +21,7 @@ class ExtractableBase(object):
         """
         return self._value
 
-    def get_string(self, joiner: str =" ") -> str:
+    def get_string(self, joiner: str = " ") -> str:
         """
         Args:
             joiner(str): if the value of an extractable is not a string, join the elements
@@ -100,7 +100,7 @@ class Extractable(ExtractableBase):
         self._value = value
         self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool=True) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = True) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -130,10 +130,10 @@ class Extractable(ExtractableBase):
     @property
     def prov_id(self):
         return self.__prov_id
-        
+
     @prov_id.setter
     def prov_id(self, prov_id):
-       self.__prov_id = prov_id
+        self.__prov_id = prov_id
 
 
 class Extraction(Extractable):
