@@ -5,6 +5,7 @@ from etk.field_types import FieldType
 from etk.etk_exceptions import KgValueError, UndefinedFieldError
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
+from etk.segment import Segment
 
 
 class KnowledgeGraph(object):
@@ -122,10 +123,13 @@ class KnowledgeGraph(object):
             # if isinstance(value, list):
             all_valid = True
             for a_value in value:
-                valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction)) \
-                    if isinstance(a_value, Extraction) \
-                    else self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                reference_type="extraction_location")
+                if isinstance(a_value, Extraction):
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+                elif isinstance(a_value, Segment):
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
+                else:
+                    valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
+                                                   reference_type="extraction_location")
                 all_valid = all_valid and valid
 
             if not all_valid:
