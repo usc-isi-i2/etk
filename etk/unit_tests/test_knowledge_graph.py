@@ -50,7 +50,7 @@ class TestKnowledgeGraph(unittest.TestCase):
         self.assertTrue('provenances' in sample_doc.value)
         provenances = sample_doc.value['provenances']
         self.assertTrue(len(provenances) == 2)
-        self.assertTrue(provenances[0]['reference_type'] == 'storage_location')
+        self.assertTrue(provenances[0]['reference_type'] == 'location')
 
     def test_KnowledgeGraph(self) -> None:
         sample_doc = self.doc

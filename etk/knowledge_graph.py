@@ -46,7 +46,8 @@ class KnowledgeGraph(object):
                     "value": this_value,
                     "key": self.create_key_from_value(this_value, field_name)
                 })
-               self.create_kg_provenance(reference_type, str(this_value), provenance_path) if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
+            self.create_kg_provenance(reference_type, str(this_value), provenance_path) \
+                if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
             return True
         else:
             return False
@@ -183,15 +184,19 @@ class KnowledgeGraph(object):
 
         return key
 
-    def create_kg_provenance(self, reference_type, value, json_path:str = None) -> None:
+    def create_kg_provenance(self, reference_type, value, json_path: str = None) -> None:
         new_id = self.origin_doc.provenance_id_index
-        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord(new_id, "kg_provenance_record", reference_type, value, json_path, self.origin_doc)
+        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord(new_id,
+                                                                                              "kg_provenance_record",
+                                                                                              reference_type, value,
+                                                                                              json_path,
+                                                                                              self.origin_doc)
         self.origin_doc.provenance_id_index_incrementer()
         if value in self.origin_doc.kg_provenances:
             self.origin_doc.kg_provenances[value].append(new_id)
         else:
             self.origin_doc.kg_provenances[value] = [new_id]
-        #self.origin_doc.kg_provenances[value]
+        # self.origin_doc.kg_provenances[value]
         self.origin_doc.provenances[new_id] = kg_provenance_record
         if "provenances" not in self.origin_doc.cdr_document:
             self.origin_doc.cdr_document["provenances"] = []
