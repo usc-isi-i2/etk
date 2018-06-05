@@ -11,6 +11,7 @@ class Segment(Extractable):
     to record segments within a text doc, e.g., by start and end char, or segments within
     a token list with start and end tokens.
     """
+
     def __init__(self, json_path: str, _value: Dict, _document=None) -> None:
         Extractable.__init__(self)
         self.json_path = json_path
@@ -35,7 +36,7 @@ class Segment(Extractable):
         """
         return self._document
 
-    def store(self, extractions: List[Extraction], attribute: str, group_by_tags: bool=True) -> None:
+    def store(self, extractions: List[Extraction], attribute: str, group_by_tags: bool = True) -> None:
         """
         Records extractions in the container, and for each individual extraction inserts a
         ProvenanceRecord to record where the extraction is stored.
@@ -63,11 +64,11 @@ class Segment(Extractable):
 
         if group_by_tags:
             try:
-                next(x for x in extractions if x.tag)   # if there is at least one extraction with a tag
+                next(x for x in extractions if x.tag)  # if there is at least one extraction with a tag
                 if attribute not in self._extractions:
                     self._extractions[attribute] = set([])
                     self._value[attribute] = {}
-                provenance_ids = []
+                extraction_provenances = {}
                 for e in extractions:
                     tag = e.tag if e.tag else 'NO_TAGS'
                     if tag not in self.value[attribute]:
@@ -75,9 +76,15 @@ class Segment(Extractable):
                     else:
                         if e.value not in self.value[attribute][tag]:
                             self.value[attribute][tag].append(e.value)
-                    provenance_ids.append(e.prov_id)
+                    extraction_provenances[e.value] = e.prov_id
                 self._extractions[attribute] = self._extractions[attribute].union(extractions)
-                storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
+                new_id = self._document.provenance_id_index  # for the purpose of provenance hierarrchy tracking
+                storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path,
+                                                                                             attribute,
+                                                                                             extraction_provenances,
+                                                                                             self.document)
+                self._document.provenance_id_index_incrementer()
+                self._document.provenances[new_id] = storage_provenance_record
                 self.create_storage_provenance(storage_provenance_record)
                 return
             except StopIteration:
@@ -85,15 +92,21 @@ class Segment(Extractable):
 
         if attribute not in self._extractions:
             self._extractions[attribute] = set([])
-            self._value[attribute] = []
+            self._value[attribute] = list()
 
         self._extractions[attribute] = self._extractions[attribute].union(extractions)
-        provenance_ids = []
+        extraction_provenances = dict()
         for a_extraction in extractions:
-            provenance_ids.append(a_extraction.prov_id)
+            extraction_provenances[a_extraction.value] = a_extraction.prov_id
             if a_extraction.value not in self._value[attribute]:
                 self._value[attribute].append(a_extraction.value)
-        storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(self.json_path, attribute, provenance_ids, self.document)
+
+        new_id = self._document.provenance_id_index  # for the purpose of provenance hierarchy tracking
+        storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path, attribute,
+                                                                                     extraction_provenances,
+                                                                                     self.document)
+        self._document.provenance_id_index_incrementer()
+        self._document.provenances[new_id] = storage_provenance_record
         self.create_storage_provenance(storage_provenance_record)
 
     @property
@@ -107,14 +120,20 @@ class Segment(Extractable):
 
     def create_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord) -> None:
         if "provenances" not in self.document.cdr_document:
-            self.document.cdr_document["provenances"] = []
+            self.document.cdr_document["provenances"] = list()
         self.document.cdr_document["provenances"].append(self.get_dict_storage_provenance(storage_provenance_record))
 
     def get_dict_storage_provenance(self, storage_provenance_record: StorageProvenanceRecord):
-        dict = {}
-        dict["@type"] = "storage_provenance_record"
-        dict["doc_id"] = storage_provenance_record.doc_id
-        dict["field"] = storage_provenance_record.field
-        dict["destination"] = storage_provenance_record.destination
-        dict["extraction_provenance_record_id"] = storage_provenance_record.provenance_record_id
-        return dict
+        prov_dict = dict()
+        prov_dict["@id"] = storage_provenance_record.id
+        prov_dict["@type"] = "storage_provenance_record"
+        prov_dict["doc_id"] = storage_provenance_record.doc_id
+        prov_dict["field"] = storage_provenance_record.field
+        jsonpath = storage_provenance_record.destination
+        prov_dict["destination"] = jsonpath
+        if jsonpath in self._document.jsonpath_provenances:
+            self._document.jsonpath_provenances[jsonpath].append(storage_provenance_record.id)
+        else:
+            self._document.jsonpath_provenances[jsonpath] = [storage_provenance_record.id]
+            prov_dict["parent_provenances"] = storage_provenance_record.extraction_provenances
+        return prov_dict

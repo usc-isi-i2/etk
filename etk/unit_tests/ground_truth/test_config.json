@@ -1,19 +1,22 @@
 {
-    "fields": {
-        "developer": {
-            "type": "string"
-        },
-        "test_date": {
-            "type": "date"
-        },
-        "test_location": {
-            "type": "location"
-        },
-        "test_number": {
-            "type": "number"
-        },
-        "test_add_value_date": {
-            "type": "date"
-        }
+  "fields": {
+    "developer": {
+      "type": "string"
+    },
+    "test_date": {
+      "type": "date"
+    },
+    "test_location": {
+      "type": "location"
+    },
+    "test_number": {
+      "type": "number"
+    },
+    "test_add_value_date": {
+      "type": "date"
+    },
+    "segment": {
+      "type": "string"
     }
+  }
 }

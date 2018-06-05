@@ -6,8 +6,7 @@ from datetime import date, datetime
 
 
 class TestKnowledgeGraph(unittest.TestCase):
-
-    def test_KnowledgeGraph(self) -> None:
+    def setUp(self):
         sample_doc = {
             "projects": [
                 {
@@ -20,7 +19,8 @@ class TestKnowledgeGraph(unittest.TestCase):
                         "Runqi12"
                     ],
                     "date": "2007-12-05",
-                    "place": "columbus:georgia:united states:-84.98771:32.46098"
+                    "place": "columbus:georgia:united states:-84.98771:32.46098",
+                    "s": "segment_test_1"
                 },
                 {
                     "name": "rltk",
@@ -30,33 +30,49 @@ class TestKnowledgeGraph(unittest.TestCase):
                         "yixiang"
                     ],
                     "date": ["2007-12-05T23:19:00"],
-                    "cost": -3213.32
+                    "cost": -3213.32,
+                    "s": "segment_test_2"
                 }
             ]
         }
-
         kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 
         etk = ETK(kg_schema)
-        doc = etk.create_document(sample_doc)
+        self.doc = etk.create_document(sample_doc)
+
+    def test_add_segment_kg(self) -> None:
+        sample_doc = self.doc
+        segments = sample_doc.select_segments("projects[*].s")
+        sample_doc.kg.add_value("segment", segments)
+        expected_segments = ["segment_test_1", "segment_test_2"]
+        self.assertTrue(sample_doc.kg.value["segment"][0]["key"] in expected_segments)
+        self.assertTrue(sample_doc.kg.value["segment"][1]["key"] in expected_segments)
+        self.assertTrue('provenances' in sample_doc.value)
+        provenances = sample_doc.value['provenances']
+        self.assertTrue(len(provenances) == 2)
+        self.assertTrue(provenances[0]['reference_type'] == 'location')
+
+    def test_KnowledgeGraph(self) -> None:
+        sample_doc = self.doc
 
         try:
-            doc.kg.add_value("developer", json_path="projects[*].members[*]")
+            sample_doc.kg.add_value("developer", json_path="projects[*].members[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_value("test_date", json_path="projects[*].date[*]")
+            sample_doc.kg.add_value("test_date", json_path="projects[*].date[*]")
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_value("test_add_value_date", value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)])
+            sample_doc.kg.add_value("test_add_value_date",
+                                    value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)])
         except KgValueError:
             pass
 
         try:
-            doc.kg.add_value("test_location", json_path="projects[*].place")
+            sample_doc.kg.add_value("test_location", json_path="projects[*].place")
         except KgValueError:
             pass
 
@@ -115,7 +131,8 @@ class TestKnowledgeGraph(unittest.TestCase):
                 "key": "columbus:georgia:united states:-84.98771:32.46098"
             }
         ]
-        self.assertEqual(expected_developers, doc.kg.value["developer"])
-        self.assertEqual(expected_date, doc.kg.value["test_date"])
-        self.assertEqual(expected_location, doc.kg.value["test_location"])
-        self.assertEqual(expected_add_value_date, doc.kg.value["test_add_value_date"])
+
+        self.assertEqual(expected_developers, sample_doc.kg.value["developer"])
+        self.assertEqual(expected_date, sample_doc.kg.value["test_date"])
+        self.assertEqual(expected_location, sample_doc.kg.value["test_location"])
+        self.assertEqual(expected_add_value_date, sample_doc.kg.value["test_add_value_date"])

@@ -3,11 +3,12 @@ from etk.knowledge_graph import KGSchema
 from etk.etk import ETK
 from etk.etk_exceptions import KgValueError
 from datetime import date, datetime
+from etk.provenance_api import ProvenanceAPI
 
 
-class TestKnowledgeGraph(unittest.TestCase):
+class TestKnowledgeGraphProvenance(unittest.TestCase):
 
-    def test_KnowledgeGraph(self) -> None:
+    def test_KnowledgeGraph_provenance(self) -> None:
         sample_doc = {
             "projects": [
                 {
@@ -61,74 +62,86 @@ class TestKnowledgeGraph(unittest.TestCase):
         except KgValueError:
             pass
 
+        # print (json.dumps(doc.value, indent=2))
+
         expeced_provenances = [
             {
+                "@id": 0,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "dongyu",
                 "json_path": "projects.[0].members.[0]"
             },
             {
+                "@id": 1,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "amandeep",
                 "json_path": "projects.[0].members.[1]"
             },
             {
+                "@id": 2,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "sylvia",
                 "json_path": "projects.[0].members.[2]"
             },
             {
+                "@id": 3,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "Runqi12",
                 "json_path": "projects.[0].members.[3]"
             },
             {
+                "@id": 4,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "mayank",
                 "json_path": "projects.[1].members.[0]"
             },
             {
+                "@id": 5,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "yixiang",
                 "json_path": "projects.[1].members.[1]"
             },
             {
+                "@id": 6,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "2007-12-05T00:00:00",
                 "json_path": "projects.[0].date.[0]"
             },
             {
+                "@id": 7,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "2007-12-05T23:19:00",
                 "json_path": "projects.[1].date.[0]"
             },
             {
+                "@id": 8,
                 "@type": "kg_provenance_record",
-                "reference_type": "extraction_location",
-                "value": "2018-03-28",  # was "value": "2018-03-28T00:00:00",
+                "reference_type": "constant",
+                "value": "2018-03-28",
                 "json_path": "projects[0].date"
             },
             {
+                "@id": 9,
                 "@type": "kg_provenance_record",
-                "reference_type": "extraction_location",
+                "reference_type": "constant",
                 "value": "2018-03-28T01:01:01",
                 "json_path": "projects[0].date"
             },
             {
+                "@id": 10,
                 "@type": "kg_provenance_record",
-                "reference_type": "storage_location",
+                "reference_type": "location",
                 "value": "columbus:georgia:united states:-84.98771:32.46098",
                 "json_path": "projects.[0].place"
             }
         ]
 
-        print(json.dumps(doc.cdr_document, indent=2))
         self.assertEqual(expeced_provenances, doc.value["provenances"])

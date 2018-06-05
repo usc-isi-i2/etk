@@ -20,10 +20,8 @@ class Extractor(object):
     """
     All extractors extend this abstract class.
     """
-    def __init__(self,
-                 input_type: InputType=InputType.TEXT,
-                 category: str=None,
-                 name: str=None):
+
+    def __init__(self, input_type: InputType = InputType.TEXT, category: str = None, name: str = None):
         self._category = category
         self._name = name
         self._input_type = input_type

@@ -16,6 +16,7 @@ class Document(Segment):
         to query elements of the document and to update the document with the results
         of extractors.
         """
+
     def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None) -> None:
 
         """
@@ -35,13 +36,35 @@ class Document(Segment):
         self.url = url
         if doc_id:
             self.cdr_document["doc_id"] = doc_id
-        self.extraction_provenance_records = []
-        self.extraction_provenance_id_index = 0
+        self.extraction_provenance_records = list()
         if self.etk.kg_schema:
             self.kg = KnowledgeGraph(self.etk.kg_schema, self)
         else:
             self.kg = None
             self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
+        self._provenance_id_index = 0
+        self._provenances = dict()
+        self._jsonpath_provenances = dict()
+        self._kg_provenances = dict()
+
+    @property
+    def provenance_id_index(self) -> int:
+        return self._provenance_id_index
+
+    @property
+    def provenances(self) -> Dict:
+        return self._provenances
+
+    @property
+    def jsonpath_provenances(self) -> Dict:
+        return self._jsonpath_provenances
+
+    @property
+    def kg_provenances(self) -> Dict:
+        return self._kg_provenances
+
+    def provenance_id_index_incrementer(self):
+        self._provenance_id_index += 1
 
     @property
     def document(self):
@@ -67,7 +90,7 @@ class Document(Segment):
         path = self.etk.parse_json_path(jsonpath)
         matches = path.find(self.cdr_document)
 
-        segments = []
+        segments = list()
         for a_match in matches:
             this_segment = Segment(str(a_match.full_path), a_match.value, self)
             segments.append(this_segment)
@@ -75,7 +98,7 @@ class Document(Segment):
         return segments
 
     def extract(self, extractor: Extractor, extractable: Extractable = None, tokenizer: Tokenizer = None,
-                         joiner: str = "  ", **options) -> List[Extraction]:
+                joiner: str = "  ", **options) -> List[Extraction]:
 
         """
         Invoke the extractor on the given extractable, accumulating all the extractions in a list.
@@ -146,19 +169,20 @@ class Document(Segment):
 
         try:
             jsonPath = extractable.full_path
-            _document = extractable.document
         except AttributeError:
             jsonPath = None
-            _document = None
 
         for e in extracted_results:
+            # for the purpose of provenance hierarrchy tracking, a parent's id for next generation.
+            e.prov_id = self.provenance_id_index
             extraction_provenance_record: ExtractionProvenanceRecord = ExtractionProvenanceRecord(
-                self.extraction_provenance_id_index, jsonPath, e.provenance["extractor_name"],
-                e.provenance["start_char"], e.provenance["end_char"], e.provenance["confidence"], _document,
+                e.prov_id, jsonPath, e.provenance["extractor_name"],
+                e.provenance["start_char"], e.provenance["end_char"], e.provenance["confidence"], self,
                 extractable.prov_id)
+            self._provenances[e.prov_id] = extraction_provenance_record
 
-            e.prov_id = self.extraction_provenance_id_index # for the purpose of provenance hierarrchy tracking
-            self.extraction_provenance_id_index = self.extraction_provenance_id_index + 1
+            # for the purpose of provenance hierarchy tracking
+            self.provenance_id_index_incrementer()
             self.create_provenance(extraction_provenance_record)
 
         return extracted_results
@@ -183,27 +207,31 @@ class Document(Segment):
         """
         self.cdr_document["doc_id"] = new_doc_id
 
-    def create_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord) -> None:
+    def create_provenance(self, extraction_provenance_record: ExtractionProvenanceRecord) -> None:
         if "provenances" not in self.cdr_document:
             self.cdr_document["provenances"] = []
-        self.cdr_document["provenances"].append(self.get_dict_extraction_provenance(extractionProvenanceRecord))
+        self.cdr_document["provenances"].append(self.get_dict_extraction_provenance(extraction_provenance_record))
 
-    def get_dict_extraction_provenance(self, extractionProvenanceRecord: ExtractionProvenanceRecord):
-        dict = {}
-        dict["@type"] = "extraction_provenance_record"
-        dict["@id"] = extractionProvenanceRecord.id
-        dict["method"] = extractionProvenanceRecord.method
-        dict["confidence"] = extractionProvenanceRecord.extraction_confidence
-        if extractionProvenanceRecord.origin_record.full_path is not None:
-            dict["origin_record"] = []
-            origin_dict = {}
-            origin_dict["path"] = extractionProvenanceRecord.origin_record.full_path
-            origin_dict["start_char"] = extractionProvenanceRecord.origin_record.start_char
-            origin_dict["end_char"] = extractionProvenanceRecord.origin_record.end_char
-            dict["origin_record"].append(origin_dict)
-        if extractionProvenanceRecord.parent_extraction_provenance is not None:
-            dict["provenance_id"] = extractionProvenanceRecord.parent_extraction_provenance
-        return dict
+    def get_dict_extraction_provenance(self, extraction_provenance_record: ExtractionProvenanceRecord):
+        prov_dict = dict()
+        prov_dict["@id"] = extraction_provenance_record.id
+        prov_dict["@type"] = "extraction_provenance_record"
+        prov_dict["method"] = extraction_provenance_record.method
+        prov_dict["confidence"] = extraction_provenance_record.extraction_confidence
+        if extraction_provenance_record.origin_record.full_path is not None:
+            jsonpath = extraction_provenance_record.origin_record.full_path
+            if jsonpath in self._jsonpath_provenances:
+                self._jsonpath_provenances[jsonpath].append(extraction_provenance_record.id)
+            else:
+                self._jsonpath_provenances[jsonpath] = [extraction_provenance_record.id]
+            origin_dict = dict()
+            origin_dict["path"] = jsonpath
+            origin_dict["start_char"] = extraction_provenance_record.origin_record.start_char
+            origin_dict["end_char"] = extraction_provenance_record.origin_record.end_char
+            prov_dict["origin_record"] = origin_dict
+        if extraction_provenance_record.parent_extraction_provenance is not None:
+            prov_dict["parent_provenance_id"] = extraction_provenance_record.parent_extraction_provenance
+        return prov_dict
 
     def insert_kg_into_cdr(self):
         if self.kg and self.kg.value:
