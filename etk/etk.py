@@ -204,7 +204,7 @@ class ETK(object):
         return all_em_lst
 
     @staticmethod
-    def topological_sort(lst: List[ETKModule]) -> List[ETKModule]:
+    def topological_sort(etk_module_list: List[ETKModule]) -> List[ETKModule]:
         """
         Return topological order of ems
 
@@ -215,7 +215,7 @@ class ETK(object):
 
         """
         "TODO"
-        return lst
+        return etk_module_list
 
     @staticmethod
     def classes_in_module(module) -> List:
