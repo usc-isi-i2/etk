@@ -1,6 +1,7 @@
 import os
 import sys, json
 from typing import List
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
@@ -82,7 +83,6 @@ class UCDPModule(ETKModule):
         # Create a doc_id for the actor document, from the doc_id of the event document
         actor1_doc.doc_id = doc.doc_id + "_actor1"
 
-
         # Now do the exact same thing for SideB
         actor2_dict = {
             "Side": doc.cdr_document["SideB"],
@@ -114,13 +114,15 @@ class UCDPModule(ETKModule):
                 "uri": doc.doc_id + "_fatalities",
                 "title": doc.extract(self.int_fatalities_decoder, doc.select_segments("$.Int")[0]),
                 "type": ["Group", "Dead People"],
-                "size_lower_bound": doc.extract(self.int_fatalities_size_lower_decoder, doc.select_segments("$.Int")[0]),
+                "size_lower_bound": doc.extract(self.int_fatalities_size_lower_decoder,
+                                                doc.select_segments("$.Int")[0]),
                 "size_upper_bound": doc.extract(self.int_fatalities_size_upper_decoder, doc.select_segments("$.Int")[0])
             },
             "actor": [actor1_doc.doc_id, actor2_doc.doc_id]
         }
-        print(kg_object_old_ontology)
-        doc.kg.add_value(kg_object_old_ontology)
+        # print(kg_object_old_ontology)
+        # TODO make this happen (the line below)
+        # doc.kg.add_value(kg_object_old_ontology)
 
         kg_object_new_ontology = {
             "a": "Event",
@@ -150,8 +152,10 @@ class UCDPModule(ETKModule):
                 "has_dimension": {
                     "type": "size",
                     "has_unit": "person",
-                    "value_is_at_least": doc.extract(self.int_fatalities_size_lower_decoder, doc.select_segments("$.Int")[0]),
-                    "value_is_at_most": doc.extract(self.int_fatalities_size_upper_decoder, doc.select_segments("$.Int")[0])
+                    "value_is_at_least": doc.extract(self.int_fatalities_size_lower_decoder,
+                                                     doc.select_segments("$.Int")[0]),
+                    "value_is_at_most": doc.extract(self.int_fatalities_size_upper_decoder,
+                                                    doc.select_segments("$.Int")[0])
                 },
                 "has_condition": {
                     "type": "Dead"
@@ -196,6 +200,7 @@ class UCDPActorModule(ETKModule):
 
         # Return an empty list because we didn't create new documents
         return []
+
 
 # The main is for testing, and is not used in the DIG pipeline
 if __name__ == "__main__":

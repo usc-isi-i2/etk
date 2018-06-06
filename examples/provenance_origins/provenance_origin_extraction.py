@@ -38,8 +38,8 @@ class ProvenanceOriginExtractionETKModule(ETKModule):
             for name_extraction in names:
                 students += doc.extract(self.student_extractor, name_extraction)
             p.store(students, "students")
-        doc.kg.add_doc_value("developer", "projects[*].members[*]")
-        doc.kg.add_doc_value("owner", "projects[*].students[*]")
+        doc.kg.add_value("developer", json_path="projects[*].members[*]")
+        doc.kg.add_value("owner", json_path="projects[*].students[*]")
         return list()
 
 

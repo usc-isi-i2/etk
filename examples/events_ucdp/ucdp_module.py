@@ -72,31 +72,31 @@ class UCDPModule(ETKModule):
         doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
         # Map location to country
-        doc.kg.add_doc_value("country", "$.Location")
+        doc.kg.add_value("country", json_path="$.Location")
 
         # map incomp to type, after using a decoding dict
-        doc.kg.add_value("type", doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]))
+        doc.kg.add_value("type", value=doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]))
 
         # map Int to type, also after using a decoding dict
-        doc.kg.add_value("type", doc.extract(self.int_decoder, doc.select_segments("$.Int")[0]))
+        doc.kg.add_value("type", value=doc.extract(self.int_decoder, doc.select_segments("$.Int")[0]))
 
         # Add "Event" to type, as all these documents are events
-        doc.kg.add_value("type", "Event")
+        doc.kg.add_value("type", value="Event")
 
         # Add a title to our event
-        doc.kg.add_value("title", "{}/{} armed conflict in {}".format(
+        doc.kg.add_value("title", value="{}/{} armed conflict in {}".format(
             doc.cdr_document["SideA"],
             doc.cdr_document["SideB"],
             doc.cdr_document["YEAR"]
         ))
 
         # Add the specific CauseEx ontology classes that we want to use for this event
-        doc.kg.add_value("causeex_class", doc.extract(self.int_causeex_decoder, doc.select_segments("$.Int")[0]))
-        doc.kg.add_value("causeex_class", self.event_prefix+"ArmedConflict")
+        doc.kg.add_value("causeex_class", value=doc.extract(self.int_causeex_decoder, doc.select_segments("$.Int")[0]))
+        doc.kg.add_value("causeex_class", value=self.event_prefix+"ArmedConflict")
 
         # Map dates to event_date
-        doc.kg.add_doc_value("event_date", "$.StartDate")
-        doc.kg.add_doc_value("event_date_end", "$.EpEndDate")
+        doc.kg.add_value("event_date", json_path="$.StartDate")
+        doc.kg.add_value("event_date_end", json_path="$.EpEndDate")
 
         # Create a CDR document for an actor, we only put the SideA attribute in it,
         # and we give it a new dataset identifier so we can match it in an ETKModule
@@ -110,7 +110,7 @@ class UCDPModule(ETKModule):
         actor1_doc.doc_id = doc.doc_id + "_actor1"
 
         # Record the identifier of the actor object in the "actor" field of the event.
-        doc.kg.add_value("actor", actor1_doc.doc_id)
+        doc.kg.add_value("actor", value=actor1_doc.doc_id)
 
         # Now do the exact same thing for SideB
         actor2_dict = {
@@ -119,23 +119,23 @@ class UCDPModule(ETKModule):
         }
         actor2_doc = etk.create_document(actor2_dict)
         actor2_doc.doc_id = doc.doc_id + "_actor2"
-        doc.kg.add_value("actor", actor2_doc.doc_id)
+        doc.kg.add_value("actor", value=actor2_doc.doc_id)
 
         # Create a fatalities object to record information about the fatalities in the conflict
         # Instead of creating an ETK module for it, it is possible to do it inline.
         fatalities_doc = etk.create_document({"Int": doc.cdr_document["Int"]})
         fatalities_doc.doc_id = doc.doc_id + "_fatalities"
-        doc.kg.add_value("fatalities", fatalities_doc.doc_id)
+        doc.kg.add_value("fatalities", value=fatalities_doc.doc_id)
         fatalities_doc.kg.add_value(
             "title",
             fatalities_doc.extract(self.int_fatalities_decoder, fatalities_doc.select_segments("$.Int")[0]))
-        fatalities_doc.kg.add_value("type", ["Group", "Dead People"])
+        fatalities_doc.kg.add_value("type", value=["Group", "Dead People"])
         fatalities_doc.kg.add_value(
-            "size_lower_bound",
-            fatalities_doc.extract(self.int_fatalities_size_lower_decoder, fatalities_doc.select_segments("$.Int")[0]))
+            "size_lower_bound", value=fatalities_doc.extract(self.int_fatalities_size_lower_decoder,
+                                                             fatalities_doc.select_segments("$.Int")[0]))
         fatalities_doc.kg.add_value(
-            "size_upper_bound",
-            fatalities_doc.extract(self.int_fatalities_size_upper_decoder, fatalities_doc.select_segments("$.Int")[0]))
+            "size_upper_bound", value=fatalities_doc.extract(self.int_fatalities_size_upper_decoder,
+                                                             fatalities_doc.select_segments("$.Int")[0]))
 
         # Return the list of new documents that we created to be processed by ETK.
         # Note that fatalities_dco is in the list as it is a newly created document. It does not have an
@@ -164,16 +164,16 @@ class UCDPActorModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         # Record the type of the actor
-        doc.kg.add_value("type", ["Group", "Country"])
+        doc.kg.add_value("type", value=["Group", "Country"])
 
         # Record the country of this actor
-        doc.kg.add_doc_value("country", "$.Side")
+        doc.kg.add_value("country", json_path="$.Side")
 
         # Add a title to the actor document
-        doc.kg.add_doc_value("title", "$.Side")
+        doc.kg.add_value("title", json_path="$.Side")
 
         # Return an empty list because we didn't create new documents
-        return []
+        return list()
 
 # The main is for testing, and is not used in the DIG pipeline
 if __name__ == "__main__":
