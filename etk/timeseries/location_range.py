@@ -66,3 +66,5 @@ class LocationRange(object):
             self.generator = None
             self.iteridx += 1
             return self.__next__()
+
+        next = __next__

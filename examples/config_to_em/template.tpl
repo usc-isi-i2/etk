@@ -37,7 +37,7 @@ ${extractor_list}
         """
         Add your code for processing the document
         """
-        doc.value["readability_extraction"] = {}
+        doc.value["readability_extraction"] = dict()
 
         all_text = doc.extract(self.readability_extractor, doc.select_segments("$.raw_content")[0], strategy=Strategy.ALL_TEXT)
         doc.select_segments("$.readability_extraction")[0].store(all_text, "all_text")
@@ -54,21 +54,21 @@ ${extractor_list}
         meta = self.meta_extractor.extract(doc.cdr_document["raw_content"], extract_title=True)
         for e in meta:
             if e.tag == 'title' and e.tag in self.master_config_fields:
-                doc.kg.add_value(e.tag, e.value)
+                doc.kg.add_value(e.tag, value=e.value)
 
         inferlink_extractions = self.inferlink_extractor.extract(doc.cdr_document["raw_content"])
         for e in inferlink_extractions:
             field_name = re.sub(r'-\d$', '', e.tag)
             if field_name in self.master_config_fields:
-                doc.kg.add_value(field_name, e.value)
+                doc.kg.add_value(field_name, value=e.value)
 
         if 'website' in doc.value:
-            doc.kg.add_value('website', doc.value['website'])
+            doc.kg.add_value('website', value=doc.value['website'])
         elif 'url' in doc.value:
             try:
                 website = HostnameExtractor().extract(doc.value['url'])
                 if website:
-                    doc.kg.add_value('website', website[0].value)
+                    doc.kg.add_value('website', value=website[0].value)
             except Exception as e:
                 print(e)
 

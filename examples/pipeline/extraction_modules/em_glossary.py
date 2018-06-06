@@ -32,7 +32,7 @@ class ETKModuleGlossary(ETKModule):
                 students += doc.extract(self.student_extractor, name_extraction)
             p.store(students, "students")
 
-        doc.kg.add_doc_value("developer", "projects[*].members[*]")
-        doc.kg.add_doc_value("student_developer", "projects[*].students[*]")
+        doc.kg.add_value("developer", json_path="projects[*].members[*]")
+        doc.kg.add_value("student_developer", json_path="projects[*].students[*]")
 
-        doc.kg.add_doc_value("id", '$.doc_id')
+        doc.kg.add_value("id", json_path='$.doc_id')

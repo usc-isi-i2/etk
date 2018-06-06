@@ -15,6 +15,6 @@ etk = ETK(kg_schema, ["./ems"])
 
 doc = etk.create_document(json.load(open('sample_html.jl', 'r')))
 
-doc, knowledge_graph = etk.process_ems(doc)
+docs = etk.process_ems(doc)
 
-print(json.dumps(doc.value, indent=2))
+print(json.dumps(docs[0].value, indent=2))

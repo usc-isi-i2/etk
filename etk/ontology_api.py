@@ -85,6 +85,8 @@ class OntologyProperty(OntologyEntity):
 
 
 class OntologyObjectProperty(OntologyProperty):
+    def __init__(self, inverse_property=None):
+        pass
 
     def is_legal_object(self, c: OntologyClass) -> bool:
         """
@@ -98,6 +100,22 @@ class OntologyObjectProperty(OntologyProperty):
 
         """
         pass
+
+    def inverse(self) -> OntologyObjectProperty:
+        """
+
+        Returns: Inverse of the object property
+
+        """
+        pass
+
+    def is_primary(self) -> bool:
+        """
+
+        Returns: True if this object property is the primary(compared to inverse object property)
+
+        """
+        return True
 
 
 class OntologyDatatypeProperty(OntologyProperty):

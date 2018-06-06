@@ -1,4 +1,4 @@
-import etk.timeseries.extractSpreadsheet as extractSpreadsheet
+import etk.timeseries.extract_spreadsheet as extractSpreadsheet
 from typing import List
 from etk.document import Document
 from etk.etk_exceptions import InvalidArgumentsError
@@ -29,10 +29,10 @@ class TimeseriesProcessor(object):
 
     def create_documents(self, json_objs: object,
                          file_name: str = None,
-                         data_set: str = None,) -> List[Document]:
+                         data_set: str = None, ) -> List[Document]:
         documents = list()
 
-        for json_obj in json_objs[0]:
+        for json_obj in json_objs:
             cdr_doc = json_obj
 
             if file_name is not None:

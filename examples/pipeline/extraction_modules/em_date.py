@@ -63,4 +63,4 @@ class ETKModuleDate(ETKModule):
 
             p.store(extracted_date, "extracted_date")
 
-        doc.kg.add_doc_value("date", "date_description.extracted_date[*]")
+        doc.kg.add_value("date", json_path="date_description.extracted_date[*]")

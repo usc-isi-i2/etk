@@ -7,6 +7,7 @@ class ETKModule(object):
     """
     Abstract class for extraction module
     """
+
     def __init__(self, etk):
         self.etk = etk
 

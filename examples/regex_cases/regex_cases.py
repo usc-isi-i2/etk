@@ -1,4 +1,5 @@
 import json, os, sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
@@ -15,6 +16,7 @@ class RegexETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
+
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         bae = BitcoinAddressExtractor()
@@ -31,13 +33,14 @@ class RegexETKModule(ETKModule):
         """
 
         segment = doc.select_segments("target_text")[0]
+
         for e in self.e_list:
             res = doc.extract(e, segment)
             doc.store(res, e.name)
         return list()
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     sample_input = {
         "target_text": "This is for test multiple extractors using regex expression. "
                        "A module can be used for bitcoin address extraction is "

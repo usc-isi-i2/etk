@@ -120,7 +120,6 @@ class KnowledgeGraph(object):
             if not isinstance(value, list):
                 value = [value]
 
-            # if isinstance(value, list):
             all_valid = True
             for a_value in value:
                 if isinstance(a_value, Extraction):
@@ -196,15 +195,15 @@ class KnowledgeGraph(object):
             self.origin_doc.kg_provenances[value].append(new_id)
         else:
             self.origin_doc.kg_provenances[value] = [new_id]
-        # self.origin_doc.kg_provenances[value]
         self.origin_doc.provenances[new_id] = kg_provenance_record
         if "provenances" not in self.origin_doc.cdr_document:
             self.origin_doc.cdr_document["provenances"] = []
         _dict = self.get_dict_kg_provenance(kg_provenance_record)
         self.origin_doc.cdr_document["provenances"].append(_dict)
 
-    def get_dict_kg_provenance(self, kg_provenance_record: KnowledgeGraphProvenanceRecord):
-        _dict = {}
+    @staticmethod
+    def get_dict_kg_provenance(kg_provenance_record: KnowledgeGraphProvenanceRecord):
+        _dict = dict()
         _dict["@id"] = kg_provenance_record.id
         _dict["@type"] = kg_provenance_record._type
         _dict["reference_type"] = kg_provenance_record.reference_type

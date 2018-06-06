@@ -1,5 +1,6 @@
 import re
-import etk.timeseries.LocationRange as lr
+import etk.timeseries.location_range as lr
+#import etk.timeseries.LocationRange as lr
 
 class LocationParser(object):
     def __init__(self):

@@ -98,19 +98,19 @@ class ElicitWestAmericanFoodModule(ETKModule):
             extracted_doc = etk.create_document(extracted_doc)
 
             # build kg
-            extracted_doc.kg.add_doc_value('metadata__unit', '$.factoid.unit')
+            extracted_doc.kg.add_value('metadata__unit', json_path='$.factoid.unit')
             extracted_doc.kg.add_value('metadata__property_type',
-                ['http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements#Nutrition'])
+                value=['http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements#Nutrition'])
             extracted_doc.kg.add_value('metadata__reported_value',
-                ['http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements#ReportedValue'])
-            extracted_doc.kg.add_doc_value('provenance_col', '$.factoid.metadata.col')
-            extracted_doc.kg.add_doc_value('provenance_row', '$.factoid.metadata.row')
-            extracted_doc.kg.add_doc_value('provenance_filename', '$.factoid.metadata.file_name')
-            extracted_doc.kg.add_doc_value('provenance_sheet', '$.factoid.metadata.sheet_name')
-            extracted_doc.kg.add_doc_value('value', '$.factoid.value')
-            extracted_doc.kg.add_doc_value('type', '$.factoid.type')
-            extracted_doc.kg.add_doc_value('identifier_key', '$.factoid.identifier_key')
-            extracted_doc.kg.add_doc_value('identifier_value', '$.factoid.identifier_value')
+                value=['http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements#ReportedValue'])
+            extracted_doc.kg.add_value('provenance_col', json_path='$.factoid.metadata.col')
+            extracted_doc.kg.add_value('provenance_row', json_path='$.factoid.metadata.row')
+            extracted_doc.kg.add_value('provenance_filename', json_path='$.factoid.metadata.file_name')
+            extracted_doc.kg.add_value('provenance_sheet', json_path='$.factoid.metadata.sheet_name')
+            extracted_doc.kg.add_value('value', json_path='$.factoid.value')
+            extracted_doc.kg.add_value('type', json_path='$.factoid.type')
+            extracted_doc.kg.add_value('identifier_key', json_path='$.factoid.identifier_key')
+            extracted_doc.kg.add_value('identifier_value', json_path='$.factoid.identifier_value')
 
             extracted_docs.append(extracted_doc)
 

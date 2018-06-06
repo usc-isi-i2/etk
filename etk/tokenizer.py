@@ -76,6 +76,7 @@ class Tokenizer(object):
 
         """Add custom attributes"""
         """Add full_shape attribute. Eg. 21.33 => dd.dd, esadDeweD23 => xxxxXxxxXdd"""
+
         def get_shape(token):
             full_shape = ""
             for i in token.text:
@@ -88,20 +89,24 @@ class Tokenizer(object):
                 else:
                     full_shape += i
             return full_shape
+
         spacy_token.set_extension("full_shape", getter=get_shape, force=True)
 
         def is_integer(token):
             pattern = re.compile('^[-+]?[0-9]+$')
             return bool(pattern.match(token.text))
+
         spacy_token.set_extension("is_integer", getter=is_integer, force=True)
 
         def is_decimal(token):
             pattern = re.compile('^[-+]?[0-9]+\.[0-9]+$')
             return bool(pattern.match(token.text))
+
         spacy_token.set_extension("is_decimal", getter=is_decimal, force=True)
 
         def is_ordinal(token):
             return token.orth_[-2:] in ['rd', 'st', 'th', 'nd']
+
         spacy_token.set_extension("is_ordinal", getter=is_ordinal, force=True)
 
         def is_mixed(token):
@@ -109,17 +114,22 @@ class Tokenizer(object):
                 return True
             else:
                 return False
+
         spacy_token.set_extension("is_mixed", getter=is_mixed, force=True)
 
         """Add custom methods"""
         """Add get_prefix method. RETURN length N prefix"""
+
         def n_prefix(token, n):
             return token.text[:n]
+
         spacy_token.set_extension("n_prefix", method=n_prefix, force=True)
 
         """Add get_suffix method. RETURN length N suffix"""
+
         def n_suffix(token, n):
             return token.text[-n:]
+
         spacy_token.set_extension("n_suffix", method=n_suffix, force=True)
 
         return spacy_token

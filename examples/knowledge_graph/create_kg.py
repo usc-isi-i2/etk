@@ -30,7 +30,7 @@ class ExampleETKModule(ETKModule):
             names = doc.extract(self.name_extractor, d)
             p.store(names, "members")
 
-        doc.kg.add_doc_value("developer", "projects[*].members[*]")
+        doc.kg.add_value("developer", json_path="projects[*].members[*]")
         return list()
 
 if __name__ == "__main__":

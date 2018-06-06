@@ -19,4 +19,4 @@ class ETKModuleSpacy(ETKModule):
             spacy_names = doc.extract(self.sample_rule_extractor, d)
             p.store(spacy_names, "spacy_names")
             for a_name in spacy_names:
-                doc.kg.add_value("spacy_name", a_name.value)
+                doc.kg.add_value("spacy_name", value=a_name.value)
