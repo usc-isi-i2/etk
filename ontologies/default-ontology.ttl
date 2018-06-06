@@ -1,0 +1,888 @@
+@prefix : <http://isi.edu/ontologies/dig> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix schema: <http://schema.org/> .
+
+:Entity a owl:Class ;
+    rdfs:label "Entity" ;
+    skos:definition """Everything that can be described, similar to owl:Thing.""" ;
+    :common_properties :label, :title, :description ;
+    :crm_equivalent crm:E1_CRM_Entity
+    .
+
+ # S9 Property Type
+ :Type a owl:Class ;
+    rdfs:label "Type" ;
+    skos:definition """Everything that can be described, similar to owl:Thing.""" ;
+    :crm_equivalent crm:E55_Type ;
+    .
+
+:Property_Type a owl:Class ;
+    rdfs:label "Property Type" ;
+    skos:definition """When modeling measurements, one creates a :Measurement event, and one needs to record the value measures together with its units (:Dimension), the object that was measured (:measured), and the property of the object that we are measuring (:observed_property_type), e.g., the width, or height, or price, or production level, etc. It is possible that all these properties are not defined as RDF properties in an ontology, e.g., :price is not in the ontology. The idea of :Property_Type is to create controlled vocabularies of properties one can observe, withut requiring that these properties be defined as RDF properties, i.e., the observed properties are data (instances of :Property_Type), so new ones can be added without extending the ontology.""" ;
+    skos:definition """Formal definition: Comprises types of properties. Typically, instances of S9 Property Type would be
+taken from an ontology or terminological system. In particular, instances of this class can be
+used to describe in a parametric way what kind of properties the values in scientific data sets
+are about. By virtue of such descriptions, numeric data can be interpreted as sets of
+propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the
+ground water from a certain borehole.""" ;
+    owl:subClassOf :Type ;
+    :crm_equivalent crm:S9_Property_Type ;
+    .
+
+:Temporal_Entity a owl:Class ;
+    rdfs:label "Temporal Entity" ;
+    skos:definition """Phenomena that happens over time, incuding :Event and :Condition_State.""" ;
+    skos:note """This is an abstract class used as domain of temporal properties that apply to :Event and :Condition_State.""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E2_Temporal_Entity ;
+    :common_properties :title, :description, :identifier ;
+    .
+
+:Physical_Object a owl:Class ;
+    rdfs:label "Physical_Object" ;
+    skos:definition """A thing in the world, e.g., buildings, trees, persons, but not ideas.""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E19_Physical_Object ;
+    .
+
+:Man_Made_Thing a owl:Class ;
+    rdfs:label "Man-Made Thing" ;
+    skos:definition """Comprises discrete, identifiable man-made items that are documented as single units. These items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.""" ;
+    skos:note """Beethoven’s 5th Symphony, Michelangelo’s David, Einstein’s Theory of General Relativity, the Linux operating system, the Empire State building, a chair.""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E71_Man-Made_Thing ;
+    .
+
+:Event a owl:Class ;
+    rdfs:label "Event" ;
+    skos:definition """An event that may happen or has happened in the world.""" ;
+    rdfs:subClassOf :Temporal_Entity ;
+    :crm_equivalent crm:E5_Event ;
+    .
+
+:Condition_State a owl:Class ;
+    rdfs:label "Condition State" ;
+    skos:definition """The states of objects characterised by a certain condition over a time-span.""" ;
+    skos:note """For example, being dead, or being destroyed are states that may be caused by an event.""" ;
+    rdfs:subClassOf :Temporal_Entity ;
+    :crm_equivalent crm:E3_Condition_State ;
+    .
+
+:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ; 
+    rdfs:subClassOf :Group ;
+    :crm_equivalent crm:E39_Actor ;
+    :common_properties :label, :title, :religion ;
+    .
+
+:Group a owl:Class ;
+    rdfs:label "Group" ;
+    skos:definition """A """ ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E74_Group ;
+    :common_properties :label, :title ;
+    .
+
+:Organization a owl:Class ;
+    rdfs:label "Group" ;
+    skos:definition """Any type of organizationm, a company, a terrorist group, a government, etc.""" ;
+    rdfs:subClassOf :Actor ;
+    :crm_equivalent crm:E40_Legal_Body ;
+    :common_properties :label, :title, :religion ;
+    .
+
+:Person a owl:Class ;
+    rdfs:label "Group" ;
+    skos:definition """A specific person in the world, it can be specific, such as a Barack Obama, or unspecific, such as a child.""" ;
+    rdfs:subClassOf :Actor ;
+    :crm_equivalent crm:E21_Person ; 
+    :common_properties :label, :title, :religion ;
+    .
+
+:Place a owl:Class ;
+    rdfs:label "Place" ;
+    skos:definition """Any place at any level of granularity""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E53_Place ;
+    :common_properties :label, :title, :city, :state, :country, :region, :iso_country_code, :adm1_code ;
+    .
+
+:Dimension a owl:Class ;
+    rdfs:label "Dimension" ;
+    skos:definition """Identifies a value and its unit of measurement.""" ;
+    skos:note """Values are specified using :has_value, :value_is_at_least or :value_is_at_most. When the numeric value is unknown, e.g., "a large sum of money", it should be recorded as the :label.""" ;
+    skos:note """Examples: currency: $26.00, length: 3.9-4.1 cm, diameter 26 mm, weight 150 lbs""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E54_Dimension ;
+    :common_properties :has_value, :has_unit, :value_is_at_least, :value_is_at_most ;
+    .
+
+:Measurement a owl:Class ;
+    rdfs:label "Measurement" ;
+    skos:definition """Describes an entity being measured and an observed dimension.""" ;
+    skos:note """:Measurement is a subclass of event, so it is possible to record additional roles such as time when the measurement was made, who made it, where it was made, etc.""" ;
+    skos:note """Examples: Joe's weight is 150 lbs, price of oil is $60""" ;
+    rdfs:subClassOf :Event ;
+    :crm_equivalent crm:E16_Measurement ;
+    :common_properties :observed_dimension, :measured ;
+    .
+
+:Time_Span a owl:Class ;
+    rdfs:label "Time Span" ;
+    skos:definition """Defines a span of time. Allows for imprecise specification, including natural language text.""" ;
+    skos:note """When a :Time_Span is defined using natural language, e.g., "1st half of the XX century" and the information extraction software is unable to make it precise, then the text is used as the :title, and no other information may be present.""" ;
+    skos:note """P82 at some time within, and P81 ongoing throughout are specified using :start_date, :start_after_date, :start_before_date, :end_date, :end_after_date, :end_before_date. With these properties it is possible to specify the whole interval without additional objects.""" ;
+    skos:note """Suppose we are told that someone was born ins 1998. This can be modelled as a :Time_Span with from 1 Jan 1998 at midnight to midnight of 31 Dec 1998. It can also be modeled by specifying the :start_time 1 Jan 1998 at midnight and a duration of one year. And it can also be modeled using :year 1998.""" ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E52_Time-Span ;
+    .
+
+:Religion a owl:Class ;
+    rdfs:label "Religion" ;
+    skos:definition """Identifies a religion in the world.""" ;
+    rdfs:subClassOf :Entity ;
+    :common_properties :label, :code, :cameo_code, :cameo_label ;
+    .
+
+:Money a owl:Class ;
+    rdfs:label "Money" ;
+    skos:definition """Identifies an amount of money in some currency.""" ;
+    rdfs:subClassOf :Dimension ;
+    .
+
+
+###
+### Controlled Vocabularies
+###
+
+:Country a owl:Class ;
+    rdfs:label "Country" ;
+    skos:definition """The set of countries, expressed in a controlled vocabulary.""" ;
+    rdfs:subClassOf :Type ;
+    .
+
+:Ethnic_Group a owl:Class ;
+    rdfs:label "Ethnic Group" ;
+    skos:definition """The set of ethnic groups of the world expressed in a controlled vocabulary.""" ;
+    rdfs:subClassOf :Type ;
+    .
+
+:Modality a owl:Class ;
+    rdfs:label "Modality" ;
+    skos:definition """A knowledge graph can record events that happened, hypothetical events, events expected to happen in the future, etc. :Modality is a controlled vocabulary for this type of information about an event.""" ;
+    skos:note """CauseEx used :has_tense, with values :past, :present and :future, I don't agree with that definition.""" ;
+    rdfs:subClassOf :Type ;
+    .
+
+:Human_Condition a owl:Class ;
+    rdfs:label "Human Condition" ;
+    skos:definition """The set of human conditions, such as being poor, rich, injured, dead, displaced, etc.""" ;
+
+    rdfs:subClassOf :Type ;
+    .
+
+
+###
+### Properties of :Event
+###
+
+:had_modality a owl:ObjectProperty ;
+    rdfs:label "had_modality" ;
+    skos:definition """Records the :Modality of an :Event.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Modality ;
+    .
+
+:took_place_at a owl:ObjectProperty ;
+    rdfs:label "took place at" ;
+    skos:definition """Records a :Place associated with a :Temporal_Entity.""" ;
+    schema:domainIncludes :Temporal_Entity ;
+    schema:rangeIncludes :Place ;
+    :crm_equivalent crm:P7_took_place_at ;
+    .
+
+:took_place_on_or_within a owl:ObjectProperty ;
+    rdfs:label "took place on or within" ;
+    skos:definition """Describes the location of Temporal_Entity with respect to :Physical_Object, e.g., an event that took place inside a building, and perhaps we don't know where the building is.""" ;
+    schema:domainIncludes :Temporal_Entity ;
+    schema:rangeIncludes :Physical_Object ;
+    :crm_equivalent crm:P8_took_place_on_or_within ;
+    .
+
+:has_time_span a owl:ObjectProperty ;
+    rdfs:label "has time-span" ;
+    skos:definition """The time interval when the :E2_Temporal_Entity happened.""" ;
+    schema:domainIncludes :Temporal_Entity ;
+    schema:rangeIncludes :Time_Span ;
+    :crm_equivalent crm:P4_has_time-span ;
+    .
+
+:occurred_in_the_presence_of a owl:ObjectProperty ;
+    rdfs:label "occurred in the presence of" ;
+    skos:definition """Entities that were present during the event and are somehow relevant to the event, e.g., a car or building destroyed in a bombing, a car that was parked close by, the weapon used, people who witnessed the event.""" ;
+    skos:note """This is a general property to model a relationship between an event and an entity. Often a more specific subPropertyOf can be used to model the relationship more precisely.""" ; 
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Entity ;
+    :crm_equivalent crm:P12_occurred_in_the_presence_of ;
+    .
+
+:had_participant a owl:ObjectProperty ;
+    rdfs:label "had participant" ;
+    skos:definition """An :Actor who had an active or passive participation in an Event.""" ;
+    skos:note """:Actors have the potential to play active roles in events, and but they can also play passive roles, such as being an observer or a victim.""" ;
+	schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P11:had_participant ;
+    .
+
+:carried_out_by a owl:ObjectProperty ;
+    rdfs:label "carried out by" ;
+    skos:definition """An :Actor that played an active role in an event. :carried_out_by implies causal or legal responsibility.""" ;
+    owl:subPropertyOf :had_participant ;
+    :crm_equivalent crm:P14_carried_out_by ;
+    .
+
+:damaged a owl:ObjectProperty ;
+    rdfs:label "damaged" ;
+    skos:definition """A :Physical_Object that is physically damaged in an event.""" ;
+    skos:note """Victims of violent acts who are injured or killed qualify as damage under the current definition of :Physical_Object. If cattle are killed in a violent act, is it damage because victims are :Actor.""" ;
+    schema:rangeIncludes :Physical_Object ;
+    owl:subPropertyOf :participant ;
+    .
+
+:destroyed a owl:ObjectProperty ;
+    rdfs:label "destroyed" ;
+    skos:definition """A :Physical_Object that is physically destroyed in an event.""" ;
+    skos:note """Typically applies to things such as buildings, animals, but technically also applies to people as they are :Physical_Object. """ ;
+    schema:rangeIncludes :Physical_Object ;
+    owl:subPropertyOf :damaged ;
+    :crm_equivalent crm:P13_destroyed ;
+    .
+
+:was_influenced_by a owl:ObjectProperty ;
+    rdfs:label "was influenced by" ;
+    skos:definition """A high level property, which captures the relationship between an :Event and anything that may have had some bearing upon it.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Entity ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P15_was_influenced_by ;
+    .
+
+:used_specific_object a owl:ObjectProperty ;
+    rdfs:label "used specific object" ;
+    skos:definition """Describes the use of material or immaterial things in a way essential to the performance or the outcome of an :Event.""" ;
+    skos:note """It implies that the presence of the object in question was a necessary condition for the action. For example, weapons or bombs used in a violent act.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Physical_Object ;
+    owl:subPropertyOf :was_influenced_by ;
+    :crm_equivalent crm:P16_used_specific_object ;
+    .
+
+:was_motivated_by a owl:ObjectProperty ;
+    rdfs:label "was motivated by" ;
+    skos:definition """Describes an item or items that are regarded as a reason for carrying out the :Event.""" ;
+    skos:note """For example, the resignation of the chief executive, was motivated by the collapse of SwissAir.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Entity ;
+    owl:subPropertyOf :was_influenced_by ;
+    :crm_equivalent crm:P17_was_motivated_by ;
+    .
+
+:was_intended_use_of a owl:ObjectProperty ;
+    rdfs:label "was intended use of" ;
+    skos:definition """Describes an item or items that are regarded as a reason for carrying out the :Event.""" ;
+    skos:note """For example, the resignation of the chief executive, was motivated by the collapse of SwissAir.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Entity ;
+    owl:subPropertyOf :used_specific_object ;
+    :crm_equivalent crm:P19_was_intended_use_of ;
+    .
+
+:had_specific_purpose a owl:ObjectProperty ;
+    rdfs:label "had specific purpose" ;
+    skos:definition """Identifies the relationship between a preparatory activity (the subject) and the event it is intended to be preparation for (the object). This includes activities, orders and other organisational actions, taken in preparation for other activities or events.""" ;
+    skos:note """The CRM documentation specifies that the preparatory activity must have succeeded. Not clear that this is necessary in our setitng as we can model events that haven't happened, e.g., a plan to do something may include preparatory activities and one hasn't done any of them.""" ;
+    skos:note """CRM defines "P21 had general purpose": This may involve activities intended as preparation for some type of activity or event. P21had general purpose (was purpose of) differs from P20 had specific purpose (was purpose of) in that no occurrence of an event is implied as the purpose.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    owl:subPropertyOf :used_specific_object ;
+    :crm_equivalent crm:P20_had_specific_purpose ;
+    .
+
+:had_provider a owl:ObjectProperty ;
+    rdfs:label "had provider" ;
+    skos:definition """An :Actor that provided something that was used in an :Event.""" ;
+    skos:note """For example, the :Actor who provided a bomb was used in a bombing attack, or provided a password to hack an account, or provided money to help hungry children.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :carried_out_by ;
+    .
+
+:transferred_ownership_to a owl:ObjectProperty ;
+    rdfs:label "transferred ownership to" ;
+    skos:definition """Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.""" ;
+    skos:note """This property is a sub-property of :carried_out_by, which implies that the :Actor played an active role; the need for the actor to play an active role is debatable.""" ;
+    skos:note """The property will typically describe an :Actor purchasing or otherwise acquiring an object from another Actor. However, ownership may also be acquired, without any corresponding loss of ownership by another Actor, through legal fieldwork such as hunting, shooting or fishing.""" ;
+    skos:note """Note the renaming of transferred_title_from to transferred_ownership_from.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :carried_out_by ;
+    :crm_equivalent crm:P22_transferred_title_to ;
+    .
+
+:transferred_ownership_from a owl:ObjectProperty ;
+    rdfs:label "transferred ownership from" ;
+    skos:definition """Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.""" ;
+    skos:note """Note the renaming of transferred_title_to to transferred_ownership_to.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :had_provider ;
+    :crm_equivalent crm:P23_transferred_title_from ;
+    .
+
+:transferred_ownership_of a owl:ObjectProperty ;
+    rdfs:label "transferred ownership of" ;
+    skos:definition """Identifies the items involved in an acquisition :Event.""" ;
+    skos:note """CRM defines the domain to be Physical_Object, we have expanded it to include non physical things such as organizations, software, etc.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P24_transferred_title_of ;
+    .
+
+:custody_surrendered_by a owl:ObjectProperty ;
+    rdfs:label "custody surrendered by" ;
+    skos:definition """Identifies an :Actor who surrenders custody of an item as a result of an :Event.""" ;
+    skos:note """This property is a sub-property of :carried_out_by, which implies that the :Actor played an active role; the need for the actor to play an active role is debatable.""" ;
+    skos:note """The property will typically describe an :Actor surrendering custody of an object when it is handed over to someone else’s care. On occasion, physical custody may be surrendered involuntarily – through accident, loss or theft.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :had_provider ;
+    :crm_equivalent crm:P28_custody_surrendered_by ;
+    .
+
+:custody_received_by a owl:ObjectProperty ;
+    rdfs:label "custody received by" ;
+    skos:definition """identifies the an :Actor who receives custody of an an item as a result of an :Event.""" ;
+    skos:note """Typically used for museum objects where an owner transfers custody, but not ownership of an object to a museum.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :carried_out_by ;
+    :crm_equivalent crm:P29_custody_received_by ;
+    .
+
+:transferred_custody_of a owl:ObjectProperty ;
+    rdfs:label "transferred custody of" ;
+    skos:definition """Identifies an item or items whose custody is transferred as a result of an :Event.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
+    owl:subPropertyOf :had_participant ;
+    :crm_equivalent crm:P30_transferred_custody_of ;
+    .
+
+:moved a owl:ObjectProperty ;
+    rdfs:label "moved" ;
+    skos:definition """Identifies a :Physical_Object that is moved during a move :Event.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Physical_Object ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P25_moved ;
+    .
+
+:took_place_at a owl:ObjectProperty ;
+    rdfs:label "took place at" ;
+    skos:definition """Identifies the :Place where an :Event took place.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Place ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P7_took_place_at ;
+    .
+
+:moved_to a owl:ObjectProperty ;
+    rdfs:label "moved to" ;
+    skos:definition """Identifies the :Place where an object is moved to.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Place ;
+    owl:subPropertyOf :took_place_at ;
+    :crm_equivalent crm:P26_moved_to ;
+    .
+
+:moved_from a owl:ObjectProperty ;
+    rdfs:label "moved from" ;
+    skos:definition """Identifies the :Place where an object is moved from.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Place ;
+    owl:subPropertyOf :took_place_at ;
+    :crm_equivalent crm:P27_moved_from ;
+    .
+
+:has_modified a owl:ObjectProperty ;
+    rdfs:label "has modified" ;
+    skos:definition """Identifies a :Man_Made_Thing modified in an :Event.""" ;
+    skos:note """If a modification is applied to a non-man-made object, it is regarded as :Man_Made_Thing from that time onwards.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Man_Made_Thing ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P31_has_modified ;
+    .
+
+:measured a owl:ObjectProperty ;
+    rdfs:label "measured" ;
+    skos:definition """Specifies the item that was measured in a :Measurement event. Material and immaterial things and processes may be measured.""" ;
+    schema:domainIncludes :Measurement ;
+    schema:rangeIncludes :Entity ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    :crm_equivalent crm:P39_measured ;
+    .
+
+# Commented out. Looks like Observerations and Measurements are used differently. Observations record the property
+# being measured in :observed_property_type. Measurements produce :Dimensions, and can produce multiple dimensions,
+# each one for a different property. So for Observation -> :obserrved_property_type is 1-to-1, 
+# vs :Measurement -> :Dimension is 1-to-many.
+#
+# :observed_property_type a owl:ObjectProperty ;
+#     rdfs:label "observed property type" ;
+#     skos:definition """Associates an instance of S4 Observation with the instance of S9 Property Type
+# for which the observation provides a value or evidence, such as “concentration of nitrate”
+# observed in the water from a particular borehole. """ ;
+#     schema:domainIncludes :Measurement ;
+#     schema:rangeIncludes :Property_Type ;
+#     :crm_equivalent crm:O9_observed_property_type ;
+#     .
+
+:observed_dimension a owl:ObjectProperty ;
+    rdfs:label "observed dimension" ;
+    skos:definition """Records the :Dimension that was observed in Measurement :Event. The item measured is recorded using the :measured property of the :Event. One measurement activity may determine more than one dimension of one object.""" ;
+    schema:domainIncludes :Measurement ;
+    schema:rangeIncludes :Dimension ;
+    :crm_equivalent crm:P40_observed_dimension ;
+    .
+
+:had_victim a owl:ObjectProperty ;
+    rdfs:label "had victim" ;
+    skos:definition """An :Actor negatively affected by an event, e.g., a person who was killed, and organization that was robbed.""" ;
+    skos:note """Doesn't have a CRM equivalent.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :had_participant ;
+    .
+
+:had_beneficiary a owl:ObjectProperty ;
+    rdfs:label "had beneficiary" ;
+    skos:definition """An :Actor that benefits in some way when an event occurs.""" ;
+    skos:note """Doesn't have a CRM equivalent.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :had_participant ;
+    .
+
+:had_target a owl:ObjectProperty ;
+    rdfs:label "had target" ;
+    skos:definition """An :Entity that was intended to be affected by an :Event.""" ;
+    skos:note """For example, an attack event may have a clinic as a target, and the clinic may not have been affected in any way, e.g., it didn't get damaged or destroyed. Conversely, an :Entity may have been affected, e.g., destroyed even though it was not the target (collateral damage).""" ;
+    skos:note """Doesn't have a CRM equivalent.""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :had_participant ;
+    .
+
+###
+### Properties of things other than events
+###
+
+:has_condition a owl:ObjectProperty ;
+    rdfs:label "has condition" ;
+    skos:definition """Records a :Condition_State for some :Physical_Object.""" ;
+    skos:note """CRM declares the domain as E18_Physical_Thing. Not clear whether this should be required. For example, an algorithm can be state of the art, i.e., the best one for some task.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes :Condition_State ;
+    :crm_equivalent crm:P44_has_condition ;
+    .
+
+:has_dimension a owl:ObjectProperty ;
+    rdfs:label "has dimension" ;
+    skos:definition """Records a :Dimension of some E70 Thing.""" ;
+    skos:note """CRM declares the domain as E18_Physical_Thing. Not clear whether this should be required. For example, an algorithm can be state of the art, i.e., the best one for some task.""" ;
+    schema:domainIncludes :Physical_Object ;
+    schema:rangeIncludes :Dimension ;
+    :crm_equivalent crm:P43_has_dimension ;
+    .
+
+
+###
+### Allen's temporal relationships
+###
+
+:occurs_before: a owl:ObjectProperty ;
+    rdfs:label "occurs before" ;
+    skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P120_occurs_before ;
+    .
+
+:occurs_after a owl:ObjectProperty ;
+    rdfs:label "occurs after" ;
+    skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P120i_occurs_after ;
+    .
+
+:meets_in_time_with a owl:ObjectProperty ;
+    rdfs:label "meets in time with" ;
+    skos:definition """.This property is the same as the "meets / met-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P119_meets_in_time_with ;
+    .
+
+:overlaps_in_time_with a owl:ObjectProperty ;
+    rdfs:label "overlaps in time with" ;
+    skos:definition """This property is the same as the "overlaps / overlapped-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P118_overlaps_in_time_with ;
+    .
+
+:occurs_during a owl:ObjectProperty ;
+    rdfs:label "occurs during" ;
+    skos:definition """This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P117_occurs_during ;
+    .
+
+:includes a owl:ObjectProperty ;
+    rdfs:label "includes" ;
+    skos:definition """This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P117i_includes ;
+    .
+
+:starts a owl:ObjectProperty ;
+    rdfs:label "starts" ;
+    skos:definition """This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P116_starts ;
+    .
+
+:is_started_by a owl:ObjectProperty ;
+    rdfs:label "is started by" ;
+    skos:definition """This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P116i_is_started_by ;
+    .
+
+:finishes a owl:ObjectProperty ;
+    rdfs:label "finishes" ;
+    skos:definition """This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P115_finishes ;
+    .
+
+:is_finished_by a owl:ObjectProperty ;
+    rdfs:label "is finished by" ;
+    skos:definition """This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P115i_is_finished_by ;
+    .
+
+:is_equal_in_time_to a owl:ObjectProperty ;
+    rdfs:label "is equal in time to" ;
+    skos:definition """This property is the same as the "equal" relationship of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Event ;
+    :crm_equivalent crm:P114_is_equal_in_time_to ;
+    .
+
+###
+### :Time_Span properties
+###
+
+:date a owl:DatatypeProperty ;
+    rdfs:label "date" ;
+    skos:definition """A :Time_Span can be specified using a date e.g., 2018-05-31, and the span covers the 24 hours of the day in GMT.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:date ;
+    .
+
+:year a owl:DatatypeProperty ;
+    rdfs:label "date" ;
+    skos:definition """A :Time_Span can be specified using a year e.g., 2018, and the span covers the 365 days of the year in GMT.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:gYear ;
+    .
+
+:year_month a owl:DatatypeProperty ;
+    rdfs:label "year_month" ;
+    skos:definition """A :Time_Span can be specified using a month and a year e.g., 2018-05, and the span covers all the days of the month in GMT.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:gYearMonth ;
+    .
+
+:start_date a owl:DatatypeProperty ;
+    rdfs:label "start date" ;
+    skos:definition """The precise start date of an interval.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:start_after_date a owl:DatatypeProperty ;
+    rdfs:label "start after date" ;
+    skos:definition """A lower bound for the left edge of an interval.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:start_before_date a owl:DatatypeProperty ;
+    rdfs:label "start before date" ;
+    skos:definition """An upper bound for the left edge of an interval.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:end_date a owl:DatatypeProperty ;
+    rdfs:label "end_date" ;
+    skos:definition """Te precise end date of an interval.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:end_after_date a owl:DatatypeProperty ;
+    rdfs:label "end after date" ;
+    skos:definition """A lower bound for the right edge of an interval..""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:end_before_date a owl:DatatypeProperty ;
+    rdfs:label "end before date" ;
+    skos:definition """An upper bound for the right edge of an interval..""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes xsd:dateTime ;
+    .
+
+:had_at_least_duration a owl:ObjectProperty ;
+    rdfs:label "had at least duration" ;
+    skos:definition """Describes the minimum length of time covered by an :Time_Span.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes :Dimension ;
+    :crm_equivalent crm:P83_had_at_least_duration ;
+    .
+
+:had_at_most_duration a owl:ObjectProperty ;
+    rdfs:label "had at most duration" ;
+    skos:definition """Describes the maximum length of time covered by an :Time_Span.""" ;
+    schema:domainIncludes :Time_Span ;
+    schema:rangeIncludes :Dimension ;
+    :crm_equivalent crm:P83_had_at_most_duration ;
+    .
+
+###
+### Other properties of Events or participants
+###
+
+:religion a owl:ObjectProperty ;
+    rdfs:label "religion" ;
+    skos:definition """Records the religion of an :Actor.""" ;
+    schema:domainIncludes :Actor ;
+    schema:rangeIncludes :Religion ;
+    .
+
+:nationality a owl:ObjectProperty ;
+    rdfs:label "nationality" ;
+    skos:definition """Records the nationality of an :Actor.""" ;
+    schema:domainIncludes :Actor ;
+    schema:rangeIncludes :Country ;
+    .
+
+###
+### Properties that seem appropriate for anything
+###
+
+
+
+
+:citation a owl:DatatypeProperty ;
+    rdfs:label "citation" ;
+    skos:definition """A form of provenance, records a reference to a document that provides evidence for the information associated with an entity.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:topic a owl:ObjectProperty ;
+    rdfs:label "topic" ;
+    skos:definition """Records that the object is the :topic of the subject. Applies to any two pairs of entities.""" ;
+    skos:note """In CauseEx the has_topic property is defined among Events, this seems overly contraining.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes :Entity ;
+    .
+
+###
+### Numeric properties
+### 
+
+:has_value a owl:DatatypeProperty ;
+    rdfs:label "value" ;
+    skos:definition """Records a numeric value associated with an entity.""" ;
+    schema:domainIncludes :Dimension ;
+    schema:rangeIncludes xsd:decimal ;
+    :crm_equivalent crm:has_value ;
+    .
+
+:value_is_at_least a owl:DatatypeProperty ;
+    rdfs:label "value is at least" ;
+    skos:definition """Records a lower bound on a value, when the value is not known with certainty or the value is unknown.""" ;
+    schema:domainIncludes :Dimension ;
+    schema:rangeIncludes xsd:decimal ;
+    .
+
+:value_is_at_most a owl:DatatypeProperty ;
+    rdfs:label "value is at most" ;
+    skos:definition """Records a lower bound on a value, when the value is not known with certainty or the value is unknown.""" ;
+    schema:domainIncludes :Dimension ;
+    schema:rangeIncludes xsd:decimal ;
+    .
+
+
+###
+### Text properties to describe objects
+###
+
+:label a owl:DatatypeProperty ;
+    rdfs:label "label" ;
+    skos:definition """A short label for an entity.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:title a owl:DatatypeProperty ;
+    rdfs:label "title" ;
+    skos:definition """A title for an entity, typically one line of text to describe it.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    skos:definition """A long description of an entity, typically multiple lines of text.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+###
+### Properties for codes associated with entities
+###
+
+:code a owl:DatatypeProperty ;
+    rdfs:label "code" ;
+    skos:definition """A short string used as a code for an entity.""" ;
+    skos:note """Examples are country codes, currency codes.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:iso_code a owl:DatatypeProperty ;
+    rdfs:label "ISO code" ;
+    skos:definition """A sanctioned ISO code for something.""" ;
+    rdfs:subPropertyOf :code ;
+    .
+
+:cameo_code a owl:DatatypeProperty ;
+    rdfs:label "CAMEO code" ;
+    skos:definition """A code used in the CAMEO ontology.""" ;
+    skos:note """See https://www.gdeltproject.org/data.html#documentation""" ;
+    rdfs:subPropertyOf :code ;
+    .
+
+:iso_country_code a owl:DatatypeProperty ;
+    rdfs:label "Country ISO code" ;
+    skos:definition """The ISO country code.""" ;
+    rdfs:subPropertyOf :iso_code ;
+    schema:domainIncludes :Place ;
+    .
+
+
+:adm1_code a owl:DatatypeProperty ;
+    rdfs:label "ADM1 code" ;
+    skos:definition """The geonames ADM1 code.""" ;
+    skos:note """See http://www.geonames.org/export/codes.html.""" ;
+    rdfs:subPropertyOf :iso_code ;
+    .
+
+###
+### Identifiers of entities
+###
+
+:identifier a owl:DatatypeProperty ;
+    rdfs:label "identifier" ;
+    skos:definition """A string that uniquely identifies an entity within a domain of entities.""" ;
+    skos:note """Identifiers are not ncessarily globally unique in that entities of a different type may have identical identifiers to entities in another type.  For example person identifiers may not be unique across countries.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+###
+### Properties for places
+###
+
+:city a owl:DatatypeProperty ;
+    rdfs:label "city" ;
+    skos:definition """The name of a city in a country, corresponds to PPL in geonames.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:state a owl:DatatypeProperty ;
+    rdfs:label "state" ;
+    skos:definition """The name of a state or province in a country, corresponds to ADM1 in geonames.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:country a owl:ObjectProperty ;
+    rdfs:label "country" ;
+    skos:definition """The name of a country.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes :Country ;
+    .
+
+:region a owl:DatatypeProperty ;
+    rdfs:label "region" ;
+    skos:definition """The name of region in the world, not assumed to be in a controlled vocabulary.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:latitude a owl:DatatypeProperty ;
+    rdfs:label "latitude" ;
+    skos:definition """The latitude coordinate of a :Place.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:decimal ;
+    .
+
+:longitude a owl:DatatypeProperty ;
+    rdfs:label "longitude" ;
+    skos:definition """The longitude coordinate of a :Place.""" ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:decimal ;
+    .
+
+
+
