@@ -2,6 +2,7 @@ from etk.extraction import Extractable, Extraction
 from typing import List, Dict
 from etk.etk_exceptions import StoreExtractionError
 from etk.storage_provenance_record import StorageProvenanceRecord
+from numbers import Number
 
 
 class Segment(Extractable):
@@ -12,7 +13,7 @@ class Segment(Extractable):
     a token list with start and end tokens.
     """
 
-    def __init__(self, json_path: str, _value: Dict, _document=None) -> None:
+    def __init__(self, json_path: str, _value: Dict, _document) -> None:
         Extractable.__init__(self)
         self.json_path = json_path
         self._value = _value
@@ -76,7 +77,9 @@ class Segment(Extractable):
                     else:
                         if e.value not in self.value[attribute][tag]:
                             self.value[attribute][tag].append(e.value)
-                    extraction_provenances[e.value] = e.prov_id
+                    # TODO: handle provenance of non literals
+                    if isinstance(e.value, Number) or isinstance(e.value, str):
+                        extraction_provenances[e.value] = e.prov_id
                 self._extractions[attribute] = self._extractions[attribute].union(extractions)
                 new_id = self._document.provenance_id_index  # for the purpose of provenance hierarrchy tracking
                 storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path,
@@ -97,10 +100,13 @@ class Segment(Extractable):
         self._extractions[attribute] = self._extractions[attribute].union(extractions)
         extraction_provenances = dict()
         for a_extraction in extractions:
-            extraction_provenances[a_extraction.value] = a_extraction.prov_id
+            # TODO: handle provenance of non literals
+            if isinstance(a_extraction.value, Number) or isinstance(a_extraction.value, str):
+                extraction_provenances[a_extraction.value] = a_extraction.prov_id
             if a_extraction.value not in self._value[attribute]:
                 self._value[attribute].append(a_extraction.value)
 
+        print(self._document)
         new_id = self._document.provenance_id_index  # for the purpose of provenance hierarchy tracking
         storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path, attribute,
                                                                                      extraction_provenances,

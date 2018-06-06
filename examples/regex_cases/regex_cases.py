@@ -33,6 +33,7 @@ class RegexETKModule(ETKModule):
         """
 
         segment = doc.select_segments("target_text")[0]
+
         for e in self.e_list:
             res = doc.extract(e, segment)
             doc.store(res, e.name)

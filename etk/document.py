@@ -29,7 +29,7 @@ class Document(Segment):
         Returns: the wrapped CDR document
 
         """
-        Segment.__init__(self, json_path="$", _value=cdr_document)
+        Segment.__init__(self, json_path="$", _value=cdr_document, _document=self)
         self.etk = etk
         self.cdr_document = cdr_document
         self.mime_type = mime_type

@@ -34,7 +34,8 @@ class ProvenanceAPI:
                 origins.extend(kg_provenance.get_origins(value))
         return origins
 
-    def get_methods(self, field: str = None, index: int = None, value: str = None):
-        search_string = self.origin_doc.kg.value[field][index]["value"]
-        methods = kg_provenance.get_methods(search_string)
-        return methods
+# TODO: implement the method below
+    # def get_methods(self, field: str = None, index: int = None, value: str = None):
+    #     search_string = self.origin_doc.kg.value[field][index]["value"]
+    #     methods = kg_provenance.get_methods(search_string)
+    #     return methods
