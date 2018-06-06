@@ -224,12 +224,12 @@ class GdeltModule(ETKModule):
         if self.mapping.has_cameo_code(cameo_code):
             # Type fields
             for t in self.mapping.event_type("event1", cameo_code):
-                doc.kg.add_value("type", t)
-                doc.kg.add_value("causeex_class", self.expand_prefix(t))
+                doc.kg.add_value("type", value=t)
+                doc.kg.add_value("causeex_class", value=self.expand_prefix(t))
 
         # Event_date
         for s in doc.select_segments("$." + self.attribute("SQLDATE")):
-            doc.kg.add_value("event_date", doc.extract(self.date_extractor, s,
+            doc.kg.add_value("event_date", value=doc.extract(self.date_extractor, s,
                                                        prefer_language_date_order=None,
                                                        additional_formats=["%Y%m%d"],
                                                        detect_relative_dates=False,
@@ -237,16 +237,16 @@ class GdeltModule(ETKModule):
 
         # CAMEO code
         cameo_code_label = "CAMEO Code: " + str(doc.select_segments("$." + self.attribute("EventCode"))[0].value)
-        doc.kg.add_value("code", cameo_code_label)
+        doc.kg.add_value("code", value=cameo_code_label)
         # simpler without provenance:
         # doc.kg.add_value("code", "CAMEO Code: " + doc.cdr_document[self.attribute("EventCode")])
 
         # Identifier
-        doc.kg.add_doc_value("identifier", "$." + self.attribute("GLOBALEVENTID"))
+        doc.kg.add_value("identifier", json_path="$." + self.attribute("GLOBALEVENTID"))
 
         # Geographical information
-        doc.kg.add_doc_value("country_code", "$." + self.attribute("ActionGeo_CountryCode"))
-        doc.kg.add_doc_value("location", "$." + self.attribute("ActionGeo_FullName"))
+        doc.kg.add_value("country_code", json_path="$." + self.attribute("ActionGeo_CountryCode"))
+        doc.kg.add_value("location", json_path="$." + self.attribute("ActionGeo_FullName"))
 
         # Actors
         actor1, actor2 = self.add_actors(doc, "event1", cameo_code)
@@ -274,16 +274,16 @@ class GdeltModule(ETKModule):
 
             # Link the main event and the topic_event
             # In the ODP file, the pattern is always (has_topic of event1), so we use has_topic all the time
-            topic_event.kg.add_value("event_topic", doc.doc_id)
+            topic_event.kg.add_value("event_topic", value=doc.doc_id)
 
             # Title
-            topic_event.kg.add_value("title", topic_event_type)
+            topic_event.kg.add_value("title", value=topic_event_type)
 
             # Type
-            topic_event.kg.add_value("type", ["Event", topic_event_type])
+            topic_event.kg.add_value("type", value=["Event", topic_event_type])
 
             # causeex_class
-            topic_event.kg.add_value("causeex_class", topic_event_type)
+            topic_event.kg.add_value("causeex_class", value=topic_event_type)
 
             # Actors:
             # Use the same actor objects as in the main event and use the mapping file to assign the roles
@@ -292,12 +292,12 @@ class GdeltModule(ETKModule):
                 actor_prop = self.mapping.actor_property(event, role, cameo_code)
                 if actor_prop and self.actor_role.get(actor_prop):
                     actor_field = self.actor_role.get(actor_prop)
-                topic_event.kg.add_value(actor_field, docid)
+                topic_event.kg.add_value(actor_field, value=docid)
 
             # Unclear whether the location, etc. of the topic event should be the same as in the main event.
-            topic_event.kg.add_value("country_code", doc.kg.get_values("country_code"))
-            topic_event.kg.add_value("location", doc.kg.get_values("location"))
-            topic_event.kg.add_value("event_date", doc.kg.get_values("event_date"))
+            topic_event.kg.add_value("country_code", value=doc.kg.get_values("country_code"))
+            topic_event.kg.add_value("location", value=doc.kg.get_values("location"))
+            topic_event.kg.add_value("event_date", value=doc.kg.get_values("event_date"))
         return new_docs
 
 
@@ -1430,40 +1430,40 @@ class GdeltActorModule(ETKModule):
         return doc.cdr_document.get("dataset") == "gdelt-actor"
 
     def process_document(self, doc: Document) -> List[Document]:
-        doc.kg.add_doc_value("title", "$.ActorName")
+        doc.kg.add_value("title", json_path="$.ActorName")
 
         # Type
-        doc.kg.add_value("type", "Actor")
-        doc.kg.add_doc_value("type", "$.ActorType1Code")
-        doc.kg.add_value("type", doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType1Code")[0]))
-        doc.kg.add_doc_value("type", "$.ActorType2Code")
-        doc.kg.add_value("type", doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType2Code")[0]))
-        doc.kg.add_doc_value("type", "$.ActorType3Code")
-        doc.kg.add_value("type", doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType2Code")[0]))
+        doc.kg.add_value("type", value="Actor")
+        doc.kg.add_value("type", json_path="$.ActorType1Code")
+        doc.kg.add_value("type", value=doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType1Code")[0]))
+        doc.kg.add_value("type", json_path="$.ActorType2Code")
+        doc.kg.add_value("type", value=doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType2Code")[0]))
+        doc.kg.add_value("type", json_path="$.ActorType3Code")
+        doc.kg.add_value("type", value=doc.extract(self.actor_type_decoder, doc.select_segments("$.ActorType2Code")[0]))
 
         # Ethnic group
-        doc.kg.add_doc_value("ethnic_group", "$.ActorEthnicCode")
+        doc.kg.add_value("ethnic_group", json_path="$.ActorEthnicCode")
         doc.kg.add_value("ethnic_group",
-                         doc.extract(self.ethnic_group_decoder, doc.select_segments("$.ActorEthnicCode")[0]))
+                         value=doc.extract(self.ethnic_group_decoder, doc.select_segments("$.ActorEthnicCode")[0]))
 
         # Religion
-        doc.kg.add_doc_value("religion", "$.ActorReligion1Code")
-        doc.kg.add_value("religion", doc.extract(self.religion_decoder, doc.select_segments("$.ActorReligion1Code")[0]))
-        doc.kg.add_doc_value("religion", "$.ActorReligion2Code")
-        doc.kg.add_value("religion", doc.extract(self.religion_decoder, doc.select_segments("$.ActorReligion2Code")[0]))
+        doc.kg.add_value("religion", json_path="$.ActorReligion1Code")
+        doc.kg.add_value("religion", value=doc.extract(self.religion_decoder, doc.select_segments("$.ActorReligion1Code")[0]))
+        doc.kg.add_value("religion", json_path="$.ActorReligion2Code")
+        doc.kg.add_value("religion", value=doc.extract(self.religion_decoder, doc.select_segments("$.ActorReligion2Code")[0]))
 
         # Known group: putting as label
-        doc.kg.add_doc_value("label", "$.ActorKnownGroupCode")
+        doc.kg.add_value("label", json_path="$.ActorKnownGroupCode")
         doc.kg.add_value("label",
-                         doc.extract(self.known_group_decoder, doc.select_segments("$.ActorKnownGroupCode")[0]))
+                         value=doc.extract(self.known_group_decoder, doc.select_segments("$.ActorKnownGroupCode")[0]))
 
         # Country, refers to the affiliation, being mapped to country of actor, losing the distinction.
-        doc.kg.add_doc_value("country", "$.ActorCountryCode")
+        doc.kg.add_value("country", json_path="$.ActorCountryCode")
         doc.kg.add_value("country",
-                         doc.extract(self.country_decoder, doc.select_segments("$.ActorCountryCode")[0]))
+                         value=doc.extract(self.country_decoder, doc.select_segments("$.ActorCountryCode")[0]))
 
         # Note: not mapping the Actor Geo codes, because Pedro doesn't understand what they mean.
-        return []
+        return list()
 
 
 if __name__ == "__main__":

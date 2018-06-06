@@ -84,8 +84,8 @@ if __name__ == "__main__":
             if len(temp) == 3:
                 input_text, expected, format = temp
                 doc = etk.create_document({'input': input_text, 'expected': expected, 'format': format})
-                doc, _ = etk.process_ems(doc)
-                res.append(doc.value)
+                docs= etk.process_ems(doc)
+                res.append(docs[0].value)
 
     for r in res:
         extracted = r['extracted_date'][0] if 'extracted_date' in r and r['extracted_date'] else '            '

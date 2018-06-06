@@ -25,11 +25,11 @@ class AcledModule(ETKModule):
                 # doc.kg.add_doc_value("event_date", "$.{}[*]".format(self.date_extractor.name))
 
                 for extraction in extractions:
-                    doc.kg.add_value("event_date", extraction.value)
+                    doc.kg.add_value("event_date", value=extraction.value)
 
             # for segment in doc.select_segments(jsonpath='$.notes'):
             #     doc.kg.add_value("description", segment.value)
-            doc.kg.add_doc_value("description", '$.notes')
+            doc.kg.add_value("description", json_path='$.notes')
 
     def document_selector(self, doc) -> bool:
         """
