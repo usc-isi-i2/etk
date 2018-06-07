@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Set
 import numbers, re
 from datetime import date, datetime
 from etk.field_types import FieldType
@@ -6,37 +6,66 @@ from etk.etk_exceptions import ISODateError
 
 
 class OntologyEntity(object):
+    """
+    Superclass of all ontology objects, including classes and properties.
+    """
 
     def uri(self) -> str:
+        """
+        Returns: Tte full URI of an ontology entity.
+
+        """
         pass
 
     def name(self) -> str:
+        """
+        The name of an ontology entity is the last part of the URI after the last / or #.
+
+        Returns: the name part of an ontology entity.
+
+        """
         pass
 
-    def label(self) -> List[str]:
+    def label(self) -> Set[str]:
+        """
+
+        Returns: the set of rdfs:label values
+
+        """
         pass
 
-    def definition(self) -> List[str]:
+    def definition(self) -> Set[str]:
+        """
+
+        Returns: the set of skos:definition values
+
+        """
         pass
 
-    def note(self) -> List[str]:
+    def note(self) -> Set[str]:
+        """
+
+        Returns: the set of skos:note values
+
+        """
         pass
 
 
 class OntologyClass(OntologyEntity):
 
-    def super_classes(self) -> List[OntologyClass]:
-        pass
-
-    def all_super_classes(self) -> List[OntologyClass]:
-        pass
-
-    def is_super_class_of(self, c: OntologyClass) -> bool:
+    def super_classes(self) -> Set[OntologyClass]:
         """
-        Args:
-            c:
+        super_classes(x) = the set of y_i such that x owl:subClassOf y_i.
 
-        Returns: true if c is this class, or this class is in all_super_classes(c).
+        Returns: the set of super-classes.
+
+        """
+        pass
+
+    def super_classes_closure(self) -> Set[OntologyClass]:
+        """
+
+        Returns: the transitive closure of the super_classes function
 
         """
         pass
@@ -44,36 +73,59 @@ class OntologyClass(OntologyEntity):
 
 class OntologyProperty(OntologyEntity):
 
-    def super_properties(self) -> List[OntologyProperty]:
-        pass
-
-    def all_super_properties(self) -> List[OntologyProperty]:
-        pass
-
-    def included_domains(self) -> List[OntologyClass]:
-        pass
-
-    def all_included_domains(self) -> List[OntologyClass]:
+    def super_properties(self) -> Set[OntologyProperty]:
         """
-        Union of the included_domains(p) for all p in all_super_properties(self)
+        super_properties = the set of y_i such that x owl:subPropertyOf y_i.
+
+        Returns: the set of super_properties
+
+        """
+        pass
+
+    def super_properties_closure(self) -> Set[OntologyProperty]:
+        """
+
+        Returns:  the transitive closure of the super_properties function
+
+        """
+        pass
+
+    def included_domains(self) -> Set[OntologyClass]:
+        """
+        included_domains is the union of two sets:
+        - the values of rdfs:domain
+        - the values of schema:domainIncludes
+
+        Although technically wrong, this function unions the rdfs:domain instead of intersecting them.
+        A validation function prints a warning when loading the ontology.
+
+        Returns: the set of all domains defined for a property.
+
+        """
+        pass
+
+    def included_ranges(self) -> Set[OntologyClass]:
+        """
+        included_ranges is the union of two sets:
+        - the values of rdfs:range
+        - the values of schema:rangeIncludes
+
+        Although technically wrong, this function unions the rdfs:range instead of intersecting them.
+        A validation function prints a warning when loading the ontology.
 
         Returns:
 
         """
-
-    def included_ranges(self) -> List[OntologyClass]:
         pass
 
     def is_legal_subject(self, c: OntologyClass) -> bool:
         """
-        c is a legal subject if all_super_classes(c) intersect all_included_domains(self) is not empty.
+        is_legal_subject(c) = true if
+        - c in included_domains(self) or
+        - super_classes_closure(c) intersection included_domains(self) is not empty
 
-        domain(friend) = Person  # Persons can have friends
-        Woman subclass_of Person
-        Person subclass_of Organism
-
-        friend.is_legal_subject(Woman) -> True  # Woman can have friends
-        friend.is_legal_subject(Organism) -> False  # Organism cannot have friends
+        There is no need to check the included_domains(super_properties_closure(self)) because
+        included_domains(super_properties_closure(self)) is subset of super_classes_closure(included_domains(self))
 
         Args:
             c:
@@ -90,8 +142,9 @@ class OntologyObjectProperty(OntologyProperty):
 
     def is_legal_object(self, c: OntologyClass) -> bool:
         """
-        c is a legal_object of self if c is a subclass of any class in all_included_ranges(self)
-        or all_super_classes(c) intersect all_included_ranges(self) is not empty.
+        is_legal_object(c) = true if
+        - c in included_ranges(self) or
+        - super_classes_closure(c) intersection included_ranges(self) is not empty
 
         Args:
             c:
@@ -103,6 +156,15 @@ class OntologyObjectProperty(OntologyProperty):
 
     def inverse(self) -> OntologyObjectProperty:
         """
+        We support a compact definition as follows:
+            :moved_to a owl:ObjectProperty ;
+                rdfs:label "moved to" ;
+                :inverse :was_destination_of ;
+
+        When :inverse is present, our API automatically creates an OntologyObjectProperty for it, and links
+        the two OntologyObjectProperty objects as inverses of each other.
+
+        The OntologyObjectProperty that contained the :inverse definition is marked as is_primary()
 
         Returns: Inverse of the object property
 
@@ -112,19 +174,28 @@ class OntologyObjectProperty(OntologyProperty):
     def is_primary(self) -> bool:
         """
 
-        Returns: True if this object property is the primary(compared to inverse object property)
+        Returns: True if this object property is the primary OntologyObjectProperty, see comments in inverse()
 
         """
-        return True
+        pass
 
 
 class OntologyDatatypeProperty(OntologyProperty):
 
     def is_legal_object(self, data_type: str) -> bool:
+        """
+        Do data_type validation according to the rules of the XML xsd schema.
+
+        Args:
+            data_type:
+
+        Returns:
+
+        """
         pass
 
 
-class KGSchema(object):
+class Ontology(object):
 
     def __init__(self, turtle: str) -> None:
         """
@@ -141,19 +212,25 @@ class KGSchema(object):
             turtle:
         """
 
-    def all_properties(self) -> List[OntologyProperty]:
+    def all_properties(self) -> Set[OntologyProperty]:
         pass
 
-    def all_classes(self) -> List[OntologyClass]:
+    def all_classes(self) -> Set[OntologyClass]:
         pass
 
-    def get_property(self, uri: str) -> OntologyProperty:
+    def get_entity(self, uri: str) -> OntologyClass:
+        """
+        Find an ontology entity based on URI
+
+        Args:
+            uri:
+
+        Returns: the OntologyEntity having the specified uri, or None
+
+        """
         pass
 
-    def get_class(self, uri: str) -> OntologyClass:
-        pass
-
-    def root_classes(self) -> List[OntologyClass]:
+    def root_classes(self) -> Set[OntologyClass]:
         """
 
         Returns: All classes that don't have a super class.
