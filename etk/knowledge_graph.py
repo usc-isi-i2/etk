@@ -6,6 +6,7 @@ from etk.etk_exceptions import KgValueError, UndefinedFieldError
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
 from etk.segment import Segment
+from etk.utilities import Utility
 
 
 class KnowledgeGraph(object):
@@ -129,10 +130,12 @@ class KnowledgeGraph(object):
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
                                                    reference_type="constant")
+
                 all_valid = all_valid and valid
 
             if not all_valid:
-                raise KgValueError("Some kg value type invalid according to schema")
+                print("Some kg value type invalid according to schema")
+                # raise KgValueError("Some kg value type invalid according to schema")
 
     @property
     def value(self) -> Dict:

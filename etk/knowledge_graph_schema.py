@@ -144,6 +144,7 @@ class KGSchema(object):
                 else:
                     return False, value
         else:
+            print('{} not found in KG Schema'.format(field_name))
             return False, value
             # Amandeep: returning False instead of printing a message
             # print(field_name + " field not defined")

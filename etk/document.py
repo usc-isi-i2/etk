@@ -6,6 +6,7 @@ from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
 from etk.knowledge_graph import KnowledgeGraph
+from etk.utilities import Utility
 from etk.etk_exceptions import ErrorPolicy, ExtractorValueError
 import warnings
 
@@ -236,3 +237,56 @@ class Document(Segment):
     def insert_kg_into_cdr(self):
         if self.kg and self.kg.value:
             self.cdr_document["knowledge_graph"] = self.kg.value
+
+    def build_knowledge_graph(self, json_ontology: dict) -> List:
+        """
+        The idea if to be able to build a json knowledge graph from a json like ontology representation, eg:
+         kg_object_ontology = {
+            "uri": doc.doc_id,
+            "country": doc.select_segments("$.Location"),
+            "type": [
+                "Event",
+                doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]),
+                doc.extract(self.int_decoder, doc.select_segments("$.Int")[0])
+            ]
+        }
+        Currently json ontology representation is supported, might add new ways later
+        Args:
+            json_ontology: a json ontology representation of a knoledge graph
+
+        Returns: returns  a list of nested documents created
+
+        """
+        nested_docs = list()
+        if json_ontology:
+            for key in list(json_ontology):
+                j_values = json_ontology[key]
+                if not isinstance(j_values, list):
+                    j_values = [j_values]
+                for j_value in j_values:
+                    if not isinstance(j_value, dict):
+                        if self.kg:
+                            if key not in ['doc_id', 'uri']:
+                                self.kg.add_value(key, value=j_value)
+                    else:
+                        """Now we have to create a nested document, assign it a doc_id and 
+                           add the doc_id to parent document's knowledge graph"""
+                        child_doc_id = None
+                        if 'uri' in j_value:
+                            child_doc_id = j_value['uri']
+                        elif 'doc_id' in j_value:
+                            child_doc_id = j_value['doc_id']
+
+                        child_doc = Document(self.etk, cdr_document=dict(), mime_type='json', url='')
+                        nested_docs.extend(child_doc.build_knowledge_graph(j_value))
+
+                        if not child_doc_id:
+                            child_doc_id = Utility.create_doc_id_from_json(child_doc.kg._kg)
+
+                        if self.kg:
+                            self.kg.add_value(key, value=child_doc_id)
+                        child_doc.cdr_document["doc_id"] = child_doc_id
+
+                        nested_docs.append(child_doc)
+
+        return nested_docs

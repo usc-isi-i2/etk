@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import json
 from typing import Dict
+import uuid
 
 
 class Utility(object):
@@ -35,3 +36,7 @@ class Utility(object):
 
         """
         return hashlib.sha256(json.dumps(doc, sort_keys=True).encode('utf-8')).hexdigest()
+
+    @staticmethod
+    def create_uuid():
+        return str(uuid.uuid4())

@@ -120,9 +120,16 @@ class UCDPModule(ETKModule):
             },
             "actor": [actor1_doc.doc_id, actor2_doc.doc_id]
         }
-        # print(kg_object_old_ontology)
-        # TODO make this happen (the line below)
-        # doc.kg.add_value(kg_object_old_ontology)
+        ds = doc.build_knowledge_graph(kg_object_old_ontology)
+        # print(len(ds))
+        # print(doc.kg._kg['type'])
+        # print(doc.cdr_document['knowledge_graph'])
+        for d in ds:
+            print(d.kg._kg)
+            # if 'fatalities' in d.kg._kg:
+            #     print(d.kg._kg['fatalities'])
+            #     print(d.cdr_document)
+            # print(d.cdr_document['knowledge_graph'])
 
         kg_object_new_ontology = {
             "a": "Event",
@@ -190,13 +197,13 @@ class UCDPActorModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         # Record the type of the actor
-        doc.kg.add_value("type", ["Group", "Country"])
+        doc.kg.add_value("type", value=["Group", "Country"])
 
         # Record the country of this actor
-        doc.kg.add_doc_value("country", "$.Side")
+        doc.kg.add_value("country", json_path="$.Side")
 
         # Add a title to the actor document
-        doc.kg.add_doc_value("title", "$.Side")
+        doc.kg.add_value("title", json_path="$.Side")
 
         # Return an empty list because we didn't create new documents
         return []
@@ -221,5 +228,5 @@ if __name__ == "__main__":
             # Note that each invocation of process_ems will also process any new documents created while
             # processing each doc
             for result in etk.process_ems(doc):
-                print(result.cdr_document["knowledge_graph"])
+                # print(result.cdr_document["knowledge_graph"])
                 f.write(json.dumps(result.cdr_document) + "\n")
