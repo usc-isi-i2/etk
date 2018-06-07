@@ -194,6 +194,7 @@ _CREATED_BY = 'created_by'
 
 remove_break_html_2 = re.compile("[\r\n][\s]*[\r\n]")
 remove_break_html_1 = re.compile("[\r\n][\s]*")
+remove_break_html_3 = re.compile("(\\n\ *){3,}")
 seven_digits = re.compile("[0-9]{7}")
 
 
@@ -237,6 +238,7 @@ class Core(object):
         self.etk_version = "1"
         self.prefer_inferlink_description = False
         self.doc_filter_regexes = dict()
+        self.guards_path_regex = dict()
         self.readability_timeout = 3
         self.decoding_dict_dict = dict()
         if self.extraction_config:
@@ -312,7 +314,8 @@ class Core(object):
                                 action = doc_filter[_ACTION]
                                 regex = doc_filter[_REGEX]
                                 if action.lower() not in [_NO_ACTION, _KEEP, _DISCARD]:
-                                    print 'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
+                                    print
+                                    'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
                                         action, _NO_ACTION, _KEEP, _DISCARD, _NO_ACTION)
                                     action = _NO_ACTION
 
@@ -326,11 +329,13 @@ class Core(object):
                                             doc[_PREFILTER_FILTER_OUTCOME] = action
                                             break
                                     else:
-                                        print 'Error while filtering out docs: field - {} is not a literal in ' \
-                                              'the doc.'.format(field)
+                                        print
+                                        'Error while filtering out docs: field - {} is not a literal in ' \
+                                        'the doc.'.format(field)
                             else:
                                 message = 'Incomplete filter: {} for tld: {} in etk config'.format(doc_filter, tld)
-                                print message
+                                print
+                                message
                                 self.log(message, _INFO)
         # if for some reason, there is no action defined: no_action is default action
         if _PREFILTER_FILTER_OUTCOME not in doc:
@@ -375,6 +380,7 @@ class Core(object):
                     if _CONTENT_EXTRACTION not in doc:
                         doc[_CONTENT_EXTRACTION] = dict()
                     ce_config = self.extraction_config[_CONTENT_EXTRACTION]
+                    content_extraction_guards = ce_config[_GUARDS] if _GUARDS in ce_config else None
 
                     # JSON CONTENT: create content for data extraction from json paths
                     if _JSON_CONTENT in ce_config:
@@ -397,9 +403,13 @@ class Core(object):
                         matches = self.content_extraction_path.find(doc)
 
                         extractors = ce_config[_EXTRACTORS]
+
                         run_readability = True
                         for index in range(len(matches)):
                             for extractor in extractors.keys():
+                                if content_extraction_guards and not self.assert_data_extraction_guard(
+                                        content_extraction_guards, doc, matches[index].value):
+                                    continue
                                 if extractor == _LANDMARK:
                                     doc[_CONTENT_EXTRACTION] = self.run_landmark(doc[_CONTENT_EXTRACTION],
                                                                                  matches[index].value,
@@ -418,6 +428,8 @@ class Core(object):
                                                     run_readability = False
 
                                 elif extractor == _READABILITY:
+                                    if 'crawler' in doc and doc['crawler'] == 'Sage-LexisNexis-Crawler':
+                                        run_readability = False
                                     if run_readability:
                                         re_extractors = extractors[extractor]
                                         if isinstance(re_extractors, dict):
@@ -719,7 +731,8 @@ class Core(object):
                      url=doc[_URL] if _URL in doc else None)
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print ''.join(lines)
+            print
+            ''.join(lines)
             if self.global_error_handling == _RAISE_ERROR:
                 raise e
             else:
@@ -735,7 +748,8 @@ class Core(object):
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken_process
-            print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
+            print
+            'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
         return doc
@@ -832,7 +846,8 @@ class Core(object):
                               'the json or not a dict with keys \'value\', \'key\' and/or \'qualifiers\'  ' \
                               'document'.format(input_path)
                         self.log(msg, _ERROR)
-                        print msg
+                        print
+                        msg
                         if self.global_error_handling == _RAISE_ERROR:
                             raise ValueError(msg)
         if len(val_list) > 0:
@@ -849,6 +864,7 @@ class Core(object):
             if config and _POST_FILTER in config:
                 post_filters = config[_POST_FILTER]
                 result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
+
             return result
 
         elif isinstance(d, dict) and _TEXT in d:
@@ -885,8 +901,10 @@ class Core(object):
     @staticmethod
     def remove_line_breaks(x):
         try:
-            x_1 = re.sub(remove_break_html_1, ' \n ', x)
-            x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
+            # x_1 = re.sub(remove_break_html_1, ' \n ', x)
+            # x_2 = re.sub(remove_break_html_2, ' \n\n ', x_1)
+            x_2 = re.sub(remove_break_html_3, ' \n\n ', x)
+            x_2 = x_2.replace('\n', '<br/>')
         except:
             return x
         return x_2
@@ -1288,14 +1306,17 @@ class Core(object):
         # print 'processing guards: {}'.format(guards)
         for guard in guards:
             try:
-                jpath_parser = parse(guard['path'])
+                if guard['path'] not in self.guards_path_regex:
+                    self.guards_path_regex[guard['path']] = parse(guard['path'])
+                jpath_parser = self.guards_path_regex[guard['path']]
                 regex = guard['regex']
                 if guard['type'] == 'doc':
                     matches = jpath_parser.find(doc)
                 elif guard['type'] == 'path':
                     matches = jpath_parser.find(json_path_result)
                 else:
-                    print 'guard type "{}" is not a valid type.'.format(guard['type'])
+                    print
+                    'guard type "{}" is not a valid type.'.format(guard['type'])
                     continue
                 # if len(matches) == 0:
                 #     return False
@@ -1304,7 +1325,8 @@ class Core(object):
                     if not re.match(regex, match.value):
                         return False
             except Exception as e:
-                print 'could not apply guard: {}'.format(guard)
+                print
+                'could not apply guard: {}'.format(guard)
         return True
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -1553,7 +1575,8 @@ class Core(object):
             result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
         except Exception as e:
-            print e
+            print
+            e
             return None
 
     def extract_using_custom_spacy(self, d, config, field_rules=None):
@@ -1568,6 +1591,7 @@ class Core(object):
         results = self._relevant_text_from_context(d[_SIMPLE_TOKENS_ORIGINAL_CASE],
                                                    custom_spacy_extractor.extract(field_rules, nlp_doc, self.nlp),
                                                    config[_FIELD_NAME])
+
         if _POST_FILTER in config:
             post_filters = config[_POST_FILTER]
             results = self.run_post_filters_results(results, post_filters, field_name=config[_FIELD_NAME])
@@ -1624,7 +1648,7 @@ class Core(object):
             # print spacy_email_extractor.extract(d[_TEXT], self.origin_nlp, self.nlp, t)
             results = self._relevant_text_from_context(d[_SIMPLE_TOKENS],
                                                        spacy_email_extractor.extract(d[_TEXT], self.origin_nlp,
-                                                                                       self.nlp, t),
+                                                                                     self.nlp, t),
                                                        _EMAIL)
         return results
 
@@ -1834,7 +1858,8 @@ class Core(object):
                 if not result:
                     result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:
-            print 'Error {} in {}'.format(e, 'run_user_filters')
+            print
+            'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
     def run_post_filters_results(self, results, post_filters, field_name=None):
@@ -1854,7 +1879,8 @@ class Core(object):
                                 result['value'] = val
                                 out_results.append(result)
                 except:
-                    print 'Warn: No function {} defined in core.py'.format(post_filter)
+                    print
+                    'Warn: No function {} defined in core.py'.format(post_filter)
                     # lets try lambda functions
                     for result in results:
                         val = Core.string_to_lambda(post_filter)(result['value'])
@@ -1868,7 +1894,8 @@ class Core(object):
         try:
             return lambda x: eval(s)
         except:
-            print 'Error while converting {} to lambda'.format(s)
+            print
+            'Error while converting {} to lambda'.format(s)
             return None
 
     @staticmethod
@@ -2025,16 +2052,16 @@ class Core(object):
         return d
 
     @staticmethod
-    def parse_date(d, config=None, field_name=None):
+    def parse_date(d, config=None, field_name=None, strict_parsing=True):
         ignore_past_years = config['ignore_past_years'] if config and 'ignore_past_years' in config else 20
         ignore_future_dates = config['ignore_future_dates'] if config and 'ignore_future_dates' in config else True
         if isinstance(d, basestring):
-            return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates)
+            return Core.spacy_parse_date(d, ignore_past_years, ignore_future_dates, strict_parsing=strict_parsing)
         else:
             try:
                 return date_parser.convert_to_iso_format(
                     date_parser.parse_date(d[_TEXT], ignore_future_dates=ignore_future_dates,
-                                           ignore_past_years=ignore_past_years))
+                                           ignore_past_years=ignore_past_years, strict_parsing=strict_parsing))
             except:
                 return None
 
@@ -2043,9 +2070,11 @@ class Core(object):
         if not config:
             config = dict()
         config['ignore_past_years'] = 200
+        config['ignore_future_dates'] = False
 
         try:
             # try the 2005344 format just in case
+
             to_be_parsed_date = str(d) if isinstance(d, basestring) else d[_TEXT]
             if seven_digits.match(to_be_parsed_date):
                 year = to_be_parsed_date[0:4]
@@ -2054,17 +2083,16 @@ class Core(object):
                 return parsed_date.isoformat()
         except:
             return None
-
-        result = Core.parse_date(d, config=config)
+        result = Core.parse_date(d, config=config, strict_parsing=False)
 
         return result
 
     @staticmethod
-    def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True):
+    def spacy_parse_date(str_date, ignore_past_years=20, ignore_future_dates=True, strict_parsing=True):
         try:
             return date_parser.convert_to_iso_format(
                 date_parser.parse_date(str_date, ignore_future_dates=ignore_future_dates,
-                                       ignore_past_years=ignore_past_years))
+                                       ignore_past_years=ignore_past_years, strict_parsing=strict_parsing))
         except:
             return None
 
@@ -2096,7 +2124,7 @@ class Core(object):
             return str(text)
 
         try:
-            text = text.strip().replace('\n', '').replace('\t', '')
+            text = text.strip().replace('\n', '').replace('\t', '').replace(',', '')
             num = str(float(text)) if '.' in text else str(int(text))
             return num
         except:
@@ -2222,7 +2250,7 @@ class Core(object):
                         for a_city in cities:
                             for a_state in states:
                                 if a_city[0] == a_state[0] and a_city[1] != a_state[1] and (
-                                                abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
+                                        abs(a_city[2] - a_state[1]) < 3 or abs(a_city[1] - a_state[2]) < 3):
                                     city_state_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -2238,7 +2266,7 @@ class Core(object):
                                     city_state_code_separate_count += 1
                             for a_country in countries:
                                 if a_city[0] == a_country[0] and a_city[1] != a_country[1] and (
-                                                abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
+                                        abs(a_city[2] - a_country[1]) < 5 or abs(a_city[1] - a_country[2]) < 3):
                                     city_country_together_count += 1
                                     if a_city[0] not in segments:
                                         segments.append(a_city[0])
@@ -2329,13 +2357,15 @@ class Core(object):
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print ''.join(lines)
+            print
+            ''.join(lines)
             self.log('Exception in create_city_state_country_triple()', _EXCEPTION, url=d[_URL], doc_id=d[_DOCUMENT_ID])
             return None
 
     @staticmethod
     def print_p(x):
-        print json.dumps(x, indent=2)
+        print
+        json.dumps(x, indent=2)
 
     def filter_results(self, d, config):
         if _KNOWLEDGE_GRAPH not in d:
@@ -2397,8 +2427,8 @@ class Core(object):
             raise KeyError('{} not found in the config for method: {}'.format(_SEGMENT_NAME,
                                                                               _CREATE_KG_NODE_EXTRACTOR))
         if _DISABLE_DEFAULT_EXT in config and \
-                        config[_DISABLE_DEFAULT_EXT] != _NO and \
-                        config[_DISABLE_DEFAULT_EXT] != _YES:
+                config[_DISABLE_DEFAULT_EXT] != _NO and \
+                config[_DISABLE_DEFAULT_EXT] != _YES:
             raise KeyError('{} not acceptable for {} in the config for method: {}'.format(config[_DISABLE_DEFAULT_EXT],
                                                                                           _DISABLE_DEFAULT_EXT,
                                                                                           _CREATE_KG_NODE_EXTRACTOR))

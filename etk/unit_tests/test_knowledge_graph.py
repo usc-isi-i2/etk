@@ -89,16 +89,16 @@ class TestExtractionsInputPaths(unittest.TestCase):
             ],
             "name": [
                 {
-                    "confidence": 1,
+                    "confidence": 1.0,
                     "provenance": [
                         {
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "start": 10,
-                                    "end": 11,
+                                    "start": 7,
+                                    "end": 8,
                                     "input": "tokens",
-                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                                    "text": "chrissy391 27 my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -112,10 +112,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "start": 41,
-                                    "end": 58,
+                                    "start": 68,
+                                    "end": 85,
                                     "input": "text",
-                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                                    "text": "br/><br/>  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -129,10 +129,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "start": 10,
-                                    "end": 11,
+                                    "start": 7,
+                                    "end": 8,
                                     "input": "tokens",
-                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
+                                    "text": "chrissy391 27 my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -146,10 +146,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "start": 41,
-                                    "end": 58,
+                                    "start": 68,
+                                    "end": 85,
                                     "input": "text",
-                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                                    "text": "br/><br/>  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -164,16 +164,16 @@ class TestExtractionsInputPaths(unittest.TestCase):
                     "value": "helena"
                 },
                 {
-                    "confidence": 1,
+                    "confidence": 1.0,
                     "provenance": [
                         {
                             "source": {
                                 "segment": "content_relaxed",
                                 "context": {
-                                    "start": 136,
-                                    "end": 137,
+                                    "start": 111,
+                                    "end": 112,
                                     "input": "tokens",
-                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                                    "text": "girls hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },
@@ -187,10 +187,10 @@ class TestExtractionsInputPaths(unittest.TestCase):
                             "source": {
                                 "segment": "content_strict",
                                 "context": {
-                                    "start": 136,
-                                    "end": 137,
+                                    "start": 111,
+                                    "end": 112,
                                     "input": "tokens",
-                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
+                                    "text": "girls hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
                                 },
                                 "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                             },

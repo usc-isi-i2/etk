@@ -7,7 +7,7 @@ def parse_date(str_date, ignore_future_dates=True, ignore_past_years=20, strict_
         if len(str_date) > 100:
             return None
 
-        str_date = str_date[:20] if len(str_date) > 20 else str_date
+        str_date = str_date[:25] if len(str_date) > 25 else str_date
         str_date = str_date.replace('\r', '')
         str_date = str_date.replace('\n', '')
         str_date = str_date.replace('<', '')

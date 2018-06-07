@@ -89,16 +89,16 @@ class TestExtractionsUsingRegex(unittest.TestCase):
         self.assertTrue(len(r['knowledge_graph']["name"]) == 1)
         extraction = r['knowledge_graph']["name"][0]
         ex = {
-            "confidence": 1,
+            "confidence": 1.0,
             "provenance": [
                 {
                     "source": {
                         "segment": "content_strict",
                         "context": {
-                            "start": 41,
-                            "end": 58,
+                            "start": 68,
+                            "end": 85,
                             "input": "text",
-                            "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
+                            "text": "br/><br/>  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
                         },
                         "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                     },
