@@ -169,16 +169,16 @@ class TestGeonamesLookup(unittest.TestCase):
                     ]"""
         ex_city_name_gt = [
             {
-                "confidence": 1,
+                "confidence": 1.0,
                 "provenance": [
                     {
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 88,
-                                "end": 90,
+                                "start": 69,
+                                "end": 71,
                                 "input": "tokens",
-                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' "
+                                "text": "escort ' s location : <etk 'attribute' = 'city_name'>los angeles</etk> , california escort ' s "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -192,10 +192,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 88,
-                                "end": 90,
+                                "start": 69,
+                                "end": 71,
                                 "input": "tokens",
-                                "text": "' s location : \n <etk 'attribute' = 'city_name'>los angeles</etk> , california \n escort ' "
+                                "text": "escort ' s location : <etk 'attribute' = 'city_name'>los angeles</etk> , california escort ' s "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -243,14 +243,14 @@ class TestGeonamesLookup(unittest.TestCase):
             ]"""
         ex_states_usa_codes_gt = [
             {
-                "confidence": 1,
+                "confidence": 1.0,
                 "provenance": [
                     {
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 17,
-                                "end": 18,
+                                "start": 14,
+                                "end": 15,
                                 "input": "tokens",
                                 "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
                             },
@@ -266,8 +266,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 193,
-                                "end": 194,
+                                "start": 168,
+                                "end": 169,
                                 "input": "tokens",
                                 "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
                             },
@@ -283,10 +283,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 217,
-                                "end": 218,
+                                "start": 191,
+                                "end": 192,
                                 "input": "tokens",
-                                "text": ". . skittlegirl \n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
+                                "text": ". . . skittlegirl call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -300,8 +300,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 17,
-                                "end": 18,
+                                "start": 14,
+                                "end": 15,
                                 "input": "tokens",
                                 "text": "160cms weight 55 kilos contact <etk 'attribute' = 'states_usa_codes'>me</etk> at escort . here @ "
                             },
@@ -317,8 +317,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 193,
-                                "end": 194,
+                                "start": 168,
+                                "end": 169,
                                 "input": "tokens",
                                 "text": "- 452 - 2013 . <etk 'attribute' = 'states_usa_codes'>me</etk> and my friends are on "
                             },
@@ -334,10 +334,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 217,
-                                "end": 218,
+                                "start": 191,
+                                "end": 192,
                                 "input": "tokens",
-                                "text": ". . skittlegirl \n\n\n\n call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
+                                "text": ". . . skittlegirl call <etk 'attribute' = 'states_usa_codes'>me</etk> on my cell at 323 "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -352,16 +352,16 @@ class TestGeonamesLookup(unittest.TestCase):
                 "value": "me"
             },
             {
-                "confidence": 1,
+                "confidence": 1.0,
                 "provenance": [
                     {
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 126,
-                                "end": 127,
+                                "start": 103,
+                                "end": 104,
                                 "input": "tokens",
-                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n "
+                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . view girls hey i "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -375,8 +375,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 146,
-                                "end": 147,
+                                "start": 121,
+                                "end": 122,
                                 "input": "tokens",
                                 "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
                             },
@@ -392,10 +392,10 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 126,
-                                "end": 127,
+                                "start": 103,
+                                "end": 104,
                                 "input": "tokens",
-                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . \n view girls \n "
+                                "text": "there are 50 girls looking <etk 'attribute' = 'states_usa_codes'>in</etk> . view girls hey i "
                             },
                             "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
                         },
@@ -409,8 +409,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 146,
-                                "end": 147,
+                                "start": 121,
+                                "end": 122,
                                 "input": "tokens",
                                 "text": "explore , embrace and indulge <etk 'attribute' = 'states_usa_codes'>in</etk> your favorite fantasy % independent "
                             },
@@ -427,14 +427,14 @@ class TestGeonamesLookup(unittest.TestCase):
                 "value": "in"
             },
             {
-                "confidence": 1,
+                "confidence": 1.0,
                 "provenance": [
                     {
                         "source": {
                             "segment": "content_strict",
                             "context": {
-                                "start": 173,
-                                "end": 174,
+                                "start": 148,
+                                "end": 149,
                                 "input": "tokens",
                                 "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
                             },
@@ -450,8 +450,8 @@ class TestGeonamesLookup(unittest.TestCase):
                         "source": {
                             "segment": "content_relaxed",
                             "context": {
-                                "start": 173,
-                                "end": 174,
+                                "start": 148,
+                                "end": 149,
                                 "input": "tokens",
                                 "text": "exactly what you deserve call <etk 'attribute' = 'states_usa_codes'>or</etk> text fetish friendly fantasy friendly "
                             },
@@ -475,7 +475,6 @@ class TestGeonamesLookup(unittest.TestCase):
         self.assertEqual(r['knowledge_graph']['city_name'], ex_city_name)
 
         self.assertEqual(r['knowledge_graph']['city'], json.loads(ex_city_gt))
-
         pop_states_usa_codes = json.loads(json.JSONEncoder().encode(r['knowledge_graph']['states_usa_codes']))
         self.assertEqual(len(pop_states_usa_codes), len(ex_states_usa_codes_gt))
         self.assertEqual(pop_states_usa_codes, ex_states_usa_codes_gt)

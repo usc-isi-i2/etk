@@ -314,7 +314,8 @@ class Core(object):
                                 action = doc_filter[_ACTION]
                                 regex = doc_filter[_REGEX]
                                 if action.lower() not in [_NO_ACTION, _KEEP, _DISCARD]:
-                                    print 'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
+                                    print
+                                    'action: {} in filters is not one of {}, {} or {}. Defaulting to {}'.format(
                                         action, _NO_ACTION, _KEEP, _DISCARD, _NO_ACTION)
                                     action = _NO_ACTION
 
@@ -328,11 +329,13 @@ class Core(object):
                                             doc[_PREFILTER_FILTER_OUTCOME] = action
                                             break
                                     else:
-                                        print 'Error while filtering out docs: field - {} is not a literal in ' \
-                                              'the doc.'.format(field)
+                                        print
+                                        'Error while filtering out docs: field - {} is not a literal in ' \
+                                        'the doc.'.format(field)
                             else:
                                 message = 'Incomplete filter: {} for tld: {} in etk config'.format(doc_filter, tld)
-                                print message
+                                print
+                                message
                                 self.log(message, _INFO)
         # if for some reason, there is no action defined: no_action is default action
         if _PREFILTER_FILTER_OUTCOME not in doc:
@@ -728,7 +731,8 @@ class Core(object):
                      url=doc[_URL] if _URL in doc else None)
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print ''.join(lines)
+            print
+            ''.join(lines)
             if self.global_error_handling == _RAISE_ERROR:
                 raise e
             else:
@@ -744,7 +748,8 @@ class Core(object):
         if time_taken_process > 5:
             extra = dict()
             extra['time_taken'] = time_taken_process
-            print 'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
+            print
+            'LOG: {},{},{},{}'.format(doc_id, 'TOTAL', 'TOTAL', time_taken_process)
             self.log('Document: {} took {} seconds'.format(doc[_DOCUMENT_ID], str(time_taken_process)), _INFO,
                      doc_id=doc[_DOCUMENT_ID], url=doc[_URL] if _URL in doc else None, extra=extra)
         return doc
@@ -841,7 +846,8 @@ class Core(object):
                               'the json or not a dict with keys \'value\', \'key\' and/or \'qualifiers\'  ' \
                               'document'.format(input_path)
                         self.log(msg, _ERROR)
-                        print msg
+                        print
+                        msg
                         if self.global_error_handling == _RAISE_ERROR:
                             raise ValueError(msg)
         if len(val_list) > 0:
@@ -866,13 +872,8 @@ class Core(object):
                 result = self.pseudo_extraction_results(d[_TEXT], key=d[_KEY] if _KEY in d else None,
                                                         qualifiers=d[_QUALIFIERS] if _QUALIFIERS in d else None)
                 if config and _POST_FILTER in config:
-                    if config[_FIELD_NAME] == 'event_date':
-                        print d[_TEXT]
                     post_filters = config[_POST_FILTER]
                     result = self.run_post_filters_results(result, post_filters, field_name=config[_FIELD_NAME])
-                    if config[_FIELD_NAME] == 'event_date':
-                        if result:
-                            print result
                 return self._relevant_text_from_context(d[_TEXT], result, config[_FIELD_NAME])
             else:
                 return None
@@ -1314,7 +1315,8 @@ class Core(object):
                 elif guard['type'] == 'path':
                     matches = jpath_parser.find(json_path_result)
                 else:
-                    print 'guard type "{}" is not a valid type.'.format(guard['type'])
+                    print
+                    'guard type "{}" is not a valid type.'.format(guard['type'])
                     continue
                 # if len(matches) == 0:
                 #     return False
@@ -1323,7 +1325,8 @@ class Core(object):
                     if not re.match(regex, match.value):
                         return False
             except Exception as e:
-                print 'could not apply guard: {}'.format(guard)
+                print
+                'could not apply guard: {}'.format(guard)
         return True
 
     def run_readability(self, content_extraction, html, re_extractor):
@@ -1572,7 +1575,8 @@ class Core(object):
             result = regex_extractor.extract(text, regex, include_context, flags)
             return result if result and len(result) > 0 else None
         except Exception as e:
-            print e
+            print
+            e
             return None
 
     def extract_using_custom_spacy(self, d, config, field_rules=None):
@@ -1854,7 +1858,8 @@ class Core(object):
                 if not result:
                     result = Core.string_to_lambda(text_filter)(d[_TEXT])
         except Exception as e:
-            print 'Error {} in {}'.format(e, 'run_user_filters')
+            print
+            'Error {} in {}'.format(e, 'run_user_filters')
         return result
 
     def run_post_filters_results(self, results, post_filters, field_name=None):
@@ -1874,7 +1879,8 @@ class Core(object):
                                 result['value'] = val
                                 out_results.append(result)
                 except:
-                    print 'Warn: No function {} defined in core.py'.format(post_filter)
+                    print
+                    'Warn: No function {} defined in core.py'.format(post_filter)
                     # lets try lambda functions
                     for result in results:
                         val = Core.string_to_lambda(post_filter)(result['value'])
@@ -1888,7 +1894,8 @@ class Core(object):
         try:
             return lambda x: eval(s)
         except:
-            print 'Error while converting {} to lambda'.format(s)
+            print
+            'Error while converting {} to lambda'.format(s)
             return None
 
     @staticmethod
@@ -2350,13 +2357,15 @@ class Core(object):
         except Exception as e:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print ''.join(lines)
+            print
+            ''.join(lines)
             self.log('Exception in create_city_state_country_triple()', _EXCEPTION, url=d[_URL], doc_id=d[_DOCUMENT_ID])
             return None
 
     @staticmethod
     def print_p(x):
-        print json.dumps(x, indent=2)
+        print
+        json.dumps(x, indent=2)
 
     def filter_results(self, d, config):
         if _KNOWLEDGE_GRAPH not in d:
