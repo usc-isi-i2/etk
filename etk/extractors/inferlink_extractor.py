@@ -64,7 +64,7 @@ class InferlinkRuleSet(object):
     @staticmethod
     def load_rules_file(file_name: str) -> List[dict]:
         with open(file_name, 'r') as f:
-            return json.load(f)
+            return json.load(f)['rules']
 
 
 class InferlinkExtractor(Extractor):
