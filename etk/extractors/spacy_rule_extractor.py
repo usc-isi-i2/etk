@@ -486,7 +486,7 @@ class Pattern(object):
         self.min = d["minimum"]
         self.prefix = d["prefix"]
         self.suffix = d["suffix"]
-        self.full_shape = d["shapes"]
+        self.full_shape = d.get("shapes")
 
         if self.type == "word":
             self.spacy_token_lst = self.construct_word_token(d, nlp)
