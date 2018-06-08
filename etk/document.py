@@ -157,7 +157,9 @@ class Document(Segment):
                 if text:
                     extracted_results = extractor.extract(text, **options)
             else:
-                raise ExtractorValueError("Extractor needs string, got " + str(type(extractable.value)))
+                # raise ExtractorValueError("Extractor needs string, got " + str(type(extractable.value)))
+                # TODO: Yixiang - needs to be handled properly
+                pass
 
         elif extractor.input_type == InputType.OBJECT:
             extracted_results = extractor.extract(extractable.value, **options)
@@ -166,7 +168,9 @@ class Document(Segment):
             if bool(BeautifulSoup(extractable.value, "html.parser").find()):
                 extracted_results = extractor.extract(extractable.value, **options)
             else:
-                raise ExtractorValueError("Extractor needs HTML, got non HTML string")
+                # raise ExtractorValueError("Extractor needs HTML, got non HTML string")
+                # TODO: Yixiang - needs to be handled properly
+                pass
 
         try:
             jsonPath = extractable.full_path
