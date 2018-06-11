@@ -53,7 +53,7 @@ class OntologyEntity(object):
 
 class OntologyClass(OntologyEntity):
 
-    def super_classes(self) -> Set[OntologyClass]:
+    def super_classes(self) -> Set['OntologyClass']:
         """
         super_classes(x) = the set of y_i such that x owl:subClassOf y_i.
 
@@ -62,7 +62,7 @@ class OntologyClass(OntologyEntity):
         """
         pass
 
-    def super_classes_closure(self) -> Set[OntologyClass]:
+    def super_classes_closure(self) -> Set['OntologyClass']:
         """
 
         Returns: the transitive closure of the super_classes function
@@ -73,7 +73,7 @@ class OntologyClass(OntologyEntity):
 
 class OntologyProperty(OntologyEntity):
 
-    def super_properties(self) -> Set[OntologyProperty]:
+    def super_properties(self) -> Set['OntologyProperty']:
         """
         super_properties = the set of y_i such that x owl:subPropertyOf y_i.
 
@@ -82,7 +82,7 @@ class OntologyProperty(OntologyEntity):
         """
         pass
 
-    def super_properties_closure(self) -> Set[OntologyProperty]:
+    def super_properties_closure(self) -> Set['OntologyProperty']:
         """
 
         Returns:  the transitive closure of the super_properties function
@@ -154,7 +154,7 @@ class OntologyObjectProperty(OntologyProperty):
         """
         pass
 
-    def inverse(self) -> OntologyObjectProperty:
+    def inverse(self) -> 'OntologyObjectProperty':
         """
         We support a compact definition as follows:
             :moved_to a owl:ObjectProperty ;
