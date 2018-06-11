@@ -3,19 +3,32 @@ import numbers, re
 from datetime import date, datetime
 from etk.field_types import FieldType
 from etk.etk_exceptions import ISODateError
+from rdflib import Graph, URIRef
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace
+from functools import reduce
+import logging
 
 
 class OntologyEntity(object):
     """
     Superclass of all ontology objects, including classes and properties.
     """
+    def __init__(self, uri):
+        self._uri = uri
+        self._label = set()
+        self._definition = set()
+        self._note = set()
+        ind = self._uri.rfind('#')
+        if ind == -1:
+            ind = self._uri.rfind('/')
+        self._name = self._uri[ind+1:]
 
     def uri(self) -> str:
         """
         Returns: Tte full URI of an ontology entity.
 
         """
-        pass
+        return self._uri
 
     def name(self) -> str:
         """
@@ -24,7 +37,7 @@ class OntologyEntity(object):
         Returns: the name part of an ontology entity.
 
         """
-        pass
+        return self._name
 
     def label(self) -> Set[str]:
         """
@@ -32,7 +45,7 @@ class OntologyEntity(object):
         Returns: the set of rdfs:label values
 
         """
-        pass
+        return self._label
 
     def definition(self) -> Set[str]:
         """
@@ -40,7 +53,7 @@ class OntologyEntity(object):
         Returns: the set of skos:definition values
 
         """
-        pass
+        return self._definition
 
     def note(self) -> Set[str]:
         """
@@ -48,10 +61,23 @@ class OntologyEntity(object):
         Returns: the set of skos:note values
 
         """
-        pass
+        return self._note
+
+    def __str__(self):
+        s = "<{}>".format(self._uri)
+        for label in self._label:
+            s += '\n\trdfs:label "{}";'.format(label)
+        for d in self._definition:
+            s += '\n\tskos:definition "{}"'.format(d)
+        for n in self._note:
+            s += '\n\tskos:note "{}"'.format(n)
+        return s
 
 
 class OntologyClass(OntologyEntity):
+    def __init__(self, uri):
+        super().__init__(uri)
+        self._super_classes = set()
 
     def super_classes(self) -> Set['OntologyClass']:
         """
@@ -60,7 +86,7 @@ class OntologyClass(OntologyEntity):
         Returns: the set of super-classes.
 
         """
-        pass
+        return self._super_classes
 
     def super_classes_closure(self) -> Set['OntologyClass']:
         """
@@ -68,10 +94,21 @@ class OntologyClass(OntologyEntity):
         Returns: the transitive closure of the super_classes function
 
         """
-        pass
-
+        closure = set()
+        level = self._super_classes
+        while level and not level < closure:
+            if self in closure:
+                print("Validation Error, Cycle in subClassOf dependency")
+            closure |= level
+            level = reduce(set.union, [x._super_classes for x in level])
+        return closure
 
 class OntologyProperty(OntologyEntity):
+    def __init__(self, uri):
+        super().__init__(uri)
+        self.domains = set()
+        self.ranges = set()
+        self._super_properties = set()
 
     def super_properties(self) -> Set['OntologyProperty']:
         """
@@ -80,7 +117,7 @@ class OntologyProperty(OntologyEntity):
         Returns: the set of super_properties
 
         """
-        pass
+        return self._super_properties
 
     def super_properties_closure(self) -> Set['OntologyProperty']:
         """
@@ -137,8 +174,14 @@ class OntologyProperty(OntologyEntity):
 
 
 class OntologyObjectProperty(OntologyProperty):
-    def __init__(self, inverse_property=None):
-        pass
+    def __init__(self, uri, inverse_property=None):
+        super().__init__(uri)
+        self._inverse = None
+        self._primary = True
+        if inverse_property:
+            self._inverse = OntologyObjectProperty(inverse_property)
+            self._inverse._inverse = self
+            self._inverse._primary = False
 
     def is_legal_object(self, c: OntologyClass) -> bool:
         """
@@ -152,6 +195,7 @@ class OntologyObjectProperty(OntologyProperty):
         Returns:
 
         """
+        # TODO
         pass
 
     def inverse(self) -> 'OntologyObjectProperty':
@@ -169,7 +213,7 @@ class OntologyObjectProperty(OntologyProperty):
         Returns: Inverse of the object property
 
         """
-        pass
+        return self._inverse
 
     def is_primary(self) -> bool:
         """
@@ -177,7 +221,7 @@ class OntologyObjectProperty(OntologyProperty):
         Returns: True if this object property is the primary OntologyObjectProperty, see comments in inverse()
 
         """
-        pass
+        return self._primary
 
 
 class OntologyDatatypeProperty(OntologyProperty):
@@ -211,12 +255,90 @@ class Ontology(object):
         Args:
             turtle:
         """
+        DIG = Namespace('http://isi.edu/ontologies/dig')
+        SCHEMA = Namespace('http://schema.org/')
+        self.entities = dict()
+        self.classes = set()
+        self.object_properties = set()
+        self.data_properties = set()
+        self.roots = set()
+
+        g = Graph()
+        g.parse(data=turtle, format='ttl')
+
+        # Class
+        for uri in g.subjects(RDF.type, OWL.Class):
+            uri = uri.toPython()
+            c = OntologyClass(uri)
+            self.entities[uri] = c
+            self.classes.add(c)
+
+        # Data P
+        for uri in g.subjects(RDF.type, OWL.DatatypeProperty):
+            uri = uri.toPython()
+            dp = OntologyDatatypeProperty(uri)
+            self.entities[uri] = dp
+            self.data_properties.add(dp)
+
+        # Obj P
+        for uri, inv in g.query("""SELECT ?uri ?inv
+                                   WHERE { ?uri a owl:ObjectProperty .
+                                           OPTIONAL {?uri :inverse ?inv }}"""):
+            uri = uri.toPython()
+            if inv:
+                inv = inv.toPython()
+            op = OntologyObjectProperty(uri, inv)
+            self.entities[uri] = op
+            self.object_properties.add(op)
+            if inv:
+                self.entities[inv] = op.inverse()
+                self.object_properties.add(op.inverse())
+
+        for c in self.classes:
+            # for sub in g.objects(c.uri(), RDFS.subClassOf):
+            for sub, in g.query("""SELECT ?sub
+                                   WHERE  {{ ?uri rdfs:subClassOf ?sub }
+                                           UNION { ?uri owl:subClassOf ?sub }}""",
+                                initBindings={'uri': c.uri()}):
+                sub = sub.toPython()
+                c._super_classes.add(self.entities[sub])
+            if not c._super_classes:
+                self.roots.add(c)
+            # for p in g.objects(c.uri(), DIG.common_properties):
+            for p in g.objects(URIRef(c.uri()), DIG.common_properties):
+                p = p.toPython()
+                if p in self.entities:
+                    self.entities[p].domains.add(c)
+
+        for p in self.object_properties | self.data_properties:
+            for sub, in g.query("""SELECT ?sub
+                                   WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
+                                           UNION { ?uri owl:subPropertyOf ?sub }}""",
+                                initBindings={'uri': p.uri()}):
+                sub = sub.toPython()
+                try:
+                    p._super_properties.add(self.entities[sub])
+                except KeyError:
+                    logging.warning("Missing a super property of :{} with uri {}.".format(p.name(), sub))
+            for d in g.objects(URIRef(p.uri()), SCHEMA.domainIncludes):
+                p.domains.add(d.toPython())
+            for r in g.objects(URIRef(p.uri()), SCHEMA.rangeIncludes):
+                p.ranges.add(r.toPython())
+
+        for entity in self.entities.values():
+            uri = URIRef(entity.uri())
+            for label in g.objects(uri, RDFS.label):
+                entity._label.add(label)
+            for definition in g.objects(uri, SKOS.definition):
+                entity._definition.add(definition)
+            for note in g.objects(uri, OWL.note):
+                entity._note.add(note)
 
     def all_properties(self) -> Set[OntologyProperty]:
-        pass
+        return self.data_properties | self.object_properties
 
     def all_classes(self) -> Set[OntologyClass]:
-        pass
+        return self.classes
 
     def get_entity(self, uri: str) -> OntologyClass:
         """
@@ -228,7 +350,9 @@ class Ontology(object):
         Returns: the OntologyEntity having the specified uri, or None
 
         """
-        pass
+        if uri in self.entities:
+            return self.entities[uri]
+        return None
 
     def root_classes(self) -> Set[OntologyClass]:
         """
@@ -236,6 +360,7 @@ class Ontology(object):
         Returns: All classes that don't have a super class.
 
         """
+        return self.roots
 
     def html_documentation(self) -> str:
         """
