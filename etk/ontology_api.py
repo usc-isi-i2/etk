@@ -370,4 +370,81 @@ class Ontology(object):
         Returns:
 
         """
-        pass
+        content = ''
+        with open('../ontologies/template.html') as f:
+            sorted_classes = sorted(self.classes, key=lambda x:x.name())
+            content = f.read().replace('{{{title}}}', 'OntologyEntities')
+            content = content.replace('{{{class_list}}}', self._html_class_hierachy()) \
+                             .replace('{{{dataproperty_list}}}', self._html_dataproperty_hierachy()) \
+                             .replace('{{{objectproperty_list}}}', self._html_objectproperty_hierachy())
+
+            item = '<h4 id="{}">{}</h4><div><table>{}</table></div>'
+            row = '<tr><th>{}</th><td>{}</td></tr>'
+            classes = []
+            for c in sorted_classes:
+                attr = []
+                attr.append(row.format('label', ', '.join(c.label())))
+                attr.append(row.format('definition', ', '.join(c.definition())))
+                attr.append(row.format('note', ''.join(c.note())))
+                classes.append(item.format('C-'+c.name(), c.name(), ''.join(attr)))
+
+            dataproperties = ''
+            objectproperties = ''
+            content = content.replace('{{{classes}}}', ''.join(classes)) \
+                             .replace('{{{dataproperties}}}', dataproperties) \
+                             .replace('{{{objectproperties}}}', objectproperties)
+        with open('../ontologies/output.html', 'w') as f:
+            f.write(content)
+        return content
+
+    def _html_class_hierachy(self):
+        tree = {node: list() for node in self.classes}
+        for child in self.classes:
+            for parent in child.super_classes():
+                tree[parent].append(child)
+        # TODO validate cycle before recursion
+        def hierachy_builder(children):
+            if not children: return ''
+            s = '<ul>'
+            for child in sorted(children, key=lambda x:x.name()):
+                s += '<li><a href="#C-{}">{}</a></li>'.format(child.name(), child.name())
+                s += hierachy_builder(tree[child])
+            s += '</ul>'
+            return s
+        return hierachy_builder(self.roots)
+
+    def _html_dataproperty_hierachy(self):
+        tree = {node: list() for node in self.data_properties}
+        roots = []
+        for child in self.data_properties:
+            if not child.super_properties():
+                roots.append(child)
+            for parent in child.super_properties():
+                tree[parent].append(child)
+        def hierachy_builder(children):
+            if not children: return ''
+            s = '<ul>'
+            for child in sorted(children, key=lambda x:x.name()):
+                s += '<li><a href="#D-{}">{}</a></li>'.format(child.name(), child.name())
+                s += hierachy_builder(tree[child])
+            s += '</ul>'
+            return s
+        return hierachy_builder(roots)
+
+    def _html_objectproperty_hierachy(self):
+        tree = {node: list() for node in self.object_properties}
+        roots = []
+        for child in self.object_properties:
+            if not child.super_properties():
+                roots.append(child)
+            for parent in child.super_properties():
+                tree[parent].append(child)
+        def hierachy_builder(children):
+            if not children: return ''
+            s = '<ul>'
+            for child in sorted(children, key=lambda x:x.name()):
+                s += '<li><a href="#O-{}">{}</a></li>'.format(child.name(), child.name())
+                s += hierachy_builder(tree[child])
+            s += '</ul>'
+            return s
+        return hierachy_builder(roots)
