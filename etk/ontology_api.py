@@ -8,6 +8,8 @@ from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace
 from functools import reduce
 import logging
 
+DIG = Namespace('http://isi.edu/ontologies/dig/')
+SCHEMA = Namespace('http://schema.org/')
 
 class OntologyEntity(object):
     """
@@ -18,6 +20,7 @@ class OntologyEntity(object):
         self._label = set()
         self._definition = set()
         self._note = set()
+        # extract name according to the definition of name
         ind = self._uri.rfind('#')
         if ind == -1:
             ind = self._uri.rfind('/')
@@ -94,14 +97,10 @@ class OntologyClass(OntologyEntity):
         Returns: the transitive closure of the super_classes function
 
         """
-        closure = set()
-        level = self._super_classes
-        while level and not level < closure:
-            if self in closure:
-                print("Validation Error, Cycle in subClassOf dependency")
-            closure |= level
-            level = reduce(set.union, [x._super_classes for x in level])
-        return closure
+        if not self._super_classes:
+            return set()
+        return self._super_classes | reduce(set.union, [x._super_classes for x in self._super_classes])
+
 
 class OntologyProperty(OntologyEntity):
     def __init__(self, uri):
@@ -125,7 +124,9 @@ class OntologyProperty(OntologyEntity):
         Returns:  the transitive closure of the super_properties function
 
         """
-        pass
+        if not self._super_properties:
+            return set()
+        return self._super_properties | reduce(set.union, [x.super_properties_closure() for x in self._super_properties])
 
     def included_domains(self) -> Set[OntologyClass]:
         """
@@ -139,7 +140,7 @@ class OntologyProperty(OntologyEntity):
         Returns: the set of all domains defined for a property.
 
         """
-        pass
+        return self.domains
 
     def included_ranges(self) -> Set[OntologyClass]:
         """
@@ -150,10 +151,10 @@ class OntologyProperty(OntologyEntity):
         Although technically wrong, this function unions the rdfs:range instead of intersecting them.
         A validation function prints a warning when loading the ontology.
 
-        Returns:
+        Returns: the set of all ranges defined for a property.
 
         """
-        pass
+        return self.ranges
 
     def is_legal_subject(self, c: OntologyClass) -> bool:
         """
@@ -170,7 +171,8 @@ class OntologyProperty(OntologyEntity):
         Returns:
 
         """
-        pass
+        domains = self.included_domains()
+        return c in domains or c.super_classes_closure() & domains
 
 
 class OntologyObjectProperty(OntologyProperty):
@@ -195,8 +197,8 @@ class OntologyObjectProperty(OntologyProperty):
         Returns:
 
         """
-        # TODO
-        pass
+        ranges = self.included_ranges()
+        return c in ranges or c.super_classes_closure() & ranges
 
     def inverse(self) -> 'OntologyObjectProperty':
         """
@@ -236,7 +238,7 @@ class OntologyDatatypeProperty(OntologyProperty):
         Returns:
 
         """
-        pass
+        return data_type in self.included_ranges() or self.super_properties() and any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
 class Ontology(object):
@@ -255,8 +257,6 @@ class Ontology(object):
         Args:
             turtle:
         """
-        DIG = Namespace('http://isi.edu/ontologies/dig')
-        SCHEMA = Namespace('http://schema.org/')
         self.entities = dict()
         self.classes = set()
         self.object_properties = set()
@@ -269,16 +269,16 @@ class Ontology(object):
         # Class
         for uri in g.subjects(RDF.type, OWL.Class):
             uri = uri.toPython()
-            c = OntologyClass(uri)
-            self.entities[uri] = c
-            self.classes.add(c)
+            entity = OntologyClass(uri)
+            self.entities[uri] = entity
+            self.classes.add(entity)
 
         # Data P
         for uri in g.subjects(RDF.type, OWL.DatatypeProperty):
             uri = uri.toPython()
-            dp = OntologyDatatypeProperty(uri)
-            self.entities[uri] = dp
-            self.data_properties.add(dp)
+            entity = OntologyDatatypeProperty(uri)
+            self.entities[uri] = entity
+            self.data_properties.add(entity)
 
         # Obj P
         for uri, inv in g.query("""SELECT ?uri ?inv
@@ -287,42 +287,43 @@ class Ontology(object):
             uri = uri.toPython()
             if inv:
                 inv = inv.toPython()
-            op = OntologyObjectProperty(uri, inv)
-            self.entities[uri] = op
-            self.object_properties.add(op)
+            entity = OntologyObjectProperty(uri, inv)
+            self.entities[uri] = entity
+            self.object_properties.add(entity)
             if inv:
-                self.entities[inv] = op.inverse()
-                self.object_properties.add(op.inverse())
+                self.entities[inv] = entity.inverse()
+                self.object_properties.add(entity.inverse())
 
-        for c in self.classes:
-            # for sub in g.objects(c.uri(), RDFS.subClassOf):
+        for entity in self.classes:
             for sub, in g.query("""SELECT ?sub
                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
                                            UNION { ?uri owl:subClassOf ?sub }}""",
-                                initBindings={'uri': c.uri()}):
+                                initBindings={'uri': URIRef(entity.uri())}):
                 sub = sub.toPython()
-                c._super_classes.add(self.entities[sub])
-            if not c._super_classes:
-                self.roots.add(c)
-            # for p in g.objects(c.uri(), DIG.common_properties):
-            for p in g.objects(URIRef(c.uri()), DIG.common_properties):
-                p = p.toPython()
-                if p in self.entities:
-                    self.entities[p].domains.add(c)
+                entity._super_classes.add(self.entities[sub])
+            if not entity._super_classes:
+                self.roots.add(entity)
 
         for p in self.object_properties | self.data_properties:
             for sub, in g.query("""SELECT ?sub
                                    WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
                                            UNION { ?uri owl:subPropertyOf ?sub }}""",
-                                initBindings={'uri': p.uri()}):
+                                initBindings={'uri': URIRef(p.uri())}):
                 sub = sub.toPython()
                 try:
                     p._super_properties.add(self.entities[sub])
                 except KeyError:
                     logging.warning("Missing a super property of :{} with uri {}.".format(p.name(), sub))
-            for d in g.objects(URIRef(p.uri()), SCHEMA.domainIncludes):
+            for d, in g.query("""SELECT ?domain
+                                 WHERE {{ ?uri rdfs:domain ?domain }
+                                        UNION { ?uri schema:domainIncludes ?domain }
+                                        UNION { ?domain :common_properties ?uri}}""",
+                             initBindings={'uri': URIRef(p.uri())}):
                 p.domains.add(d.toPython())
-            for r in g.objects(URIRef(p.uri()), SCHEMA.rangeIncludes):
+            for r, in g.query("""SELECT ?range
+                                 WHERE {{ ?uri rdfs:range ?range }
+                                        UNION { ?uri schema:rangeIncludes ?range }}""",
+                             initBindings={'uri': URIRef(p.uri())}):
                 p.ranges.add(r.toPython())
 
         for entity in self.entities.values():
@@ -350,9 +351,7 @@ class Ontology(object):
         Returns: the OntologyEntity having the specified uri, or None
 
         """
-        if uri in self.entities:
-            return self.entities[uri]
-        return None
+        return self.entities.get(str(uri), None)
 
     def root_classes(self) -> Set[OntologyClass]:
         """

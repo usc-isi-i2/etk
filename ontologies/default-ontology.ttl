@@ -1,4 +1,4 @@
-@prefix : <http://isi.edu/ontologies/dig> .
+@prefix : <http://isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -78,7 +78,7 @@ ground water from a certain borehole.""" ;
 
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
-    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ; 
+    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
     rdfs:subClassOf :Group ;
     :crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
@@ -104,7 +104,7 @@ ground water from a certain borehole.""" ;
     rdfs:label "Group" ;
     skos:definition """A specific person in the world, it can be specific, such as a Barack Obama, or unspecific, such as a child.""" ;
     rdfs:subClassOf :Actor ;
-    :crm_equivalent crm:E21_Person ; 
+    :crm_equivalent crm:E21_Person ;
     :common_properties :label, :title, :religion ;
     .
 
@@ -229,7 +229,7 @@ ground water from a certain borehole.""" ;
 :occurred_in_the_presence_of a owl:ObjectProperty ;
     rdfs:label "occurred in the presence of" ;
     skos:definition """Entities that were present during the event and are somehow relevant to the event, e.g., a car or building destroyed in a bombing, a car that was parked close by, the weapon used, people who witnessed the event.""" ;
-    skos:note """This is a general property to model a relationship between an event and an entity. Often a more specific subPropertyOf can be used to model the relationship more precisely.""" ; 
+    skos:note """This is a general property to model a relationship between an event and an entity. Often a more specific subPropertyOf can be used to model the relationship more precisely.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Entity ;
     :crm_equivalent crm:P12_occurred_in_the_presence_of ;
@@ -447,7 +447,7 @@ ground water from a certain borehole.""" ;
 
 # Commented out. Looks like Observerations and Measurements are used differently. Observations record the property
 # being measured in :observed_property_type. Measurements produce :Dimensions, and can produce multiple dimensions,
-# each one for a different property. So for Observation -> :obserrved_property_type is 1-to-1, 
+# each one for a different property. So for Observation -> :obserrved_property_type is 1-to-1,
 # vs :Measurement -> :Dimension is 1-to-many.
 #
 # :observed_property_type a owl:ObjectProperty ;
@@ -736,7 +736,7 @@ ground water from a certain borehole.""" ;
 
 ###
 ### Numeric properties
-### 
+###
 
 :has_value a owl:DatatypeProperty ;
     rdfs:label "value" ;
@@ -883,6 +883,3 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Place ;
     schema:rangeIncludes xsd:decimal ;
     .
-
-
-
