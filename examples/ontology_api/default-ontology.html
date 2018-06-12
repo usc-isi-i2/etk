@@ -1,0 +1,2341 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Ontology Entities</title>
+    <style>
+     .entity th {
+         width: 120px;
+         border-right: 3px solid transparent;
+     }
+    </style>
+</head>
+<body>
+<h1>Ontology Entities</h1>
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#toc-cl">Class List</a></li>
+    <li><a href="#toc-pl">Property List</a></li>
+    <ul>
+        <li><a href="#toc-dpl">DataProperty List</a></li>
+        <li><a href="#toc-opl">ObjectProperty List</a></li>
+    </ul>
+    <li><a href="#toc-class">Classes</a></li>
+    <li><a href="#toc-property">Properties</a></li>
+    <ul>
+        <li><a href="#toc-data-property">DataProperties</a></li>
+        <li><a href="#toc-object-property">ObjectPropertyies</a></li>
+    </ul>
+</ul>
+<h2 id="toc-cl">Class List</h2>
+<div><ul><li><a href="#C-Entity">Entity</a></li><ul><li><a href="#C-Dimension">Dimension</a></li><ul><li><a href="#C-Money">Money</a></li></ul><li><a href="#C-Group">Group</a></li><ul><li><a href="#C-Actor">Actor</a></li><ul><li><a href="#C-Organization">Organization</a></li><li><a href="#C-Person">Person</a></li></ul></ul><li><a href="#C-Man_Made_Thing">Man_Made_Thing</a></li><li><a href="#C-Physical_Object">Physical_Object</a></li><li><a href="#C-Place">Place</a></li><li><a href="#C-Religion">Religion</a></li><li><a href="#C-Temporal_Entity">Temporal_Entity</a></li><ul><li><a href="#C-Condition_State">Condition_State</a></li><li><a href="#C-Event">Event</a></li><ul><li><a href="#C-Measurement">Measurement</a></li></ul></ul><li><a href="#C-Time_Span">Time_Span</a></li></ul><li><a href="#C-Type">Type</a></li><ul><li><a href="#C-Country">Country</a></li><li><a href="#C-Ethnic_Group">Ethnic_Group</a></li><li><a href="#C-Human_Condition">Human_Condition</a></li><li><a href="#C-Modality">Modality</a></li><li><a href="#C-Property_Type">Property_Type</a></li></ul></ul></div>
+<h2 id="toc-pl">Property List</h2>
+<h3 id="toc-dpl">DataProperty List</h3>
+<div><ul><li><a href="#D-citation">citation</a></li><li><a href="#D-city">city</a></li><li><a href="#D-code">code</a></li><ul><li><a href="#D-cameo_code">cameo_code</a></li><li><a href="#D-iso_code">iso_code</a></li><ul><li><a href="#D-adm1_code">adm1_code</a></li><li><a href="#D-iso_country_code">iso_country_code</a></li></ul></ul><li><a href="#D-date">date</a></li><li><a href="#D-description">description</a></li><li><a href="#D-end_after_date">end_after_date</a></li><li><a href="#D-end_before_date">end_before_date</a></li><li><a href="#D-end_date">end_date</a></li><li><a href="#D-has_value">has_value</a></li><li><a href="#D-identifier">identifier</a></li><li><a href="#D-label">label</a></li><li><a href="#D-latitude">latitude</a></li><li><a href="#D-longitude">longitude</a></li><li><a href="#D-region">region</a></li><li><a href="#D-start_after_date">start_after_date</a></li><li><a href="#D-start_before_date">start_before_date</a></li><li><a href="#D-start_date">start_date</a></li><li><a href="#D-state">state</a></li><li><a href="#D-title">title</a></li><li><a href="#D-value_is_at_least">value_is_at_least</a></li><li><a href="#D-value_is_at_most">value_is_at_most</a></li><li><a href="#D-year">year</a></li><li><a href="#D-year_month">year_month</a></li></ul></div>
+<h3 id="toc-opl">ObjectProperty List</h3>
+<div><ul><li><a href="#O-country">country</a></li><li><a href="#O-damaged">damaged</a></li><ul><li><a href="#O-destroyed">destroyed</a></li></ul><li><a href="#O-finishes">finishes</a></li><li><a href="#O-had_at_least_duration">had_at_least_duration</a></li><li><a href="#O-had_at_most_duration">had_at_most_duration</a></li><li><a href="#O-had_modality">had_modality</a></li><li><a href="#O-has_condition">has_condition</a></li><li><a href="#O-has_dimension">has_dimension</a></li><li><a href="#O-has_time_span">has_time_span</a></li><li><a href="#O-includes">includes</a></li><li><a href="#O-is_equal_in_time_to">is_equal_in_time_to</a></li><li><a href="#O-is_finished_by">is_finished_by</a></li><li><a href="#O-is_started_by">is_started_by</a></li><li><a href="#O-meets_in_time_with">meets_in_time_with</a></li><li><a href="#O-nationality">nationality</a></li><li><a href="#O-observed_dimension">observed_dimension</a></li><li><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></li><ul><li><a href="#O-had_participant">had_participant</a></li><ul><li><a href="#O-carried_out_by">carried_out_by</a></li><ul><li><a href="#O-custody_received_by">custody_received_by</a></li><li><a href="#O-had_provider">had_provider</a></li><ul><li><a href="#O-custody_surrendered_by">custody_surrendered_by</a></li><li><a href="#O-transferred_ownership_from">transferred_ownership_from</a></li></ul><li><a href="#O-transferred_ownership_to">transferred_ownership_to</a></li></ul><li><a href="#O-had_beneficiary">had_beneficiary</a></li><li><a href="#O-had_target">had_target</a></li><li><a href="#O-had_victim">had_victim</a></li><li><a href="#O-transferred_custody_of">transferred_custody_of</a></li></ul><li><a href="#O-has_modified">has_modified</a></li><li><a href="#O-measured">measured</a></li><li><a href="#O-moved">moved</a></li><li><a href="#O-took_place_at">took_place_at</a></li><ul><li><a href="#O-moved_from">moved_from</a></li><li><a href="#O-moved_to">moved_to</a></li></ul><li><a href="#O-transferred_ownership_of">transferred_ownership_of</a></li><li><a href="#O-was_influenced_by">was_influenced_by</a></li><ul><li><a href="#O-used_specific_object">used_specific_object</a></li><ul><li><a href="#O-had_specific_purpose">had_specific_purpose</a></li><li><a href="#O-was_intended_use_of">was_intended_use_of</a></li></ul><li><a href="#O-was_motivated_by">was_motivated_by</a></li></ul></ul><li><a href="#O-occurs_after">occurs_after</a></li><li><a href="#O-occurs_before:">occurs_before:</a></li><li><a href="#O-occurs_during">occurs_during</a></li><li><a href="#O-overlaps_in_time_with">overlaps_in_time_with</a></li><li><a href="#O-religion">religion</a></li><li><a href="#O-starts">starts</a></li><li><a href="#O-took_place_on_or_within">took_place_on_or_within</a></li><li><a href="#O-topic">topic</a></li></ul></div>
+<h2 id="toc-class">Classes</h2>
+<h4 id="C-Actor">Actor</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Group">Group</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Organization">Organization</a><br />
+<a href="#C-Person">Person</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Actor</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-label">label</a><br />
+<a href="#O-nationality">nationality</a><br />
+<a href="#O-religion">religion</a><br />
+<a href="#D-title">title</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Condition_State">Condition_State</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Condition State</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The states of objects characterised by a certain condition over a time-span.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Country">Country</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Type">Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Country</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The set of countries, expressed in a controlled vocabulary.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Dimension">Dimension</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Money">Money</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Dimension</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies a value and its unit of measurement.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-has_value">has_value</a><br />
+<a href="#D-value_is_at_least">value_is_at_least</a><br />
+<a href="#D-value_is_at_most">value_is_at_most</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Entity">Entity</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Dimension">Dimension</a><br />
+<a href="#C-Group">Group</a><br />
+<a href="#C-Man_Made_Thing">Man_Made_Thing</a><br />
+<a href="#C-Physical_Object">Physical_Object</a><br />
+<a href="#C-Place">Place</a><br />
+<a href="#C-Religion">Religion</a><br />
+<a href="#C-Temporal_Entity">Temporal_Entity</a><br />
+<a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Entity</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Everything that can be described, similar to owl:Thing.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-citation">citation</a><br />
+<a href="#D-code">code</a><br />
+<a href="#D-description">description</a><br />
+<a href="#O-has_condition">has_condition</a><br />
+<a href="#D-identifier">identifier</a><br />
+<a href="#D-label">label</a><br />
+<a href="#D-title">title</a><br />
+<a href="#O-topic">topic</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Ethnic_Group">Ethnic_Group</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Type">Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Ethnic Group</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The set of ethnic groups of the world expressed in a controlled vocabulary.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Event">Event</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Measurement">Measurement</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Event</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An event that may happen or has happened in the world.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#O-custody_received_by">custody_received_by</a><br />
+<a href="#O-custody_surrendered_by">custody_surrendered_by</a><br />
+<a href="#O-finishes">finishes</a><br />
+<a href="#O-had_beneficiary">had_beneficiary</a><br />
+<a href="#O-had_modality">had_modality</a><br />
+<a href="#O-had_participant">had_participant</a><br />
+<a href="#O-had_provider">had_provider</a><br />
+<a href="#O-had_specific_purpose">had_specific_purpose</a><br />
+<a href="#O-had_target">had_target</a><br />
+<a href="#O-had_victim">had_victim</a><br />
+<a href="#O-has_modified">has_modified</a><br />
+<a href="#O-includes">includes</a><br />
+<a href="#O-is_equal_in_time_to">is_equal_in_time_to</a><br />
+<a href="#O-is_finished_by">is_finished_by</a><br />
+<a href="#O-is_started_by">is_started_by</a><br />
+<a href="#O-meets_in_time_with">meets_in_time_with</a><br />
+<a href="#O-moved">moved</a><br />
+<a href="#O-moved_from">moved_from</a><br />
+<a href="#O-moved_to">moved_to</a><br />
+<a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a><br />
+<a href="#O-occurs_after">occurs_after</a><br />
+<a href="#O-occurs_before:">occurs_before:</a><br />
+<a href="#O-occurs_during">occurs_during</a><br />
+<a href="#O-overlaps_in_time_with">overlaps_in_time_with</a><br />
+<a href="#O-starts">starts</a><br />
+<a href="#O-took_place_at">took_place_at</a><br />
+<a href="#O-transferred_custody_of">transferred_custody_of</a><br />
+<a href="#O-transferred_ownership_from">transferred_ownership_from</a><br />
+<a href="#O-transferred_ownership_of">transferred_ownership_of</a><br />
+<a href="#O-transferred_ownership_to">transferred_ownership_to</a><br />
+<a href="#O-used_specific_object">used_specific_object</a><br />
+<a href="#O-was_influenced_by">was_influenced_by</a><br />
+<a href="#O-was_intended_use_of">was_intended_use_of</a><br />
+<a href="#O-was_motivated_by">was_motivated_by</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Group">Group</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Group</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A </td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-label">label</a><br />
+<a href="#D-title">title</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Human_Condition">Human_Condition</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Type">Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Human Condition</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The set of human conditions, such as being poor, rich, injured, dead, displaced, etc.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Man_Made_Thing">Man_Made_Thing</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Man-Made Thing</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Comprises discrete, identifiable man-made items that are documented as single units. These items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Measurement">Measurement</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Measurement</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes an entity being measured and an observed dimension.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#O-measured">measured</a><br />
+<a href="#O-observed_dimension">observed_dimension</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Modality">Modality</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Type">Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Modality</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A knowledge graph can record events that happened, hypothetical events, events expected to happen in the future, etc. :Modality is a controlled vocabulary for this type of information about an event.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Money">Money</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Money</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies an amount of money in some currency.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Organization">Organization</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Group</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Any type of organizationm, a company, a terrorist group, a government, etc.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-label">label</a><br />
+<a href="#O-religion">religion</a><br />
+<a href="#D-title">title</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Person">Person</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Group</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A specific person in the world, it can be specific, such as a Barack Obama, or unspecific, such as a child.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-label">label</a><br />
+<a href="#O-religion">religion</a><br />
+<a href="#D-title">title</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Physical_Object">Physical_Object</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Physical_Object</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A thing in the world, e.g., buildings, trees, persons, but not ideas.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#O-has_dimension">has_dimension</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Place">Place</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Place</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Any place at any level of granularity</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-adm1_code">adm1_code</a><br />
+<a href="#D-city">city</a><br />
+<a href="#O-country">country</a><br />
+<a href="#D-iso_country_code">iso_country_code</a><br />
+<a href="#D-label">label</a><br />
+<a href="#D-latitude">latitude</a><br />
+<a href="#D-longitude">longitude</a><br />
+<a href="#D-region">region</a><br />
+<a href="#D-state">state</a><br />
+<a href="#D-title">title</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Property_Type">Property_Type</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Type">Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Property Type</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Formal definition: Comprises types of properties. Typically, instances of S9 Property Type would be
+taken from an ontology or terminological system. In particular, instances of this class can be
+used to describe in a parametric way what kind of properties the values in scientific data sets
+are about. By virtue of such descriptions, numeric data can be interpreted as sets of
+propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the
+ground water from a certain borehole.</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>When modeling measurements, one creates a :Measurement event, and one needs to record the value measures together with its units (:Dimension), the object that was measured (:measured), and the property of the object that we are measuring (:observed_property_type), e.g., the width, or height, or price, or production level, etc. It is possible that all these properties are not defined as RDF properties in an ontology, e.g., :price is not in the ontology. The idea of :Property_Type is to create controlled vocabularies of properties one can observe, withut requiring that these properties be defined as RDF properties, i.e., the observed properties are data (instances of :Property_Type), so new ones can be added without extending the ontology.</td>
+</tr>
+</table>
+</div>
+<h4 id="C-Religion">Religion</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Religion</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies a religion in the world.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-cameo_code">cameo_code</a><br />
+<a href="#D-code">code</a><br />
+<a href="#D-label">label</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Temporal_Entity">Temporal_Entity</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Condition_State">Condition_State</a><br />
+<a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Temporal Entity</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Phenomena that happens over time, incuding :Event and :Condition_State.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-description">description</a><br />
+<a href="#O-has_time_span">has_time_span</a><br />
+<a href="#D-identifier">identifier</a><br />
+<a href="#D-title">title</a><br />
+<a href="#O-took_place_at">took_place_at</a><br />
+<a href="#O-took_place_on_or_within">took_place_on_or_within</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Time_Span">Time_Span</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subclass of</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Time Span</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Defines a span of time. Allows for imprecise specification, including natural language text.</td>
+</tr>
+<tr>
+<th align="right" valign="top">Properties</th>
+<td><a href="#D-date">date</a><br />
+<a href="#D-end_after_date">end_after_date</a><br />
+<a href="#D-end_before_date">end_before_date</a><br />
+<a href="#D-end_date">end_date</a><br />
+<a href="#O-had_at_least_duration">had_at_least_duration</a><br />
+<a href="#O-had_at_most_duration">had_at_most_duration</a><br />
+<a href="#D-start_after_date">start_after_date</a><br />
+<a href="#D-start_before_date">start_before_date</a><br />
+<a href="#D-start_date">start_date</a><br />
+<a href="#D-year">year</a><br />
+<a href="#D-year_month">year_month</a></td>
+</tr>
+</table>
+</div>
+<h4 id="C-Type">Type</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-Country">Country</a><br />
+<a href="#C-Ethnic_Group">Ethnic_Group</a><br />
+<a href="#C-Human_Condition">Human_Condition</a><br />
+<a href="#C-Modality">Modality</a><br />
+<a href="#C-Property_Type">Property_Type</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Type</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Everything that can be described, similar to owl:Thing.</td>
+</tr>
+</table>
+</div>
+<h2 id="toc-property">Properties</h2>
+<h3 id="toc-object-property">ObjectProperties</h3>
+<h4 id="O-carried_out_by">carried_out_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_participant">had_participant</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-custody_received_by">custody_received_by</a><br />
+<a href="#O-had_provider">had_provider</a><br />
+<a href="#O-transferred_ownership_to">transferred_ownership_to</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>carried out by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Actor that played an active role in an event. :carried_out_by implies causal or legal responsibility.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-country">country</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Country">Country</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>country</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The name of a country.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-custody_received_by">custody_received_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-carried_out_by">carried_out_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>custody received by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>identifies the an :Actor who receives custody of an an item as a result of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-custody_surrendered_by">custody_surrendered_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_provider">had_provider</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>custody surrendered by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies an :Actor who surrenders custody of an item as a result of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-damaged">damaged</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-destroyed">destroyed</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>damaged</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A :Physical_Object that is physically damaged in an event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-destroyed">destroyed</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-damaged">damaged</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>destroyed</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A :Physical_Object that is physically destroyed in an event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-finishes">finishes</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>finishes</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_at_least_duration">had_at_least_duration</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had at least duration</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes the minimum length of time covered by an :Time_Span.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_at_most_duration">had_at_most_duration</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had at most duration</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes the maximum length of time covered by an :Time_Span.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_beneficiary">had_beneficiary</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_participant">had_participant</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had beneficiary</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Actor that benefits in some way when an event occurs.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_modality">had_modality</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Modality">Modality</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had_modality</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records the :Modality of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_participant">had_participant</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-carried_out_by">carried_out_by</a><br />
+<a href="#O-had_beneficiary">had_beneficiary</a><br />
+<a href="#O-had_target">had_target</a><br />
+<a href="#O-had_victim">had_victim</a><br />
+<a href="#O-transferred_custody_of">transferred_custody_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had participant</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Actor who had an active or passive participation in an Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_provider">had_provider</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-carried_out_by">carried_out_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-custody_surrendered_by">custody_surrendered_by</a><br />
+<a href="#O-transferred_ownership_from">transferred_ownership_from</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had provider</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Actor that provided something that was used in an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_specific_purpose">had_specific_purpose</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-used_specific_object">used_specific_object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had specific purpose</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies the relationship between a preparatory activity (the subject) and the event it is intended to be preparation for (the object). This includes activities, orders and other organisational actions, taken in preparation for other activities or events.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_target">had_target</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_participant">had_participant</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had target</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Entity that was intended to be affected by an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-had_victim">had_victim</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_participant">had_participant</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>had victim</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An :Actor negatively affected by an event, e.g., a person who was killed, and organization that was robbed.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-has_condition">has_condition</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Condition_State">Condition_State</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>has condition</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a :Condition_State for some :Physical_Object.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-has_dimension">has_dimension</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>has dimension</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a :Dimension of some E70 Thing.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-has_modified">has_modified</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Man_Made_Thing">Man_Made_Thing</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>has modified</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies a :Man_Made_Thing modified in an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-has_time_span">has_time_span</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>has time-span</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The time interval when the :E2_Temporal_Entity happened.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-includes">includes</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>includes</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-is_equal_in_time_to">is_equal_in_time_to</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>is equal in time to</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "equal" relationship of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-is_finished_by">is_finished_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>is finished by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-is_started_by">is_started_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>is started by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-measured">measured</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Measurement">Measurement</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>measured</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Specifies the item that was measured in a :Measurement event. Material and immaterial things and processes may be measured.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-meets_in_time_with">meets_in_time_with</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>meets in time with</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>.This property is the same as the "meets / met-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-moved">moved</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>moved</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies a :Physical_Object that is moved during a move :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-moved_from">moved_from</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-took_place_at">took_place_at</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>moved from</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies the :Place where an object is moved from.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-moved_to">moved_to</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-took_place_at">took_place_at</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>moved to</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies the :Place where an object is moved to.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-nationality">nationality</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Country">Country</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>nationality</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records the nationality of an :Actor.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-observed_dimension">observed_dimension</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Measurement">Measurement</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>observed dimension</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records the :Dimension that was observed in Measurement :Event. The item measured is recorded using the :measured property of the :Event. One measurement activity may determine more than one dimension of one object.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-occurred_in_the_presence_of">occurred_in_the_presence_of</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-had_participant">had_participant</a><br />
+<a href="#O-has_modified">has_modified</a><br />
+<a href="#O-measured">measured</a><br />
+<a href="#O-moved">moved</a><br />
+<a href="#O-took_place_at">took_place_at</a><br />
+<a href="#O-transferred_ownership_of">transferred_ownership_of</a><br />
+<a href="#O-was_influenced_by">was_influenced_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>occurred in the presence of</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Entities that were present during the event and are somehow relevant to the event, e.g., a car or building destroyed in a bombing, a car that was parked close by, the weapon used, people who witnessed the event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-occurs_after">occurs_after</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>occurs after</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-occurs_before:">occurs_before:</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>occurs before</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-occurs_during">occurs_during</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>occurs during</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-overlaps_in_time_with">overlaps_in_time_with</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>overlaps in time with</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "overlaps / overlapped-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-religion">religion</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Actor">Actor</a><br />
+<a href="#C-Organization">Organization</a><br />
+<a href="#C-Person">Person</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Religion">Religion</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>religion</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records the religion of an :Actor.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-starts">starts</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>starts</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
+</tr>
+</table>
+</div>
+<h4 id="O-took_place_at">took_place_at</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a><br />
+<a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-moved_from">moved_from</a><br />
+<a href="#O-moved_to">moved_to</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>took place at</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies the :Place where an :Event took place.</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a :Place associated with a :Temporal_Entity.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-took_place_on_or_within">took_place_on_or_within</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>took place on or within</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes the location of Temporal_Entity with respect to :Physical_Object, e.g., an event that took place inside a building, and perhaps we don't know where the building is.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-topic">topic</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>topic</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records that the object is the :topic of the subject. Applies to any two pairs of entities.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-transferred_custody_of">transferred_custody_of</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Man_Made_Thing">Man_Made_Thing</a><br />
+<a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_participant">had_participant</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>transferred custody of</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies an item or items whose custody is transferred as a result of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-transferred_ownership_from">transferred_ownership_from</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-had_provider">had_provider</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>transferred ownership from</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-transferred_ownership_of">transferred_ownership_of</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Man_Made_Thing">Man_Made_Thing</a><br />
+<a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>transferred ownership of</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies the items involved in an acquisition :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-transferred_ownership_to">transferred_ownership_to</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Actor">Actor</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-carried_out_by">carried_out_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>transferred ownership to</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-used_specific_object">used_specific_object</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Physical_Object">Physical_Object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-was_influenced_by">was_influenced_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-had_specific_purpose">had_specific_purpose</a><br />
+<a href="#O-was_intended_use_of">was_intended_use_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>used specific object</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes the use of material or immaterial things in a way essential to the performance or the outcome of an :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-was_influenced_by">was_influenced_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-occurred_in_the_presence_of">occurred_in_the_presence_of</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#O-used_specific_object">used_specific_object</a><br />
+<a href="#O-was_motivated_by">was_motivated_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>was influenced by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A high level property, which captures the relationship between an :Event and anything that may have had some bearing upon it.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-was_intended_use_of">was_intended_use_of</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-used_specific_object">used_specific_object</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>was intended use of</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes an item or items that are regarded as a reason for carrying out the :Event.</td>
+</tr>
+</table>
+</div>
+<h4 id="O-was_motivated_by">was_motivated_by</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Event">Event</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#O-was_influenced_by">was_influenced_by</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>was motivated by</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Describes an item or items that are regarded as a reason for carrying out the :Event.</td>
+</tr>
+</table>
+</div>
+<h3 id="toc-data-property">DataProperties</h3>
+<h4 id="D-adm1_code">adm1_code</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#D-iso_code">iso_code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>ADM1 code</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The geonames ADM1 code.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-cameo_code">cameo_code</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Religion">Religion</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#D-code">code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>CAMEO code</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A code used in the CAMEO ontology.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-citation">citation</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>citation</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A form of provenance, records a reference to a document that provides evidence for the information associated with an entity.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-city">city</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>city</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The name of a city in a country, corresponds to PPL in geonames.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-code">code</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a><br />
+<a href="#C-Religion">Religion</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#D-cameo_code">cameo_code</a><br />
+<a href="#D-iso_code">iso_code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>code</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A short string used as a code for an entity.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-date">date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#date</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A :Time_Span can be specified using a date e.g., 2018-05-31, and the span covers the 24 hours of the day in GMT.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-description">description</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a><br />
+<a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>description</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A long description of an entity, typically multiple lines of text.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-end_after_date">end_after_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>end after date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A lower bound for the right edge of an interval..</td>
+</tr>
+</table>
+</div>
+<h4 id="D-end_before_date">end_before_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>end before date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An upper bound for the right edge of an interval..</td>
+</tr>
+</table>
+</div>
+<h4 id="D-end_date">end_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>end_date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Te precise end date of an interval.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-has_value">has_value</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#decimal</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>value</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a numeric value associated with an entity.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-identifier">identifier</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Entity">Entity</a><br />
+<a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>identifier</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A string that uniquely identifies an entity within a domain of entities.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-iso_code">iso_code</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#D-code">code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Superproperty of</th>
+<td><a href="#D-adm1_code">adm1_code</a><br />
+<a href="#D-iso_country_code">iso_country_code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>ISO code</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A sanctioned ISO code for something.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-iso_country_code">iso_country_code</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Subproperty of</th>
+<td><a href="#D-iso_code">iso_code</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>Country ISO code</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The ISO country code.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-label">label</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Actor">Actor</a><br />
+<a href="#C-Entity">Entity</a><br />
+<a href="#C-Group">Group</a><br />
+<a href="#C-Organization">Organization</a><br />
+<a href="#C-Person">Person</a><br />
+<a href="#C-Place">Place</a><br />
+<a href="#C-Religion">Religion</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>label</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A short label for an entity.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-latitude">latitude</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#decimal</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>latitude</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The latitude coordinate of a :Place.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-longitude">longitude</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#decimal</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>longitude</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The longitude coordinate of a :Place.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-region">region</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>region</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The name of region in the world, not assumed to be in a controlled vocabulary.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-start_after_date">start_after_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>start after date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A lower bound for the left edge of an interval.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-start_before_date">start_before_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>start before date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>An upper bound for the left edge of an interval.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-start_date">start_date</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#dateTime</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>start date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The precise start date of an interval.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-state">state</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Place">Place</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>state</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>The name of a state or province in a country, corresponds to ADM1 in geonames.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-title">title</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Actor">Actor</a><br />
+<a href="#C-Entity">Entity</a><br />
+<a href="#C-Group">Group</a><br />
+<a href="#C-Organization">Organization</a><br />
+<a href="#C-Person">Person</a><br />
+<a href="#C-Place">Place</a><br />
+<a href="#C-Temporal_Entity">Temporal_Entity</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#string</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>title</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A title for an entity, typically one line of text to describe it.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-value_is_at_least">value_is_at_least</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#decimal</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>value is at least</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a lower bound on a value, when the value is not known with certainty or the value is unknown.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-value_is_at_most">value_is_at_most</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Dimension">Dimension</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#decimal</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>value is at most</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>Records a lower bound on a value, when the value is not known with certainty or the value is unknown.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-year">year</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#gYear</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>date</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A :Time_Span can be specified using a year e.g., 2018, and the span covers the 365 days of the year in GMT.</td>
+</tr>
+</table>
+</div>
+<h4 id="D-year_month">year_month</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-Time_Span">Time_Span</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td>http://www.w3.org/2001/XMLSchema#gYearMonth</td>
+</tr>
+<tr>
+<th align="right" valign="top">label</th>
+<td>year_month</td>
+</tr>
+<tr>
+<th align="right" valign="top">definition</th>
+<td>A :Time_Span can be specified using a month and a year e.g., 2018-05, and the span covers all the days of the month in GMT.</td>
+</tr>
+</table>
+</div>
+</body>
+</html>

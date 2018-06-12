@@ -1,8 +1,5 @@
 from typing import List, Set
-import numbers, re
-from datetime import date, datetime
-from etk.field_types import FieldType
-from etk.etk_exceptions import ISODateError
+import os
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace
 from functools import reduce
@@ -329,11 +326,11 @@ class Ontology(object):
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
             for label in g.objects(uri, RDFS.label):
-                entity._label.add(label)
+                entity._label.add(label.toPython())
             for definition in g.objects(uri, SKOS.definition):
-                entity._definition.add(definition)
+                entity._definition.add(definition.toPython())
             for note in g.objects(uri, OWL.note):
-                entity._note.add(note)
+                entity._note.add(note.toPython())
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -370,80 +367,98 @@ class Ontology(object):
 
         """
         content = ''
-        with open('../ontologies/template.html') as f:
-            sorted_classes = sorted(self.classes, key=lambda x:x.name())
-            content = f.read().replace('{{{title}}}', 'OntologyEntities')
-            content = content.replace('{{{class_list}}}', self._html_class_hierachy()) \
-                             .replace('{{{dataproperty_list}}}', self._html_dataproperty_hierachy()) \
-                             .replace('{{{objectproperty_list}}}', self._html_objectproperty_hierachy())
+        sorted_by_name = lambda arr: sorted(arr, key=lambda x: x.name())
+        template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
+        with open(template) as f:
+            sorted_classes = sorted_by_name(self.classes)
+            sorted_properties: List[OntologyProperty] = sorted_by_name(self.all_properties())
+            ### Lists
+            content = f.read().replace('{{{title}}}', 'Ontology Entities')
+            content = content.replace('{{{class_list}}}', self._html_entities_hierachy(self.classes)) \
+                             .replace('{{{dataproperty_list}}}', self._html_entities_hierachy(self.data_properties)) \
+                             .replace('{{{objectproperty_list}}}', self._html_entities_hierachy(self.object_properties))
 
-            item = '<h4 id="{}">{}</h4><div><table>{}</table></div>'
-            row = '<tr><th>{}</th><td>{}</td></tr>'
+            ### Classes
+            item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
+            row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
             classes = []
             for c in sorted_classes:
                 attr = []
-                attr.append(row.format('label', ', '.join(c.label())))
-                attr.append(row.format('definition', ', '.join(c.definition())))
-                attr.append(row.format('note', ''.join(c.note())))
-                classes.append(item.format('C-'+c.name(), c.name(), ''.join(attr)))
+                subclass_of = sorted_by_name(c.super_classes())
+                superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
+                if subclass_of:
+                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self._html_entity_href, subclass_of))))
+                if superclass_of:
+                    attr.append(row.format('Superclass of', '<br />\n'.join(map(self._html_entity_href, superclass_of))))
+                for label in c.label():
+                    attr.append(row.format('label', label))
+                for definition in c.definition():
+                    attr.append(row.format('definition', definition))
+                for note in c.note():
+                    attr.append(row.format('note', note))
+                properties = list(filter(lambda x: c.uri() in x.included_domains(), sorted_properties))
+                if properties:
+                    attr.append(row.format('Properties', '<br />\n'.join(map(self._html_entity_href, properties))))
+                classes.append(item.format('C-'+c.name(), c.name(), '\n'.join(attr)))
 
-            dataproperties = ''
-            objectproperties = ''
-            content = content.replace('{{{classes}}}', ''.join(classes)) \
-                             .replace('{{{dataproperties}}}', dataproperties) \
-                             .replace('{{{objectproperties}}}', objectproperties)
-        with open('../ontologies/output.html', 'w') as f:
-            f.write(content)
+            ### Properties
+            dataproperties = []
+            objectproperties = []
+            for p in sorted_properties:
+                attr = []
+                domains = sorted(p.included_domains())
+                ranges = sorted(p.included_ranges())
+                if domains:
+                    attr.append(row.format('Domain', '<br />\n'.join(map(self._html_entity_href, map(self.get_entity, domains)))))
+                if ranges:
+                    if isinstance(p, OntologyObjectProperty):
+                        attr.append(row.format('Range', '<br />\n'.join(map(self._html_entity_href, map(self.get_entity, ranges)))))
+                    else:
+                        attr.append(row.format('Range', '<br />\n'.join(ranges)))
+                subproperty_of = sorted_by_name(p.super_properties())
+                superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
+                if subproperty_of:
+                    attr.append(row.format('Subproperty of', '<br />\n'.join(map(self._html_entity_href, subproperty_of))))
+                if superproperty_of:
+                    attr.append(row.format('Superproperty of', '<br />\n'.join(map(self._html_entity_href, superproperty_of))))
+                for label in p.label():
+                    attr.append(row.format('label', label))
+                for definition in p.definition():
+                    attr.append(row.format('definition', definition))
+                for note in p.note():
+                    attr.append(row.format('note', note))
+                if isinstance(p, OntologyObjectProperty):
+                    if p.inverse():
+                        attr.insert(0, row.format('Inverse', self._html_entity_href(p.inverse())))
+                    objectproperties.append(item.format('O-'+p.name(), p.name(), '\n'.join(attr)))
+                else:
+                    dataproperties.append(item.format('D-'+p.name(), p.name(), '\n'.join(attr)))
+
+            content = content.replace('{{{classes}}}', '\n'.join(classes)) \
+                             .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
+                             .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
         return content
 
-    def _html_class_hierachy(self):
-        tree = {node: list() for node in self.classes}
-        for child in self.classes:
-            for parent in child.super_classes():
-                tree[parent].append(child)
-        # TODO validate cycle before recursion
-        def hierachy_builder(children):
-            if not children: return ''
-            s = '<ul>'
-            for child in sorted(children, key=lambda x:x.name()):
-                s += '<li><a href="#C-{}">{}</a></li>'.format(child.name(), child.name())
-                s += hierachy_builder(tree[child])
-            s += '</ul>'
-            return s
-        return hierachy_builder(self.roots)
-
-    def _html_dataproperty_hierachy(self):
-        tree = {node: list() for node in self.data_properties}
+    def _html_entities_hierachy(self, entities):
+        tree = {node: list() for node in entities}
         roots = []
-        for child in self.data_properties:
-            if not child.super_properties():
+        for child in entities:
+            parents = child.super_properties() if isinstance(child, OntologyProperty) else child.super_classes()
+            if not parents:
                 roots.append(child)
-            for parent in child.super_properties():
+            for parent in parents:
                 tree[parent].append(child)
         def hierachy_builder(children):
             if not children: return ''
             s = '<ul>'
             for child in sorted(children, key=lambda x:x.name()):
-                s += '<li><a href="#D-{}">{}</a></li>'.format(child.name(), child.name())
+                s += '<li>{}</li>'.format(self._html_entity_href(child))
                 s += hierachy_builder(tree[child])
             s += '</ul>'
             return s
         return hierachy_builder(roots)
 
-    def _html_objectproperty_hierachy(self):
-        tree = {node: list() for node in self.object_properties}
-        roots = []
-        for child in self.object_properties:
-            if not child.super_properties():
-                roots.append(child)
-            for parent in child.super_properties():
-                tree[parent].append(child)
-        def hierachy_builder(children):
-            if not children: return ''
-            s = '<ul>'
-            for child in sorted(children, key=lambda x:x.name()):
-                s += '<li><a href="#O-{}">{}</a></li>'.format(child.name(), child.name())
-                s += hierachy_builder(tree[child])
-            s += '</ul>'
-            return s
-        return hierachy_builder(roots)
+    def _html_entity_href(self, e):
+        template = '<a href="#{}-{}">{}</a>'
+        kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
+        return template.format(kind[type(e)], e.name(), e.name())
