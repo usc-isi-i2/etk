@@ -1,5 +1,4 @@
 from typing import List, Set
-import os
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace
 from functools import reduce
@@ -296,8 +295,10 @@ class Ontology(object):
                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
                                            UNION { ?uri owl:subClassOf ?sub }}""",
                                 initBindings={'uri': URIRef(entity.uri())}):
-                sub = sub.toPython()
-                entity._super_classes.add(self.entities[sub])
+                sub_entity = self.entities[sub.toPython()]
+                if entity in sub_entity.super_classes_closure():
+                    raise Exception("Cycle detected")
+                entity._super_classes.add(sub_entity)
             if not entity._super_classes:
                 self.roots.add(entity)
 
@@ -311,6 +312,7 @@ class Ontology(object):
                     p._super_properties.add(self.entities[sub])
                 except KeyError:
                     logging.warning("Missing a super property of :{} with uri {}.".format(p.name(), sub))
+
             for d, in g.query("""SELECT ?domain
                                  WHERE {{ ?uri rdfs:domain ?domain }
                                         UNION { ?uri schema:domainIncludes ?domain }
@@ -366,6 +368,7 @@ class Ontology(object):
         Returns:
 
         """
+        import os
         content = ''
         sorted_by_name = lambda arr: sorted(arr, key=lambda x: x.name())
         template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'

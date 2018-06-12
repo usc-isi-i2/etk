@@ -82,7 +82,6 @@ class TestOntologyAPI(unittest.TestCase):
     def test_inverse_object_property(self):
         rdf_content = rdf_prefix + '''
 :moved_to a owl:ObjectProperty ;
-    rdfs:label "moved to" ;
     :inverse :was_destination_of .
         '''
         ontology = Ontology(rdf_content)
@@ -98,15 +97,58 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_class_hierachy(self):
         rdf_content = rdf_prefix + '''
+:Entity a owl:Class ; .
+:Group a owl:Class ;
+    rdfs:subClassOf :Entity ; .
+:Actor a owl:Class ;
+    owl:subClassOf :Group ; .
         '''
-        # TODO
+        ontology = Ontology(rdf_content)
+        self.assertEqual(len(ontology.all_classes()), 3)
+        entity = ontology.get_entity(DIG.Entity.toPython())
+        self.assertIsNotNone(entity)
+        self.assertSetEqual(ontology.root_classes(), {entity})
+        group = ontology.get_entity(DIG.Group.toPython())
+        self.assertIsNotNone(group)
+        actor = ontology.get_entity(DIG.Actor.toPython())
+        self.assertIsNotNone(actor)
+        self.assertSetEqual(group.super_classes(), {entity})
+        self.assertSetEqual(actor.super_classes(), {group})
+        self.assertSetEqual(actor.super_classes_closure(), {entity, group})
 
     def test_property_hierachy(self):
         rdf_content = rdf_prefix + '''
+:code a owl:DatatypeProperty ; .
+:iso_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf :code ; .
+:cameo_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf :code ; .
+:iso_country_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf :iso_code ; .
+:adm1_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf :iso_code ; .
         '''
-        # TODO
+        ontology = Ontology(rdf_content)
+        self.assertEqual(len(ontology.all_classes()), 0)
+        self.assertEqual(len(ontology.all_properties()), 5)
+        code = ontology.get_entity(DIG.code.toPython())
+        self.assertIsNotNone(code)
+        self.assertIsInstance(code, OntologyDatatypeProperty)
+        iso_code = ontology.get_entity(DIG.iso_code.toPython())
+        self.assertIsNotNone(iso_code)
+        iso_country_code = ontology.get_entity(DIG.iso_country_code.toPython())
+        self.assertIsNotNone(iso_country_code)
+        self.assertSetEqual(iso_code.super_properties(), {code})
+        self.assertSetEqual(iso_country_code.super_properties_closure(), {code, iso_code})
 
     def test_cycle_detection(self):
         rdf_content = rdf_prefix + '''
+:Entity a owl:Class ;
+    rdfs:subClassOf :Actor ; .
+:Group a owl:Class ;
+    rdfs:subClassOf :Entity ; .
+:Actor a owl:Class ;
+    owl:subClassOf :Group ; .
         '''
-        # TODO
+        with self.assertRaises(Exception) as cm:
+            ontology = Ontology(rdf_content)
