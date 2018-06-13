@@ -295,35 +295,69 @@ class Ontology(object):
                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
                                            UNION { ?uri owl:subClassOf ?sub }}""",
                                 initBindings={'uri': URIRef(entity.uri())}):
-                sub_entity = self.entities[sub.toPython()]
-                if entity in sub_entity.super_classes_closure():
-                    raise Exception("Cycle detected")
-                entity._super_classes.add(sub_entity)
+                try:
+                    sub_entity = self.entities[sub.toPython()]
+                    # Validation 3: Cycle detection
+                    if entity in sub_entity.super_classes_closure():
+                        raise AssertionError("ValidationError(3): Cycle detected")
+                    entity._super_classes.add(sub_entity)
+                except KeyError:
+                    logging.warning("Missing a super class of :%s with uri %s.", entity.name(), sub)
             if not entity._super_classes:
                 self.roots.add(entity)
+
 
         for p in self.object_properties | self.data_properties:
             for sub, in g.query("""SELECT ?sub
                                    WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
                                            UNION { ?uri owl:subPropertyOf ?sub }}""",
                                 initBindings={'uri': URIRef(p.uri())}):
-                sub = sub.toPython()
                 try:
-                    p._super_properties.add(self.entities[sub])
+                    sub_property = self.entities[sub.toPython()]
+                    # Validation 3: Cycle detection
+                    if p in sub_property.super_properties_closure():
+                        raise AssertionError("ValidationError(3): Cycle detected")
+                    # Validation 2: Class consistency
+                    if isinstance(p, OntologyDatatypeProperty) != isinstance(sub_property, OntologyDatatypeProperty):
+                        raise AssertionError("ValidationError(2): Sub-property {} should share the same class with {}".format(sub_property.name(), p.name()))
+                    p._super_properties.add(sub_property)
                 except KeyError:
-                    logging.warning("Missing a super property of :{} with uri {}.".format(p.name(), sub))
+                    logging.warning("Missing a super property of :%s with uri %s.", p.name(), sub)
 
             for d, in g.query("""SELECT ?domain
                                  WHERE {{ ?uri rdfs:domain ?domain }
                                         UNION { ?uri schema:domainIncludes ?domain }
                                         UNION { ?domain :common_properties ?uri}}""",
                              initBindings={'uri': URIRef(p.uri())}):
-                p.domains.add(d.toPython())
+                try:
+                    domain = self.entities[d.toPython()]
+                    p.domains.add(domain)
+                except KeyError:
+                    logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
             for r, in g.query("""SELECT ?range
                                  WHERE {{ ?uri rdfs:range ?range }
                                         UNION { ?uri schema:rangeIncludes ?range }}""",
                              initBindings={'uri': URIRef(p.uri())}):
-                p.ranges.add(r.toPython())
+                if isinstance(p, OntologyDatatypeProperty):
+                    p.ranges.add(r.toPython())
+                else:
+                    try:
+                        p.ranges.add(self.entities[r.toPython()])
+                    except KeyError:
+                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
+
+        # After all hierarchies are built, perform the last validation
+        # Validation 1: Inherited domain & range consistency
+        for p in self.object_properties | self.data_properties:
+            for x in p.included_domains():
+                for q in p.super_properties():
+                    if x not in q.included_domains() and not any(d in x.super_classes() for d in q.included_domains()):
+                        raise AssertionError("ValidationError(1): Domain {} of property {} isn't a subclass of any domain of superproperty {}".format(x.name(), p.name(), q.name()))
+            if isinstance(p, OntologyObjectProperty):
+                for y in p.included_ranges():
+                    for q in p.super_properties():
+                        if not any(r in y.super_classes() for r in q.included_ranges()):
+                            raise AssertionError("ValidationError(1): Range {} of property {} isn't a subclass of any range of superproperty {}".format(y.name(), p.name(), q.name()))
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
@@ -333,6 +367,7 @@ class Ontology(object):
                 entity._definition.add(definition.toPython())
             for note in g.objects(uri, OWL.note):
                 entity._note.add(note.toPython())
+
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -374,12 +409,12 @@ class Ontology(object):
         template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
         with open(template) as f:
             sorted_classes = sorted_by_name(self.classes)
-            sorted_properties: List[OntologyProperty] = sorted_by_name(self.all_properties())
+            sorted_properties = sorted_by_name(self.all_properties())
             ### Lists
             content = f.read().replace('{{{title}}}', 'Ontology Entities')
-            content = content.replace('{{{class_list}}}', self._html_entities_hierachy(self.classes)) \
-                             .replace('{{{dataproperty_list}}}', self._html_entities_hierachy(self.data_properties)) \
-                             .replace('{{{objectproperty_list}}}', self._html_entities_hierachy(self.object_properties))
+            content = content.replace('{{{class_list}}}', self._html_entities_hierarchy(self.classes)) \
+                             .replace('{{{dataproperty_list}}}', self._html_entities_hierarchy(self.data_properties)) \
+                             .replace('{{{objectproperty_list}}}', self._html_entities_hierarchy(self.object_properties))
 
             ### Classes
             item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
@@ -409,10 +444,10 @@ class Ontology(object):
             objectproperties = []
             for p in sorted_properties:
                 attr = []
-                domains = sorted(p.included_domains())
+                domains = sorted_by_name(p.included_domains())
                 ranges = sorted(p.included_ranges())
                 if domains:
-                    attr.append(row.format('Domain', '<br />\n'.join(map(self._html_entity_href, map(self.get_entity, domains)))))
+                    attr.append(row.format('Domain', '<br />\n'.join(map(self._html_entity_href,  domains))))
                 if ranges:
                     if isinstance(p, OntologyObjectProperty):
                         attr.append(row.format('Range', '<br />\n'.join(map(self._html_entity_href, map(self.get_entity, ranges)))))
@@ -442,7 +477,7 @@ class Ontology(object):
                              .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
         return content
 
-    def _html_entities_hierachy(self, entities):
+    def _html_entities_hierarchy(self, entities):
         tree = {node: list() for node in entities}
         roots = []
         for child in entities:
@@ -451,15 +486,15 @@ class Ontology(object):
                 roots.append(child)
             for parent in parents:
                 tree[parent].append(child)
-        def hierachy_builder(children):
+        def hierarchy_builder(children):
             if not children: return ''
             s = '<ul>'
             for child in sorted(children, key=lambda x:x.name()):
                 s += '<li>{}</li>'.format(self._html_entity_href(child))
-                s += hierachy_builder(tree[child])
+                s += hierarchy_builder(tree[child])
             s += '</ul>'
             return s
-        return hierachy_builder(roots)
+        return hierarchy_builder(roots)
 
     def _html_entity_href(self, e):
         template = '<a href="#{}-{}">{}</a>'

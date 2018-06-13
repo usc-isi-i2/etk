@@ -59,7 +59,7 @@ class TestOntologyAPI(unittest.TestCase):
         self.assertIsInstance(property_code, OntologyDatatypeProperty)
         self.assertEqual(len(property_code.included_domains()), 3)
         self.assertSetEqual(property_code.included_domains(),
-                            set(map(str, (DIG.Entity, DIG.Type, DIG.Other))))
+                            set(map(ontology.get_entity, map(str, (DIG.Entity, DIG.Type, DIG.Other)))))
 
     def test_datatype_property_range(self):
         rdf_content = rdf_prefix + '''
@@ -118,15 +118,41 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_property_hierachy(self):
         rdf_content = rdf_prefix + '''
-:code a owl:DatatypeProperty ; .
+:code a owl:DatatypeProperty ;
+    rdfs:label "code" ;
+    skos:definition """A short string used as a code for an entity.""" ;
+    skos:note """Examples are country codes, currency codes.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
 :iso_code a owl:DatatypeProperty ;
-    rdfs:subPropertyOf :code ; .
+    rdfs:label "ISO code" ;
+    skos:definition """A sanctioned ISO code for something.""" ;
+    rdfs:subPropertyOf :code ;
+    .
+
 :cameo_code a owl:DatatypeProperty ;
-    rdfs:subPropertyOf :code ; .
+    rdfs:label "CAMEO code" ;
+    skos:definition """A code used in the CAMEO ontology.""" ;
+    skos:note """See https://www.gdeltproject.org/data.html#documentation""" ;
+    rdfs:subPropertyOf :code ;
+    .
+
 :iso_country_code a owl:DatatypeProperty ;
-    rdfs:subPropertyOf :iso_code ; .
+    rdfs:label "Country ISO code" ;
+    skos:definition """The ISO country code.""" ;
+    rdfs:subPropertyOf :iso_code ;
+    schema:domainIncludes :Place ;
+    .
+
+
 :adm1_code a owl:DatatypeProperty ;
-    rdfs:subPropertyOf :iso_code ; .
+    rdfs:label "ADM1 code" ;
+    skos:definition """The geonames ADM1 code.""" ;
+    skos:note """See http://www.geonames.org/export/codes.html.""" ;
+    rdfs:subPropertyOf :iso_code ;
+    .
         '''
         ontology = Ontology(rdf_content)
         self.assertEqual(len(ontology.all_classes()), 0)
@@ -141,14 +167,119 @@ class TestOntologyAPI(unittest.TestCase):
         self.assertSetEqual(iso_code.super_properties(), {code})
         self.assertSetEqual(iso_country_code.super_properties_closure(), {code, iso_code})
 
-    def test_cycle_detection(self):
+    def test_class_cycle_detection(self):
         rdf_content = rdf_prefix + '''
 :Entity a owl:Class ;
-    rdfs:subClassOf :Actor ; .
+    rdfs:label "Entity" ;
+    skos:definition """Everything that can be described, similar to owl:Thing.""" ;
+    owl:subClassOf :Actor ;
+    :common_properties :label, :title, :description ;
+    :crm_equivalent crm:E1_CRM_Entity
+    .
+
 :Group a owl:Class ;
-    rdfs:subClassOf :Entity ; .
+    rdfs:label "Group" ;
+    skos:definition """A """ ;
+    rdfs:subClassOf :Entity ;
+    :crm_equivalent crm:E74_Group ;
+    :common_properties :label, :title ;
+    .
+
 :Actor a owl:Class ;
-    owl:subClassOf :Group ; .
+    rdfs:label "Actor" ;
+    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
+    rdfs:subClassOf :Group ;
+    :crm_equivalent crm:E39_Actor ;
+    :common_properties :label, :title, :religion ;
+    .
         '''
-        with self.assertRaises(Exception) as cm:
-            ontology = Ontology(rdf_content)
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
+
+    def test_property_cycle_detection(self):
+        rdf_content = rdf_prefix + '''
+:code a owl:DatatypeProperty ;
+    rdfs:label "code" ;
+    skos:definition """A short string used as a code for an entity.""" ;
+    skos:note """Examples are country codes, currency codes.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    rdfs:subPropertyOf :iso_code ;
+    .
+
+:iso_code a owl:DatatypeProperty ;
+    rdfs:label "ISO code" ;
+    skos:definition """A sanctioned ISO code for something.""" ;
+    rdfs:subPropertyOf :code ;
+    .
+        '''
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
+
+    def test_property_class_consistency(self):
+        rdf_content = rdf_prefix + '''
+:code a owl:DatatypeProperty ;
+    rdfs:label "code" ;
+    skos:definition """A short string used as a code for an entity.""" ;
+    skos:note """Examples are country codes, currency codes.""" ;
+    schema:domainIncludes :Entity ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+:country a owl:ObjectProperty ;
+    rdfs:label "country" ;
+    skos:definition """The name of a country.""" ;
+    rdfs:subPropertyOf :code ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes :Country ;
+    .
+        '''
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
+
+    def test_property_domain_inherit_consistency(self):
+        rdf_content = rdf_prefix + '''
+:Event a owl:Class ; .
+:had_participant a owl:ObjectProperty ;
+    schema:domainIncludes :Event ;
+    .
+:transferred_ownership_to a owl:ObjectProperty ;
+    schema:domainIncludes :Event ;
+    owl:subPropertyOf :carried_out_by ;
+    .
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ;
+    .
+        '''
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
+    def test_property_range_inherit_consistency(self):
+        rdf_content = rdf_prefix + '''
+:Event a owl:Class ; .
+:Entity a owl:Class ;
+    .
+:Group a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    .
+:Actor a owl:Class ;
+    rdfs:subClassOf :Group ;
+    .
+:Physical_Object a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    .
+:Man_Made_Thing a owl:Class ;
+    rdfs:subClassOf :Entity ;
+    .
+:had_participant a owl:ObjectProperty ;
+	schema:domainIncludes :Event ;
+    schema:rangeIncludes :Actor ;
+    owl:subPropertyOf :occurred_in_the_presence_of ;
+    .
+:transferred_custody_of a owl:ObjectProperty ;
+    schema:domainIncludes :Event ;
+    schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
+    owl:subPropertyOf :had_participant ;
+    .
+        '''
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
