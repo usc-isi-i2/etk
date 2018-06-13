@@ -14,8 +14,8 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
         confidence = 0.5
 
         extractor = DBpediaSpotlightExtractor(extractor_name='dbPedia_extractor',
-                                              url='http://model.dbpedia-spotlight.org/en/annotate')
-        results = extractor.extract(text, confidence, filters)
+                                              search_url='http://model.dbpedia-spotlight.org/en/annotate')
+        results = extractor.extract(text, confidence=confidence, filter=filters)
 
         if results == []:
             self.assertEqual(results, [])
@@ -32,8 +32,6 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                 extracted.append(extracted_value)
 
             extracted_json = json.dumps(extracted)
-            # extracted_json = json.loads(extracted_json)
-            # print(extracted_json)
             expected = [{"value": {"surfaceForm": "FBI",
                                    "URI": "http://dbpedia.org/resource/Federal_Bureau_of_Investigation",
                                    "types": ["Wikidata:Q43229",
@@ -45,7 +43,7 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                                              "DBpedia:Organisation",
                                              "DBpedia:GovernmentAgency",
                                              "DBpedia:Agent"],
-                                   "similarityScore": 0.9999999999998863},
+                                   "similarityScores": 0.9999999999998863},
                          "confidence": 0.5,
                          "start_char": 49,
                          "end_char": 52},
@@ -65,7 +63,7 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                                              "DBpedia:Politician",
                                              "DBpedia:Person",
                                              "DBpedia:Agent"],
-                                   "similarityScore": 0.9999999999648139},
+                                   "similarityScores": 0.9999999999648139},
                          "confidence": 0.5,
                          "start_char": 180,
                          "end_char": 198},
@@ -87,7 +85,7 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                                              "DBpedia:Agent",
                                              "DBpedia:AdultActor",
                                              "DBpedia:Actor"],
-                                   "similarityScore": 1.0},
+                                   "similarityScores": 1.0},
                          "confidence": 0.5,
                          "start_char": 251,
                          "end_char": 265},
@@ -103,7 +101,7 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                                              "Schema:Person",
                                              "DBpedia:Person",
                                              "DBpedia:Agent"],
-                                   "similarityScore": 0.9888612234881796},
+                                   "similarityScores": 0.9888612234881796},
                          "confidence": 0.5,
                          "start_char": 269,
                          "end_char": 274}]
