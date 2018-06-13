@@ -1,0 +1,9 @@
+*.out
+*.err
+.idea
+.DS_Store
+*.test
+*.log
+examples/*
+notebooks/*
+etk/unit_tests/*
