@@ -30,8 +30,6 @@ class TestDBPediaSpotlightExtractor(unittest.TestCase):
                     'end_char': i.provenance['end_char'],
                 }
                 extracted.append(extracted_value)
-
-            extracted_json = json.dumps(extracted)
             expected = [{"value": {"surfaceForm": "FBI",
                                    "URI": "http://dbpedia.org/resource/Federal_Bureau_of_Investigation",
                                    "types": ["Wikidata:Q43229",
