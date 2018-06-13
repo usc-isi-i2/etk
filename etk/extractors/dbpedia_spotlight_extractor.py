@@ -5,7 +5,6 @@ import requests
 
 
 class DBpediaSpotlightExtractor(Extractor):
-    search_url = ''
 
     def __init__(self, extractor_name: str, search_url: str):
         Extractor.__init__(self, input_type=InputType.TEXT,
@@ -13,7 +12,7 @@ class DBpediaSpotlightExtractor(Extractor):
                            name=extractor_name)
         self.search_url = search_url
 
-    def extract(self, text: str, confidence=0.5, filter=['Person']) -> List[Extraction]:
+    def extract(self, text: str, confidence=0.5, filter=['Person', 'Place', 'Organisation']) -> List[Extraction]:
         """
             Extract with the input text
             Args:
@@ -45,9 +44,9 @@ class DBpediaSpotlightExtractor(Extractor):
                                                 extractor_name=self.name,
                                                 start_char=int(one_result['@offset']),
                                                 end_char=int(one_result['@offset']) + len(one_result['@surfaceForm']),
-                                                value={'surfaceForm': one_result['@surfaceForm'],
-                                                       'URI': one_result['@URI'],
+                                                value={'surface_form': one_result['@surfaceForm'],
+                                                       'uri': one_result['@URI'],
                                                        'types': types,
-                                                       'similarityScores': float(one_result['@similarityScore'])}))
+                                                       'similarity_scores': float(one_result['@similarityScore'])}))
             return return_result
         return []
