@@ -21,15 +21,18 @@ class DBpediaSpotlightExtractor(Extractor):
             Returns: List[Extraction]
         """
 
-        self.filter = ','.join(filter)
+        filter = ','.join(filter)
         search_data = [('confidence', confidence),
                        ('text', text),
-                       ('types', self.filter)]
+                       ('types', filter)]
         search_headers = {'Accept': 'application/json'}
-
-        r = requests.post(self.search_url,
-                          data=search_data,
-                          headers=search_headers)
+        try:
+            r = requests.post(self.search_url,
+                              data=search_data,
+                              headers=search_headers)
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            print(e)
+            r = list()
         results = r.json()
         last_results = self.combiner(results)
         return last_results
@@ -43,7 +46,8 @@ class DBpediaSpotlightExtractor(Extractor):
                 return_result.append(Extraction(confidence=float(results['@confidence']),
                                                 extractor_name=self.name,
                                                 start_char=int(one_result['@offset']),
-                                                end_char=int(one_result['@offset']) + len(one_result['@surfaceForm']),
+                                                end_char=int(one_result['@offset']) + len(
+                                                    one_result['@surfaceForm']),
                                                 value={'surface_form': one_result['@surfaceForm'],
                                                        'uri': one_result['@URI'],
                                                        'types': types,
