@@ -2,8 +2,12 @@ from typing import List
 from etk.extraction import Extraction
 from etk.extractor import Extractor, InputType
 
+from enum import Enum, auto
+from langid import classify
+from langdetect import detect
 
-class LangaugeIdentificationExtractor(Extractor):
+
+class LanguageIdentificationExtractor(Extractor):
     """
     Identify the language used in text, returning the identifier language using ISO 639-1 codes
 
@@ -33,4 +37,25 @@ class LangaugeIdentificationExtractor(Extractor):
         Returns the empty list of the extractor fails to identify the language in the text.
 
         """
-        pass
+        if method == IdentificationTool.LANGID.name:
+            language = classify(text)[0]
+            return [Extraction(value=language, extractor_name=self.name)]
+
+        elif method == IdentificationTool.LANGDETECT.name:
+            try:
+                language = detect(text)
+            except:
+                language = 'unknown'
+
+            if language == 'unknown':
+                return list()
+            else:
+                return [Extraction(value=language, extractor_name=self.name)]
+
+        else:
+            return list()
+
+
+class IdentificationTool(Enum):
+    LANGID = auto()
+    LANGDETECT = auto()
