@@ -40,9 +40,18 @@ class LanguageIdentificationExtractor(Extractor):
         if method == IdentificationTool.LANGID.name:
             language = classify(text)[0]
             return [Extraction(value=language, extractor_name=self.name)]
+
         elif method == IdentificationTool.LANGDETECT.name:
-            language = detect(text)
-            return [Extraction(value=language, extractor_name=self.name)]
+            try:
+                language = detect(text)
+            except:
+                language = 'unknown'
+
+            if language == 'unknown':
+                return list()
+            else:
+                return [Extraction(value=language, extractor_name=self.name)]
+
         else:
             return list()
 
