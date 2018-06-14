@@ -54,6 +54,7 @@ class SpreadsheetAnnotation(object):
 
         time_coords = {}
         time_coords['locs'] = self.locparser.parse_range(tsr_json['times']['locs'])
+        time_coords['granularity'] = tsr_json['times']['granularity']
         if 'mode' in tsr_json['times']:
             time_coords['mode'] = tsr_json['times']['mode']
         else:
