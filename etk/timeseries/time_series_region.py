@@ -116,7 +116,39 @@ class TimeSeriesRegion(object):
         if self.time_coordinates['post_process']:
             func = eval('lambda v: ' + self.time_coordinates['post_process'])
             time_label = func(time_label)
-        return {'instant':time_label}
+        return self.process_time_span(time_label, self.time_coordinates['granularity'])
+
+    def process_time_span(self, time_instant, granularity):
+        # TODO: other granularities added (weekly :-?)
+        granularities = {'yearly', 'monthly', 'quarterly'}
+        if granularity not in granularities:
+            return {'instant':time_instant}
+
+        # TODO: other parsing date patterns to be added
+        time_span = {'start_time':self.fill_date_pattern(time_instant)}
+        date_parts = time_instant.split('-')
+        if granularity == 'yearly':
+            time_span['end_time'] = str(int(date_parts[0]))
+            time_span['end_time'] += '-' + date_parts[1] if len(date_parts) > 1 else '-12'
+            time_span['end_time'] += '-' + date_parts[2] if len(date_parts) > 2 else '-30'
+        else:
+            month_offset = 3
+            if granularity == 'monthly': # the final choice of time span will be based on the given day
+                month_offset = 1
+            if int(date_parts[1]) + month_offset == 13:
+                time_span['end_time'] = str(int(date_parts[0])+1)+'-'+str((int(date_parts[1])+month_offset)%12+1)
+            else:
+                time_span['end_time'] = date_parts[0]+'-'+str(int(date_parts[1])+month_offset)
+            time_span['end_time'] += '-'+date_parts[2] if len(date_parts)>2 else '-01'
+        return time_span
+
+    def fill_date_pattern(self, time_instant):
+        date_parts = time_instant.split('-')
+        time_ins = str(date_parts[0])
+        time_ins += '-' + date_parts[1] if len(date_parts) > 1 else '-01'
+        time_ins += '-' + date_parts[2] if len(date_parts) > 2 else '-01'
+        return time_ins
+
 
     def parse_ts(self, data, metadata):
         self.time_series = []
