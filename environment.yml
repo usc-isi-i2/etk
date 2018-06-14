@@ -34,6 +34,7 @@ dependencies:
     - isodate==0.6.0
     - landmark-extractor==0.1.8.0
     - langdetect==1.0.7
+    - langid==1.1.6
     - lxml==4.1.1
     - msgpack-numpy==0.4.1
     - msgpack-python==0.5.4

@@ -446,15 +446,19 @@ class SpacyRuleExtractor(Extractor):
                         if not matches_1:
                             relation[e_id] = None
                         else:
-                            matches_2 = [x for x in tmp_matches if x[0] == 1]
                             _, s1, e1 = matches_1[0]
-                            _, s2, e2 = matches_2[0]
-                            if e1 <= s2:
+                            matches_2 = [x for x in tmp_matches if x[0] == 1]
+                            if not matches_2:
                                 relation[e_id] = (span_pivot, span_pivot + e1)
                                 span_pivot += e1
                             else:
-                                relation[e_id] = (span_pivot, span_pivot + s2)
-                                span_pivot += s2
+                                _, s2, e2 = matches_2[0]
+                                if e1 <= s2:
+                                    relation[e_id] = (span_pivot, span_pivot + e1)
+                                    span_pivot += e1
+                                else:
+                                    relation[e_id] = (span_pivot, span_pivot + s2)
+                                    span_pivot += s2
                 else:
                     relation[e_id] = (span_pivot, len(span_doc))
 
@@ -557,6 +561,8 @@ class Pattern(object):
                 result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         result = self.add_common_constrain(result, d)
+        if d["part_of_speech"]:
+            result = self.add_pos_constrain(result, d["part_of_speech"])
 
         return result
 
