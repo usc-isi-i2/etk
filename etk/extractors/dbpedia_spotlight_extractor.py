@@ -35,7 +35,7 @@ class DBpediaSpotlightExtractor(Extractor):
         return last_results
 
     def combiner(self, results: dict) -> List[Extraction]:
-        return_result = []
+        return_result = list()
         if "Resources" in results:
             resources_results = results["Resources"]
             for one_result in resources_results:
@@ -50,4 +50,4 @@ class DBpediaSpotlightExtractor(Extractor):
                                                        'types': types,
                                                        'similarity_scores': float(one_result['@similarityScore'])}))
             return return_result
-        return []
+        return list()
