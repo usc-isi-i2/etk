@@ -1,8 +1,10 @@
 import unittest
-from rdflib.namespace import XSD
+from rdflib.namespace import XSD, Namespace
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
-from etk.ontology_api import DIG
+
+DIG = Namespace('http://ontology.causeex.com/ontology/odps/Event#')
+SCHEMA = Namespace('http://schema.org/')
 
 rdf_prefix = '''@prefix : <http://isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .

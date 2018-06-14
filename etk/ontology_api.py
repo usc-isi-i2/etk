@@ -1,11 +1,8 @@
-from typing import List, Set
-from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace
-from functools import reduce
 import logging
-
-DIG = Namespace('http://isi.edu/ontologies/dig/')
-SCHEMA = Namespace('http://schema.org/')
+from typing import Set, Union
+from functools import reduce
+from rdflib import Graph, URIRef
+from rdflib.namespace import RDF, RDFS, OWL, SKOS
 
 class OntologyEntity(object):
     """
@@ -114,7 +111,7 @@ class OntologyProperty(OntologyEntity):
         """
         return self._super_properties
 
-    def super_properties_closure(self) -> Set['OntologyProperty']:
+    def super_properties_closure(self) -> Union[Set['OntologyProperty'], Set[str]]:
         """
 
         Returns:  the transitive closure of the super_properties function
@@ -134,7 +131,6 @@ class OntologyProperty(OntologyEntity):
         A validation function prints a warning when loading the ontology.
 
         Returns: the set of all domains defined for a property.
-
         """
         return self.domains
 
@@ -245,8 +241,10 @@ class Ontology(object):
 
         Should do ontology validation:
         - if p.sub_property_of(q) then
-          - for every x in included_domains(p) we have x is subclass of some d in included_domains(q)
-          - for every y in included_ranges(p) we have y is subclass of some r in included_ranges(q) -- for object properties
+          - for every x in included_domains(p) we have x is subclass of some d in
+        included_domains(q)
+          - for every y in included_ranges(p) we have y is subclass of some r in
+        included_ranges(q) -- for object properties
         - DataType properties cannot be sub-property of Object properties, and vice versa.
         - Detect cycles in sub-class and sub-property hierarchies.
 
@@ -306,7 +304,6 @@ class Ontology(object):
             if not entity._super_classes:
                 self.roots.add(entity)
 
-
         for p in self.object_properties | self.data_properties:
             for sub, in g.query("""SELECT ?sub
                                    WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
@@ -318,8 +315,11 @@ class Ontology(object):
                     if p in sub_property.super_properties_closure():
                         raise AssertionError("ValidationError(3): Cycle detected")
                     # Validation 2: Class consistency
-                    if isinstance(p, OntologyDatatypeProperty) != isinstance(sub_property, OntologyDatatypeProperty):
-                        raise AssertionError("ValidationError(2): Sub-property {} should share the same class with {}".format(sub_property.name(), p.name()))
+                    if isinstance(p, OntologyDatatypeProperty) != \
+                       isinstance(sub_property, OntologyDatatypeProperty):
+                        raise AssertionError("ValidationError(2): Sub-property {} should share the "
+                                             "same class with {}".format(sub_property.name(),
+                                                                         p.name()))
                     p._super_properties.add(sub_property)
                 except KeyError:
                     logging.warning("Missing a super property of :%s with uri %s.", p.name(), sub)
