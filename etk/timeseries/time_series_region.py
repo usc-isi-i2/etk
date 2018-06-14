@@ -118,6 +118,7 @@ class TimeSeriesRegion(object):
             time_label = func(time_label)
         return self.process_time_span(time_label, self.time_coordinates['granularity'])
 
+
     def process_time_span(self, time_instant, granularity):
         # TODO: other granularities added (weekly :-?)
         granularities = {'yearly', 'monthly', 'quarterly'}
@@ -135,16 +136,17 @@ class TimeSeriesRegion(object):
             month_offset = 3
             if granularity == 'monthly': # the final choice of time span will be based on the given day
                 month_offset = 1
-            month_str = str(int(date_parts[1]) + month_offset)
+
+            month_str = str(int(date_parts[1])+month_offset)
             year_offset = 0
             if int(date_parts[1]) + month_offset >= 13:
                 month_str = str((int(date_parts[1])+month_offset)%12+1)
                 year_offset += 1
-            res = str(int(date_parts[0])+year_offset)+'-'
+                time_span['end_time'] = str(int(date_parts[0])+1)+'-'+str((int(date_parts[1])+month_offset)%12+1)
+
             if len(month_str) < 2:
-                res += '0' 
-            res += month_str 
-            time_span['end_time'] = res + month_str
+                month_str = '0' + month_str
+            time_span['end_time'] = date_parts[0]+'-'+month_str
             time_span['end_time'] += '-'+date_parts[2] if len(date_parts)>2 else '-01'
         return {'span':time_span}
 
