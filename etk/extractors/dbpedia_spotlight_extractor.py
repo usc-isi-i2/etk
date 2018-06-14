@@ -14,11 +14,11 @@ class DBpediaSpotlightExtractor(Extractor):
 
     def extract(self, text: str, confidence=0.5, filter=['Person', 'Place', 'Organisation']) -> List[Extraction]:
         """
-            Extract with the input text
+            Extract with the input text, confidence and fields filter to be used.
             Args:
-                text: str
-                confidence: float
-                filter: list
+                text: str, text input to be annotated
+                confidence: float, the confidence of the annotation
+                filter: list, the fields that to be extracted
             Returns: List[Extraction]
         """
 
