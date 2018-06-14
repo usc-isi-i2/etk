@@ -31,6 +31,7 @@ RETURN_AS_TIMEZONE_AWARE = 'return_as_timezone_aware'
 PREFER_DAY_OF_MONTH = 'prefer_day_of_month'
 PREFER_DATES_FROM = 'prefer_dates_from'
 DATE_VALUE_RESOLUTION = 'date_value_resolution'
+MIN_RESOLUTION = 'min_resolution'
 
 
 class DateResolution(Enum):
@@ -43,6 +44,52 @@ class DateResolution(Enum):
     DAY = auto()
     MONTH = auto()
     YEAR = auto()
+    ORIGINAL = auto() # keep original resolution
+
+
+class DateResolutionHelper():
+
+    _sorted_resolution = [DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR,
+                          DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR]
+    _pattern_resolution_map = {
+        '%a': DateResolution.DAY,
+        '%A': DateResolution.DAY,
+        '%w': DateResolution.DAY,
+        '%d': DateResolution.DAY,
+        '%b': DateResolution.MONTH,
+        '%B': DateResolution.MONTH,
+        '%m': DateResolution.MONTH,
+        '%y': DateResolution.YEAR,
+        '%Y': DateResolution.YEAR,
+        '%H': DateResolution.HOUR,
+        '%I': DateResolution.HOUR,
+        '%p': None, # am / pm
+        '%M': DateResolution.MINUTE,
+        '%S': DateResolution.SECOND,
+        '%f': DateResolution.SECOND,
+        '%z': None, # UTC offset
+        '%Z': None, # timezone name
+        '%j': DateResolution.DAY,
+        '%U': DateResolution.DAY, # week
+        '%W': DateResolution.DAY, # week
+        '%c': None, # locale representation
+        '%x': None,
+        '%X': None,
+        '%%': None,
+        '%G': DateResolution.YEAR,
+        '%u': DateResolution.DAY,
+        '%V': DateResolution.DAY
+    }
+
+    @staticmethod
+    def min_resolution(pattern: list):
+        min_index = len(DateResolutionHelper._sorted_resolution)
+        for p in pattern:
+            p = DateResolutionHelper._pattern_resolution_map.get(p, None)
+            if not p:
+                continue
+            min_index = min(DateResolutionHelper._sorted_resolution.index(p), min_index)
+        return DateResolutionHelper._sorted_resolution[min_index]
 
 
 class DateExtractor(Extractor):
@@ -77,7 +124,7 @@ class DateExtractor(Extractor):
                 return_as_timezone_aware: bool = True,
                 prefer_day_of_month: str = "first",
                 prefer_dates_from: str = "current",
-                date_value_resolution: DateResolution = DateResolution.DAY
+                date_value_resolution: DateResolution = DateResolution.DAY,
                 ) -> List[Extraction]:
         """
 
@@ -210,7 +257,10 @@ class DateExtractor(Extractor):
 
         """
         try:
-            e = Extraction(self.convert_to_iso_format(date_object, resolution=self.settings[DATE_VALUE_RESOLUTION]),
+            resolution = self.settings[MIN_RESOLUTION] \
+                    if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL \
+                    else self.settings[DATE_VALUE_RESOLUTION]
+            e = Extraction(self.convert_to_iso_format(date_object, resolution=resolution),
                            start_char=start_char,
                            end_char=end_char,
                            extractor_name=self.name,
@@ -309,6 +359,9 @@ class DateExtractor(Extractor):
 
         if formatted and pattern:
             try:
+                if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
+                    self.settings[MIN_RESOLUTION] = DateResolutionHelper.min_resolution(pattern)
+
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
                 try:
