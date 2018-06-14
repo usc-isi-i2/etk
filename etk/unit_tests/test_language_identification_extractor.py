@@ -39,7 +39,7 @@ class TestLanguageIdentificationExtractor(unittest.TestCase):
 
         text_unknown = "%$@$%##"
         result_unknown = extractor.extract(text_unknown, "LANGDETECT")
-        self.assertFalse(result_unknown)
+        self.assertTrue(len(result_unknown) == 0)
 
 
 if __name__ == '__main__':
