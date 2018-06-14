@@ -17,7 +17,8 @@ class DBpediaSpotlightExtractor(Extractor):
             Extract with the input text
             Args:
                 text: str
-
+                confidence: float
+                filter: list
             Returns: List[Extraction]
         """
 
@@ -26,13 +27,9 @@ class DBpediaSpotlightExtractor(Extractor):
                        ('text', text),
                        ('types', filter)]
         search_headers = {'Accept': 'application/json'}
-        try:
-            r = requests.post(self.search_url,
-                              data=search_data,
-                              headers=search_headers)
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
-            print(e)
-            r = list()
+        r = requests.post(self.search_url,
+                          data=search_data,
+                          headers=search_headers)
         results = r.json()
         last_results = self.combiner(results)
         return last_results
