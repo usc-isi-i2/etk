@@ -3,7 +3,7 @@ from rdflib.namespace import XSD, Namespace
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
 
-DIG = Namespace('http://ontology.causeex.com/ontology/odps/Event#')
+DIG = Namespace('http://isi.edu/ontologies/dig/')
 SCHEMA = Namespace('http://schema.org/')
 
 rdf_prefix = '''@prefix : <http://isi.edu/ontologies/dig/> .
@@ -120,41 +120,19 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_property_hierachy(self):
         rdf_content = rdf_prefix + '''
-:code a owl:DatatypeProperty ;
-    rdfs:label "code" ;
-    skos:definition """A short string used as a code for an entity.""" ;
-    skos:note """Examples are country codes, currency codes.""" ;
-    schema:domainIncludes :Entity ;
-    schema:rangeIncludes xsd:string ;
-    .
+:code a owl:DatatypeProperty ; .
 
 :iso_code a owl:DatatypeProperty ;
-    rdfs:label "ISO code" ;
-    skos:definition """A sanctioned ISO code for something.""" ;
-    rdfs:subPropertyOf :code ;
-    .
+    rdfs:subPropertyOf :code ; .
 
 :cameo_code a owl:DatatypeProperty ;
-    rdfs:label "CAMEO code" ;
-    skos:definition """A code used in the CAMEO ontology.""" ;
-    skos:note """See https://www.gdeltproject.org/data.html#documentation""" ;
-    rdfs:subPropertyOf :code ;
-    .
+    rdfs:subPropertyOf :code ; .
 
 :iso_country_code a owl:DatatypeProperty ;
-    rdfs:label "Country ISO code" ;
-    skos:definition """The ISO country code.""" ;
-    rdfs:subPropertyOf :iso_code ;
-    schema:domainIncludes :Place ;
-    .
-
+    rdfs:subPropertyOf :iso_code ; .
 
 :adm1_code a owl:DatatypeProperty ;
-    rdfs:label "ADM1 code" ;
-    skos:definition """The geonames ADM1 code.""" ;
-    skos:note """See http://www.geonames.org/export/codes.html.""" ;
-    rdfs:subPropertyOf :iso_code ;
-    .
+    rdfs:subPropertyOf :iso_code ; .
         '''
         ontology = Ontology(rdf_content)
         self.assertEqual(len(ontology.all_classes()), 0)
@@ -200,6 +178,7 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_property_cycle_detection(self):
         rdf_content = rdf_prefix + '''
+:Entity a owl:Class ; .
 :code a owl:DatatypeProperty ;
     rdfs:label "code" ;
     skos:definition """A short string used as a code for an entity.""" ;
@@ -220,26 +199,40 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_property_class_consistency(self):
         rdf_content = rdf_prefix + '''
+:Entity a owl:Class ; .
+:Place a owl:Class ; .
 :code a owl:DatatypeProperty ;
-    rdfs:label "code" ;
-    skos:definition """A short string used as a code for an entity.""" ;
-    skos:note """Examples are country codes, currency codes.""" ;
     schema:domainIncludes :Entity ;
-    schema:rangeIncludes xsd:string ;
-    .
+    schema:rangeIncludes xsd:string ; .
 
 :country a owl:ObjectProperty ;
-    rdfs:label "country" ;
-    skos:definition """The name of a country.""" ;
     rdfs:subPropertyOf :code ;
     schema:domainIncludes :Place ;
-    schema:rangeIncludes :Country ;
-    .
+    schema:rangeIncludes :Country ; .
         '''
         with self.assertRaises(AssertionError):
             Ontology(rdf_content)
 
     def test_property_domain_inherit_consistency(self):
+        rdf_content = rdf_prefix + '''
+:Thing a owl:Class ; .
+:Event a owl:Class ;
+    rdfs:subClassOf :Thing ; .
+
+:had_participant a owl:ObjectProperty ;
+    schema:domainIncludes :Event ; .
+
+:transferred_ownership_to a owl:ObjectProperty ;
+    schema:domainIncludes :Thing ;
+    owl:subPropertyOf :carried_out_by ; .
+
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+        '''
+        with self.assertRaises(AssertionError):
+            Ontology(rdf_content)
+
+    def test_property_domain_inherit_redundant(self):
         rdf_content = rdf_prefix + '''
 :Event a owl:Class ; .
 :had_participant a owl:ObjectProperty ;
@@ -253,8 +246,9 @@ class TestOntologyAPI(unittest.TestCase):
     owl:subPropertyOf :had_participant ;
     .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertLogs(level="WARNING"):
             Ontology(rdf_content)
+
     def test_property_range_inherit_consistency(self):
         rdf_content = rdf_prefix + '''
 :Event a owl:Class ; .
@@ -273,12 +267,9 @@ class TestOntologyAPI(unittest.TestCase):
     rdfs:subClassOf :Entity ;
     .
 :had_participant a owl:ObjectProperty ;
-	schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
-    owl:subPropertyOf :occurred_in_the_presence_of ;
     .
 :transferred_custody_of a owl:ObjectProperty ;
-    schema:domainIncludes :Event ;
     schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
     owl:subPropertyOf :had_participant ;
     .

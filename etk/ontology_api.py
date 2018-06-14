@@ -346,19 +346,6 @@ class Ontology(object):
                     except KeyError:
                         logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
 
-        # After all hierarchies are built, perform the last validation
-        # Validation 1: Inherited domain & range consistency
-        for p in self.object_properties | self.data_properties:
-            for x in p.included_domains():
-                for q in p.super_properties():
-                    if x not in q.included_domains() and not any(d in x.super_classes() for d in q.included_domains()):
-                        raise AssertionError("ValidationError(1): Domain {} of property {} isn't a subclass of any domain of superproperty {}".format(x.name(), p.name(), q.name()))
-            if isinstance(p, OntologyObjectProperty):
-                for y in p.included_ranges():
-                    for q in p.super_properties():
-                        if not any(r in y.super_classes() for r in q.included_ranges()):
-                            raise AssertionError("ValidationError(1): Range {} of property {} isn't a subclass of any range of superproperty {}".format(y.name(), p.name(), q.name()))
-
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
             for label in g.objects(uri, RDFS.label):
@@ -368,6 +355,32 @@ class Ontology(object):
             for note in g.objects(uri, OWL.note):
                 entity._note.add(note.toPython())
 
+        # After all hierarchies are built, perform the last validation
+        # Validation 1: Inherited domain & range consistency
+        for p in self.object_properties:
+            self.__validation_property_domain(p)
+            self.__validation_property_range(p)
+        for p in self.data_properties:
+            self.__validation_property_domain(p)
+
+    def __validation_property_domain(self, p):
+        for x in p.included_domains():
+            for q in p.super_properties_closure():
+                if x in q.included_domains():
+                    logging.warning("Redundant domain :%s for :%s.", x.name(), p.name())
+                for d in q.included_domains():
+                    if x in d.super_classes():
+                        raise AssertionError("ValidationError(1): Domain :{} of :{} is a superclass "
+                                             "of its subproperty :{}'s domain {}." .format(
+                                                 x.name(), p.name(), q.name(), d.name()))
+
+    def __validation_property_range(self, p):
+        for y in p.included_ranges():
+            for q in p.super_properties():
+                if not any(r in y.super_classes() for r in q.included_ranges()):
+                    raise AssertionError("ValidationError(1): Range {} of property {} isn't a "
+                                         "subclass of any range of superproperty {}" .format(
+                                             y.name(), p.name(), q.name()))
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -412,9 +425,12 @@ class Ontology(object):
             sorted_properties = sorted_by_name(self.all_properties())
             ### Lists
             content = f.read().replace('{{{title}}}', 'Ontology Entities')
-            content = content.replace('{{{class_list}}}', self._html_entities_hierarchy(self.classes)) \
-                             .replace('{{{dataproperty_list}}}', self._html_entities_hierarchy(self.data_properties)) \
-                             .replace('{{{objectproperty_list}}}', self._html_entities_hierarchy(self.object_properties))
+            content = content.replace('{{{class_list}}}',
+                                      self.__html_entities_hierarchy(self.classes)) \
+                             .replace('{{{dataproperty_list}}}',
+                                      self.__html_entities_hierarchy(self.data_properties)) \
+                             .replace('{{{objectproperty_list}}}',
+                                      self.__html_entities_hierarchy(self.object_properties))
 
             ### Classes
             item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
@@ -425,9 +441,9 @@ class Ontology(object):
                 subclass_of = sorted_by_name(c.super_classes())
                 superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
                 if subclass_of:
-                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self._html_entity_href, subclass_of))))
+                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
                 if superclass_of:
-                    attr.append(row.format('Superclass of', '<br />\n'.join(map(self._html_entity_href, superclass_of))))
+                    attr.append(row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
                 for label in c.label():
                     attr.append(row.format('label', label))
                 for definition in c.definition():
@@ -436,7 +452,7 @@ class Ontology(object):
                     attr.append(row.format('note', note))
                 properties = list(filter(lambda x: c.uri() in x.included_domains(), sorted_properties))
                 if properties:
-                    attr.append(row.format('Properties', '<br />\n'.join(map(self._html_entity_href, properties))))
+                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
                 classes.append(item.format('C-'+c.name(), c.name(), '\n'.join(attr)))
 
             ### Properties
@@ -444,21 +460,25 @@ class Ontology(object):
             objectproperties = []
             for p in sorted_properties:
                 attr = []
-                domains = sorted_by_name(p.included_domains())
-                ranges = sorted(p.included_ranges())
+                domains = p.included_domains()
+                ranges = p.included_ranges()
                 if domains:
-                    attr.append(row.format('Domain', '<br />\n'.join(map(self._html_entity_href,  domains))))
+                    attr.append(row.format('Domain', '<br />\n'.join(map(self.__html_entity_href,
+                                                                         sorted_by_name(domains)))))
                 if ranges:
                     if isinstance(p, OntologyObjectProperty):
-                        attr.append(row.format('Range', '<br />\n'.join(map(self._html_entity_href, map(self.get_entity, ranges)))))
+                        attr.append(row.format('Range', '<br />\n'.join(map(self.__html_entity_href,
+                                                                            sorted_by_name(ranges)))))
                     else:
-                        attr.append(row.format('Range', '<br />\n'.join(ranges)))
+                        attr.append(row.format('Range', '<br />\n'.join(sorted(ranges))))
                 subproperty_of = sorted_by_name(p.super_properties())
                 superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
                 if subproperty_of:
-                    attr.append(row.format('Subproperty of', '<br />\n'.join(map(self._html_entity_href, subproperty_of))))
+                    attr.append(row.format('Subproperty of', '<br />\n'
+                                           .join(map(self.__html_entity_href, subproperty_of))))
                 if superproperty_of:
-                    attr.append(row.format('Superproperty of', '<br />\n'.join(map(self._html_entity_href, superproperty_of))))
+                    attr.append(row.format('Superproperty of', '<br />\n'
+                                           .join(map(self.__html_entity_href, superproperty_of))))
                 for label in p.label():
                     attr.append(row.format('label', label))
                 for definition in p.definition():
@@ -467,7 +487,7 @@ class Ontology(object):
                     attr.append(row.format('note', note))
                 if isinstance(p, OntologyObjectProperty):
                     if p.inverse():
-                        attr.insert(0, row.format('Inverse', self._html_entity_href(p.inverse())))
+                        attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
                     objectproperties.append(item.format('O-'+p.name(), p.name(), '\n'.join(attr)))
                 else:
                     dataproperties.append(item.format('D-'+p.name(), p.name(), '\n'.join(attr)))
@@ -477,7 +497,7 @@ class Ontology(object):
                              .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
         return content
 
-    def _html_entities_hierarchy(self, entities):
+    def __html_entities_hierarchy(self, entities):
         tree = {node: list() for node in entities}
         roots = []
         for child in entities:
@@ -488,15 +508,15 @@ class Ontology(object):
                 tree[parent].append(child)
         def hierarchy_builder(children):
             if not children: return ''
-            s = '<ul>'
+            s = '<ul>\n'
             for child in sorted(children, key=lambda x:x.name()):
-                s += '<li>{}</li>'.format(self._html_entity_href(child))
+                s += '<li>{}</li>\n'.format(self.__html_entity_href(child))
                 s += hierarchy_builder(tree[child])
-            s += '</ul>'
+            s += '</ul>\n'
             return s
         return hierarchy_builder(roots)
 
-    def _html_entity_href(self, e):
+    def __html_entity_href(self, e):
         template = '<a href="#{}-{}">{}</a>'
         kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
         return template.format(kind[type(e)], e.name(), e.name())
