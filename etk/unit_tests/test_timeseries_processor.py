@@ -38,8 +38,13 @@ class TestTimeseriesProcessor(unittest.TestCase):
                        ('2017-04-01', 248),
                        ('2017-05-01', 208),
                        ('2017-06-01', 221.25)]
-        actual_ts = [(t['time']['instant'], t['value']) for t in selected_docs['ts']]
-
+        actual_ts = []
+        for t in selected_docs['ts']:
+             if 'instant' in t['time'].keys():
+                  actual_ts.append((t['time']['instant'], t['value']))
+             else:
+                  actual_ts.append((t['time']['span']['start_time'], t['value']))
+     
         self.assertEqual(actual_ts, expected_ts)
         for k in expected_metadata.keys():
             self.assertEqual(selected_docs['metadata'][k], expected_metadata[k])
