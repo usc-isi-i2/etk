@@ -13,6 +13,7 @@ class OntologyEntity(object):
         self._label = set()
         self._definition = set()
         self._note = set()
+        self._comment = set()
         # extract name according to the definition of name
         ind = self._uri.rfind('#')
         if ind == -1:
@@ -58,6 +59,9 @@ class OntologyEntity(object):
 
         """
         return self._note
+
+    def comment(self) -> Set[str]:
+        return self._comment
 
     def __str__(self):
         s = "<{}>".format(self._uri)
@@ -233,6 +237,11 @@ class OntologyDatatypeProperty(OntologyProperty):
         return data_type in self.included_ranges() or self.super_properties() and any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
+class ValidationError(Exception):
+    """ Base class for all validation errors """
+    pass
+
+
 class Ontology(object):
 
     def __init__(self, turtle: str) -> None:
@@ -262,6 +271,7 @@ class Ontology(object):
 
         # Class
         for uri in g.subjects(RDF.type, OWL.Class):
+            if not isinstance(uri, URIRef): continue
             uri = uri.toPython()
             entity = OntologyClass(uri)
             self.entities[uri] = entity
@@ -297,7 +307,7 @@ class Ontology(object):
                     sub_entity = self.entities[sub.toPython()]
                     # Validation 3: Cycle detection
                     if entity in sub_entity.super_classes_closure():
-                        raise AssertionError("ValidationError(3): Cycle detected")
+                        raise ValidationError("Cycle detected")
                     entity._super_classes.add(sub_entity)
                 except KeyError:
                     logging.warning("Missing a super class of :%s with uri %s.", entity.name(), sub)
@@ -313,13 +323,12 @@ class Ontology(object):
                     sub_property = self.entities[sub.toPython()]
                     # Validation 3: Cycle detection
                     if p in sub_property.super_properties_closure():
-                        raise AssertionError("ValidationError(3): Cycle detected")
+                        raise ValidationError("Cycle detected")
                     # Validation 2: Class consistency
                     if isinstance(p, OntologyDatatypeProperty) != \
                        isinstance(sub_property, OntologyDatatypeProperty):
-                        raise AssertionError("ValidationError(2): Sub-property {} should share the "
-                                             "same class with {}".format(sub_property.name(),
-                                                                         p.name()))
+                        raise ValidationError("Sub-property {} should share the same class with {}"
+                                              .format(sub_property.name(), p.name()))
                     p._super_properties.add(sub_property)
                 except KeyError:
                     logging.warning("Missing a super property of :%s with uri %s.", p.name(), sub)
@@ -354,6 +363,8 @@ class Ontology(object):
                 entity._definition.add(definition.toPython())
             for note in g.objects(uri, OWL.note):
                 entity._note.add(note.toPython())
+            for comment in g.objects(uri, RDFS.comment):
+                entity._comment.add(comment.toPython())
 
         # After all hierarchies are built, perform the last validation
         # Validation 1: Inherited domain & range consistency
@@ -370,17 +381,16 @@ class Ontology(object):
                     logging.warning("Redundant domain :%s for :%s.", x.name(), p.name())
                 for d in q.included_domains():
                     if x in d.super_classes():
-                        raise AssertionError("ValidationError(1): Domain :{} of :{} is a superclass "
-                                             "of its subproperty :{}'s domain {}." .format(
-                                                 x.name(), p.name(), q.name(), d.name()))
+                        raise ValidationError("Domain :{} of :{} is a superclass of its subproperty "
+                                              " :{}'s domain {}.".format(x.name(), p.name(),
+                                                                         q.name(), d.name()))
 
     def __validation_property_range(self, p):
         for y in p.included_ranges():
             for q in p.super_properties():
                 if not any(r in y.super_classes() for r in q.included_ranges()):
-                    raise AssertionError("ValidationError(1): Range {} of property {} isn't a "
-                                         "subclass of any range of superproperty {}" .format(
-                                             y.name(), p.name(), q.name()))
+                    raise ValidationError("Range {} of property {} isn't a subclass of any range of"
+                                          " superproperty {}" .format(y.name(), p.name(), q.name()))
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -424,13 +434,13 @@ class Ontology(object):
             sorted_classes = sorted_by_name(self.classes)
             sorted_properties = sorted_by_name(self.all_properties())
             ### Lists
-            content = f.read().replace('{{{title}}}', 'Ontology Entities')
-            content = content.replace('{{{class_list}}}',
-                                      self.__html_entities_hierarchy(self.classes)) \
-                             .replace('{{{dataproperty_list}}}',
-                                      self.__html_entities_hierarchy(self.data_properties)) \
-                             .replace('{{{objectproperty_list}}}',
-                                      self.__html_entities_hierarchy(self.object_properties))
+            content = f.read().replace('{{{title}}}', 'Ontology Entities') \
+                              .replace('{{{class_list}}}',
+                                       self.__html_entities_hierarchy(self.classes)) \
+                              .replace('{{{dataproperty_list}}}',
+                                       self.__html_entities_hierarchy(self.data_properties)) \
+                              .replace('{{{objectproperty_list}}}',
+                                       self.__html_entities_hierarchy(self.object_properties))
 
             ### Classes
             item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
@@ -444,12 +454,7 @@ class Ontology(object):
                     attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
                 if superclass_of:
                     attr.append(row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
-                for label in c.label():
-                    attr.append(row.format('label', label))
-                for definition in c.definition():
-                    attr.append(row.format('definition', definition))
-                for note in c.note():
-                    attr.append(row.format('note', note))
+                attr.extend(self.__html_entity_basic_info(c, row))
                 properties = list(filter(lambda x: c.uri() in x.included_domains(), sorted_properties))
                 if properties:
                     attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
@@ -479,12 +484,7 @@ class Ontology(object):
                 if superproperty_of:
                     attr.append(row.format('Superproperty of', '<br />\n'
                                            .join(map(self.__html_entity_href, superproperty_of))))
-                for label in p.label():
-                    attr.append(row.format('label', label))
-                for definition in p.definition():
-                    attr.append(row.format('definition', definition))
-                for note in p.note():
-                    attr.append(row.format('note', note))
+                attr.extend(self.__html_entity_basic_info(p, row))
                 if isinstance(p, OntologyObjectProperty):
                     if p.inverse():
                         attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
@@ -497,11 +497,20 @@ class Ontology(object):
                              .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
         return content
 
+    def __html_entity_basic_info(self, e, tpl):
+        attr = list()
+        basic = ['label', 'definition', 'note', 'comment']
+        for info in basic:
+            attr.extend([tpl.format(info, item) for item in getattr(e, info)()])
+        return attr
+
     def __html_entities_hierarchy(self, entities):
         tree = {node: list() for node in entities}
         roots = []
+        super = 'super_properties' if entities and \
+            isinstance(next(iter(entities)), OntologyProperty) else 'super_classes'
         for child in entities:
-            parents = child.super_properties() if isinstance(child, OntologyProperty) else child.super_classes()
+            parents = getattr(child, super)()
             if not parents:
                 roots.append(child)
             for parent in parents:

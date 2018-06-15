@@ -2,6 +2,7 @@ import unittest
 from rdflib.namespace import XSD, Namespace
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
+from etk.ontology_api import ValidationError
 
 DIG = Namespace('http://isi.edu/ontologies/dig/')
 SCHEMA = Namespace('http://schema.org/')
@@ -173,7 +174,7 @@ class TestOntologyAPI(unittest.TestCase):
     :common_properties :label, :title, :religion ;
     .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValidationError):
             Ontology(rdf_content)
 
     def test_property_cycle_detection(self):
@@ -194,7 +195,7 @@ class TestOntologyAPI(unittest.TestCase):
     rdfs:subPropertyOf :code ;
     .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValidationError):
             Ontology(rdf_content)
 
     def test_property_class_consistency(self):
@@ -210,7 +211,7 @@ class TestOntologyAPI(unittest.TestCase):
     schema:domainIncludes :Place ;
     schema:rangeIncludes :Country ; .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValidationError):
             Ontology(rdf_content)
 
     def test_property_domain_inherit_consistency(self):
@@ -229,7 +230,7 @@ class TestOntologyAPI(unittest.TestCase):
 :carried_out_by a owl:ObjectProperty ;
     owl:subPropertyOf :had_participant ; .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValidationError):
             Ontology(rdf_content)
 
     def test_property_domain_inherit_redundant(self):
@@ -274,5 +275,5 @@ class TestOntologyAPI(unittest.TestCase):
     owl:subPropertyOf :had_participant ;
     .
         '''
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValidationError):
             Ontology(rdf_content)
