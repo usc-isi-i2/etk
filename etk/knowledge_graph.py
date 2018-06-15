@@ -136,6 +136,9 @@ class KnowledgeGraph(object):
             if not all_valid:
                 print("Some kg value type invalid according to schema")
                 # raise KgValueError("Some kg value type invalid according to schema")
+        # IF we did not add any value, remove the empty field we just added to kg
+        if len(self._kg[field_name]) == 0:
+            self._kg.pop(field_name)
 
     @property
     def value(self) -> Dict:
