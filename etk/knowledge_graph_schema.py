@@ -102,6 +102,24 @@ class KGSchema(object):
                     pass
         raise ISODateError("Can not convert value to ISO format for kg")
 
+    @staticmethod
+    def parse_number(txt_num):
+        if isinstance(txt_num, str) or isinstance(txt_num, numbers.Number):
+
+            if isinstance(txt_num, numbers.Number):
+                return str(txt_num)
+
+            try:
+                # this will fail spectacularly if the data originated in europe,
+                # where they use ',' inplace of '.' and vice versa for numbers
+
+                text = txt_num.strip().replace('\n', '').replace('\t', '').replace(',', '')
+                num = str(float(text)) if '.' in text else str(int(text))
+                return num
+            except:
+                pass
+        return None
+
     def is_valid(self, field_name, value) -> (bool, object):
         """
         Return true if the value type matches or can be coerced to the defined type in schema, otherwise false.
@@ -122,8 +140,8 @@ class KGSchema(object):
                 if isinstance(value, numbers.Number):
                     return True, value
                 else:
-                    # todo: Should try to parse the string as a number
-                    return False, value
+                    converted_number = self.parse_number(value)
+                    return (False, value) if not converted_number else (True, value)
             if self.fields_dict[field_name] == FieldType.STRING:
                 if isinstance(value, str):
                     return True, value.strip()
