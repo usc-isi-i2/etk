@@ -19,7 +19,7 @@ place_field_mapping = {
     "country_txt": "country",
     "region_txt": "region",
     "provstate": "state",
-    "city": "city",
+    "city": "city_name",
     "latitude": "latitude",
     "longitude": "longitude",
     "location": "title"
@@ -75,9 +75,11 @@ class GTDModule(ETKModule):
 
         # add related events to KG
         # TODO: ADD this to master_config
-        related_event_ids = json_doc.get('related', '').split(',')
-        if related_event_ids:
-            doc.kg.add_value("related_events", value=related_event_ids)
+        related_event_ids_txt = json_doc.get('related', '')
+        if related_event_ids_txt.strip() != "":
+            related_event_ids = related_event_ids_txt.split(',')
+            if len(related_event_ids) > 0:
+                doc.kg.add_value("related_events", value=related_event_ids)
 
         # add attack information, on second thoughts, this qualifies as event type
         for attack_type_field in attack_type_fields:
@@ -261,9 +263,99 @@ class GTDModule(ETKModule):
             doc.kg.add_value('weapons', weapon4_doc.doc_id)
             nested_docs.append(weapon4_doc)
 
+        # create total fatalities docs
+        nkill = json_doc.get("nkill", 0)
+        if nkill != "":
+            total_fatalities_object = dict()
+            total_fatalities_object["dataset"] = "gtd_fatality"
+            total_fatalities_doc_id = '{}_total_fatalitites'.format(doc.doc_id)
+            total_fatalities_object['uri'] = total_fatalities_doc_id
+            total_fatalities_object["size"] = nkill
+            total_fatalities_doc = etk.create_document(total_fatalities_object)
+            total_fatalities_doc.doc_id = total_fatalities_doc_id
+            doc.kg.add_value("fatalities", value=total_fatalities_doc_id)
+            nested_docs.append(total_fatalities_doc)
+
+        # create US fatalities docs
+        nkillus = json_doc.get("nkillus", 0)
+        if nkillus != "":
+            us_fatalities_object = dict()
+            us_fatalities_object["dataset"] = "gtd_fatality"
+            us_fatalities_doc_id = '{}_us_fatalitites'.format(doc.doc_id)
+            us_fatalities_object['uri'] = us_fatalities_doc_id
+            us_fatalities_object["size"] = nkillus
+            us_fatalities_object["nationality"] = "United States"
+            us_fatalities_doc = etk.create_document(us_fatalities_object)
+            us_fatalities_doc.doc_id = us_fatalities_doc_id
+            doc.kg.add_value("fatalities", value=us_fatalities_doc_id)
+            nested_docs.append(us_fatalities_doc)
+
+        # create total injuries docs
+        nwound = json_doc.get("nwound", 0)
+        if nwound != "":
+            total_injuries_object = dict()
+            total_injuries_object["dataset"] = "gtd_injury"
+            total_injuries_doc_id = '{}_total_injuries'.format(doc.doc_id)
+            total_injuries_object['uri'] = total_injuries_doc_id
+            total_injuries_object["size"] = nwound
+            total_injuries_doc = etk.create_document(total_injuries_object)
+            total_injuries_doc.doc_id = total_injuries_doc_id
+            doc.kg.add_value("injuries", value=total_injuries_doc_id)
+            nested_docs.append(total_injuries_doc)
+
+        # create US injuries docs
+        nwoundus = json_doc.get("nwoundus", 0)
+        if nwoundus != "":
+            us_injuries_object = dict()
+            us_injuries_object["dataset"] = "gtd_injury"
+            us_injuries_doc_id = '{}_us_injuries'.format(doc.doc_id)
+            us_injuries_object['uri'] = us_injuries_doc_id
+            us_injuries_object["size"] = nwoundus
+            us_injuries_doc = etk.create_document(us_injuries_object)
+            us_injuries_doc.doc_id = us_injuries_doc_id
+            doc.kg.add_value("injuries", value=us_injuries_doc_id)
+            nested_docs.append(us_injuries_doc)
+
+        # create damage docs
+        # in this dataset we only have property damage
+        if json_doc.get("property", 0) == 1:
+            damage_object = dict()
+            damage_object["dataset"] = "gtd_damage"
+            damage_object["damage_title"] = json_doc.get("propextent_txt")
+            damage_object["damage_value"] = json_doc.get("propvalue")
+            damage_object["damage_description"] = json_doc.get("propcomment")
+            damage_object_doc_id = '{}_damage'.format(doc.doc_id)
+            damage_object['uri'] = damage_object_doc_id
+            damage_doc = etk.create_document(damage_object)
+            damage_doc.doc_id = damage_object_doc_id
+            doc.kg.add_value("damage", value=damage_object_doc_id)
+            nested_docs.append(damage_doc)
+
         return nested_docs
+
     def document_selector(self, doc) -> bool:
         return doc.cdr_document.get("dataset") == "gtd"
+
+
+class GTDDamageModule(ETKModule):
+    """
+        ETK module to process GTD Damage documents
+        """
+
+    def __init__(self, etk):
+        ETKModule.__init__(self, etk)
+
+    def document_selector(self, doc) -> bool:
+        return doc.cdr_document.get("dataset") == "gtd_damage"
+
+    def process_document(self, doc: Document) -> List[Document]:
+        doc.kg.add_value("type", value="Damage")
+        doc.kg.add_value("type", value="Property")
+        doc.kg.add_value("title", json_path="$.damage_title")
+        doc.kg.add_value("value", json_path="$.damage_value")
+        doc.kg.add_value("description", json_path="$.damage_description")
+
+        return list()
 
 
 class GTDPlaceModule(ETKModule):
@@ -299,7 +391,7 @@ class GTDVictimModule(ETKModule):
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value="Victim")
         doc.kg.add_value("type", json_path="$.victim_type[*]")
-        doc.kg.add_value("name", json_path="$.victim_corp")
+        doc.kg.add_value("label", json_path="$.victim_corp")
         doc.kg.add_value("title", json_path="$.victim_target")
         doc.kg.add_value("nationality", json_path="$.victim_nationality")
 
@@ -319,7 +411,7 @@ class GTDActorModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value=["Actor", "Perpetrator"])
-        doc.kg.add_value("name", json_path="$.actor_group[*]")
+        doc.kg.add_value("label", json_path="$.actor_group[*]")
         return list()
 
 
@@ -341,13 +433,49 @@ class GTDWeaponsModule(ETKModule):
         return list()
 
 
+class GTDFatalitiesModule(ETKModule):
+    """
+            ETK module to process GTD Fatalities documents
+            """
+
+    def __init__(self, etk):
+        ETKModule.__init__(self, etk)
+
+    def document_selector(self, doc) -> bool:
+        return doc.cdr_document.get("dataset") == "gtd_fatality"
+
+    def process_document(self, doc: Document) -> List[Document]:
+        doc.kg.add_value("type", value="Fatality")
+        doc.kg.add_value("size", json_path="$.size")
+        doc.kg.add_value("nationality", json_path="$.nationality")
+        return list()
+
+
+class GTDInjuriesModule(ETKModule):
+    """
+            ETK module to process GTD Injuries documents
+            """
+
+    def __init__(self, etk):
+        ETKModule.__init__(self, etk)
+
+    def document_selector(self, doc) -> bool:
+        return doc.cdr_document.get("dataset") == "gtd_injury"
+
+    def process_document(self, doc: Document) -> List[Document]:
+        doc.kg.add_value("type", value="Injury")
+        doc.kg.add_value("size", json_path="$.size")
+        doc.kg.add_value("nationality", json_path="$.nationality")
+        return list()
+
+
 if __name__ == "__main__":
 
     # Tell ETK the schema of the fields in the KG, the DIG master_config can be used as the schema.
     kg_schema = KGSchema(json.load(open('master_config.json')))
 
     # Instantiate ETK, with the two processing modules and the schema.
-    etk = ETK(modules=[GTDModule], kg_schema=kg_schema)
+    etk = ETK(modules=[GTDModule, GTDDamageModule, GTDInjuriesModule, GTDFatalitiesModule, GTDWeaponsModule, GTDActorModule, GTDVictimModule, GTDPlaceModule], kg_schema=kg_schema)
 
     # Create a CSV processor to create documents for the relevant rows in the Excel sheet
     cp = CsvProcessor(etk=etk, heading_row=1)
@@ -355,8 +483,7 @@ if __name__ == "__main__":
     with open("gtd.jl", "w") as f:
         # Iterate over all the rows in the spredsheet
         for doc in cp.tabular_extractor(filename="globalterrorismdb_0617dist-nigeria.csv", dataset='gtd'):
-            print(json.dumps(doc.value, indent=2))
-            exit(0)
+            # print(json.dumps(doc.value, indent=2))
             for result in etk.process_ems(doc):
-                print(result.cdr_document["knowledge_graph"])
+                # print(result.cdr_document["knowledge_graph"])
                 f.write(json.dumps(result.cdr_document) + "\n")
