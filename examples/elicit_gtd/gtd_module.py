@@ -510,6 +510,8 @@ if __name__ == "__main__":
         for doc in cp.tabular_extractor(filename="globalterrorismdb_0617dist-nigeria.csv", dataset='gtd'):
             # print(json.dumps(doc.value, indent=2))
             # exit(0)
+            etk.process_and_frame(doc)
             for result in etk.process_ems(doc):
-                # print(result.cdr_document["knowledge_graph"])
+                # print(json.dumps(result.cdr_document["knowledge_graph"], indent=2))
+                # exit(0)
                 f.write(json.dumps(result.cdr_document) + "\n")
