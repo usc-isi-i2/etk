@@ -90,6 +90,34 @@ class ETK(object):
 
         return self.parsed[jsonpath]
 
+    def process_and_frame(self, doc: Document):
+        """
+        Processes a document and if it has child docs, embeds them in the parent document. Only works for 1 level of
+        nesting. Kind of hack, will implement properly later
+        Args:
+            doc: input document to be run etk modules on
+
+        Returns:
+
+        """
+        nested_docs = self.process_ems(doc)
+        parent_kg = doc.cdr_document.get('knowledge_graph', None)
+        if parent_kg:
+            if nested_docs and len(nested_docs) > 0:
+                for nested_doc in nested_docs:
+                    json_doc = nested_doc.cdr_document
+                    doc_id = json_doc['doc_id']
+                    if doc_id != doc.doc_id:
+                        for field_name in list(parent_kg):
+                            field_extractions = parent_kg[field_name]
+                            if not isinstance(field_extractions, list):
+                                field_extractions = [field_extractions]
+                            for i in range(0, len(field_extractions)):
+                                field_extraction = field_extractions[i]
+                                if 'value' in field_extraction and field_extraction['value'] == doc_id:
+                                    del field_extractions[i]
+                                    field_extractions.append({'value': json_doc})
+
     def process_ems(self, doc: Document) -> List[Document]:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
