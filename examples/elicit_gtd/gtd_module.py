@@ -39,10 +39,12 @@ class GTDModule(ETKModule):
         nested_docs = list()
 
         json_doc = doc.cdr_document
+        filename = json_doc.get('file_name')
         doc.doc_id = Utility.create_doc_id_from_json(json_doc)
         doc.cdr_document['uri'] = doc.doc_id
         doc.kg.add_value("type", value="Event")
         doc.kg.add_value("type", value="Act of Terrorism")
+        doc.kg.add_value("provenance_filename", value=filename)
 
         # Add event_date to the KG
         extracted_dates = self.date_extractor.extract('{}-{}-{}'.format(json_doc.get('iyear'),
@@ -100,6 +102,7 @@ class GTDModule(ETKModule):
 
         place_doc_id = '{}_place'.format(doc.doc_id)
         place_object['uri'] = place_doc_id
+        place_object['filename'] = filename
         place_doc = etk.create_document(place_object)
         place_doc.doc_id = place_doc_id
 
@@ -110,6 +113,7 @@ class GTDModule(ETKModule):
         if json_doc.get('targtype1_txt', '').strip():
             victim1_object = dict()
             victim1_object['dataset'] = 'gtd_victim'
+            victim1_object['filename'] = filename
             victim1_object['victim_type'] = list()
             victim1_object['victim_type'].append(json_doc.get('targtype1_txt'))
             if json_doc.get('targsubtype1_txt', ''):
@@ -127,6 +131,7 @@ class GTDModule(ETKModule):
         if json_doc.get('targtype2_txt', '').strip():
             victim2_object = dict()
             victim2_object['dataset'] = 'gtd_victim'
+            victim2_object['filename'] = filename
             victim2_object['victim_type'] = list()
             victim2_object['victim_type'].append(json_doc.get('targtype2_txt'))
             if json_doc.get('targsubtype2_txt', ''):
@@ -144,6 +149,7 @@ class GTDModule(ETKModule):
         if json_doc.get('targtype3_txt', '').strip():
             victim3_object = dict()
             victim3_object['dataset'] = 'gtd_victim'
+            victim3_object['filename'] = filename
             victim3_object['victim_type'] = list()
             victim3_object['victim_type'].append(json_doc.get('targtype3_txt'))
             if json_doc.get('targsubtype3_txt', ''):
@@ -162,6 +168,7 @@ class GTDModule(ETKModule):
         if json_doc.get('gname', '').strip():
             actor1_object = dict()
             actor1_object['dataset'] = 'gtd_actor'
+            actor1_object['filename'] = filename
             actor1_object['actor_group'] = list()
             actor1_object['actor_group'].append(json_doc.get('gname'))
             if json_doc.get('gsubname', ''):
@@ -177,6 +184,7 @@ class GTDModule(ETKModule):
         if json_doc.get('gname2', '').strip():
             actor2_object = dict()
             actor2_object['dataset'] = 'gtd_actor'
+            actor2_object['filename'] = filename
             actor2_object['actor_group'] = list()
             actor2_object['actor_group'].append(json_doc.get('gname2'))
             if json_doc.get('gsubname2', ''):
@@ -191,6 +199,7 @@ class GTDModule(ETKModule):
         if json_doc.get('gname3', '').strip():
             actor3_object = dict()
             actor3_object['dataset'] = 'gtd_actor'
+            actor3_object['filename'] = filename
             actor3_object['actor_group'] = list()
             actor3_object['actor_group'].append(json_doc.get('gname3'))
             if json_doc.get('gsubname3', ''):
@@ -206,6 +215,7 @@ class GTDModule(ETKModule):
         if json_doc.get('weaptype1_txt', '').strip():
             weapon1_object = dict()
             weapon1_object['dataset'] = 'gtd_weapon'
+            weapon1_object['filename'] = filename
             weapon1_object['weapon_title'] = json_doc.get('weapdetail', '')
             weapon1_object['weapon_type'] = list()
             weapon1_object['weapon_type'].append(json_doc.get('weaptype1_txt'))
@@ -221,6 +231,7 @@ class GTDModule(ETKModule):
         if json_doc.get('weaptype2_txt', '').strip():
             weapon2_object = dict()
             weapon2_object['dataset'] = 'gtd_weapon'
+            weapon2_object['filename'] = filename
             weapon2_object['weapon_title'] = json_doc.get('weapdetail', '')
             weapon2_object['weapon_type'] = list()
             weapon2_object['weapon_type'].append(json_doc.get('weaptype2_txt'))
@@ -236,6 +247,7 @@ class GTDModule(ETKModule):
         if json_doc.get('weaptype3_txt', '').strip():
             weapon3_object = dict()
             weapon3_object['dataset'] = 'gtd_weapon'
+            weapon3_object['filename'] = filename
             weapon3_object['weapon_title'] = json_doc.get('weapdetail', '')
             weapon3_object['weapon_type'] = list()
             weapon3_object['weapon_type'].append(json_doc.get('weaptype3_txt'))
@@ -251,6 +263,7 @@ class GTDModule(ETKModule):
         if json_doc.get('weaptype4_txt', '').strip():
             weapon4_object = dict()
             weapon4_object['dataset'] = 'gtd_weapon'
+            weapon4_object['filename'] = filename
             weapon4_object['weapon_title'] = json_doc.get('weapdetail', '')
             weapon4_object['weapon_type'] = list()
             weapon4_object['weapon_type'].append(json_doc.get('weaptype4_txt'))
@@ -268,6 +281,7 @@ class GTDModule(ETKModule):
         if nkill != "":
             total_fatalities_object = dict()
             total_fatalities_object["dataset"] = "gtd_fatality"
+            total_fatalities_object['filename'] = filename
             total_fatalities_doc_id = '{}_total_fatalitites'.format(doc.doc_id)
             total_fatalities_object['uri'] = total_fatalities_doc_id
             total_fatalities_object["size"] = nkill
@@ -281,6 +295,7 @@ class GTDModule(ETKModule):
         if nkillus != "":
             us_fatalities_object = dict()
             us_fatalities_object["dataset"] = "gtd_fatality"
+            us_fatalities_object['filename'] = filename
             us_fatalities_doc_id = '{}_us_fatalitites'.format(doc.doc_id)
             us_fatalities_object['uri'] = us_fatalities_doc_id
             us_fatalities_object["size"] = nkillus
@@ -295,6 +310,7 @@ class GTDModule(ETKModule):
         if nwound != "":
             total_injuries_object = dict()
             total_injuries_object["dataset"] = "gtd_injury"
+            total_injuries_object['filename'] = filename
             total_injuries_doc_id = '{}_total_injuries'.format(doc.doc_id)
             total_injuries_object['uri'] = total_injuries_doc_id
             total_injuries_object["size"] = nwound
@@ -308,6 +324,7 @@ class GTDModule(ETKModule):
         if nwoundus != "":
             us_injuries_object = dict()
             us_injuries_object["dataset"] = "gtd_injury"
+            us_injuries_object['filename'] = filename
             us_injuries_doc_id = '{}_us_injuries'.format(doc.doc_id)
             us_injuries_object['uri'] = us_injuries_doc_id
             us_injuries_object["size"] = nwoundus
@@ -321,6 +338,7 @@ class GTDModule(ETKModule):
         if json_doc.get("property", 0) == 1:
             damage_object = dict()
             damage_object["dataset"] = "gtd_damage"
+            damage_object['filename'] = filename
             damage_object["damage_title"] = json_doc.get("propextent_txt")
             damage_object["damage_value"] = json_doc.get("propvalue")
             damage_object["damage_description"] = json_doc.get("propcomment")
@@ -354,6 +372,7 @@ class GTDDamageModule(ETKModule):
         doc.kg.add_value("title", json_path="$.damage_title")
         doc.kg.add_value("value", json_path="$.damage_value")
         doc.kg.add_value("description", json_path="$.damage_description")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
 
         return list()
 
@@ -371,6 +390,7 @@ class GTDPlaceModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value="Place")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
         for place_field in place_fields:
             doc.kg.add_value(place_field_mapping[place_field], json_path='$.{}'.format(place_field))
 
@@ -394,6 +414,7 @@ class GTDVictimModule(ETKModule):
         doc.kg.add_value("label", json_path="$.victim_corp")
         doc.kg.add_value("title", json_path="$.victim_target")
         doc.kg.add_value("nationality", json_path="$.victim_nationality")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
 
         return list()
 
@@ -412,6 +433,7 @@ class GTDActorModule(ETKModule):
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value=["Actor", "Perpetrator"])
         doc.kg.add_value("label", json_path="$.actor_group[*]")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
         return list()
 
 
@@ -430,6 +452,7 @@ class GTDWeaponsModule(ETKModule):
         doc.kg.add_value("type", value="Weapon")
         doc.kg.add_value("title", json_path="$.weapon_title")
         doc.kg.add_value("type", json_path="$.weapon_type[*]")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
         return list()
 
 
@@ -448,6 +471,7 @@ class GTDFatalitiesModule(ETKModule):
         doc.kg.add_value("type", value="Fatality")
         doc.kg.add_value("size", json_path="$.size")
         doc.kg.add_value("nationality", json_path="$.nationality")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
         return list()
 
 
@@ -466,6 +490,7 @@ class GTDInjuriesModule(ETKModule):
         doc.kg.add_value("type", value="Injury")
         doc.kg.add_value("size", json_path="$.size")
         doc.kg.add_value("nationality", json_path="$.nationality")
+        doc.kg.add_value("provenance_filename", json_path="$.filename")
         return list()
 
 
@@ -484,6 +509,7 @@ if __name__ == "__main__":
         # Iterate over all the rows in the spredsheet
         for doc in cp.tabular_extractor(filename="globalterrorismdb_0617dist-nigeria.csv", dataset='gtd'):
             # print(json.dumps(doc.value, indent=2))
+            # exit(0)
             for result in etk.process_ems(doc):
                 # print(result.cdr_document["knowledge_graph"])
                 f.write(json.dumps(result.cdr_document) + "\n")
