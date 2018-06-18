@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>{{{title}}}</title>
+    <style>
+     .entity th {
+         width: 120px;
+         border-right: 3px solid transparent;
+     }
+    </style>
+</head>
+<body>
+<h1>{{{title}}}</h1>
+<h2>Table of Contents</h2>
+<ul>
+    <li><a href="#toc-cl">Class List</a></li>
+    <li><a href="#toc-pl">Property List</a></li>
+    <ul>
+        <li><a href="#toc-dpl">DataProperty List</a></li>
+        <li><a href="#toc-opl">ObjectProperty List</a></li>
+    </ul>
+    <li><a href="#toc-class">Classes</a></li>
+    <li><a href="#toc-property">Properties</a></li>
+    <ul>
+        <li><a href="#toc-data-property">DataProperties</a></li>
+        <li><a href="#toc-object-property">ObjectPropertyies</a></li>
+    </ul>
+</ul>
+<h2 id="toc-cl">Class List</h2>
+<div>{{{class_list}}}</div>
+<h2 id="toc-pl">Property List</h2>
+<h3 id="toc-dpl">DataProperty List</h3>
+<div>{{{dataproperty_list}}}</div>
+<h3 id="toc-opl">ObjectProperty List</h3>
+<div>{{{objectproperty_list}}}</div>
+<h2 id="toc-class">Classes</h2>
+{{{classes}}}
+<h2 id="toc-property">Properties</h2>
+<h3 id="toc-object-property">ObjectProperties</h3>
+{{{objectproperties}}}
+<h3 id="toc-data-property">DataProperties</h3>
+{{{dataproperties}}}
+</body>
+</html>
