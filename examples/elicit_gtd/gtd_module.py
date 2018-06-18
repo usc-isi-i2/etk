@@ -28,12 +28,32 @@ inclusion_criteria_1 = "Political, Economics, Religious or Social Goal"
 inclusion_criteria_2 = "Intention to coerce, Intimidate or Publicize to larger audiences"
 inclusion_criteria_3 = "Outside International Humanitarian Law"
 attack_type_fields = ["attacktype1_txt", "attacktype2_txt", "attacktype3_txt"]
+attack_type_fields_code = ["attacktype1", "attacktype2", "attacktype3"]
+event_prefix = "http://ontology.causeex.com/ontology/odps/Event#"
+owl_prefix = "http://www.w3.org/2002/07/owl#"
+cco_prefix = "http://www.ontologyrepository.com/CommonCoreOntologies#"
+
+event_to_clauseex_class_mapping = {
+    "1": event_prefix + "Assassination",
+    "2": event_prefix + "PhysicalAssault",
+    "3": event_prefix + "Bombing",
+    "4": event_prefix + "AbductionHostageTakingOrHijacking",
+    "5": event_prefix + "AbductionHostageTakingOrHijacking",
+    "6": event_prefix + "AbductionHostageTakingOrHijacking",
+    "7": event_prefix + "Attack",
+    "8": event_prefix + "PhysicalAssault",
+    "9": event_prefix + "Event"
+
+}
 
 
 class GTDModule(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'gtd_date_parser')
+        self.causeex_decoder = DecodingValueExtractor(event_to_clauseex_class_mapping,
+                                                          'CauseEx Type',
+                                                          default_action="delete")
 
     def process_document(self, doc: Document) -> List[Document]:
         nested_docs = list()
@@ -45,6 +65,10 @@ class GTDModule(ETKModule):
         doc.kg.add_value("type", value="Event")
         doc.kg.add_value("type", value="Act of Terrorism")
         doc.kg.add_value("provenance_filename", value=filename)
+        for attack_type_code in attack_type_fields_code:
+            ac = json_doc.get(attack_type_code, '')
+            if ac != "":
+                doc.kg.add_value("causeex_class", value=doc.extract(self.causeex_decoder, doc.select_segments("$.{}".format(attack_type_code))[0]))
 
         # Add event_date to the KG
         extracted_dates = self.date_extractor.extract('{}-{}-{}'.format(json_doc.get('iyear'),
@@ -89,10 +113,10 @@ class GTDModule(ETKModule):
 
         # TODO check the following 2
         if json_doc.get("suicide", 0) == 1:
-            doc.kg.add_value("type", value='suicide')
+            doc.kg.add_value("type", value='Suicide')
 
         if json_doc.get("success", 0) == 1:
-            doc.kg.add_value("type", value='success')
+            doc.kg.add_value("type", value='Success')
 
         # create nested objects for places
         place_object = dict()
@@ -415,6 +439,7 @@ class GTDVictimModule(ETKModule):
         doc.kg.add_value("title", json_path="$.victim_target")
         doc.kg.add_value("nationality", json_path="$.victim_nationality")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
+        doc.kg.add_value("causeex_class", value="{}Actor".format(owl_prefix))
 
         return list()
 
@@ -434,6 +459,7 @@ class GTDActorModule(ETKModule):
         doc.kg.add_value("type", value=["Actor", "Perpetrator"])
         doc.kg.add_value("label", json_path="$.actor_group[*]")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
+        doc.kg.add_value("causeex_class", value="{}Actor".format(owl_prefix))
         return list()
 
 
@@ -453,6 +479,7 @@ class GTDWeaponsModule(ETKModule):
         doc.kg.add_value("title", json_path="$.weapon_title")
         doc.kg.add_value("type", json_path="$.weapon_type[*]")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
+        doc.kg.add_value("causeex_class", value="{}Artifact".format(cco_prefix))
         return list()
 
 
@@ -500,7 +527,9 @@ if __name__ == "__main__":
     kg_schema = KGSchema(json.load(open('master_config.json')))
 
     # Instantiate ETK, with the two processing modules and the schema.
-    etk = ETK(modules=[GTDModule, GTDDamageModule, GTDInjuriesModule, GTDFatalitiesModule, GTDWeaponsModule, GTDActorModule, GTDVictimModule, GTDPlaceModule], kg_schema=kg_schema)
+    etk = ETK(
+        modules=[GTDModule, GTDDamageModule, GTDInjuriesModule, GTDFatalitiesModule, GTDWeaponsModule, GTDActorModule,
+                 GTDVictimModule, GTDPlaceModule], kg_schema=kg_schema)
 
     # Create a CSV processor to create documents for the relevant rows in the Excel sheet
     cp = CsvProcessor(etk=etk, heading_row=1)
@@ -508,10 +537,11 @@ if __name__ == "__main__":
     with open("gtd.jl", "w") as f:
         # Iterate over all the rows in the spredsheet
         for doc in cp.tabular_extractor(filename="globalterrorismdb_0617dist-nigeria.csv", dataset='gtd'):
+            etk.process_and_frame(doc)
+            f.write(json.dumps(doc.cdr_document) + "\n")
             # print(json.dumps(doc.value, indent=2))
             # exit(0)
-            etk.process_and_frame(doc)
-            for result in etk.process_ems(doc):
-                # print(json.dumps(result.cdr_document["knowledge_graph"], indent=2))
-                # exit(0)
-                f.write(json.dumps(result.cdr_document) + "\n")
+            # for result in etk.process_ems(doc):
+            #     print(json.dumps(result.cdr_document["knowledge_graph"], indent=2))
+            #     exit(0)
+                # f.write(json.dumps(result.cdr_document) + "\n")
