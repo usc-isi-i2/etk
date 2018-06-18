@@ -2,7 +2,9 @@ import logging
 from typing import Set, Union
 from functools import reduce
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
+
+SCHEMA = Namespace('http://schema.org/')
 
 class OntologyEntity(object):
     """
@@ -272,6 +274,10 @@ class Ontology(object):
         else:
             for t in turtle:
                 g.parse(data=t, format='ttl')
+
+        for ns in ('rdfs', 'rdf', 'owl', 'schema'):
+            if ns not in g.namespaces():
+                g.namespace_manager.bind(ns, eval(ns.upper()))
 
         # Class
         for uri in g.subjects(RDF.type, OWL.Class):
