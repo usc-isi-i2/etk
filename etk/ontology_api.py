@@ -431,7 +431,6 @@ class Ontology(object):
 
         """
         import os
-        content = ''
         sorted_by_name = lambda arr: sorted(arr, key=lambda x: x.name())
         template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
         with open(template) as f:
@@ -459,10 +458,13 @@ class Ontology(object):
                 if superclass_of:
                     attr.append(row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
                 attr.extend(self.__html_entity_basic_info(c, row))
-                properties = list(filter(lambda x: c.uri() in x.included_domains(), sorted_properties))
+                properties = list(filter(lambda x: c.super_classes_closure() & x.included_domains(), sorted_properties))
                 if properties:
                     attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                classes.append(item.format('C-'+c.name(), c.name(), '\n'.join(attr)))
+                properties = list(filter(lambda x: c.super_classes_closure() & x.included_ranges(), sorted_properties))
+                if properties:
+                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
+                classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
 
             ### Properties
             dataproperties = []
@@ -492,9 +494,9 @@ class Ontology(object):
                 if isinstance(p, OntologyObjectProperty):
                     if p.inverse():
                         attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
-                    objectproperties.append(item.format('O-'+p.name(), p.name(), '\n'.join(attr)))
+                    objectproperties.append(item.format('O-'+p.uri(), p.name(), '\n'.join(attr)))
                 else:
-                    dataproperties.append(item.format('D-'+p.name(), p.name(), '\n'.join(attr)))
+                    dataproperties.append(item.format('D-'+p.uri(), p.name(), '\n'.join(attr)))
 
             content = content.replace('{{{classes}}}', '\n'.join(classes)) \
                              .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
@@ -532,4 +534,4 @@ class Ontology(object):
     def __html_entity_href(self, e):
         template = '<a href="#{}-{}">{}</a>'
         kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
-        return template.format(kind[type(e)], e.name(), e.name())
+        return template.format(kind[type(e)], e.uri(), e.name())
