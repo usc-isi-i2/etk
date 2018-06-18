@@ -116,7 +116,7 @@ class ETK(object):
                                 field_extraction = field_extractions[i]
                                 if 'value' in field_extraction and field_extraction['value'] == doc_id:
                                     del field_extractions[i]
-                                    field_extractions.append({'value': json_doc})
+                                    field_extractions.append({'value': json_doc, 'key':field_extraction['key'], 'is_nested': True})
 
     def process_ems(self, doc: Document) -> List[Document]:
         """
