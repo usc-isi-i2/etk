@@ -244,7 +244,7 @@ class ValidationError(Exception):
 
 class Ontology(object):
 
-    def __init__(self, turtle: str) -> None:
+    def __init__(self, turtle) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -258,7 +258,7 @@ class Ontology(object):
         - Detect cycles in sub-class and sub-property hierarchies.
 
         Args:
-            turtle:
+            turtle: str or Iterable[str]
         """
         self.entities = dict()
         self.classes = set()
@@ -267,7 +267,11 @@ class Ontology(object):
         self.roots = set()
 
         g = Graph()
-        g.parse(data=turtle, format='ttl')
+        if isinstance(turtle, str):
+            g.parse(data=turtle, format='ttl')
+        else:
+            for t in turtle:
+                g.parse(data=t, format='ttl')
 
         # Class
         for uri in g.subjects(RDF.type, OWL.Class):
@@ -353,7 +357,7 @@ class Ontology(object):
                     try:
                         p.ranges.add(self.entities[r.toPython()])
                     except KeyError:
-                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
+                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), r)
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())

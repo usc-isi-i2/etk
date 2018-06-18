@@ -1,4 +1,5 @@
-@prefix : <http://isi.edu/ontologies/dig/> .
+@prefix : <http://dig.isi.edu/ontologies/dig/> .
+@prefix diga: <http://dig.isi.edu/ontologies/dig-annotation/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -10,31 +11,71 @@
 @prefix crm: <http://www.cidoc-crm.org/cidoc-crm/> .
 @prefix schema: <http://schema.org/> .
 
+###
+### This file specifies two ontologies:
+### - :diga <http://dig.isi.edu/ontologies/dig-annotation/> 
+###   an ontology to annotate other ontologies with information useful to dig
+### - : <http://dig.isi.edu/ontologies/dig/>
+###   a default generic ontology, useful for multiple applications. Users may use other ontologies.
+
+
+diga:icon_name a owl:DatatypeProperty ;
+    rdfs:label "icon name" ;
+    skos:definition """Specifies the name of an icon that a user interface may display when showing values of a property or class in the user interface.""" ;
+    schema:domainIncludes owl:ObjectProperty, owl:DatatypeProperty, owl:Class ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+diga:icon_color a owl:DatatypeProperty ;
+    rdfs:label "icon color" ;
+    skos:definition """Specifies the color of an icon that a user interface may display when showing values of a property or class in the user interface.""" ;
+    schema:domainIncludes owl:ObjectProperty, owl:DatatypeProperty, owl:Class ;
+    schema:rangeIncludes xsd:string ;
+    .
+
+diga:crm_equivalent a owl:ObjectProperty ;
+    rdfs:label "CRM equivalent" ;
+    skos:definition """Specifies an equivalent class or property in the CRM ontology.""" ;
+    schema:domainIncludes owl:ObjectProperty, owl:DatatypeProperty, owl:Class ;
+    schema:rangeIncludes owl:ObjectProperty, owl:DatatypeProperty, owl:Class ;
+    .
+
+
+###
+### CRM classes excluded from this ontology:
+#
+# E14_Condition_Assessment
+# E15 Identifier Assignment
+# E17 Type Assignment
+# E24_Physical Man-Made Thing: distinction with E22 Man-Made Object is only relevant for museums.
+# E25_Man-Made Feature: distinction with Man_Made_Object is very subtle as it distinguishes features from objects
+# E78_Collection: the meaning is specific to museum collection. TODO: probably need a general Collection class for physical objects
+
+# E83 Type Creation
+# E87 Curation Activity
+# E81 Transformation
+# 
+
 :Entity a owl:Class ;
     rdfs:label "Entity" ;
     skos:definition """Everything that can be described, similar to owl:Thing.""" ;
     :common_properties :label, :title, :description ;
-    :crm_equivalent crm:E1_CRM_Entity
+    diga:crm_equivalent crm:E1_CRM_Entity ;
     .
 
  # S9 Property Type
  :Type a owl:Class ;
     rdfs:label "Type" ;
     skos:definition """Everything that can be described, similar to owl:Thing.""" ;
-    :crm_equivalent crm:E55_Type ;
+    diga:crm_equivalent crm:E55_Type ;
     .
 
 :Property_Type a owl:Class ;
     rdfs:label "Property Type" ;
     skos:definition """When modeling measurements, one creates a :Measurement event, and one needs to record the value measures together with its units (:Dimension), the object that was measured (:measured), and the property of the object that we are measuring (:observed_property_type), e.g., the width, or height, or price, or production level, etc. It is possible that all these properties are not defined as RDF properties in an ontology, e.g., :price is not in the ontology. The idea of :Property_Type is to create controlled vocabularies of properties one can observe, withut requiring that these properties be defined as RDF properties, i.e., the observed properties are data (instances of :Property_Type), so new ones can be added without extending the ontology.""" ;
-    skos:definition """Formal definition: Comprises types of properties. Typically, instances of S9 Property Type would be
-taken from an ontology or terminological system. In particular, instances of this class can be
-used to describe in a parametric way what kind of properties the values in scientific data sets
-are about. By virtue of such descriptions, numeric data can be interpreted as sets of
-propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the
-ground water from a certain borehole.""" ;
+    skos:definition """Comprises types of properties. Typically, instances of S9 Property Type would be aken from an ontology or terminological system. In particular, instances of this class can be used to describe in a parametric way what kind of properties the values in scientific data sets are about. By virtue of such descriptions, numeric data can be interpreted as sets of propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the ground water from a certain borehole.""" ;
     owl:subClassOf :Type ;
-    :crm_equivalent crm:S9_Property_Type ;
+    diga:crm_equivalent crm:S9_Property_Type ;
     .
 
 :Temporal_Entity a owl:Class ;
@@ -42,30 +83,8 @@ ground water from a certain borehole.""" ;
     skos:definition """Phenomena that happens over time, incuding :Event and :Condition_State.""" ;
     skos:note """This is an abstract class used as domain of temporal properties that apply to :Event and :Condition_State.""" ;
     rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E2_Temporal_Entity ;
+    diga:crm_equivalent crm:E2_Temporal_Entity ;
     :common_properties :title, :description, :identifier ;
-    .
-
-:Physical_Object a owl:Class ;
-    rdfs:label "Physical_Object" ;
-    skos:definition """A thing in the world, e.g., buildings, trees, persons, but not ideas.""" ;
-    rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E19_Physical_Object ;
-    .
-
-:Man_Made_Thing a owl:Class ;
-    rdfs:label "Man-Made Thing" ;
-    skos:definition """Comprises discrete, identifiable man-made items that are documented as single units. These items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.""" ;
-    skos:note """Beethoven’s 5th Symphony, Michelangelo’s David, Einstein’s Theory of General Relativity, the Linux operating system, the Empire State building, a chair.""" ;
-    rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E71_Man-Made_Thing ;
-    .
-
-:Event a owl:Class ;
-    rdfs:label "Event" ;
-    skos:definition """An event that may happen or has happened in the world.""" ;
-    rdfs:subClassOf :Temporal_Entity ;
-    :crm_equivalent crm:E5_Event ;
     .
 
 :Condition_State a owl:Class ;
@@ -73,14 +92,422 @@ ground water from a certain borehole.""" ;
     skos:definition """The states of objects characterised by a certain condition over a time-span.""" ;
     skos:note """For example, being dead, or being destroyed are states that may be caused by an event.""" ;
     rdfs:subClassOf :Temporal_Entity ;
-    :crm_equivalent crm:E3_Condition_State ;
+    diga:crm_equivalent crm:E3_Condition_State ;
     .
+
+:Event a owl:Class ;
+    rdfs:label "Event" ;
+    skos:definition """An event that may happen or has happened in the world.""" ;
+    rdfs:subClassOf :Temporal_Entity ;
+    diga:crm_equivalent crm:E5_Event ;
+    .
+
+:Activity a owl:Class ;
+    rdfs:label "Activity" ;
+    skos:definition """Comprises actions intentionally carried out by instances of E39 Actor that result in changes of state in the world. The difference with :Event is that events may just "happen" while :Activity implies that an :Actor made them happen.""" ;
+    rdfs:subClassOf :Event ;
+    diga:crm_equivalent crm:E7_Activity ;
+    .
+
+:Acquisition a owl:Class ;
+    rdfs:label "Acquisition" ;
+    skos:definition """Comprises transfers of legal ownership from one or more instances of E39 Actor to one or more other instances of E39 Actor.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E8_Acquisition ;
+    .
+
+:Move a owl:Class ;
+    rdfs:label "Move" ;
+    skos:definition """Comprises changes of the physical location of the instances of E19 Physical Object.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E9_Move ;
+    .
+
+:Transfer_Of_Custody a owl:Class ;
+    rdfs:label "Transfer of Custody" ;
+    skos:definition """Comprises transfers of physical custody of objects between instances of E39 Actor.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E10_Transfer_Of_Custody ;
+    .
+
+:Modification a owl:Class ;
+    rdfs:label "Modification" ;
+    skos:definition """Comprises all instances of E7 Activity that create, alter or change E24 Physical Man-Made Thing.""" ;
+    skos:note """Since the distinction between modification and production is not always clear, modification is regarded as the more generally applicable concept. This implies that some items may be consumed or destroyed in a Modification, and that others may be produced as a result of it. An event should also be documented using E81 Transformation if it results in the destruction of one or more objects and the simultaneous production of others using parts or material from the originals. In this case, the new items have separate identities.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E11_Modification ;
+    .
+
+:Production a owl:Class ;
+    rdfs:label "Production" ;
+    skos:definition """Comprises activities that are designed to, and succeed in, creating one or more new items.""" ;
+    rdfs:subClassOf :Modification ;
+    diga:crm_equivalent crm:E12_Production ;
+    .
+
+:Part_Addition a owl:Class ;
+    rdfs:label "Part Addition" ;
+    skos:definition """Comprises activities that result in an instance of E24 Physical Man-Made Thing being increased, enlarged or augmented by the addition of a part.""" ;
+    rdfs:subClassOf :Modification ;
+    diga:crm_equivalent crm:E79_Part_Addition ;
+    .
+
+:Part_Removal a owl:Class ;
+    rdfs:label "Part Removal" ;
+    skos:definition """Comprises the activities that result in an instance of E18 Physical Thing being decreased by the removal of a part.""" ;
+    rdfs:subClassOf :Modification ;
+    diga:crm_equivalent crm:E80_Part_Removal ;
+    .
+
+:Attribute_Assignment a owl:Class ;
+    rdfs:label "Attribute Assignment" ;
+    skos:definition """Comprises the actions of making assertions about properties of an object or any relation between two items or concepts.""" ;
+    skos:note """In particular, the class describes the actions of people making propositions and statements, e.g. the person and date when a condition statement was made, an identifier was assigned, an object was measured, etc.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E13_Attribute_Assignment ;
+    .
+
+:Measurement a owl:Class ;
+    rdfs:label "Measurement" ;
+    skos:definition """Describes an entity being measured and an observed dimension.""" ;
+    skos:note """:Measurement is a subclass of event, so it is possible to record additional roles such as time when the measurement was made, who made it, where it was made, etc.""" ;
+    skos:note """Examples: Joe's weight is 150 lbs, price of oil is $60""" ;
+    rdfs:subClassOf :Attribute_Assignment ;
+    diga:crm_equivalent crm:E16_Measurement ;
+    :common_properties :observed_dimension, :measured ;
+    .
+
+:Creation a owl:Class ;
+    rdfs:label "Creation" ;
+    skos:definition """Comprises events that result in the creation of conceptual items or immaterial products, such as legends, poems, texts, music, images, movies, laws, types etc.""" ;
+    skos:note """Examples: the framing of the U.S. Constitution, the drafting of U.N. resolution 1441""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E65_Creation ;
+    .
+
+:Formation a owl:Class ;
+    rdfs:label "Formation" ;
+    skos:definition """Comprises events that result in the formation of a formal or informal E74 Group of people, such as a club, society, association, corporation or nation.""" ;
+    skos:note """The formation of an instance of E74 Group does not mean that the group is populated with members at the time of formation. In order to express the joining of members at the time of formation, the respective activity should be simultaneously an instance of both E66 Formation and E85 Joining.""" ;
+    rdfs:subClassOf :Activity, :Beginning_Of_Existence ;
+    diga:crm_equivalent crm:E66_Formation ;
+    .
+
+:Joining a owl:Class ;
+    rdfs:label "Joining" ;
+    skos:definition """comprises the activities that result in an instance of E39 Actor becoming a member of an instance of E74 Group. This class does not imply initiative by either party.""" ;
+    skos:note """Typical scenarios include becoming a member of a social organisation, becoming employee of a company, marriage, the adoption of a child by a family and the inauguration of somebody into an official position.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E85_Joining ;
+    .
+
+:Leaving a owl:Class ;
+    rdfs:label "Leaving" ;
+    skos:definition """Comprises the activities that result in an instance of E39 Actor to be disassociated from an instance of E74 Group. This class does not imply initiative by either party.""" ;
+    skos:note """Typical scenarios include the termination of membership in a social organisation, ending the employment at a company, divorce, and the end of tenure of somebody in an official position.""" ;
+    rdfs:subClassOf :Activity ;
+    diga:crm_equivalent crm:E86_Leaving ;
+    .
+
+:Beginning_Of_Existence a owl:Class ;
+    rdfs:label "Beginning of Existence" ;
+    skos:definition """Comprises events that bring into existence any E77 Persistent Item.""" ;
+    skos:note """Examples, the birth of my child; the birth of Snoopy, my dog; the calving of the iceberg that sank the Titanic; the construction of the Eiffel Tower""" ;
+    rdfs:subClassOf :Event ;
+    diga:crm_equivalent crm:E63_Beginning_Of_Existence ;
+    .
+
+:Birth a owl:Class ;
+    rdfs:label "Birth" ;
+    skos:definition """Comprises the births of human beings. E63 Beginning of Existence comprises the coming into life of any living beings.""" ;
+    rdfs:subClassOf :Beginning_Of_Existence ;
+    diga:crm_equivalent crm:E67_Birth ;
+    .
+
+:End_Of_Existence a owl:Class ;
+    rdfs:label "End of Existence" ;
+    skos:definition """Comprises events that end the existence of any E77 Persistent Item.""" ;
+    rdfs:subClassOf :Event ;
+    diga:crm_equivalent crm:E64_End_Of_Existence ;
+    .
+
+:Destruction a owl:Class ;
+    rdfs:label "Destruction" ;
+    skos:definition """Comprises events that destroy one or more instances of E18 Physical Thing such that they lose their identity as the subjects of documentation.""" ;
+    rdfs:subClassOf :End_Of_Existence ;
+    diga:crm_equivalent crm:E6_Destruction ;
+    .
+
+:Dissolution a owl:Class ;
+    rdfs:label "Dissolution" ;
+    skos:definition """Comprises the events that result in the formal or informal termination of an E74 Group of people.""" ;
+    rdfs:subClassOf :End_Of_Existence ;
+    diga:crm_equivalent crm:E68_Dissolution ;
+    .
+
+:Death a owl:Class ;
+    rdfs:label "Death" ;
+    skos:definition """Comprises the deaths of human beings.""" ;
+    rdfs:subClassOf :End_Of_Existence ;
+    diga:crm_equivalent crm:E69_Death ;
+    .
+
+:Persistent_Item a owl:Class ;
+    rdfs:label "Persistent Item" ;
+    skos:definition """Comprises items that have a persistent identity.""" ;
+    skos:note """This is an abstract class to tie together actors and things.""" ;
+    rdfs:subClassOf :Entity ;
+    diga:crm_equivalent crm:E77_Persistent_Item ;
+    .
+
+:Thing a owl:Class ;
+    rdfs:label "Thing" ;
+    skos:definition """Comprises usable discrete, identifiable, instances of E77 Persistent Item that are documented as single units.""" ;
+    skos:note """They can be either intellectual products or physical things, and are characterized by relative stability. They may for instance either have a solid physical form, an electronic encoding, or they may be logical concept or structure.""" ;
+    rdfs:subClassOf :Persistent_Item ;
+    diga:crm_equivalent crm:E70_Thing ;
+    .
+
+:Legal_Object a owl:Class ;
+    rdfs:label "Legal Object" ;
+    skos:definition """Comprises usable discrete, identifiable, instances of E77 Persistent Item that are documented as single units.""" ;
+    skos:note """They can be either intellectual products or physical things, and are characterized by relative stability. They may for instance either have a solid physical form, an electronic encoding, or they may be logical concept or structure.""" ;
+    rdfs:subClassOf :Thing ;
+    diga:crm_equivalent crm:E72_Legal_Object ;
+    .
+
+:Physical_Thing a owl:Class ;
+    rdfs:label "Physical Thing" ;
+    skos:definition """Comprises all persistent physical items with a relatively stable form, man-made or natural.""" ;
+    skos:note """Depending on the existence of natural boundaries of such things, the CRM distinguishes the instances of E19 Physical Object from instances of E26 Physical Feature, such as holes, rivers, pieces of land etc. Most instances of E19 Physical Object can be moved (if not too heavy), whereas features are integral to the surrounding matter.""" ;
+    rdfs:subClassOf :Legal_Object ;
+    diga:crm_equivalent crm:E18_Physical_Thing ;
+    .
+
+:Physical_Object a owl:Class ;
+    rdfs:label "Physical_Object" ;
+    skos:definition """A thing in the world, e.g., buildings, trees, persons, but not ideas.""" ;
+    rdfs:subClassOf :Physical_Thing ;
+    diga:crm_equivalent crm:E19_Physical_Object ;
+    .
+
+:Biological_Object a owl:Class ;
+    rdfs:label "Biological Object" ;
+    skos:definition """Comprises individual items of a material nature, which live, have lived or are natural products of or from living organisms.""" ;
+    rdfs:subClassOf :Physical_Thing ;
+    diga:crm_equivalent crm:E20_Biological_Object ;
+    .
+
+:Person a owl:Class ;
+    rdfs:label "Group" ;
+    skos:definition """A specific person in the world, it can be specific, such as a Barack Obama, or unspecific, such as a child.""" ;
+    rdfs:subClassOf :Actor, :Biological_Object ;
+    diga:crm_equivalent crm:E21_Person ; 
+    :common_properties :label, :title, :religion ;
+    .
+
+# E22 Man-Made Object
+:Man_Made_Object a owl:Class ;
+    rdfs:label "Man-Made Thing" ;
+    skos:definition """Comprises physical objects purposely created by human activity.""" ;
+    rdfs:subClassOf :Physical_Object, :Physical_Man_Made_Thing ;
+    diga:crm_equivalent crm:E22_Man-Made_Object ;
+    .
+
+# E84_Information Carrier
+:Information_Carrier a owl:Class ;
+    rdfs:label "Information Carrier" ;
+    skos:definition """Comprises all instances of E22 Man-Made Object that are explicitly designed to act as persistent physical carriers for instances of E73 Information Object.""" ;
+    skos:note """Examples: the Rosetta Stone; my paperback copy of Crime & Punishment; the computer disk in my laptop.""" ; 
+    rdfs:subClassOf :Man_Made_Object ;
+    diga:crm_equivalent crm:E84_Information_Carrier ;
+    .
+
+# E26_Physical Feature: 
+:Physical_Feature a owl:Class ;
+    rdfs:label "Physical Feature" ;
+    skos:definition """Comprises identifiable features that are physically attached in an integral way to particular physical objects.""" ;
+    skos:note """Instances of E26 Physical Feature can be features in a narrower sense, such as scratches, holes, reliefs, surface colours, reflection zones in an opal crystal or a density change in a piece of wood. In the wider sense, they are portions of particular objects with partially imaginary borders, such as the core of the Earth, an area of property on the surface of the Earth, a landscape or the head of a contiguous marble statue. They can be measured and dated, and it is sometimes possible to state who or what is or was responsible for them. They cannot be separated from the carrier object, but a segment of the carrier object may be identified (or sometimes removed) carrying the complete feature.""" ; 
+    rdfs:subClassOf :Physical_Thing ;
+    diga:crm_equivalent crm:E26_Physical_Feature ;
+    .
+
+# E27_Site: 
+:Site a owl:Class ;
+    rdfs:label "Site" ;
+    skos:definition """Comprises pieces of land or sea floor.""" ;
+    skos:note """In contrast to the purely geometric notion of E53 Place, this class describes constellations of matter on the surface of the Earth or other celestial body, which can be represented by photographs, paintings and maps.""" ; 
+    skos:note """Examples: the Amazon river basin; Knossos ; the Apollo 11 landing site; Heathrow Airport; the submerged harbour of the Minoan settlement of Gournia, Crete.""" ;
+    rdfs:subClassOf :Physical_Feature ;
+    diga:crm_equivalent crm:E27_Site ;
+    .
+
+# E90_Symbolic Object
+:Symbolic_Object a owl:Class ;
+    rdfs:label "Symbolic Object" ;
+    skos:definition """Comprises identifiable symbols and any aggregation of symbols, such as characters, identifiers, traffic signs, emblems, texts, data sets, images, musical scores, multimedia objects, computer program code or mathematical formulae that have an objectively recognizable structure and that are documented as single units.""" ;
+    skos:note """It includes sets of signs of any nature, which may serve to designate something, or to communicate some propositional content.""" ;
+    skos:note """An instance of E90 Symbolic Object does not depend on a specific physical carrier, which can include human memory, and it can exist on one or more carriers simultaneously. An instance of E90 Symbolic Object may or may not have a specific meaning, for example an arbitrary character string.""" ;
+    rdfs:subClassOf :Conceptual_Object, :Legal_Object ;
+    diga:crm_equivalent crm:E90_Symbolic_Object ;
+    .
+
+# E73_Information Object
+:Information_Object a owl:Class ;
+    rdfs:label "Information Object" ;
+    skos:definition """Comprises identifiable immaterial items, such as a poems, jokes, data sets, images, texts, multimedia objects, procedural prescriptions, computer program code, algorithm or mathematical formulae, that have an objectively recognizable structure and are documented as single units.""" ;
+    skos:note """An E73 Information Object does not depend on a specific physical carrier, which can include human memory, and it can exist on one or more carriers simultaneously.""" ;
+    skos:note """Instances of E73 Information Object of a linguistic nature should be declared as instances of the E33 Linguistic Object subclass. Instances of E73 Information Object of a documentary nature should be declared as instances of the E31 Document subclass. ideas without a reproducible expression are not instances of E73 Information Object.""" ;
+    rdfs:subClassOf :Propositional_Object, :Symbolic_Object ;
+    diga:crm_equivalent crm:E73_Information_Object ;
+    .
+  
+# E29_Design or Procedure
+:Design_Or_Procedure a owl:Class ;
+    rdfs:label "Design or Procedure" ;
+    skos:definition """Comprises documented plans for the execution of actions in order to achieve a result of a specific quality, form or contents. In particular it comprises plans for deliberate human activities that may result in the modification or production of instances of E24 Physical Thing.""" ;
+    skos:note """Instances of E29 Design or Procedure can be structured in parts and sequences or depend on others. This is modelled using P69 is associated with.""" ;
+    skos:note """Designs or procedures can be seen as one of the following: 1. A schema for the activities it describes; 2. A schema of the products that result from their application; 3. An independent intellectual product that may have never been applied, such as Leonardo da Vinci’s famous plans for flying machines.""" ;
+    rdfs:subClassOf :Information_Object ;
+    diga:crm_equivalent crm:E29_Design_or_Procedure ;
+    .
+
+# E31_Document
+:Document a owl:Class ;
+    rdfs:label "Document" ;
+    skos:definition """Comprises identifiable immaterial items that make propositions about reality.""" ;
+    skos:note """These propositions may be expressed in text, graphics, images, audiograms, videograms or by other similar means. Documentation databases are regarded as a special case of E31 Document. This class should not be confused with the term “document” in Information Technology, which is compatible with E73 Information Object.""" ;
+    rdfs:subClassOf :Information_Object ;
+    diga:crm_equivalent crm:E31_Document ;
+    .
+
+# E32_Authority Document
+:Authority_Document a owl:Class ;
+    rdfs:label "Authority Document" ;
+    skos:definition """Comprises encyclopaedia, thesauri, authority lists and other documents that define terminology or conceptual systems for consistent use.""" ;
+    rdfs:subClassOf :Document ;
+    diga:crm_equivalent crm:E32_Authority_Document ;
+    .
+
+# E33_Linguistic Object
+:Linguistic_Object a owl:Class ;
+    rdfs:label "Linguistic Object" ;
+    skos:definition """Comprises identifiable expressions in natural language or languages.""" ;
+    skos:note """nstances of E33 Linguistic Object can be expressed in many ways: e.g. as written texts, recorded speech or sign language. However, the CRM treats instances of E33 Linguistic Object independently from the medium or method by which they are expressed. Expressions in formal languages, such as computer code or mathematical formulae, are not treated as instances of E33 Linguistic Object by the CRM (because code is not in natural language). These should be modelled as instances of E73 Information Object. The text of an instance of E33 Linguistic Object can be documented in a note by P3 has note: E62 String""" ;
+    rdfs:subClassOf :Information_Object ;
+    diga:crm_equivalent crm:E33_Linguistic_Object ;
+    .
+
+
+#     E34_Inscription
+#     E35_Title
+#   E36_Visual Item
+#     E37_Mark
+#       E34_Inscription
+#     E38_Image# 
+
+# E41_Appellation
+# E42_Identifier
+# E44_Place Appellation
+# E45_Address
+# E46_Section Definition
+# E47_Spatial Coordinates
+# E48_Place Name
+# E49_Time Appellation
+# E50_Date
+# E75_Conceptual Object Appellation
+# E82_Actor Appellation
+# E51_Contact Point
+# E45_Address
+# E35_Title
+
+# E71_Man-Made Thing
+:Man_Made_Thing a owl:Class ;
+    rdfs:label "Man-Made Thing" ;
+    skos:definition """Comprises discrete, identifiable man-made items that are documented as single units. These items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.""" ;
+    skos:note """Beethoven’s 5th Symphony, Michelangelo’s David, Einstein’s Theory of General Relativity, the Linux operating system, the Empire State building, a chair.""" ;
+    rdfs:subClassOf :Entity ;
+    diga:crm_equivalent crm:E71_Man-Made_Thing ;
+    .
+
+# E24_Physical Man-Made Thing
+# E22_Man-Made Object
+# E84_Information Carrier
+# E25_Man-Made Feature
+# E78_Collection
+
+
+# E28_Conceptual Object
+:Conceptual_Object a owl:Class ;
+    rdfs:label "Conceptual Object" ;
+    skos:definition """Comprises non-material products of our minds and other human produced data that have become objects of a discourse about their identity, circumstances of creation or historical implication. The production of such information may have been supported by the use of technical devices such as cameras or computers.""" ;
+    skos:note """Characteristically, instances of this class are created, invented or thought by someone, and then may be documented or communicated between persons. Instances of E28 Conceptual Object have the ability to exist on more than one particular carrier at the same time, such as paper, electronic signals, marks, audio media, paintings, photos, human memories, etc.""" ;
+    skos:note """They cannot be destroyed. They exist as long as they can be found on at least one carrier or in at least one human memory. Their existence ends when the last carrier and the last memory are lost.""" ;
+    rdfs:subClassOf :Man_Made_Thing ;
+    diga:crm_equivalent crm:E28_Conceptual_Object ;
+    .
+
+
+# E29_Design or Procedure
+# E31_Document
+# E32_Authority Document
+# E33_Linguistic Object
+# E34_Inscription
+# E35_Title
+# E36_Visual Item
+# E37_Mark
+# E34_Inscription
+# E38_Image
+# E41_Appellation
+# E42_Identifier
+# E44_Place Appellation
+# E45_Address
+# E46_Section Definition
+# E47_Spatial Coordinates
+# E48_Place Name
+# E49_Time Appellation
+# E50_Date
+# E75_Conceptual Object Appellation
+# E82_Actor Appellation
+# E51_Contact Point
+# E45_Address
+# E35_Title
+# E89_Propositional Object# 
+
+# E29_Design or Procedure
+# E31_Document
+# E32_Authority Document
+# E33_Linguistic Object
+# E34_Inscription
+# E35_Title
+# E36_Visual Item
+# E37_Mark
+# E34_Inscription
+# E38_Image
+# E30_Right
+# E55_Type
+# E56_Language
+# E57_Material
+# E58_Measurement Unit
+# E39_Actor
+# E74_Group
+# E40_Legal Body
+# E21_Person
+# E52_Time-Span
+# E53_Place
+# E54_Dimension
+# E59_Primitive Value
+# E60_Number
+# E61_Time Primitive
+# E62_String
+
+
 
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
-    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
+    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ; 
     rdfs:subClassOf :Group ;
-    :crm_equivalent crm:E39_Actor ;
+    diga:crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
     .
 
@@ -88,7 +515,7 @@ ground water from a certain borehole.""" ;
     rdfs:label "Group" ;
     skos:definition """A """ ;
     rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E74_Group ;
+    diga:crm_equivalent crm:E74_Group ;
     :common_properties :label, :title ;
     .
 
@@ -96,15 +523,7 @@ ground water from a certain borehole.""" ;
     rdfs:label "Group" ;
     skos:definition """Any type of organizationm, a company, a terrorist group, a government, etc.""" ;
     rdfs:subClassOf :Actor ;
-    :crm_equivalent crm:E40_Legal_Body ;
-    :common_properties :label, :title, :religion ;
-    .
-
-:Person a owl:Class ;
-    rdfs:label "Group" ;
-    skos:definition """A specific person in the world, it can be specific, such as a Barack Obama, or unspecific, such as a child.""" ;
-    rdfs:subClassOf :Actor ;
-    :crm_equivalent crm:E21_Person ;
+    diga:crm_equivalent crm:E40_Legal_Body ;
     :common_properties :label, :title, :religion ;
     .
 
@@ -112,7 +531,7 @@ ground water from a certain borehole.""" ;
     rdfs:label "Place" ;
     skos:definition """Any place at any level of granularity""" ;
     rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E53_Place ;
+    diga:crm_equivalent crm:E53_Place ;
     :common_properties :label, :title, :city, :state, :country, :region, :iso_country_code, :adm1_code ;
     .
 
@@ -122,18 +541,8 @@ ground water from a certain borehole.""" ;
     skos:note """Values are specified using :has_value, :value_is_at_least or :value_is_at_most. When the numeric value is unknown, e.g., "a large sum of money", it should be recorded as the :label.""" ;
     skos:note """Examples: currency: $26.00, length: 3.9-4.1 cm, diameter 26 mm, weight 150 lbs""" ;
     rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E54_Dimension ;
+    diga:crm_equivalent crm:E54_Dimension ;
     :common_properties :has_value, :has_unit, :value_is_at_least, :value_is_at_most ;
-    .
-
-:Measurement a owl:Class ;
-    rdfs:label "Measurement" ;
-    skos:definition """Describes an entity being measured and an observed dimension.""" ;
-    skos:note """:Measurement is a subclass of event, so it is possible to record additional roles such as time when the measurement was made, who made it, where it was made, etc.""" ;
-    skos:note """Examples: Joe's weight is 150 lbs, price of oil is $60""" ;
-    rdfs:subClassOf :Event ;
-    :crm_equivalent crm:E16_Measurement ;
-    :common_properties :observed_dimension, :measured ;
     .
 
 :Time_Span a owl:Class ;
@@ -143,7 +552,7 @@ ground water from a certain borehole.""" ;
     skos:note """P82 at some time within, and P81 ongoing throughout are specified using :start_date, :start_after_date, :start_before_date, :end_date, :end_after_date, :end_before_date. With these properties it is possible to specify the whole interval without additional objects.""" ;
     skos:note """Suppose we are told that someone was born ins 1998. This can be modelled as a :Time_Span with from 1 Jan 1998 at midnight to midnight of 31 Dec 1998. It can also be modeled by specifying the :start_time 1 Jan 1998 at midnight and a duration of one year. And it can also be modeled using :year 1998.""" ;
     rdfs:subClassOf :Entity ;
-    :crm_equivalent crm:E52_Time-Span ;
+    diga:crm_equivalent crm:E52_Time-Span ;
     .
 
 :Religion a owl:Class ;
@@ -207,7 +616,7 @@ ground water from a certain borehole.""" ;
     skos:definition """Records a :Place associated with a :Temporal_Entity.""" ;
     schema:domainIncludes :Temporal_Entity ;
     schema:rangeIncludes :Place ;
-    :crm_equivalent crm:P7_took_place_at ;
+    diga:crm_equivalent crm:P7_took_place_at ;
     .
 
 :took_place_on_or_within a owl:ObjectProperty ;
@@ -215,7 +624,7 @@ ground water from a certain borehole.""" ;
     skos:definition """Describes the location of Temporal_Entity with respect to :Physical_Object, e.g., an event that took place inside a building, and perhaps we don't know where the building is.""" ;
     schema:domainIncludes :Temporal_Entity ;
     schema:rangeIncludes :Physical_Object ;
-    :crm_equivalent crm:P8_took_place_on_or_within ;
+    diga:crm_equivalent crm:P8_took_place_on_or_within ;
     .
 
 :has_time_span a owl:ObjectProperty ;
@@ -223,16 +632,16 @@ ground water from a certain borehole.""" ;
     skos:definition """The time interval when the :E2_Temporal_Entity happened.""" ;
     schema:domainIncludes :Temporal_Entity ;
     schema:rangeIncludes :Time_Span ;
-    :crm_equivalent crm:P4_has_time-span ;
+    diga:crm_equivalent crm:P4_has_time-span ;
     .
 
 :occurred_in_the_presence_of a owl:ObjectProperty ;
     rdfs:label "occurred in the presence of" ;
     skos:definition """Entities that were present during the event and are somehow relevant to the event, e.g., a car or building destroyed in a bombing, a car that was parked close by, the weapon used, people who witnessed the event.""" ;
-    skos:note """This is a general property to model a relationship between an event and an entity. Often a more specific subPropertyOf can be used to model the relationship more precisely.""" ;
+    skos:note """This is a general property to model a relationship between an event and an entity. Often a more specific subPropertyOf can be used to model the relationship more precisely.""" ; 
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Entity ;
-    :crm_equivalent crm:P12_occurred_in_the_presence_of ;
+    diga:crm_equivalent crm:P12_occurred_in_the_presence_of ;
     .
 
 :had_participant a owl:ObjectProperty ;
@@ -242,14 +651,14 @@ ground water from a certain borehole.""" ;
 	schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P11:had_participant ;
+    diga:crm_equivalent crm:P11:had_participant ;
     .
 
 :carried_out_by a owl:ObjectProperty ;
     rdfs:label "carried out by" ;
     skos:definition """An :Actor that played an active role in an event. :carried_out_by implies causal or legal responsibility.""" ;
     owl:subPropertyOf :had_participant ;
-    :crm_equivalent crm:P14_carried_out_by ;
+    diga:crm_equivalent crm:P14_carried_out_by ;
     .
 
 :damaged a owl:ObjectProperty ;
@@ -266,7 +675,7 @@ ground water from a certain borehole.""" ;
     skos:note """Typically applies to things such as buildings, animals, but technically also applies to people as they are :Physical_Object. """ ;
     schema:rangeIncludes :Physical_Object ;
     owl:subPropertyOf :damaged ;
-    :crm_equivalent crm:P13_destroyed ;
+    diga:crm_equivalent crm:P13_destroyed ;
     .
 
 :was_influenced_by a owl:ObjectProperty ;
@@ -275,7 +684,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Entity ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P15_was_influenced_by ;
+    diga:crm_equivalent crm:P15_was_influenced_by ;
     .
 
 :used_specific_object a owl:ObjectProperty ;
@@ -285,7 +694,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Physical_Object ;
     owl:subPropertyOf :was_influenced_by ;
-    :crm_equivalent crm:P16_used_specific_object ;
+    diga:crm_equivalent crm:P16_used_specific_object ;
     .
 
 :was_motivated_by a owl:ObjectProperty ;
@@ -295,7 +704,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Entity ;
     owl:subPropertyOf :was_influenced_by ;
-    :crm_equivalent crm:P17_was_motivated_by ;
+    diga:crm_equivalent crm:P17_was_motivated_by ;
     .
 
 :was_intended_use_of a owl:ObjectProperty ;
@@ -305,7 +714,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Entity ;
     owl:subPropertyOf :used_specific_object ;
-    :crm_equivalent crm:P19_was_intended_use_of ;
+    diga:crm_equivalent crm:P19_was_intended_use_of ;
     .
 
 :had_specific_purpose a owl:ObjectProperty ;
@@ -316,7 +725,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
     owl:subPropertyOf :used_specific_object ;
-    :crm_equivalent crm:P20_had_specific_purpose ;
+    diga:crm_equivalent crm:P20_had_specific_purpose ;
     .
 
 :had_provider a owl:ObjectProperty ;
@@ -337,7 +746,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
     owl:subPropertyOf :carried_out_by ;
-    :crm_equivalent crm:P22_transferred_title_to ;
+    diga:crm_equivalent crm:P22_transferred_title_to ;
     .
 
 :transferred_ownership_from a owl:ObjectProperty ;
@@ -347,7 +756,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
     owl:subPropertyOf :had_provider ;
-    :crm_equivalent crm:P23_transferred_title_from ;
+    diga:crm_equivalent crm:P23_transferred_title_from ;
     .
 
 :transferred_ownership_of a owl:ObjectProperty ;
@@ -357,7 +766,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P24_transferred_title_of ;
+    diga:crm_equivalent crm:P24_transferred_title_of ;
     .
 
 :custody_surrendered_by a owl:ObjectProperty ;
@@ -368,7 +777,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
     owl:subPropertyOf :had_provider ;
-    :crm_equivalent crm:P28_custody_surrendered_by ;
+    diga:crm_equivalent crm:P28_custody_surrendered_by ;
     .
 
 :custody_received_by a owl:ObjectProperty ;
@@ -378,7 +787,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Actor ;
     owl:subPropertyOf :carried_out_by ;
-    :crm_equivalent crm:P29_custody_received_by ;
+    diga:crm_equivalent crm:P29_custody_received_by ;
     .
 
 :transferred_custody_of a owl:ObjectProperty ;
@@ -387,7 +796,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
     owl:subPropertyOf :had_participant ;
-    :crm_equivalent crm:P30_transferred_custody_of ;
+    diga:crm_equivalent crm:P30_transferred_custody_of ;
     .
 
 :moved a owl:ObjectProperty ;
@@ -396,7 +805,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Physical_Object ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P25_moved ;
+    diga:crm_equivalent crm:P25_moved ;
     .
 
 :took_place_at a owl:ObjectProperty ;
@@ -405,7 +814,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Place ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P7_took_place_at ;
+    diga:crm_equivalent crm:P7_took_place_at ;
     .
 
 :moved_to a owl:ObjectProperty ;
@@ -414,7 +823,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Place ;
     owl:subPropertyOf :took_place_at ;
-    :crm_equivalent crm:P26_moved_to ;
+    diga:crm_equivalent crm:P26_moved_to ;
     .
 
 :moved_from a owl:ObjectProperty ;
@@ -423,7 +832,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Place ;
     owl:subPropertyOf :took_place_at ;
-    :crm_equivalent crm:P27_moved_from ;
+    diga:crm_equivalent crm:P27_moved_from ;
     .
 
 :has_modified a owl:ObjectProperty ;
@@ -433,7 +842,7 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Man_Made_Thing ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P31_has_modified ;
+    diga:crm_equivalent crm:P31_has_modified ;
     .
 
 :measured a owl:ObjectProperty ;
@@ -442,12 +851,12 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Measurement ;
     schema:rangeIncludes :Entity ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
-    :crm_equivalent crm:P39_measured ;
+    diga:crm_equivalent crm:P39_measured ;
     .
 
 # Commented out. Looks like Observerations and Measurements are used differently. Observations record the property
 # being measured in :observed_property_type. Measurements produce :Dimensions, and can produce multiple dimensions,
-# each one for a different property. So for Observation -> :obserrved_property_type is 1-to-1,
+# each one for a different property. So for Observation -> :obserrved_property_type is 1-to-1, 
 # vs :Measurement -> :Dimension is 1-to-many.
 #
 # :observed_property_type a owl:ObjectProperty ;
@@ -457,7 +866,7 @@ ground water from a certain borehole.""" ;
 # observed in the water from a particular borehole. """ ;
 #     schema:domainIncludes :Measurement ;
 #     schema:rangeIncludes :Property_Type ;
-#     :crm_equivalent crm:O9_observed_property_type ;
+#     diga:crm_equivalent crm:O9_observed_property_type ;
 #     .
 
 :observed_dimension a owl:ObjectProperty ;
@@ -465,7 +874,7 @@ ground water from a certain borehole.""" ;
     skos:definition """Records the :Dimension that was observed in Measurement :Event. The item measured is recorded using the :measured property of the :Event. One measurement activity may determine more than one dimension of one object.""" ;
     schema:domainIncludes :Measurement ;
     schema:rangeIncludes :Dimension ;
-    :crm_equivalent crm:P40_observed_dimension ;
+    diga:crm_equivalent crm:P40_observed_dimension ;
     .
 
 :had_victim a owl:ObjectProperty ;
@@ -506,7 +915,7 @@ ground water from a certain borehole.""" ;
     skos:note """CRM declares the domain as E18_Physical_Thing. Not clear whether this should be required. For example, an algorithm can be state of the art, i.e., the best one for some task.""" ;
     schema:domainIncludes :Entity ;
     schema:rangeIncludes :Condition_State ;
-    :crm_equivalent crm:P44_has_condition ;
+    diga:crm_equivalent crm:P44_has_condition ;
     .
 
 :has_dimension a owl:ObjectProperty ;
@@ -515,7 +924,7 @@ ground water from a certain borehole.""" ;
     skos:note """CRM declares the domain as E18_Physical_Thing. Not clear whether this should be required. For example, an algorithm can be state of the art, i.e., the best one for some task.""" ;
     schema:domainIncludes :Physical_Object ;
     schema:rangeIncludes :Dimension ;
-    :crm_equivalent crm:P43_has_dimension ;
+    diga:crm_equivalent crm:P43_has_dimension ;
     .
 
 
@@ -528,7 +937,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P120_occurs_before ;
+    diga:crm_equivalent crm:P120_occurs_before ;
     .
 
 :occurs_after a owl:ObjectProperty ;
@@ -536,7 +945,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P120i_occurs_after ;
+    diga:crm_equivalent crm:P120i_occurs_after ;
     .
 
 :meets_in_time_with a owl:ObjectProperty ;
@@ -544,7 +953,7 @@ ground water from a certain borehole.""" ;
     skos:definition """.This property is the same as the "meets / met-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P119_meets_in_time_with ;
+    diga:crm_equivalent crm:P119_meets_in_time_with ;
     .
 
 :overlaps_in_time_with a owl:ObjectProperty ;
@@ -552,7 +961,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "overlaps / overlapped-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P118_overlaps_in_time_with ;
+    diga:crm_equivalent crm:P118_overlaps_in_time_with ;
     .
 
 :occurs_during a owl:ObjectProperty ;
@@ -560,7 +969,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P117_occurs_during ;
+    diga:crm_equivalent crm:P117_occurs_during ;
     .
 
 :includes a owl:ObjectProperty ;
@@ -568,7 +977,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P117i_includes ;
+    diga:crm_equivalent crm:P117i_includes ;
     .
 
 :starts a owl:ObjectProperty ;
@@ -576,7 +985,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P116_starts ;
+    diga:crm_equivalent crm:P116_starts ;
     .
 
 :is_started_by a owl:ObjectProperty ;
@@ -584,7 +993,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P116i_is_started_by ;
+    diga:crm_equivalent crm:P116i_is_started_by ;
     .
 
 :finishes a owl:ObjectProperty ;
@@ -592,7 +1001,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P115_finishes ;
+    diga:crm_equivalent crm:P115_finishes ;
     .
 
 :is_finished_by a owl:ObjectProperty ;
@@ -600,7 +1009,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P115i_is_finished_by ;
+    diga:crm_equivalent crm:P115i_is_finished_by ;
     .
 
 :is_equal_in_time_to a owl:ObjectProperty ;
@@ -608,7 +1017,7 @@ ground water from a certain borehole.""" ;
     skos:definition """This property is the same as the "equal" relationship of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Event ;
-    :crm_equivalent crm:P114_is_equal_in_time_to ;
+    diga:crm_equivalent crm:P114_is_equal_in_time_to ;
     .
 
 ###
@@ -683,7 +1092,7 @@ ground water from a certain borehole.""" ;
     skos:definition """Describes the minimum length of time covered by an :Time_Span.""" ;
     schema:domainIncludes :Time_Span ;
     schema:rangeIncludes :Dimension ;
-    :crm_equivalent crm:P83_had_at_least_duration ;
+    diga:crm_equivalent crm:P83_had_at_least_duration ;
     .
 
 :had_at_most_duration a owl:ObjectProperty ;
@@ -691,7 +1100,7 @@ ground water from a certain borehole.""" ;
     skos:definition """Describes the maximum length of time covered by an :Time_Span.""" ;
     schema:domainIncludes :Time_Span ;
     schema:rangeIncludes :Dimension ;
-    :crm_equivalent crm:P83_had_at_most_duration ;
+    diga:crm_equivalent crm:P83_had_at_most_duration ;
     .
 
 ###
@@ -736,14 +1145,14 @@ ground water from a certain borehole.""" ;
 
 ###
 ### Numeric properties
-###
+### 
 
 :has_value a owl:DatatypeProperty ;
     rdfs:label "value" ;
     skos:definition """Records a numeric value associated with an entity.""" ;
     schema:domainIncludes :Dimension ;
     schema:rangeIncludes xsd:decimal ;
-    :crm_equivalent crm:has_value ;
+    diga:crm_equivalent crm:has_value ;
     .
 
 :value_is_at_least a owl:DatatypeProperty ;
@@ -883,3 +1292,6 @@ ground water from a certain borehole.""" ;
     schema:domainIncludes :Place ;
     schema:rangeIncludes xsd:decimal ;
     .
+
+
+
