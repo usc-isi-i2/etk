@@ -436,7 +436,7 @@ class GTDVictimModule(ETKModule):
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value="Victim")
         doc.kg.add_value("type", json_path="$.victim_type[*]")
-        doc.kg.add_value("label", json_path="$.victim_corp")
+        doc.kg.add_value("title", json_path="$.victim_corp")
         doc.kg.add_value("title", json_path="$.victim_target")
         doc.kg.add_value("nationality", json_path="$.victim_nationality")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
