@@ -123,6 +123,17 @@ class TestDateExtractor(unittest.TestCase):
 
         self.assertEqual(results, expected)
 
+    def test_original_resolution(self) -> None:
+        text = '2019-10-23 | 2017-06 | 2018-03-10 10:12'
+
+        extractions = de.extract(text, date_value_resolution=DateResolution.ORIGINAL)
+
+        results = [e.value for e in extractions]
+
+        expected = ['2019-10-23', '2017-06', '2018-03-10T10:12']
+
+        self.assertEqual(results, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
