@@ -2,7 +2,9 @@ import logging
 from typing import Set, Union
 from functools import reduce
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
+
+SCHEMA = Namespace('http://schema.org/')
 
 class OntologyEntity(object):
     """
@@ -244,7 +246,7 @@ class ValidationError(Exception):
 
 class Ontology(object):
 
-    def __init__(self, turtle) -> None:
+    def __init__(self, turtle, validation=True) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -272,6 +274,10 @@ class Ontology(object):
         else:
             for t in turtle:
                 g.parse(data=t, format='ttl')
+
+        for ns in ('rdfs', 'rdf', 'owl', 'schema'):
+            if ns not in g.namespaces():
+                g.namespace_manager.bind(ns, eval(ns.upper()))
 
         # Class
         for uri in g.subjects(RDF.type, OWL.Class):
@@ -372,11 +378,12 @@ class Ontology(object):
 
         # After all hierarchies are built, perform the last validation
         # Validation 1: Inherited domain & range consistency
-        for p in self.object_properties:
-            self.__validation_property_domain(p)
-            self.__validation_property_range(p)
-        for p in self.data_properties:
-            self.__validation_property_domain(p)
+        if validation:
+            for p in self.object_properties:
+                self.__validation_property_domain(p)
+                self.__validation_property_range(p)
+            for p in self.data_properties:
+                self.__validation_property_domain(p)
 
     def __validation_property_domain(self, p):
         for x in p.included_domains():
@@ -535,3 +542,21 @@ class Ontology(object):
         template = '<a href="#{}-{}">{}</a>'
         kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
         return template.format(kind[type(e)], e.uri(), e.name())
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate HTML report for the input ontology files')
+    parser.add_argument('files', nargs='+', help='Input turtle files.')
+    parser.add_argument('--no-validation', action='store_false', dest='validation', default=True,
+                        help='Don\'t perform domain and range validation.')
+    parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
+                        help='Location of generated HTML report.')
+    args = parser.parse_args()
+
+    contents = [open(f).read() for f in args.files]
+    ontology = Ontology(contents, validation=args.validation)
+    doc_content = ontology.html_documentation()
+
+    with open(args.out, "w") as f:
+        f.write(doc_content)
+
