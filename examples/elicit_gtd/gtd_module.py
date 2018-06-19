@@ -397,6 +397,7 @@ class GTDDamageModule(ETKModule):
         doc.kg.add_value("value", json_path="$.damage_value")
         doc.kg.add_value("description", json_path="$.damage_description")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
+        doc.kg.add_value("causeex_class", value="{}DamageOrDestruction".format(event_prefix))
 
         return list()
 
@@ -439,7 +440,7 @@ class GTDVictimModule(ETKModule):
         doc.kg.add_value("title", json_path="$.victim_target")
         doc.kg.add_value("nationality", json_path="$.victim_nationality")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
-        doc.kg.add_value("causeex_class", value="{}Actor".format(owl_prefix))
+        doc.kg.add_value("causeex_class", value="{}Actor".format(event_prefix))
 
         return list()
 
@@ -457,9 +458,9 @@ class GTDActorModule(ETKModule):
 
     def process_document(self, doc: Document) -> List[Document]:
         doc.kg.add_value("type", value=["Actor", "Perpetrator"])
-        doc.kg.add_value("label", json_path="$.actor_group[*]")
+        doc.kg.add_value("title", json_path="$.actor_group[*]")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
-        doc.kg.add_value("causeex_class", value="{}Actor".format(owl_prefix))
+        doc.kg.add_value("causeex_class", value="{}Actor".format(event_prefix))
         return list()
 
 
