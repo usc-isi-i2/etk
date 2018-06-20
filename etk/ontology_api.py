@@ -5,6 +5,7 @@ from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
 
 SCHEMA = Namespace('http://schema.org/')
+DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
 class OntologyEntity(object):
     """
@@ -247,6 +248,10 @@ class ValidationError(Exception):
 class Ontology(object):
 
     def __init__(self, turtle, validation=True) -> None:
+    def __init_graph_namespace(self):
+        for ns in ('rdfs', 'rdf', 'owl', 'schema', 'dig'):
+            if ns not in self.g.namespaces():
+                self.g.namespace_manager.bind(ns, eval(ns.upper()))
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -266,114 +271,114 @@ class Ontology(object):
         self.classes = set()
         self.object_properties = set()
         self.data_properties = set()
-        self.roots = set()
+        self.g = Graph()
 
-        g = Graph()
-        if isinstance(turtle, str):
-            g.parse(data=turtle, format='ttl')
-        else:
-            for t in turtle:
-                g.parse(data=t, format='ttl')
-
-        for ns in ('rdfs', 'rdf', 'owl', 'schema'):
-            if ns not in g.namespaces():
-                g.namespace_manager.bind(ns, eval(ns.upper()))
+        self.__init_graph_parse(turtle)
+        self.__init_graph_namespace()
 
         # Class
-        for uri in g.subjects(RDF.type, OWL.Class):
-            if not isinstance(uri, URIRef): continue
-            uri = uri.toPython()
-            entity = OntologyClass(uri)
-            self.entities[uri] = entity
-            self.classes.add(entity)
-
-        # Data P
-        for uri in g.subjects(RDF.type, OWL.DatatypeProperty):
-            uri = uri.toPython()
-            entity = OntologyDatatypeProperty(uri)
-            self.entities[uri] = entity
-            self.data_properties.add(entity)
-
-        # Obj P
-        for uri, inv in g.query("""SELECT ?uri ?inv
+        for uri in self.g.subjects(RDF.type, OWL.Class):
+            self.__init_ontology_class(uri)
+        # Datatype Property
+        for uri in self.g.subjects(RDF.type, OWL.DatatypeProperty):
+            self.__init_ontology_datatype_property(uri)
+        # Object Property
+        for uri, inv in self.g.query("""SELECT ?uri ?inv
                                    WHERE { ?uri a owl:ObjectProperty .
-                                           OPTIONAL {?uri :inverse ?inv }}"""):
-            uri = uri.toPython()
-            if inv:
-                inv = inv.toPython()
-            entity = OntologyObjectProperty(uri, inv)
-            self.entities[uri] = entity
-            self.object_properties.add(entity)
-            if inv:
-                self.entities[inv] = entity.inverse()
-                self.object_properties.add(entity.inverse())
+                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
+            self.__init_ontology_object_property(uri, inv)
+        # subClassOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
+                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
+                                              UNION { ?uri owl:subClassOf ?sub }}"""):
+            entity = self.get_entity(uri.toPython())
+            if not entity:
+                if include_undefined_class:
+                    entity = self.__init_ontology_class(uri)
+                else:
+                    logging.warning("Missing a class with uri %s.", uri)
+                    continue
+            sub_entity = self.get_entity(sub.toPython())
+            if not sub_entity:
+                if include_undefined_class:
+                    sub_entity = self.__init_ontology_class(sub)
+                else:
+                    logging.warning("Missing a super class of :%s with uri %s.", uri, sub)
+                    continue
+            # Validation 3: Cycle detection
+            if entity in sub_entity.super_classes_closure():
+                raise ValidationError("Cycle detected")
+            entity._super_classes.add(sub_entity)
 
-        for entity in self.classes:
-            for sub, in g.query("""SELECT ?sub
-                                   WHERE  {{ ?uri rdfs:subClassOf ?sub }
-                                           UNION { ?uri owl:subClassOf ?sub }}""",
-                                initBindings={'uri': URIRef(entity.uri())}):
-                try:
-                    sub_entity = self.entities[sub.toPython()]
-                    # Validation 3: Cycle detection
-                    if entity in sub_entity.super_classes_closure():
-                        raise ValidationError("Cycle detected")
-                    entity._super_classes.add(sub_entity)
-                except KeyError:
-                    logging.warning("Missing a super class of :%s with uri %s.", entity.name(), sub)
-            if not entity._super_classes:
-                self.roots.add(entity)
+        # subPropertyOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
+                                   WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
+                                           UNION { ?uri owl:subPropertyOf ?sub }}"""):
+            _property = self.get_entity(uri.toPython())
+            sub_property = self.get_entity(sub.toPython())
+            if not _property:
+                logging.warning("Missing a property with URI: %s", uri)
+                continue
+            if not sub_property:
+                logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
+                continue
+            # Validation 3: Cycle detection
+            if _property in sub_property.super_properties_closure():
+                raise ValidationError("Cycle detected")
+            # Validation 2: Class consistency
+            if isinstance(_property, OntologyDatatypeProperty) != \
+                    isinstance(sub_property, OntologyDatatypeProperty):
+                raise ValidationError("Subproperty {} should share the same class with {}"
+                                      .format(sub_property.name(), _property.name()))
+            _property._super_properties.add(sub_property)
 
         for p in self.object_properties | self.data_properties:
-            for sub, in g.query("""SELECT ?sub
-                                   WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
-                                           UNION { ?uri owl:subPropertyOf ?sub }}""",
-                                initBindings={'uri': URIRef(p.uri())}):
-                try:
-                    sub_property = self.entities[sub.toPython()]
-                    # Validation 3: Cycle detection
-                    if p in sub_property.super_properties_closure():
-                        raise ValidationError("Cycle detected")
-                    # Validation 2: Class consistency
-                    if isinstance(p, OntologyDatatypeProperty) != \
-                       isinstance(sub_property, OntologyDatatypeProperty):
-                        raise ValidationError("Sub-property {} should share the same class with {}"
-                                              .format(sub_property.name(), p.name()))
-                    p._super_properties.add(sub_property)
-                except KeyError:
-                    logging.warning("Missing a super property of :%s with uri %s.", p.name(), sub)
-
-            for d, in g.query("""SELECT ?domain
+            for d, in self.g.query("""SELECT ?domain
                                  WHERE {{ ?uri rdfs:domain ?domain }
                                         UNION { ?uri schema:domainIncludes ?domain }
-                                        UNION { ?domain :common_properties ?uri}}""",
-                             initBindings={'uri': URIRef(p.uri())}):
+                                        UNION { ?domain dig:common_properties ?uri}}""",
+                                   initBindings={'uri': URIRef(p.uri())}):
                 try:
                     domain = self.entities[d.toPython()]
                     p.domains.add(domain)
                 except KeyError:
-                    logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
-            for r, in g.query("""SELECT ?range
+                    if include_undefined_class:
+                        uri = d.toPython()
+                        entity = OntologyClass(uri)
+                        self.entities[uri] = entity
+                        self.classes.add(entity)
+                        p.domains.add(entity)
+                    else:
+                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
+
+            for r, in self.g.query("""SELECT ?range
                                  WHERE {{ ?uri rdfs:range ?range }
                                         UNION { ?uri schema:rangeIncludes ?range }}""",
-                             initBindings={'uri': URIRef(p.uri())}):
+                                   initBindings={'uri': URIRef(p.uri())}):
                 if isinstance(p, OntologyDatatypeProperty):
                     p.ranges.add(r.toPython())
                 else:
                     try:
                         p.ranges.add(self.entities[r.toPython()])
                     except KeyError:
-                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), r)
+                        if include_undefined_class:
+                            uri = r.toPython()
+                            entity = OntologyClass(uri)
+                            self.entities[uri] = entity
+                            self.classes.add(entity)
+                            p.ranges.add(entity)
+                        else:
+                            logging.warning("Missing a domain class of :%s with uri %s.", p.name(), r)
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
-            for label in g.objects(uri, RDFS.label):
+            for label in self.g.objects(uri, RDFS.label):
                 entity._label.add(label.toPython())
-            for definition in g.objects(uri, SKOS.definition):
+            for definition in self.g.objects(uri, SKOS.definition):
                 entity._definition.add(definition.toPython())
-            for note in g.objects(uri, OWL.note):
+            for note in self.g.objects(uri, OWL.note):
                 entity._note.add(note.toPython())
-            for comment in g.objects(uri, RDFS.comment):
+            for comment in self.g.objects(uri, RDFS.comment):
                 entity._comment.add(comment.toPython())
 
         # After all hierarchies are built, perform the last validation

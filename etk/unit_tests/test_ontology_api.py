@@ -4,10 +4,10 @@ from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
 from etk.ontology_api import ValidationError
 
-DIG = Namespace('http://isi.edu/ontologies/dig/')
+DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 SCHEMA = Namespace('http://schema.org/')
 
-rdf_prefix = '''@prefix : <http://isi.edu/ontologies/dig/> .
+rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
