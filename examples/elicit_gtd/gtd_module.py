@@ -93,12 +93,14 @@ class GTDModule(ETKModule):
                                                                         json_doc.get('imonth'), json_doc.get('iday')))
         if len(extracted_dates) > 0:
             doc.kg.add_value("event_date", value=extracted_dates)
+            doc.kg.add_value("event_date_end", value=extracted_dates)
         else:
             # no proper date mentioned in the event, try the approximate date
             approximate_date_txt = json_doc.get("approxdate")
             extracted_approx_dates = self.date_extractor.extract(approximate_date_txt)
             if len(extracted_approx_dates) > 0:
                 doc.kg.add_value("event_date", value=extracted_approx_dates)
+                doc.kg.add_value("event_date_end", value=extracted_approx_dates)
 
         # summary, aka description only available for incident after 1997
         doc.kg.add_value("description", json_path="$.summary")
