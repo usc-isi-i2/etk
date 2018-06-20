@@ -371,7 +371,7 @@ class Ontology(object):
             return
         property_.ranges.add(range_)
 
-    def __init__(self, turtle, validation=True, include_undefined_class=False) -> None:
+    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -387,11 +387,17 @@ class Ontology(object):
         Args:
             turtle: str or Iterable[str]
         """
+        import io, sys
+
         self.entities = dict()
         self.classes = set()
         self.object_properties = set()
         self.data_properties = set()
         self.g = Graph()
+        self.log_stream = io.StringIO()
+        logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
+        if not quiet:
+            logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
         self.__init_graph_parse(turtle)
         self.__init_graph_namespace()
@@ -586,7 +592,7 @@ class Ontology(object):
         }
         return xsd_ref.get(URIRef(uri), None)
 
-    def html_documentation(self, include_turtle=False) -> str:
+    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
         """
         Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
         Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
@@ -674,6 +680,8 @@ class Ontology(object):
             content = content.replace('{{{classes}}}', '\n'.join(classes)) \
                              .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
                              .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
+            logs = '' if exclude_warning else self.log_stream.getvalue()
+            content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
         return content
 
     def __html_extract_other_info(self, uri):
@@ -749,15 +757,23 @@ if __name__ == '__main__':
                         help='Don\'t perform domain and range validation.')
     parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
                         help='Location of generated HTML report.')
-    parser.add_argument('-i', '--include-undefined-classes', action='store_true', dest='include_class',
-                        default=False, help='Include those undefined classes but referenced by others.')
+    parser.add_argument('-i', '--include-undefined-classes', action='store_true',
+                        dest='include_class', default=False, help='Include those undefined classes '
+                                                                  'but referenced by others.')
     parser.add_argument('-t', '--include-turtle', action='store_true', dest='include_turtle',
-                        default=False, help='Include turtle related to this entity. NOTE: this may takes longer time.')
+                        default=False, help='Include turtle related to this entity. NOTE: this may '
+                                            'takes longer time.')
+    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', default=False,
+                        help='Suppress warning.')
+    parser.add_argument('--exclude-warning', action='store_true', dest='exclude_warning',
+                        default=False, help='Exclude warning messages in HTML report')
     args = parser.parse_args()
 
     contents = [open(f).read() for f in args.files]
-    ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class)
-    doc_content = ontology.html_documentation(include_turtle=args.include_turtle)
+    ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class,
+                        quiet=args.quiet)
+    doc_content = ontology.html_documentation(include_turtle=args.include_turtle,
+                                              exclude_warning=args.exclude_warning)
 
     with open(args.out, "w") as f:
         f.write(doc_content)
