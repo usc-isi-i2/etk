@@ -7,10 +7,12 @@ from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
 SCHEMA = Namespace('http://schema.org/')
 DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
+
 class OntologyEntity(object):
     """
     Superclass of all ontology objects, including classes and properties.
     """
+
     def __init__(self, uri):
         self._uri = uri
         self._label = set()
@@ -99,7 +101,7 @@ class OntologyClass(OntologyEntity):
         """
         if not self._super_classes:
             return set()
-        return self._super_classes | reduce(set.union, [x._super_classes for x in self._super_classes])
+        return self._super_classes | reduce(set.union, [x.super_classes() for x in self._super_classes])
 
 
 class OntologyProperty(OntologyEntity):
@@ -126,7 +128,8 @@ class OntologyProperty(OntologyEntity):
         """
         if not self._super_properties:
             return set()
-        return self._super_properties | reduce(set.union, [x.super_properties_closure() for x in self._super_properties])
+        return self._super_properties | reduce(set.union, [x.super_properties_closure()
+                                                           for x in self._super_properties])
 
     def included_domains(self) -> Set[OntologyClass]:
         """
@@ -295,6 +298,8 @@ class Ontology(object):
             else:
                 logging.warning("Missing a class with uri %s.", uri)
                 return
+        if not isinstance(entity, OntologyClass):
+            logging.warning("Subclass %s is not a class.", uri)
         sub_entity = self.get_entity(sub.toPython())
         if not sub_entity:
             if include_undefined_class:
@@ -302,58 +307,66 @@ class Ontology(object):
             else:
                 logging.warning("Missing a super class of %s with uri %s.", uri, sub)
                 return
+        if not isinstance(sub_entity, OntologyClass):
+            logging.warning("Superclass %s is not a class.", sub)
         # Validation 3: Cycle detection
         if entity in sub_entity.super_classes_closure():
             raise ValidationError("Cycle detected")
         entity._super_classes.add(sub_entity)
 
     def __init_ontology_subPropertyOf(self, uri, sub):
-        _property = self.get_entity(uri.toPython())
+        property_ = self.get_entity(uri.toPython())
         sub_property = self.get_entity(sub.toPython())
-        if not _property:
+        if not property_:
             logging.warning("Missing a property with URI: %s", uri)
             return
+        if not isinstance(property_, OntologyProperty):
+            logging.warning("Subproperty %s is not a property.", uri)
         if not sub_property:
             logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
             return
+        if not isinstance(sub_property, OntologyProperty):
+            logging.warning("Superproperty %s is not a property.", sub)
         # Validation 3: Cycle detection
-        if _property in sub_property.super_properties_closure():
+        if property_ in sub_property.super_properties_closure():
             raise ValidationError("Cycle detected")
         # Validation 2: Class consistency
-        if isinstance(_property, OntologyDatatypeProperty) != \
+        if isinstance(property_, OntologyDatatypeProperty) != \
                 isinstance(sub_property, OntologyDatatypeProperty):
             raise ValidationError("Subproperty {} should share the same class with {}"
-                                  .format(sub_property.name(), _property.name()))
-        _property._super_properties.add(sub_property)
+                                  .format(sub_property.name(), property_.name()))
+        property_._super_properties.add(sub_property)
 
     def __init_ontology_property_domain(self, uri, d, include_undefined_class):
-        _property = self.get_entity(uri.toPython())
+        property_ = self.get_entity(uri.toPython())
         domain = self.get_entity(d.toPython())
-        if not _property:
+        if not (property_ and isinstance(property_, OntologyProperty)):
             return
         if not domain:
             if include_undefined_class:
                 domain = self.__init_ontology_class(d)
             else:
-                logging.warning("Missing a domain class for :%s with uri %s.", _property.name(), d)
+                logging.warning("Missing a domain class for :%s with uri %s.", property_.name(), d)
                 return
-        _property.domains.add(domain)
+        property_.domains.add(domain)
 
     def __init_ontology_property_range(self, uri, r, include_undefined_class):
-        _property = self.get_entity(uri.toPython())
-        if not _property:
+        property_ = self.get_entity(uri.toPython())
+        if not (property_ and isinstance(property_, OntologyProperty)):
             return
-        if isinstance(_property, OntologyDatatypeProperty):
-            _property.ranges.add(r.toPython())
+        if isinstance(property_, OntologyDatatypeProperty):
+            property_.ranges.add(r.toPython())
             return
-        range = self.get_entity(r.toPython())
-        if not range:
+        range_ = self.get_entity(r.toPython())
+        if not range_:
             if include_undefined_class:
-                range = self.__init_ontology_class(r)
+                range_ = self.__init_ontology_class(r)
             else:
-                logging.warning("Missing a range class for :%s with uri %s.", _property.name(), r)
+                logging.warning("Missing a range class for :%s with uri %s.", property_.name(), r)
                 return
-        _property.ranges.add(range)
+        if not isinstance(range_, OntologyClass):
+            return
+        property_.ranges.add(range_)
 
     def __init__(self, turtle, validation=True, include_undefined_class=False) -> None:
         """
@@ -451,7 +464,7 @@ class Ontology(object):
             for q in p.super_properties():
                 if not any(r in y.super_classes() for r in q.included_ranges()):
                     raise ValidationError("Range {} of property {} isn't a subclass of any range of"
-                                          " superproperty {}" .format(y.name(), p.name(), q.name()))
+                                          " superproperty {}".format(y.name(), p.name(), q.name()))
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -592,7 +605,8 @@ class Ontology(object):
                 if subclass_of:
                     attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
                 if superclass_of:
-                    attr.append(row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
+                    attr.append(
+                        row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
                 attr.extend(self.__html_entity_basic_info(c, row))
                 properties = list(filter(lambda x: c.super_classes_closure() & x.included_domains(), sorted_properties))
                 if properties:
@@ -657,14 +671,16 @@ class Ontology(object):
                 roots.append(child)
             for parent in parents:
                 tree[parent].append(child)
+
         def hierarchy_builder(children):
             if not children: return ''
             s = '<ul>\n'
-            for child in sorted(children, key=lambda x:x.name()):
+            for child in sorted(children, key=lambda x: x.name()):
                 s += '<li>{}</li>\n'.format(self.__html_entity_href(child))
                 s += hierarchy_builder(tree[child])
             s += '</ul>\n'
             return s
+
         return hierarchy_builder(roots)
 
     def __html_entity_href(self, e):
@@ -672,8 +688,10 @@ class Ontology(object):
         kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
         return template.format(kind[type(e)], e.uri(), e.name())
 
+
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser(description='Generate HTML report for the input ontology files')
     parser.add_argument('files', nargs='+', help='Input turtle files.')
     parser.add_argument('--no-validation', action='store_false', dest='validation', default=True,
