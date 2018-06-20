@@ -287,6 +287,74 @@ class Ontology(object):
             self.object_properties.add(entity.inverse())
         return entity
 
+    def __init_ontology_subClassOf(self, uri, sub, include_undefined_class):
+        entity = self.get_entity(uri.toPython())
+        if not entity:
+            if include_undefined_class:
+                entity = self.__init_ontology_class(uri)
+            else:
+                logging.warning("Missing a class with uri %s.", uri)
+                return
+        sub_entity = self.get_entity(sub.toPython())
+        if not sub_entity:
+            if include_undefined_class:
+                sub_entity = self.__init_ontology_class(sub)
+            else:
+                logging.warning("Missing a super class of %s with uri %s.", uri, sub)
+                return
+        # Validation 3: Cycle detection
+        if entity in sub_entity.super_classes_closure():
+            raise ValidationError("Cycle detected")
+        entity._super_classes.add(sub_entity)
+
+    def __init_ontology_subPropertyOf(self, uri, sub):
+        _property = self.get_entity(uri.toPython())
+        sub_property = self.get_entity(sub.toPython())
+        if not _property:
+            logging.warning("Missing a property with URI: %s", uri)
+            return
+        if not sub_property:
+            logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
+            return
+        # Validation 3: Cycle detection
+        if _property in sub_property.super_properties_closure():
+            raise ValidationError("Cycle detected")
+        # Validation 2: Class consistency
+        if isinstance(_property, OntologyDatatypeProperty) != \
+                isinstance(sub_property, OntologyDatatypeProperty):
+            raise ValidationError("Subproperty {} should share the same class with {}"
+                                  .format(sub_property.name(), _property.name()))
+        _property._super_properties.add(sub_property)
+
+    def __init_ontology_property_domain(self, uri, d, include_undefined_class):
+        _property = self.get_entity(uri.toPython())
+        domain = self.get_entity(d.toPython())
+        if not _property:
+            return
+        if not domain:
+            if include_undefined_class:
+                domain = self.__init_ontology_class(d)
+            else:
+                logging.warning("Missing a domain class for :%s with uri %s.", _property.name(), d)
+                return
+        _property.domains.add(domain)
+
+    def __init_ontology_property_range(self, uri, r, include_undefined_class):
+        _property = self.get_entity(uri.toPython())
+        if not _property:
+            return
+        if isinstance(_property, OntologyDatatypeProperty):
+            _property.ranges.add(r.toPython())
+            return
+        range = self.get_entity(r.toPython())
+        if not range:
+            if include_undefined_class:
+                range = self.__init_ontology_class(r)
+            else:
+                logging.warning("Missing a range class for :%s with uri %s.", _property.name(), r)
+                return
+        _property.ranges.add(range)
+
     def __init__(self, turtle, validation=True, include_undefined_class=False) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
@@ -327,84 +395,25 @@ class Ontology(object):
         for uri, sub in self.g.query("""SELECT ?uri ?sub
                                     WHERE  {{ ?uri rdfs:subClassOf ?sub }
                                               UNION { ?uri owl:subClassOf ?sub }}"""):
-            entity = self.get_entity(uri.toPython())
-            if not entity:
-                if include_undefined_class:
-                    entity = self.__init_ontology_class(uri)
-                else:
-                    logging.warning("Missing a class with uri %s.", uri)
-                    continue
-            sub_entity = self.get_entity(sub.toPython())
-            if not sub_entity:
-                if include_undefined_class:
-                    sub_entity = self.__init_ontology_class(sub)
-                else:
-                    logging.warning("Missing a super class of :%s with uri %s.", uri, sub)
-                    continue
-            # Validation 3: Cycle detection
-            if entity in sub_entity.super_classes_closure():
-                raise ValidationError("Cycle detected")
-            entity._super_classes.add(sub_entity)
+            self.__init_ontology_subClassOf(uri, sub, include_undefined_class)
 
         # subPropertyOf
         for uri, sub in self.g.query("""SELECT ?uri ?sub
                                    WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
                                            UNION { ?uri owl:subPropertyOf ?sub }}"""):
-            _property = self.get_entity(uri.toPython())
-            sub_property = self.get_entity(sub.toPython())
-            if not _property:
-                logging.warning("Missing a property with URI: %s", uri)
-                continue
-            if not sub_property:
-                logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
-                continue
-            # Validation 3: Cycle detection
-            if _property in sub_property.super_properties_closure():
-                raise ValidationError("Cycle detected")
-            # Validation 2: Class consistency
-            if isinstance(_property, OntologyDatatypeProperty) != \
-                    isinstance(sub_property, OntologyDatatypeProperty):
-                raise ValidationError("Subproperty {} should share the same class with {}"
-                                      .format(sub_property.name(), _property.name()))
-            _property._super_properties.add(sub_property)
+            self.__init_ontology_subPropertyOf(uri, sub)
 
-        for p in self.object_properties | self.data_properties:
-            for d, in self.g.query("""SELECT ?domain
-                                 WHERE {{ ?uri rdfs:domain ?domain }
-                                        UNION { ?uri schema:domainIncludes ?domain }
-                                        UNION { ?domain dig:common_properties ?uri}}""",
-                                   initBindings={'uri': URIRef(p.uri())}):
-                try:
-                    domain = self.entities[d.toPython()]
-                    p.domains.add(domain)
-                except KeyError:
-                    if include_undefined_class:
-                        uri = d.toPython()
-                        entity = OntologyClass(uri)
-                        self.entities[uri] = entity
-                        self.classes.add(entity)
-                        p.domains.add(entity)
-                    else:
-                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
+        # domain
+        for uri, d in self.g.query("""SELECT ?uri ?domain
+                             WHERE {{ ?uri rdfs:domain ?domain }
+                                    UNION { ?uri schema:domainIncludes ?domain }
+                                    UNION { ?domain dig:common_properties ?uri}}"""):
+            self.__init_ontology_property_domain(uri, d, include_undefined_class)
 
-            for r, in self.g.query("""SELECT ?range
-                                 WHERE {{ ?uri rdfs:range ?range }
-                                        UNION { ?uri schema:rangeIncludes ?range }}""",
-                                   initBindings={'uri': URIRef(p.uri())}):
-                if isinstance(p, OntologyDatatypeProperty):
-                    p.ranges.add(r.toPython())
-                else:
-                    try:
-                        p.ranges.add(self.entities[r.toPython()])
-                    except KeyError:
-                        if include_undefined_class:
-                            uri = r.toPython()
-                            entity = OntologyClass(uri)
-                            self.entities[uri] = entity
-                            self.classes.add(entity)
-                            p.ranges.add(entity)
-                        else:
-                            logging.warning("Missing a domain class of :%s with uri %s.", p.name(), r)
+        for uri, r in self.g.query("""SELECT ?uri ?range
+                             WHERE {{ ?uri rdfs:range ?range }
+                                    UNION { ?uri schema:rangeIncludes ?range }}"""):
+            self.__init_ontology_property_range(uri, r, include_undefined_class)
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
