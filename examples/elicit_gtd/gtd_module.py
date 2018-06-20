@@ -46,14 +46,31 @@ event_to_clauseex_class_mapping = {
 
 }
 
+weapons_to_clauseex_class_mapping = {
+    "1": cco_prefix + "BiologicalWeapon",
+    "2": cco_prefix + "ChemicalWeapon",
+    "3": cco_prefix + "RadiologicalWeapon",
+    "4": cco_prefix + "NuclearWeapon",
+    "5": cco_prefix + "Weapon",
+    "6": cco_prefix + "ExplosiveWeapon",
+    "7": cco_prefix + "Weapon",
+    "8": cco_prefix + "IncendiaryWeapon",
+    "9": cco_prefix + "Weapon",
+    "10": cco_prefix + "Weapon",
+    "11": cco_prefix + "Weapon",
+    "12": cco_prefix + "Weapon",
+    "13": cco_prefix + "Weapon"
+
+}
+
 
 class GTDModule(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.date_extractor = DateExtractor(self.etk, 'gtd_date_parser')
         self.causeex_decoder = DecodingValueExtractor(event_to_clauseex_class_mapping,
-                                                          'CauseEx Type',
-                                                          default_action="delete")
+                                                      'CauseEx Type',
+                                                      default_action="delete")
 
     def process_document(self, doc: Document) -> List[Document]:
         nested_docs = list()
@@ -68,7 +85,8 @@ class GTDModule(ETKModule):
         for attack_type_code in attack_type_fields_code:
             ac = json_doc.get(attack_type_code, '')
             if ac != "":
-                doc.kg.add_value("causeex_class", value=doc.extract(self.causeex_decoder, doc.select_segments("$.{}".format(attack_type_code))[0]))
+                doc.kg.add_value("causeex_class", value=doc.extract(self.causeex_decoder, doc.select_segments(
+                    "$.{}".format(attack_type_code))[0]))
 
         # Add event_date to the KG
         extracted_dates = self.date_extractor.extract('{}-{}-{}'.format(json_doc.get('iyear'),
@@ -245,6 +263,8 @@ class GTDModule(ETKModule):
             weapon1_object['weapon_type'].append(json_doc.get('weaptype1_txt'))
             if json_doc.get('weapsubtype1_txt', ''):
                 weapon1_object['weapon_type'].append(json_doc.get('weapsubtype1_txt'))
+            if json_doc.get('weaptype1', '') != '':
+                weapon1_object['weapon_code'] = json_doc.get('weaptype1')
             weapon1_doc_id = '{}_weapons1'.format(doc.doc_id)
             weapon1_object['uri'] = weapon1_doc_id
             weapon1_doc = etk.create_document(weapon1_object)
@@ -261,6 +281,8 @@ class GTDModule(ETKModule):
             weapon2_object['weapon_type'].append(json_doc.get('weaptype2_txt'))
             if json_doc.get('weapsubtype2_txt', ''):
                 weapon2_object['weapon_type'].append(json_doc.get('weapsubtype2_txt'))
+            if json_doc.get('weaptype2', '') != '':
+                weapon2_object['weapon_code'] = json_doc.get('weaptype2')
             weapon2_doc_id = '{}_weapons2'.format(doc.doc_id)
             weapon2_object['uri'] = weapon2_doc_id
             weapon2_doc = etk.create_document(weapon2_object)
@@ -277,6 +299,8 @@ class GTDModule(ETKModule):
             weapon3_object['weapon_type'].append(json_doc.get('weaptype3_txt'))
             if json_doc.get('weapsubtype3_txt', ''):
                 weapon3_object['weapon_type'].append(json_doc.get('weapsubtype3_txt'))
+            if json_doc.get('weaptype3', '') != '':
+                weapon3_object['weapon_code'] = json_doc.get('weaptype3')
             weapon3_doc_id = '{}_weapons3'.format(doc.doc_id)
             weapon3_object['uri'] = weapon3_doc_id
             weapon3_doc = etk.create_document(weapon3_object)
@@ -293,6 +317,8 @@ class GTDModule(ETKModule):
             weapon4_object['weapon_type'].append(json_doc.get('weaptype4_txt'))
             if json_doc.get('weapsubtype4_txt', ''):
                 weapon4_object['weapon_type'].append(json_doc.get('weapsubtype4_txt'))
+            if json_doc.get('weaptype4', '') != '':
+                weapon4_object['weapon_code'] = json_doc.get('weaptype4')
             weapon4_doc_id = '{}_weapons4'.format(doc.doc_id)
             weapon4_object['uri'] = weapon4_doc_id
             weapon4_doc = etk.create_document(weapon4_object)
@@ -471,6 +497,8 @@ class GTDWeaponsModule(ETKModule):
 
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
+        self.weapon_decoder = DecodingValueExtractor(weapons_to_clauseex_class_mapping, 'Causeex Weapon Type',
+                                                     default_action='delete')
 
     def document_selector(self, doc) -> bool:
         return doc.cdr_document.get("dataset") == "gtd_weapon"
@@ -480,7 +508,8 @@ class GTDWeaponsModule(ETKModule):
         doc.kg.add_value("title", json_path="$.weapon_title")
         doc.kg.add_value("type", json_path="$.weapon_type[*]")
         doc.kg.add_value("provenance_filename", json_path="$.filename")
-        doc.kg.add_value("causeex_class", value="{}Artifact".format(cco_prefix))
+        doc.kg.add_value("causeex_class", value=doc.extract(self.weapon_decoder, doc.select_segments(
+            "$.weapon_code")[0]))
         return list()
 
 
@@ -538,6 +567,8 @@ if __name__ == "__main__":
     with open("gtd.jl", "w") as f:
         # Iterate over all the rows in the spredsheet
         for doc in cp.tabular_extractor(filename="globalterrorismdb_0617dist-nigeria.csv", dataset='gtd'):
+            # print(json.dumps(doc.value, indent=2))
+            # exit(0)
             etk.process_and_frame(doc)
             f.write(json.dumps(doc.cdr_document) + "\n")
             # print(json.dumps(doc.value, indent=2))
@@ -545,4 +576,4 @@ if __name__ == "__main__":
             # for result in etk.process_ems(doc):
             #     print(json.dumps(result.cdr_document["knowledge_graph"], indent=2))
             #     exit(0)
-                # f.write(json.dumps(result.cdr_document) + "\n")
+            # f.write(json.dumps(result.cdr_document) + "\n")
