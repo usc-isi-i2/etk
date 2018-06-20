@@ -300,6 +300,7 @@ class Ontology(object):
                 return
         if not isinstance(entity, OntologyClass):
             logging.warning("Subclass %s is not a class.", uri)
+            return
         sub_entity = self.get_entity(sub.toPython())
         if not sub_entity:
             if include_undefined_class:
@@ -309,6 +310,7 @@ class Ontology(object):
                 return
         if not isinstance(sub_entity, OntologyClass):
             logging.warning("Superclass %s is not a class.", sub)
+            return
         # Validation 3: Cycle detection
         if entity in sub_entity.super_classes_closure():
             raise ValidationError("Cycle detected")
@@ -322,6 +324,7 @@ class Ontology(object):
             return
         if not isinstance(property_, OntologyProperty):
             logging.warning("Subproperty %s is not a property.", uri)
+            return
         if not sub_property:
             logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
             return
@@ -571,7 +574,7 @@ class Ontology(object):
         }
         return xsd_ref[URIRef(uri)]
 
-    def html_documentation(self) -> str:
+    def html_documentation(self, include_turtle=False) -> str:
         """
         Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
         Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
@@ -614,6 +617,10 @@ class Ontology(object):
                 properties = list(filter(lambda x: c.super_classes_closure() & x.included_ranges(), sorted_properties))
                 if properties:
                     attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
+                if include_turtle:
+                    code = self.__html_extract_other_info(c.uri())
+                    if code:
+                        attr.append('<pre><code>{}</code></pre>'.format(code))
                 classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
 
             ### Properties
@@ -641,6 +648,10 @@ class Ontology(object):
                     attr.append(row.format('Superproperty of', '<br />\n'
                                            .join(map(self.__html_entity_href, superproperty_of))))
                 attr.extend(self.__html_entity_basic_info(p, row))
+                if include_turtle:
+                    code = self.__html_extract_other_info(p.uri())
+                    if code:
+                        attr.append('<pre><code>{}</code></pre>'.format(code))
                 if isinstance(p, OntologyObjectProperty):
                     if p.inverse():
                         attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
@@ -652,6 +663,34 @@ class Ontology(object):
                              .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
                              .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
         return content
+
+    def __html_extract_other_info(self, uri):
+        g = Graph()
+        g.namespace_manager = self.g.namespace_manager
+        if isinstance(uri, str):
+            uri = URIRef(uri)
+        for pred, obj in self.g.predicate_objects(uri):
+            g.add((uri, pred, obj))
+        g.remove((uri, RDFS.domain, None))
+        g.remove((uri, SCHEMA.domainIncludes, None))
+        g.remove((uri, DIG.commen_properties, None))
+        g.remove((uri, RDFS.range, None))
+        g.remove((uri, SCHEMA.rangeIncludes, None))
+        g.remove((uri, RDFS.label, None))
+        g.remove((uri, SKOS.definition, None))
+        g.remove((uri, SKOS.note, None))
+        g.remove((uri, RDFS.comment, None))
+        g.remove((uri, DIG.common_properties, None))
+        for obj in self.g.objects(uri, RDFS.subClassOf):
+            if isinstance(self.get_entity(uri), OntologyClass) and \
+                    isinstance(self.get_entity(obj), OntologyClass):
+                g.remove((uri, RDFS.subClassOf, obj))
+        if len(g) < 2:
+            return ''
+        code = g.serialize(format='turtle').decode('utf-8').split('\n')
+        code = filter(bool, code)
+        code = filter(lambda line: line[0]!='@', code)
+        return '\n'.join(code)
 
     def __html_entity_basic_info(self, e, tpl):
         attr = list()
@@ -699,12 +738,14 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
                         help='Location of generated HTML report.')
     parser.add_argument('-i', '--include-undefined-classes', action='store_true', dest='include_class',
-                        default=False, help='Include those undefined classes but referenced by others')
+                        default=False, help='Include those undefined classes but referenced by others.')
+    parser.add_argument('-t', '--include-turtle', action='store_true', dest='include_turtle',
+                        default=False, help='Include turtle related to this entity.')
     args = parser.parse_args()
 
     contents = [open(f).read() for f in args.files]
     ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class)
-    doc_content = ontology.html_documentation()
+    doc_content = ontology.html_documentation(include_turtle=args.include_turtle)
 
     with open(args.out, "w") as f:
         f.write(doc_content)
