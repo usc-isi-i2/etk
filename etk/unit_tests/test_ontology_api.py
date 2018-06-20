@@ -277,3 +277,18 @@ class TestOntologyAPI(unittest.TestCase):
         '''
         with self.assertRaises(ValidationError):
             Ontology(rdf_content)
+    def test_property_merge_config_delete_orphan(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"},'
+                                                   '"custody_received_by":{"color":"blue"}}}',
+                                                   delete_orphan_fields=True)
+        self.assertTrue('fields' in config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        self.assertIn('carried_out_by', fields)
+        self.assertNotIn('custody_received_by', fields)

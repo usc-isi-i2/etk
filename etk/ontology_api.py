@@ -495,7 +495,7 @@ class Ontology(object):
         """
         return set(filter(lambda e: not e.super_classes(), self.classes))
 
-    def merge_with_master_config(self, config, defaults={}) -> str:
+    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
         if isinstance(config, str):
             import json
             config = json.loads(config)
@@ -505,6 +505,12 @@ class Ontology(object):
 
         d_color = defaults.get('color', 'white')
         d_icon = defaults.get('icon', 'icons:default')
+
+        if delete_orphan_fields:
+            exist = {p.name() for p in properties}
+            unexist = set(fields.keys()) - exist
+            for name in unexist:
+                del fields[name]
 
         for p in properties:
             field = fields.get(p.name(), {'show_in_search': False,
