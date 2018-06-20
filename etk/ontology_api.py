@@ -434,6 +434,85 @@ class Ontology(object):
         """
         return self.roots
 
+    def merge_with_master_config(self, master, defaults={}) -> str:
+        import json
+        config = json.loads(master)
+        properties = self.all_properties()
+        config['fields'] = config.get('fields', dict())
+        fields = config['fields']
+
+        d_color = defaults.get('color', 'white')
+        d_icon = defaults.get('icon', 'icons:default')
+
+        for p in properties:
+            field = fields.get(p.name(), {'show_in_search': False,
+                                          'combine_fields': False,
+                                          'number_of_rules': 0,
+                                          'glossaries': [],
+                                          'use_in_network_search': False,
+                                          'case_sensitive': False,
+                                          'show_as_link': 'text',
+                                          'blacklists': [],
+                                          'show_in_result': 'no',
+                                          'rule_extractor_enabled': False,
+                                          'search_importance': 1,
+                                          'group_name': '',
+                                          'show_in_facets': False,
+                                          'predefined_extractor': 'none',
+                                          'rule_extraction_target': ''})
+            config['fields'][p.name()] = field
+            field['screen_label'] = ' '.join(p.label())
+            field['description'] = '\n'.join(p.definition())
+            field['name'] = p.name()
+
+            # color
+            if 'color' not in field:
+                for q in p.super_properties_closure():
+                    name = q.name()
+                    if name in fields and 'color' in fields[name]:
+                        field['color'] = fields[name]['color']
+                        break
+                else:
+                    field['color'] = d_color
+            # icon
+            if 'icon' not in field:
+                for q in p.super_properties_closure():
+                    if q.name() in fields and 'icon' in fields[q.name()]:
+                        field['icon'] = fields[q.name()]['icon']
+                        break
+                else:
+                    field['icon'] = d_icon
+            # type
+            if isinstance(p, OntologyObjectProperty):
+                field['type'] = 'kg_id'
+            else:
+                field['type'] = [*map(self.__merge_xsd_to_type, p.included_ranges())]
+        return config
+
+    def __merge_xsd_to_type(self, uri):
+        xsd_ref = {
+            XSD.string: 'string',
+            XSD.boolean: 'number',
+            XSD.decimal: 'number',
+            XSD.float: 'number',
+            XSD.double: 'number',
+            XSD.duration: 'number',
+            XSD.dateTime: 'date',
+            XSD.time: 'date',
+            XSD.date: 'date',
+            XSD.gYearMonth: 'date',
+            XSD.gYear: 'date',
+            XSD.gMonthDay: 'date',
+            XSD.gMonth: 'date',
+            XSD.gDay: 'date',
+            XSD.hexBinary: 'string',
+            XSD.base64Binary: 'string',
+            XSD.anyURI: 'string',
+            XSD.QName: 'string',
+            XSD.NOTATION: 'string'
+        }
+        return xsd_ref[URIRef(uri)]
+
     def html_documentation(self) -> str:
         """
         Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
