@@ -66,6 +66,7 @@ class UCDPModule(ETKModule):
                                                           default_action="delete")
 
     def process_document(self, doc: Document) -> List[Document]:
+        nested_docs = list()
         # pyexcel produces dics with date objects, which are not JSON serializable, fix that.
         Utility.make_json_serializable(doc.cdr_document)
 
@@ -93,7 +94,12 @@ class UCDPModule(ETKModule):
 
         kg_object_old_ontology = {
             "uri": doc.doc_id,
-            "country": doc.select_segments("$.Location"),
+            "place":{
+                "uri": doc.doc_id + "_place",
+                "doc_id": doc.doc_id + "_place",
+                "country": doc.select_segments("$.Location"),
+                "type": ["Place"]
+            },
             "type": [
                 "Event",
                 doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]),
@@ -114,70 +120,22 @@ class UCDPModule(ETKModule):
                 "uri": doc.doc_id + "_fatalities",
                 "title": doc.extract(self.int_fatalities_decoder, doc.select_segments("$.Int")[0]),
                 "type": ["Group", "Dead People"],
-                "size_lower_bound": doc.extract(self.int_fatalities_size_lower_decoder,
+                "min_size": doc.extract(self.int_fatalities_size_lower_decoder,
                                                 doc.select_segments("$.Int")[0]),
-                "size_upper_bound": doc.extract(self.int_fatalities_size_upper_decoder, doc.select_segments("$.Int")[0])
+                "max_size": doc.extract(self.int_fatalities_size_upper_decoder, doc.select_segments("$.Int")[0])
             },
             "actor": [actor1_doc.doc_id, actor2_doc.doc_id]
         }
         ds = doc.build_knowledge_graph(kg_object_old_ontology)
-        # print(len(ds))
-        # print(doc.kg._kg['type'])
-        # print(doc.cdr_document['knowledge_graph'])
-        for d in ds:
-            print(d.kg._kg)
-            # if 'fatalities' in d.kg._kg:
-            #     print(d.kg._kg['fatalities'])
-            #     print(d.cdr_document)
-            # print(d.cdr_document['knowledge_graph'])
 
-        kg_object_new_ontology = {
-            "a": "Event",
-            "uri": doc.doc_id,
-            "took_place_at": {
-                "country": doc.select_segments("$.Location")
-            },
-            "type": [
-                doc.extract(self.incomp_decoder, doc.select_segments("$.Incomp")[0]),
-                doc.extract(self.int_decoder, doc.select_segments("$.Int")[0])
-            ],
-            "title": "{}/{} armed conflict in {}".format(
-                doc.cdr_document["SideA"],
-                doc.cdr_document["SideB"],
-                doc.cdr_document["YEAR"]
-            ),
-            "causeex_class": [
-                doc.extract(self.int_causeex_decoder, doc.select_segments("$.Int")[0]),
-                self.event_prefix + "ArmedConflict"
-            ],
-            "has_time_span": {
-                "start_date": doc.select_segments("$.StartDate"),
-                "end_date": doc.select_segments("$.EpEndDate")
-            },
-            "had_victim": {
-                "a": "Group",
-                "has_dimension": {
-                    "type": "size",
-                    "has_unit": "person",
-                    "value_is_at_least": doc.extract(self.int_fatalities_size_lower_decoder,
-                                                     doc.select_segments("$.Int")[0]),
-                    "value_is_at_most": doc.extract(self.int_fatalities_size_upper_decoder,
-                                                    doc.select_segments("$.Int")[0])
-                },
-                "has_condition": {
-                    "type": "Dead"
-                }
-            },
-            "carried_out_by": [actor1_doc.doc_id, actor2_doc.doc_id]
-        }
+        nested_docs.extend(ds)
 
         # Return the list of new documents that we created to be processed by ETK.
         # Note that fatalities_dco is in the list as it is a newly created document. It does not have an
         # extraction module, so it will be passed to the output unchanged.
-        return [
-            actor1_doc,
-            actor2_doc
-        ]
+        nested_docs.append(actor1_doc)
+        nested_docs.append(actor2_doc)
+        return nested_docs
 
     def document_selector(self, doc) -> bool:
         # return self.doc_selector.select_document(doc, datasets=["ucdp"])
@@ -227,6 +185,8 @@ if __name__ == "__main__":
             # Each row produces a document, which we sent to ETK.
             # Note that each invocation of process_ems will also process any new documents created while
             # processing each doc
-            for result in etk.process_ems(doc):
-                # print(result.cdr_document["knowledge_graph"])
-                f.write(json.dumps(result.cdr_document) + "\n")
+            etk.process_and_frame(doc)
+            f.write(json.dumps(doc.cdr_document) + "\n")
+            # for result in etk.process_ems(doc):
+            #     # print(result.cdr_document["knowledge_graph"])
+            #     f.write(json.dumps(result.cdr_document) + "\n")
