@@ -277,6 +277,64 @@ class TestOntologyAPI(unittest.TestCase):
         '''
         with self.assertRaises(ValidationError):
             Ontology(rdf_content)
+
+    def test_property_merge_master_config(self):
+        rdf_content = rdf_prefix + ':had_participant a owl:ObjectProperty . '
+        ontology = Ontology(rdf_content)
+        d_color = 'red'
+        config = ontology.merge_with_master_config('{}', {'color': d_color})
+        self.assertIn('fields', config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual(property_['color'], d_color)
+
+    def test_property_merge_config_inherit(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:transferred_custody_of a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"}}}')
+        self.assertIn('fields', config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual(property_['color'], 'red')
+        self.assertIn('transferred_custody_of', fields)
+        sub_property = fields['transferred_custody_of']
+        self.assertIn('color', sub_property)
+        self.assertEqual(property_['color'], sub_property['color'])
+
+    def test_property_merge_config_closest_inherit(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+:custody_received_by a owl:ObjectProperty ;
+    owl:subPropertyOf :carried_out_by ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"},'
+                                                   '"carried_out_by":{"color":"blue"}}}')
+        self.assertTrue('fields' in config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual('red', property_['color'])
+        self.assertIn('carried_out_by', fields)
+        sub_property = fields['carried_out_by']
+        self.assertIn('color', sub_property)
+        self.assertEqual('blue', sub_property['color'])
+        self.assertIn('custody_received_by', fields)
+        subsub = fields['custody_received_by']
+        self.assertIn('color', subsub)
+        self.assertEqual(sub_property['color'], subsub['color'])
+
     def test_property_merge_config_delete_orphan(self):
         rdf_content = rdf_prefix + '''
 :had_participant a owl:ObjectProperty ; .

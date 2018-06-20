@@ -552,10 +552,11 @@ class Ontology(object):
         return config
 
     def __merge_close_ancestor_color(self, property_, fields, attr):
+        from collections import deque
         added = property_.super_properties()
-        ancestors = list(added)
+        ancestors = deque(added)
         while ancestors:
-            super_property = ancestors.pop(0)
+            super_property = ancestors.popleft()
             name = super_property.name()
             if name in fields and attr in fields[name]:
                 return fields[name][attr]
