@@ -237,7 +237,8 @@ class OntologyDatatypeProperty(OntologyProperty):
         Returns:
 
         """
-        return data_type in self.included_ranges() or self.super_properties() and any(x.is_legal_object(data_type) for x in self.super_properties())
+        return data_type in self.included_ranges() or self.super_properties() and \
+               any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
 class ValidationError(Exception):
@@ -246,12 +247,47 @@ class ValidationError(Exception):
 
 
 class Ontology(object):
+    def __init_graph_parse(self, contents):
+        if isinstance(contents, str):
+            self.g.parse(data=contents, format='ttl')
+        else:
+            for content in contents:
+                self.g.parse(data=content, format='ttl')
 
-    def __init__(self, turtle, validation=True) -> None:
     def __init_graph_namespace(self):
         for ns in ('rdfs', 'rdf', 'owl', 'schema', 'dig'):
             if ns not in self.g.namespaces():
                 self.g.namespace_manager.bind(ns, eval(ns.upper()))
+
+    def __init_ontology_class(self, uri):
+        if isinstance(uri, URIRef):
+            uri = uri.toPython()
+        elif not isinstance(uri, str):
+            return
+        entity = OntologyClass(uri)
+        self.entities[uri] = entity
+        self.classes.add(entity)
+        return entity
+
+    def __init_ontology_datatype_property(self, uri):
+        uri = uri.toPython()
+        entity = OntologyDatatypeProperty(uri)
+        self.entities[uri] = entity
+        self.data_properties.add(entity)
+        return entity
+
+    def __init_ontology_object_property(self, uri, inv):
+        uri = uri.toPython()
+        entity = OntologyObjectProperty(uri, inv)
+        self.entities[uri] = entity
+        self.object_properties.add(entity)
+        if inv:
+            inv = inv.toPython()
+            self.entities[inv] = entity.inverse()
+            self.object_properties.add(entity.inverse())
+        return entity
+
+    def __init__(self, turtle, validation=True, include_undefined_class=False) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -432,7 +468,7 @@ class Ontology(object):
         Returns: All classes that don't have a super class.
 
         """
-        return self.roots
+        return set(filter(lambda e: not e.super_classes(), self.classes))
 
     def merge_with_master_config(self, master, defaults={}) -> str:
         import json
