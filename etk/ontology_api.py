@@ -671,12 +671,13 @@ if __name__ == '__main__':
                         help='Don\'t perform domain and range validation.')
     parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
                         help='Location of generated HTML report.')
+    parser.add_argument('-i', '--include-undefined-classes', action='store_true', dest='include_class',
+                        default=False, help='Include those undefined classes but referenced by others')
     args = parser.parse_args()
 
     contents = [open(f).read() for f in args.files]
-    ontology = Ontology(contents, validation=args.validation)
+    ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class)
     doc_content = ontology.html_documentation()
 
     with open(args.out, "w") as f:
         f.write(doc_content)
-
