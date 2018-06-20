@@ -495,9 +495,10 @@ class Ontology(object):
         """
         return set(filter(lambda e: not e.super_classes(), self.classes))
 
-    def merge_with_master_config(self, master, defaults={}) -> str:
-        import json
-        config = json.loads(master)
+    def merge_with_master_config(self, config, defaults={}) -> str:
+        if isinstance(config, str):
+            import json
+            config = json.loads(config)
         properties = self.all_properties()
         config['fields'] = config.get('fields', dict())
         fields = config['fields']
@@ -528,27 +529,31 @@ class Ontology(object):
 
             # color
             if 'color' not in field:
-                for q in p.super_properties_closure():
-                    name = q.name()
-                    if name in fields and 'color' in fields[name]:
-                        field['color'] = fields[name]['color']
-                        break
-                else:
-                    field['color'] = d_color
+                color = self.__merge_close_ancestor_color(p, fields, attr='color')
+                field['color'] = color if color else d_color
             # icon
             if 'icon' not in field:
-                for q in p.super_properties_closure():
-                    if q.name() in fields and 'icon' in fields[q.name()]:
-                        field['icon'] = fields[q.name()]['icon']
-                        break
-                else:
-                    field['icon'] = d_icon
+                icon = self.__merge_close_ancestor_color(p, fields, attr='icon')
+                fields['icon'] = icon if icon else d_icon
             # type
             if isinstance(p, OntologyObjectProperty):
                 field['type'] = 'kg_id'
             else:
-                field['type'] = [*map(self.__merge_xsd_to_type, p.included_ranges())]
+                try:
+                    field['type'] = self.__merge_xsd_to_type(next(iter(p.included_ranges())))
+                except StopIteration:
+                    field['type'] = None
         return config
+
+    def __merge_close_ancestor_color(self, property_, fields, attr):
+        added = property_.super_properties()
+        ancestors = list(added)
+        while ancestors:
+            super_property = ancestors.pop(0)
+            name = super_property.name()
+            if name in fields and attr in fields[name]:
+                return fields[name][attr]
+            ancestors.extend(list(super_property.super_properties() - added))
 
     def __merge_xsd_to_type(self, uri):
         xsd_ref = {
@@ -572,7 +577,7 @@ class Ontology(object):
             XSD.QName: 'string',
             XSD.NOTATION: 'string'
         }
-        return xsd_ref[URIRef(uri)]
+        return xsd_ref.get(URIRef(uri), None)
 
     def html_documentation(self, include_turtle=False) -> str:
         """
@@ -740,7 +745,7 @@ if __name__ == '__main__':
     parser.add_argument('-i', '--include-undefined-classes', action='store_true', dest='include_class',
                         default=False, help='Include those undefined classes but referenced by others.')
     parser.add_argument('-t', '--include-turtle', action='store_true', dest='include_turtle',
-                        default=False, help='Include turtle related to this entity.')
+                        default=False, help='Include turtle related to this entity. NOTE: this may takes longer time.')
     args = parser.parse_args()
 
     contents = [open(f).read() for f in args.files]
