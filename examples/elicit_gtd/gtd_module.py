@@ -8,7 +8,6 @@ from etk.etk import ETK
 from etk.etk_module import ETKModule
 from etk.csv_processor import CsvProcessor
 from etk.extractors.decoding_value_extractor import DecodingValueExtractor
-from etk.document_selector import DefaultDocumentSelector
 from etk.document import Document
 from etk.knowledge_graph_schema import KGSchema
 from etk.utilities import Utility
