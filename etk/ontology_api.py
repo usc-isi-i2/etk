@@ -250,6 +250,92 @@ class ValidationError(Exception):
 
 
 class Ontology(object):
+    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False) -> None:
+        """
+        Read the ontology from a string containing RDF in turtle format.
+
+        Should do ontology validation:
+        - if p.sub_property_of(q) then
+          - for every x in included_domains(p) we have x is subclass of some d in
+        included_domains(q)
+          - for every y in included_ranges(p) we have y is subclass of some r in
+        included_ranges(q) -- for object properties
+        - DataType properties cannot be sub-property of Object properties, and vice versa.
+        - Detect cycles in sub-class and sub-property hierarchies.
+
+        Args:
+            turtle: str or Iterable[str]
+        """
+        import io, sys
+
+        self.entities = dict()
+        self.classes = set()
+        self.object_properties = set()
+        self.data_properties = set()
+        self.g = Graph()
+        self.log_stream = io.StringIO()
+        logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
+        if not quiet:
+            logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+        self.__init_graph_parse(turtle)
+        self.__init_graph_namespace()
+
+        # Class
+        for uri in self.g.subjects(RDF.type, OWL.Class):
+            self.__init_ontology_class(uri)
+        # Datatype Property
+        for uri in self.g.subjects(RDF.type, OWL.DatatypeProperty):
+            self.__init_ontology_datatype_property(uri)
+        # Object Property
+        for uri, inv in self.g.query("""SELECT ?uri ?inv
+                                   WHERE { ?uri a owl:ObjectProperty .
+                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
+            self.__init_ontology_object_property(uri, inv)
+        # subClassOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
+                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
+                                              UNION { ?uri owl:subClassOf ?sub }}"""):
+            self.__init_ontology_subClassOf(uri, sub, include_undefined_class)
+
+        # subPropertyOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
+                                   WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
+                                           UNION { ?uri owl:subPropertyOf ?sub }}"""):
+            self.__init_ontology_subPropertyOf(uri, sub)
+
+        # domain
+        for uri, d in self.g.query("""SELECT ?uri ?domain
+                             WHERE {{ ?uri rdfs:domain ?domain }
+                                    UNION { ?uri schema:domainIncludes ?domain }
+                                    UNION { ?domain dig:common_properties ?uri}}"""):
+            self.__init_ontology_property_domain(uri, d, include_undefined_class)
+
+        for uri, r in self.g.query("""SELECT ?uri ?range
+                             WHERE {{ ?uri rdfs:range ?range }
+                                    UNION { ?uri schema:rangeIncludes ?range }}"""):
+            self.__init_ontology_property_range(uri, r, include_undefined_class)
+
+        for entity in self.entities.values():
+            uri = URIRef(entity.uri())
+            for label in self.g.objects(uri, RDFS.label):
+                entity._label.add(label.toPython())
+            for definition in self.g.objects(uri, SKOS.definition):
+                entity._definition.add(definition.toPython())
+            for note in self.g.objects(uri, OWL.note):
+                entity._note.add(note.toPython())
+            for comment in self.g.objects(uri, RDFS.comment):
+                entity._comment.add(comment.toPython())
+
+        # After all hierarchies are built, perform the last validation
+        # Validation 1: Inherited domain & range consistency
+        if validation:
+            for p in self.object_properties:
+                self.__validation_property_domain(p)
+                self.__validation_property_range(p)
+            for p in self.data_properties:
+                self.__validation_property_domain(p)
+
     def __init_graph_parse(self, contents):
         if isinstance(contents, str):
             self.g.parse(data=contents, format='ttl')
@@ -265,7 +351,7 @@ class Ontology(object):
     def __init_ontology_class(self, uri):
         if isinstance(uri, URIRef):
             uri = uri.toPython()
-        elif not isinstance(uri, str):
+        else:
             return
         entity = OntologyClass(uri)
         self.entities[uri] = entity
@@ -370,92 +456,6 @@ class Ontology(object):
         if not isinstance(range_, OntologyClass):
             return
         property_.ranges.add(range_)
-
-    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False) -> None:
-        """
-        Read the ontology from a string containing RDF in turtle format.
-
-        Should do ontology validation:
-        - if p.sub_property_of(q) then
-          - for every x in included_domains(p) we have x is subclass of some d in
-        included_domains(q)
-          - for every y in included_ranges(p) we have y is subclass of some r in
-        included_ranges(q) -- for object properties
-        - DataType properties cannot be sub-property of Object properties, and vice versa.
-        - Detect cycles in sub-class and sub-property hierarchies.
-
-        Args:
-            turtle: str or Iterable[str]
-        """
-        import io, sys
-
-        self.entities = dict()
-        self.classes = set()
-        self.object_properties = set()
-        self.data_properties = set()
-        self.g = Graph()
-        self.log_stream = io.StringIO()
-        logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
-        if not quiet:
-            logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-
-        self.__init_graph_parse(turtle)
-        self.__init_graph_namespace()
-
-        # Class
-        for uri in self.g.subjects(RDF.type, OWL.Class):
-            self.__init_ontology_class(uri)
-        # Datatype Property
-        for uri in self.g.subjects(RDF.type, OWL.DatatypeProperty):
-            self.__init_ontology_datatype_property(uri)
-        # Object Property
-        for uri, inv in self.g.query("""SELECT ?uri ?inv
-                                   WHERE { ?uri a owl:ObjectProperty .
-                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
-            self.__init_ontology_object_property(uri, inv)
-        # subClassOf
-        for uri, sub in self.g.query("""SELECT ?uri ?sub
-                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
-                                              UNION { ?uri owl:subClassOf ?sub }}"""):
-            self.__init_ontology_subClassOf(uri, sub, include_undefined_class)
-
-        # subPropertyOf
-        for uri, sub in self.g.query("""SELECT ?uri ?sub
-                                   WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
-                                           UNION { ?uri owl:subPropertyOf ?sub }}"""):
-            self.__init_ontology_subPropertyOf(uri, sub)
-
-        # domain
-        for uri, d in self.g.query("""SELECT ?uri ?domain
-                             WHERE {{ ?uri rdfs:domain ?domain }
-                                    UNION { ?uri schema:domainIncludes ?domain }
-                                    UNION { ?domain dig:common_properties ?uri}}"""):
-            self.__init_ontology_property_domain(uri, d, include_undefined_class)
-
-        for uri, r in self.g.query("""SELECT ?uri ?range
-                             WHERE {{ ?uri rdfs:range ?range }
-                                    UNION { ?uri schema:rangeIncludes ?range }}"""):
-            self.__init_ontology_property_range(uri, r, include_undefined_class)
-
-        for entity in self.entities.values():
-            uri = URIRef(entity.uri())
-            for label in self.g.objects(uri, RDFS.label):
-                entity._label.add(label.toPython())
-            for definition in self.g.objects(uri, SKOS.definition):
-                entity._definition.add(definition.toPython())
-            for note in self.g.objects(uri, OWL.note):
-                entity._note.add(note.toPython())
-            for comment in self.g.objects(uri, RDFS.comment):
-                entity._comment.add(comment.toPython())
-
-        # After all hierarchies are built, perform the last validation
-        # Validation 1: Inherited domain & range consistency
-        if validation:
-            for p in self.object_properties:
-                self.__validation_property_domain(p)
-                self.__validation_property_range(p)
-            for p in self.data_properties:
-                self.__validation_property_domain(p)
 
     def __validation_property_domain(self, p):
         for x in p.included_domains():
@@ -619,6 +619,7 @@ class Ontology(object):
             item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
             row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
             classes = []
+            properties_map, referenced_map = self.__html_build_properties()
             for c in sorted_classes:
                 attr = []
                 subclass_of = sorted_by_name(c.super_classes())
@@ -629,10 +630,10 @@ class Ontology(object):
                     attr.append(
                         row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
                 attr.extend(self.__html_entity_basic_info(c, row))
-                properties = list(filter(lambda x: c.super_classes_closure() & x.included_domains(), sorted_properties))
+                properties = sorted_by_name(properties_map[c])
                 if properties:
                     attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                properties = list(filter(lambda x: c.super_classes_closure() & x.included_ranges(), sorted_properties))
+                properties = sorted_by_name(referenced_map[c])
                 if properties:
                     attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
                 if include_turtle:
@@ -642,8 +643,7 @@ class Ontology(object):
                 classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
 
             ### Properties
-            dataproperties = []
-            objectproperties = []
+            dataproperties, objectproperties = [], []
             for p in sorted_properties:
                 attr = []
                 domains = p.included_domains()
@@ -684,6 +684,24 @@ class Ontology(object):
             content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
         return content
 
+    def __html_build_properties(self):
+        properties_map = {c: set() for c in self.all_classes()}
+        referenced_map = {c: set() for c in self.all_classes()}
+        for property_ in self.all_properties():
+            for domain in property_.included_domains():
+                properties_map[domain].add(property_)
+            if isinstance(property_, OntologyObjectProperty):
+                for range_ in property_.included_ranges():
+                    referenced_map[range_].add(property_)
+        leaves = {c for c in self.all_classes()} - reduce(set.union, [c.super_classes() for c in self.all_classes()])
+        while leaves:
+            for class_ in leaves:
+                for super_class in class_.super_classes():
+                    properties_map[super_class] |= properties_map[class_]
+                    referenced_map[super_class] |= referenced_map[class_]
+            leaves = reduce(set.union, [c.super_classes() for c in leaves])
+        return properties_map, referenced_map
+
     def __html_extract_other_info(self, uri):
         g = Graph()
         g.namespace_manager = self.g.namespace_manager
@@ -691,16 +709,16 @@ class Ontology(object):
             uri = URIRef(uri)
         for pred, obj in self.g.predicate_objects(uri):
             g.add((uri, pred, obj))
-        g.remove((uri, RDFS.domain, None))
-        g.remove((uri, SCHEMA.domainIncludes, None))
         g.remove((uri, DIG.commen_properties, None))
-        g.remove((uri, RDFS.range, None))
+        g.remove((uri, SCHEMA.domainIncludes, None))
         g.remove((uri, SCHEMA.rangeIncludes, None))
+        g.remove((uri, RDFS.domain, None))
+        g.remove((uri, RDFS.range, None))
         g.remove((uri, RDFS.label, None))
+        g.remove((uri, RDFS.comment, None))
         g.remove((uri, SKOS.definition, None))
         g.remove((uri, SKOS.note, None))
-        g.remove((uri, RDFS.comment, None))
-        g.remove((uri, DIG.common_properties, None))
+        g.remove((uri, OWL.subPropertyOf, None))
         for obj in self.g.objects(uri, RDFS.subClassOf):
             if isinstance(self.get_entity(uri), OntologyClass) and \
                     isinstance(self.get_entity(obj), OntologyClass):
