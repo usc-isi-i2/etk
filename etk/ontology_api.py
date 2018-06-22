@@ -632,10 +632,11 @@ class Ontology(object):
                 attr.extend(self.__html_entity_basic_info(c, row))
                 properties = sorted_by_name(properties_map[c])
                 if properties:
-                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
+                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_class_property, properties))))
                 properties = sorted_by_name(referenced_map[c])
                 if properties:
-                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
+                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_class_referenced,
+                                                                                properties))))
                 if include_turtle:
                     code = self.__html_extract_other_info(c.uri())
                     if code:
@@ -683,6 +684,26 @@ class Ontology(object):
             logs = '' if exclude_warning else self.log_stream.getvalue()
             content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
         return content
+
+    def __html_class_property(self, property_):
+        range_ = property_.included_ranges()
+        item = self.__html_entity_href(property_)
+        if range_:
+            tpl = ': [{}]' if len(range_) > 1 else ': {}'
+            if isinstance(property_, OntologyObjectProperty):
+                range_ = sorted(range_, key=lambda x: x.name())
+                item += tpl.format(', '.join(map(self.__html_entity_href, range_)))
+            else:
+                item += tpl.format(', '.join(range_))
+        return item
+
+    def __html_class_referenced(self, property_):
+        domains = sorted(property_.included_domains(), key=lambda x: x.name())
+        item = self.__html_entity_href(property_)
+        if domains:
+            tpl = '[{}]: ' if len(domains) > 1 else '{} :'
+            item = tpl.format(', '.join(map(self.__html_entity_href, domains))) + item
+        return item
 
     def __html_build_properties(self):
         properties_map = {c: set() for c in self.all_classes()}
