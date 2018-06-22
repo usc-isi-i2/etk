@@ -344,7 +344,7 @@ class Ontology(object):
                 self.g.parse(data=content, format='ttl')
 
     def __init_graph_namespace(self):
-        for ns in ('rdfs', 'rdf', 'owl', 'schema', 'dig'):
+        for ns in ('owl', 'schema', 'dig'):
             if ns not in self.g.namespaces():
                 self.g.namespace_manager.bind(ns, eval(ns.upper()))
 
