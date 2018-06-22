@@ -657,7 +657,8 @@ class Ontology(object):
                         attr.append(row.format('Range', '<br />\n'.join(map(self.__html_entity_href,
                                                                             sorted_by_name(ranges)))))
                     else:
-                        attr.append(row.format('Range', '<br />\n'.join(sorted(ranges))))
+                        attr.append(row.format('Range', '<br />\n'.join(map(self.g.namespace_manager.qname,
+                                                                            sorted(ranges)))))
                 subproperty_of = sorted_by_name(p.super_properties())
                 superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
                 if subproperty_of:
@@ -694,7 +695,7 @@ class Ontology(object):
                 range_ = sorted(range_, key=lambda x: x.name())
                 item += tpl.format(', '.join(map(self.__html_entity_href, range_)))
             else:
-                item += tpl.format(', '.join(range_))
+                item += tpl.format(', '.join(map(self.g.namespace_manager.qname, sorted(range_))))
         return item
 
     def __html_class_referenced(self, property_):
