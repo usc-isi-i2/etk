@@ -2,10 +2,9 @@ import logging
 from typing import Set, Union
 from functools import reduce
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
+from etk.ontology_namespacemanager import OntologyNamespaceManager, DIG, SCHEMA
 
-SCHEMA = Namespace('http://schema.org/')
-DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
 
 class OntologyEntity(object):
@@ -272,14 +271,12 @@ class Ontology(object):
         self.classes = set()
         self.object_properties = set()
         self.data_properties = set()
-        self.g = Graph()
         self.log_stream = io.StringIO()
         logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
         if not quiet:
             logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-        self.__init_graph_parse(turtle)
-        self.__init_graph_namespace()
+        self.g = self.__init_graph_parse(turtle)
 
         # Class
         for uri in self.g.subjects(RDF.type, OWL.Class):
@@ -337,16 +334,14 @@ class Ontology(object):
                 self.__validation_property_domain(p)
 
     def __init_graph_parse(self, contents):
+        nm = OntologyNamespaceManager(Graph())
+        g = nm.graph
         if isinstance(contents, str):
-            self.g.parse(data=contents, format='ttl')
+            g.parse(data=contents, format='ttl')
         else:
             for content in contents:
-                self.g.parse(data=content, format='ttl')
-
-    def __init_graph_namespace(self):
-        for ns in ('owl', 'schema', 'dig'):
-            if ns not in self.g.namespaces():
-                self.g.namespace_manager.bind(ns, eval(ns.upper()))
+                g.parse(data=content, format='ttl')
+        return g
 
     def __init_ontology_class(self, uri):
         if isinstance(uri, URIRef):

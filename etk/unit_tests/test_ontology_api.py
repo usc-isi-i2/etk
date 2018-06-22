@@ -1,11 +1,10 @@
 import unittest
-from rdflib.namespace import XSD, Namespace
+from rdflib.namespace import XSD
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
 from etk.ontology_api import ValidationError
+from etk.ontology_namespacemanager import DIG, SCHEMA
 
-DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
-SCHEMA = Namespace('http://schema.org/')
 
 rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
