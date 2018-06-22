@@ -29,6 +29,8 @@
 </ul>
 <h2 id="toc-cl">Class List</h2>
 <div><ul>
+<li><a href="#C-http://www.w3.org/2002/07/owl#Class">Class</a></li>
+<li><a href="#C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</a></li>
 <li><a href="#C-http://dig.isi.edu/ontologies/dig/Entity">Entity</a></li>
 <ul>
 <li><a href="#C-http://dig.isi.edu/ontologies/dig/Dimension">Dimension</a></li>
@@ -141,6 +143,26 @@
 </ul>
 </ul>
 <li><a href="#C-http://dig.isi.edu/ontologies/dig/Time_Span">Time_Span</a></li>
+</ul>
+<li><a href="#C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</a></li>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Physical_Man_Made_Thing">Physical_Man_Made_Thing</a></li>
+<ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Man_Made_Object">Man_Made_Object</a></li>
+<ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Information_Carrier">Information_Carrier</a></li>
+</ul>
+</ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Propositional_Object">Propositional_Object</a></li>
+<ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Information_Object">Information_Object</a></li>
+<ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Design_Or_Procedure">Design_Or_Procedure</a></li>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Document">Document</a></li>
+<ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Authority_Document">Authority_Document</a></li>
+</ul>
+<li><a href="#C-http://dig.isi.edu/ontologies/dig/Linguistic_Object">Linguistic_Object</a></li>
+</ul>
 </ul>
 <li><a href="#C-http://dig.isi.edu/ontologies/dig/Type">Type</a></li>
 <ul>
@@ -328,6 +350,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Acquisition a owl:Class ;
+    diga:crm_equivalent crm:E8_Acquisition .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Activity">Activity</h4>
@@ -414,6 +438,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Activity a owl:Class ;
+    diga:crm_equivalent crm:E7_Activity .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Actor">Actor</h4>
@@ -456,6 +482,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Actor a owl:Class ;
+    diga:crm_equivalent crm:E39_Actor .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Attribute_Assignment">Attribute_Assignment</h4>
@@ -529,6 +557,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Attribute_Assignment a owl:Class ;
+    diga:crm_equivalent crm:E13_Attribute_Assignment .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Authority_Document">Authority_Document</h4>
@@ -546,6 +576,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises encyclopaedia, thesauri, authority lists and other documents that define terminology or conceptual systems for consistent use.</td>
 </tr>
+<pre><code>dig:Authority_Document a owl:Class ;
+    diga:crm_equivalent crm:E32_Authority_Document .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Beginning_Of_Existence">Beginning_Of_Existence</h4>
@@ -625,6 +657,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Beginning_Of_Existence a owl:Class ;
+    diga:crm_equivalent crm:E63_Beginning_Of_Existence .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Biological_Object">Biological_Object</h4>
@@ -646,6 +680,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises individual items of a material nature, which live, have lived or are natural products of or from living organisms.</td>
 </tr>
+<pre><code>dig:Biological_Object a owl:Class ;
+    diga:crm_equivalent crm:E20_Biological_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Birth">Birth</h4>
@@ -715,6 +751,14 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Birth a owl:Class ;
+    diga:crm_equivalent crm:E67_Birth .</code></pre>
+</table>
+</div>
+<h4 id="C-http://www.w3.org/2002/07/owl#Class">Class</h4>
+<div class="entity">
+<table>
+
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Conceptual_Object">Conceptual_Object</h4>
@@ -759,6 +803,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Conceptual_Object a owl:Class ;
+    diga:crm_equivalent crm:E28_Conceptual_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Condition_State">Condition_State</h4>
@@ -799,6 +845,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Condition_State a owl:Class ;
+    diga:crm_equivalent crm:E3_Condition_State .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Country">Country</h4>
@@ -885,6 +933,14 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Creation a owl:Class ;
+    diga:crm_equivalent crm:E65_Creation .</code></pre>
+</table>
+</div>
+<h4 id="C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</h4>
+<div class="entity">
+<table>
+
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Death">Death</h4>
@@ -954,6 +1010,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Death a owl:Class ;
+    diga:crm_equivalent crm:E69_Death .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Design_Or_Procedure">Design_Or_Procedure</h4>
@@ -971,6 +1029,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises documented plans for the execution of actions in order to achieve a result of a specific quality, form or contents. In particular it comprises plans for deliberate human activities that may result in the modification or production of instances of E24 Physical Thing.</td>
 </tr>
+<pre><code>dig:Design_Or_Procedure a owl:Class ;
+    diga:crm_equivalent crm:E29_Design_or_Procedure .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Destruction">Destruction</h4>
@@ -1040,6 +1100,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Destruction a owl:Class ;
+    diga:crm_equivalent crm:E6_Destruction .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Dimension">Dimension</h4>
@@ -1081,6 +1143,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Dimension a owl:Class ;
+    diga:crm_equivalent crm:E54_Dimension .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Dissolution">Dissolution</h4>
@@ -1150,6 +1214,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Dissolution a owl:Class ;
+    diga:crm_equivalent crm:E68_Dissolution .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Document">Document</h4>
@@ -1171,6 +1237,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises identifiable immaterial items that make propositions about reality.</td>
 </tr>
+<pre><code>dig:Document a owl:Class ;
+    diga:crm_equivalent crm:E31_Document .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/End_Of_Existence">End_Of_Existence</h4>
@@ -1251,6 +1319,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:End_Of_Existence a owl:Class ;
+    diga:crm_equivalent crm:E64_End_Of_Existence .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Entity">Entity</h4>
@@ -1275,6 +1345,8 @@
 <th align="right" valign="top">definition</th>
 <td>Everything that can be described, similar to owl:Thing.</td>
 </tr>
+<pre><code>dig:Entity a owl:Class ;
+    diga:crm_equivalent crm:E1_CRM_Entity .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Ethnic_Group">Ethnic_Group</h4>
@@ -1338,6 +1410,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Event a owl:Class ;
+    diga:crm_equivalent crm:E5_Event .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Formation">Formation</h4>
@@ -1408,6 +1482,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Formation a owl:Class ;
+    diga:crm_equivalent crm:E66_Formation .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Group">Group</h4>
@@ -1449,6 +1525,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Group a owl:Class ;
+    diga:crm_equivalent crm:E74_Group .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Human_Condition">Human_Condition</h4>
@@ -1497,6 +1575,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_of">transferred_ownership_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/used_specific_object">used_specific_object</a></td>
 </tr>
+<pre><code>dig:Information_Carrier a owl:Class ;
+    diga:crm_equivalent crm:E84_Information_Carrier .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Information_Object">Information_Object</h4>
@@ -1504,7 +1584,8 @@
 <table>
 <tr>
 <th align="right" valign="top">Subclass of</th>
-<td><a href="#C-http://dig.isi.edu/ontologies/dig/Symbolic_Object">Symbolic_Object</a></td>
+<td><a href="#C-http://dig.isi.edu/ontologies/dig/Propositional_Object">Propositional_Object</a><br />
+<a href="#C-http://dig.isi.edu/ontologies/dig/Symbolic_Object">Symbolic_Object</a></td>
 </tr>
 <tr>
 <th align="right" valign="top">Superclass of</th>
@@ -1520,6 +1601,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises identifiable immaterial items, such as a poems, jokes, data sets, images, texts, multimedia objects, procedural prescriptions, computer program code, algorithm or mathematical formulae, that have an objectively recognizable structure and are documented as single units.</td>
 </tr>
+<pre><code>dig:Information_Object a owl:Class ;
+    diga:crm_equivalent crm:E73_Information_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Joining">Joining</h4>
@@ -1589,6 +1672,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Joining a owl:Class ;
+    diga:crm_equivalent crm:E85_Joining .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Leaving">Leaving</h4>
@@ -1658,6 +1743,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Leaving a owl:Class ;
+    diga:crm_equivalent crm:E86_Leaving .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Legal_Object">Legal_Object</h4>
@@ -1680,6 +1767,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises usable discrete, identifiable, instances of E77 Persistent Item that are documented as single units.</td>
 </tr>
+<pre><code>dig:Legal_Object a owl:Class ;
+    diga:crm_equivalent crm:E72_Legal_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Linguistic_Object">Linguistic_Object</h4>
@@ -1697,6 +1786,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises identifiable expressions in natural language or languages.</td>
 </tr>
+<pre><code>dig:Linguistic_Object a owl:Class ;
+    diga:crm_equivalent crm:E33_Linguistic_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Man_Made_Object">Man_Made_Object</h4>
@@ -1704,7 +1795,8 @@
 <table>
 <tr>
 <th align="right" valign="top">Subclass of</th>
-<td><a href="#C-http://dig.isi.edu/ontologies/dig/Physical_Object">Physical_Object</a></td>
+<td><a href="#C-http://dig.isi.edu/ontologies/dig/Physical_Man_Made_Thing">Physical_Man_Made_Thing</a><br />
+<a href="#C-http://dig.isi.edu/ontologies/dig/Physical_Object">Physical_Object</a></td>
 </tr>
 <tr>
 <th align="right" valign="top">Superclass of</th>
@@ -1732,6 +1824,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_of">transferred_ownership_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/used_specific_object">used_specific_object</a></td>
 </tr>
+<pre><code>dig:Man_Made_Object a owl:Class ;
+    diga:crm_equivalent crm:E22_Man-Made_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Man_Made_Thing">Man_Made_Thing</h4>
@@ -1773,6 +1867,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Man_Made_Thing a owl:Class ;
+    diga:crm_equivalent crm:E71_Man-Made_Thing .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Measurement">Measurement</h4>
@@ -1790,6 +1886,8 @@
 <th align="right" valign="top">definition</th>
 <td>Describes an entity being measured and an observed dimension.</td>
 </tr>
+<pre><code>dig:Measurement a owl:Class ;
+    diga:crm_equivalent crm:E16_Measurement .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Modality">Modality</h4>
@@ -1882,6 +1980,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Modification a owl:Class ;
+    diga:crm_equivalent crm:E11_Modification .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Money">Money</h4>
@@ -1995,6 +2095,14 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Move a owl:Class ;
+    diga:crm_equivalent crm:E9_Move .</code></pre>
+</table>
+</div>
+<h4 id="C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</h4>
+<div class="entity">
+<table>
+
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Organization">Organization</h4>
@@ -2031,6 +2139,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_from">transferred_ownership_from</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_to">transferred_ownership_to</a></td>
 </tr>
+<pre><code>dig:Organization a owl:Class ;
+    diga:crm_equivalent crm:E40_Legal_Body .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Part_Addition">Part_Addition</h4>
@@ -2048,6 +2158,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises activities that result in an instance of E24 Physical Man-Made Thing being increased, enlarged or augmented by the addition of a part.</td>
 </tr>
+<pre><code>dig:Part_Addition a owl:Class ;
+    diga:crm_equivalent crm:E79_Part_Addition .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Part_Removal">Part_Removal</h4>
@@ -2065,6 +2177,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises the activities that result in an instance of E18 Physical Thing being decreased by the removal of a part.</td>
 </tr>
+<pre><code>dig:Part_Removal a owl:Class ;
+    diga:crm_equivalent crm:E80_Part_Removal .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Persistent_Item">Persistent_Item</h4>
@@ -2106,6 +2220,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Persistent_Item a owl:Class ;
+    diga:crm_equivalent crm:E77_Persistent_Item .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Person">Person</h4>
@@ -2143,6 +2259,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_from">transferred_ownership_from</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_to">transferred_ownership_to</a></td>
 </tr>
+<pre><code>dig:Person a owl:Class ;
+    diga:crm_equivalent crm:E21_Person .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Physical_Feature">Physical_Feature</h4>
@@ -2163,6 +2281,17 @@
 <tr>
 <th align="right" valign="top">definition</th>
 <td>Comprises identifiable features that are physically attached in an integral way to particular physical objects.</td>
+</tr>
+<pre><code>dig:Physical_Feature a owl:Class ;
+    diga:crm_equivalent crm:E26_Physical_Feature .</code></pre>
+</table>
+</div>
+<h4 id="C-http://dig.isi.edu/ontologies/dig/Physical_Man_Made_Thing">Physical_Man_Made_Thing</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-http://dig.isi.edu/ontologies/dig/Man_Made_Object">Man_Made_Object</a></td>
 </tr>
 </table>
 </div>
@@ -2185,6 +2314,8 @@
 <th align="right" valign="top">definition</th>
 <td>A thing in the world, e.g., buildings, trees, persons, but not ideas.</td>
 </tr>
+<pre><code>dig:Physical_Object a owl:Class ;
+    diga:crm_equivalent crm:E19_Physical_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Physical_Thing">Physical_Thing</h4>
@@ -2208,6 +2339,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises all persistent physical items with a relatively stable form, man-made or natural.</td>
 </tr>
+<pre><code>dig:Physical_Thing a owl:Class ;
+    diga:crm_equivalent crm:E18_Physical_Thing .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Place">Place</h4>
@@ -2245,6 +2378,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Place a owl:Class ;
+    diga:crm_equivalent crm:E53_Place .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Production">Production</h4>
@@ -2262,6 +2397,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises activities that are designed to, and succeed in, creating one or more new items.</td>
 </tr>
+<pre><code>dig:Production a owl:Class ;
+    diga:crm_equivalent crm:E12_Production .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Property_Type">Property_Type</h4>
@@ -2277,11 +2414,23 @@
 </tr>
 <tr>
 <th align="right" valign="top">definition</th>
-<td>When modeling measurements, one creates a :Measurement event, and one needs to record the value measures together with its units (:Dimension), the object that was measured (:measured), and the property of the object that we are measuring (:observed_property_type), e.g., the width, or height, or price, or production level, etc. It is possible that all these properties are not defined as RDF properties in an ontology, e.g., :price is not in the ontology. The idea of :Property_Type is to create controlled vocabularies of properties one can observe, withut requiring that these properties be defined as RDF properties, i.e., the observed properties are data (instances of :Property_Type), so new ones can be added without extending the ontology.</td>
+<td>Comprises types of properties. Typically, instances of S9 Property Type would be aken from an ontology or terminological system. In particular, instances of this class can be used to describe in a parametric way what kind of properties the values in scientific data sets are about. By virtue of such descriptions, numeric data can be interpreted as sets of propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the ground water from a certain borehole.</td>
 </tr>
 <tr>
 <th align="right" valign="top">definition</th>
-<td>Comprises types of properties. Typically, instances of S9 Property Type would be aken from an ontology or terminological system. In particular, instances of this class can be used to describe in a parametric way what kind of properties the values in scientific data sets are about. By virtue of such descriptions, numeric data can be interpreted as sets of propositions in terms of a formal ontology, such as “concentration of nitrate”, observed in the ground water from a certain borehole.</td>
+<td>When modeling measurements, one creates a :Measurement event, and one needs to record the value measures together with its units (:Dimension), the object that was measured (:measured), and the property of the object that we are measuring (:observed_property_type), e.g., the width, or height, or price, or production level, etc. It is possible that all these properties are not defined as RDF properties in an ontology, e.g., :price is not in the ontology. The idea of :Property_Type is to create controlled vocabularies of properties one can observe, withut requiring that these properties be defined as RDF properties, i.e., the observed properties are data (instances of :Property_Type), so new ones can be added without extending the ontology.</td>
+</tr>
+<pre><code>dig:Property_Type a owl:Class ;
+    diga:crm_equivalent crm:S9_Property_Type ;
+    owl:subClassOf dig:Type .</code></pre>
+</table>
+</div>
+<h4 id="C-http://dig.isi.edu/ontologies/dig/Propositional_Object">Propositional_Object</h4>
+<div class="entity">
+<table>
+<tr>
+<th align="right" valign="top">Superclass of</th>
+<td><a href="#C-http://dig.isi.edu/ontologies/dig/Information_Object">Information_Object</a></td>
 </tr>
 </table>
 </div>
@@ -2337,6 +2486,8 @@
 <th align="right" valign="top">definition</th>
 <td>Comprises pieces of land or sea floor.</td>
 </tr>
+<pre><code>dig:Site a owl:Class ;
+    diga:crm_equivalent crm:E27_Site .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Symbolic_Object">Symbolic_Object</h4>
@@ -2365,6 +2516,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_custody_of">transferred_custody_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/transferred_ownership_of">transferred_ownership_of</a></td>
 </tr>
+<pre><code>dig:Symbolic_Object a owl:Class ;
+    diga:crm_equivalent crm:E90_Symbolic_Object .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Temporal_Entity">Temporal_Entity</h4>
@@ -2407,6 +2560,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Temporal_Entity a owl:Class ;
+    diga:crm_equivalent crm:E2_Temporal_Entity .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Thing">Thing</h4>
@@ -2448,6 +2603,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Thing a owl:Class ;
+    diga:crm_equivalent crm:E70_Thing .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Time_Span">Time_Span</h4>
@@ -2485,6 +2642,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</a></td>
 </tr>
+<pre><code>dig:Time_Span a owl:Class ;
+    diga:crm_equivalent crm:E52_Time-Span .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Transfer_Of_Custody">Transfer_Of_Custody</h4>
@@ -2554,6 +2713,8 @@
 <a href="#O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</a><br />
 <a href="#O-http://dig.isi.edu/ontologies/dig/starts">starts</a></td>
 </tr>
+<pre><code>dig:Transfer_Of_Custody a owl:Class ;
+    diga:crm_equivalent crm:E10_Transfer_Of_Custody .</code></pre>
 </table>
 </div>
 <h4 id="C-http://dig.isi.edu/ontologies/dig/Type">Type</h4>
@@ -2575,6 +2736,8 @@
 <th align="right" valign="top">definition</th>
 <td>Everything that can be described, similar to owl:Thing.</td>
 </tr>
+<pre><code>dig:Type a owl:Class ;
+    diga:crm_equivalent crm:E55_Type .</code></pre>
 </table>
 </div>
 <h2 id="toc-property">Properties</h2>
@@ -2600,6 +2763,9 @@
 <th align="right" valign="top">definition</th>
 <td>An :Actor that played an active role in an event. :carried_out_by implies causal or legal responsibility.</td>
 </tr>
+<pre><code>dig:carried_out_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P14_carried_out_by ;
+    owl:subPropertyOf dig:had_participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/country">country</h4>
@@ -2626,6 +2792,18 @@
 <h4 id="O-http://dig.isi.edu/ontologies/dig-annotation/crm_equivalent">crm_equivalent</h4>
 <div class="entity">
 <table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-http://www.w3.org/2002/07/owl#Class">Class</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</a></td>
+</tr>
+<tr>
+<th align="right" valign="top">Range</th>
+<td><a href="#C-http://www.w3.org/2002/07/owl#Class">Class</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</a></td>
+</tr>
 <tr>
 <th align="right" valign="top">label</th>
 <td>CRM equivalent</td>
@@ -2659,6 +2837,9 @@
 <th align="right" valign="top">definition</th>
 <td>identifies the an :Actor who receives custody of an an item as a result of an :Event.</td>
 </tr>
+<pre><code>dig:custody_received_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P29_custody_received_by ;
+    owl:subPropertyOf dig:carried_out_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/custody_surrendered_by">custody_surrendered_by</h4>
@@ -2684,6 +2865,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies an :Actor who surrenders custody of an item as a result of an :Event.</td>
 </tr>
+<pre><code>dig:custody_surrendered_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P28_custody_surrendered_by ;
+    owl:subPropertyOf dig:had_provider .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/damaged">damaged</h4>
@@ -2705,6 +2889,8 @@
 <th align="right" valign="top">definition</th>
 <td>A :Physical_Object that is physically damaged in an event.</td>
 </tr>
+<pre><code>dig:damaged a owl:ObjectProperty ;
+    owl:subPropertyOf dig:participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/destroyed">destroyed</h4>
@@ -2726,6 +2912,9 @@
 <th align="right" valign="top">definition</th>
 <td>A :Physical_Object that is physically destroyed in an event.</td>
 </tr>
+<pre><code>dig:destroyed a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P13_destroyed ;
+    owl:subPropertyOf dig:damaged .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/finishes">finishes</h4>
@@ -2747,6 +2936,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:finishes a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P115_finishes .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_at_least_duration">had_at_least_duration</h4>
@@ -2768,6 +2959,8 @@
 <th align="right" valign="top">definition</th>
 <td>Describes the minimum length of time covered by an :Time_Span.</td>
 </tr>
+<pre><code>dig:had_at_least_duration a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P83_had_at_least_duration .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_at_most_duration">had_at_most_duration</h4>
@@ -2789,6 +2982,8 @@
 <th align="right" valign="top">definition</th>
 <td>Describes the maximum length of time covered by an :Time_Span.</td>
 </tr>
+<pre><code>dig:had_at_most_duration a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P83_had_at_most_duration .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_beneficiary">had_beneficiary</h4>
@@ -2814,6 +3009,8 @@
 <th align="right" valign="top">definition</th>
 <td>An :Actor that benefits in some way when an event occurs.</td>
 </tr>
+<pre><code>dig:had_beneficiary a owl:ObjectProperty ;
+    owl:subPropertyOf dig:had_participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_modality">had_modality</h4>
@@ -2868,6 +3065,9 @@
 <th align="right" valign="top">definition</th>
 <td>An :Actor who had an active or passive participation in an Event.</td>
 </tr>
+<pre><code>dig:had_participant a owl:ObjectProperty ;
+    diga:crm_equivalent <http://www.cidoc-crm.org/cidoc-crm/P11:had_participant> ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_provider">had_provider</h4>
@@ -2898,6 +3098,8 @@
 <th align="right" valign="top">definition</th>
 <td>An :Actor that provided something that was used in an :Event.</td>
 </tr>
+<pre><code>dig:had_provider a owl:ObjectProperty ;
+    owl:subPropertyOf dig:carried_out_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_specific_purpose">had_specific_purpose</h4>
@@ -2923,6 +3125,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies the relationship between a preparatory activity (the subject) and the event it is intended to be preparation for (the object). This includes activities, orders and other organisational actions, taken in preparation for other activities or events.</td>
 </tr>
+<pre><code>dig:had_specific_purpose a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P20_had_specific_purpose ;
+    owl:subPropertyOf dig:used_specific_object .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_target">had_target</h4>
@@ -2948,6 +3153,8 @@
 <th align="right" valign="top">definition</th>
 <td>An :Entity that was intended to be affected by an :Event.</td>
 </tr>
+<pre><code>dig:had_target a owl:ObjectProperty ;
+    owl:subPropertyOf dig:had_participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/had_victim">had_victim</h4>
@@ -2973,6 +3180,8 @@
 <th align="right" valign="top">definition</th>
 <td>An :Actor negatively affected by an event, e.g., a person who was killed, and organization that was robbed.</td>
 </tr>
+<pre><code>dig:had_victim a owl:ObjectProperty ;
+    owl:subPropertyOf dig:had_participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/has_condition">has_condition</h4>
@@ -2994,6 +3203,8 @@
 <th align="right" valign="top">definition</th>
 <td>Records a :Condition_State for some :Physical_Object.</td>
 </tr>
+<pre><code>dig:has_condition a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P44_has_condition .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/has_dimension">has_dimension</h4>
@@ -3015,6 +3226,8 @@
 <th align="right" valign="top">definition</th>
 <td>Records a :Dimension of some E70 Thing.</td>
 </tr>
+<pre><code>dig:has_dimension a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P43_has_dimension .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/has_modified">has_modified</h4>
@@ -3040,6 +3253,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies a :Man_Made_Thing modified in an :Event.</td>
 </tr>
+<pre><code>dig:has_modified a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P31_has_modified ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/has_time_span">has_time_span</h4>
@@ -3061,6 +3277,8 @@
 <th align="right" valign="top">definition</th>
 <td>The time interval when the :E2_Temporal_Entity happened.</td>
 </tr>
+<pre><code>dig:has_time_span a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P4_has_time-span .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/includes">includes</h4>
@@ -3082,6 +3300,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:includes a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P117i_includes .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/is_equal_in_time_to">is_equal_in_time_to</h4>
@@ -3103,6 +3323,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "equal" relationship of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:is_equal_in_time_to a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P114_is_equal_in_time_to .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/is_finished_by">is_finished_by</h4>
@@ -3124,6 +3346,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "finishes / finished-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:is_finished_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P115i_is_finished_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/is_started_by">is_started_by</h4>
@@ -3145,6 +3369,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:is_started_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P116i_is_started_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/measured">measured</h4>
@@ -3170,6 +3396,9 @@
 <th align="right" valign="top">definition</th>
 <td>Specifies the item that was measured in a :Measurement event. Material and immaterial things and processes may be measured.</td>
 </tr>
+<pre><code>dig:measured a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P39_measured ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/meets_in_time_with">meets_in_time_with</h4>
@@ -3191,6 +3420,8 @@
 <th align="right" valign="top">definition</th>
 <td>.This property is the same as the "meets / met-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:meets_in_time_with a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P119_meets_in_time_with .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/moved">moved</h4>
@@ -3216,6 +3447,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies a :Physical_Object that is moved during a move :Event.</td>
 </tr>
+<pre><code>dig:moved a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P25_moved ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/moved_from">moved_from</h4>
@@ -3241,6 +3475,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies the :Place where an object is moved from.</td>
 </tr>
+<pre><code>dig:moved_from a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P27_moved_from ;
+    owl:subPropertyOf dig:took_place_at .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/moved_to">moved_to</h4>
@@ -3266,6 +3503,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies the :Place where an object is moved to.</td>
 </tr>
+<pre><code>dig:moved_to a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P26_moved_to ;
+    owl:subPropertyOf dig:took_place_at .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/nationality">nationality</h4>
@@ -3308,6 +3548,8 @@
 <th align="right" valign="top">definition</th>
 <td>Records the :Dimension that was observed in Measurement :Event. The item measured is recorded using the :measured property of the :Event. One measurement activity may determine more than one dimension of one object.</td>
 </tr>
+<pre><code>dig:observed_dimension a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P40_observed_dimension .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/occurred_in_the_presence_of">occurred_in_the_presence_of</h4>
@@ -3339,6 +3581,8 @@
 <th align="right" valign="top">definition</th>
 <td>Entities that were present during the event and are somehow relevant to the event, e.g., a car or building destroyed in a bombing, a car that was parked close by, the weapon used, people who witnessed the event.</td>
 </tr>
+<pre><code>dig:occurred_in_the_presence_of a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P12_occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/occurs_after">occurs_after</h4>
@@ -3360,6 +3604,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:occurs_after a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P120i_occurs_after .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/occurs_before:">occurs_before:</h4>
@@ -3381,6 +3627,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code><http://dig.isi.edu/ontologies/dig/occurs_before:> a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P120_occurs_before .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/occurs_during">occurs_during</h4>
@@ -3402,6 +3650,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "during / includes" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:occurs_during a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P117_occurs_during .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/overlaps_in_time_with">overlaps_in_time_with</h4>
@@ -3423,6 +3673,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "overlaps / overlapped-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:overlaps_in_time_with a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P118_overlaps_in_time_with .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/religion">religion</h4>
@@ -3467,6 +3719,8 @@
 <th align="right" valign="top">definition</th>
 <td>This property is the same as the "starts / started-by" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).</td>
 </tr>
+<pre><code>dig:starts a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P116_starts .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/took_place_at">took_place_at</h4>
@@ -3502,6 +3756,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies the :Place where an :Event took place.</td>
 </tr>
+<pre><code>dig:took_place_at a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P7_took_place_at ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/took_place_on_or_within">took_place_on_or_within</h4>
@@ -3523,6 +3780,8 @@
 <th align="right" valign="top">definition</th>
 <td>Describes the location of Temporal_Entity with respect to :Physical_Object, e.g., an event that took place inside a building, and perhaps we don't know where the building is.</td>
 </tr>
+<pre><code>dig:took_place_on_or_within a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P8_took_place_on_or_within .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/topic">topic</h4>
@@ -3570,6 +3829,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies an item or items whose custody is transferred as a result of an :Event.</td>
 </tr>
+<pre><code>dig:transferred_custody_of a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P30_transferred_custody_of ;
+    owl:subPropertyOf dig:had_participant .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/transferred_ownership_from">transferred_ownership_from</h4>
@@ -3595,6 +3857,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.</td>
 </tr>
+<pre><code>dig:transferred_ownership_from a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P23_transferred_title_from ;
+    owl:subPropertyOf dig:had_provider .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/transferred_ownership_of">transferred_ownership_of</h4>
@@ -3621,6 +3886,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies the items involved in an acquisition :Event.</td>
 </tr>
+<pre><code>dig:transferred_ownership_of a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P24_transferred_title_of ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/transferred_ownership_to">transferred_ownership_to</h4>
@@ -3646,6 +3914,9 @@
 <th align="right" valign="top">definition</th>
 <td>Identifies an :Actor that acquires the legal ownership of an object as a result of an :Event.</td>
 </tr>
+<pre><code>dig:transferred_ownership_to a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P22_transferred_title_to ;
+    owl:subPropertyOf dig:carried_out_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/used_specific_object">used_specific_object</h4>
@@ -3676,6 +3947,9 @@
 <th align="right" valign="top">definition</th>
 <td>Describes the use of material or immaterial things in a way essential to the performance or the outcome of an :Event.</td>
 </tr>
+<pre><code>dig:used_specific_object a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P16_used_specific_object ;
+    owl:subPropertyOf dig:was_influenced_by .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/was_influenced_by">was_influenced_by</h4>
@@ -3706,6 +3980,9 @@
 <th align="right" valign="top">definition</th>
 <td>A high level property, which captures the relationship between an :Event and anything that may have had some bearing upon it.</td>
 </tr>
+<pre><code>dig:was_influenced_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P15_was_influenced_by ;
+    owl:subPropertyOf dig:occurred_in_the_presence_of .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/was_intended_use_of">was_intended_use_of</h4>
@@ -3731,6 +4008,9 @@
 <th align="right" valign="top">definition</th>
 <td>Describes an item or items that are regarded as a reason for carrying out the :Event.</td>
 </tr>
+<pre><code>dig:was_intended_use_of a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P19_was_intended_use_of ;
+    owl:subPropertyOf dig:used_specific_object .</code></pre>
 </table>
 </div>
 <h4 id="O-http://dig.isi.edu/ontologies/dig/was_motivated_by">was_motivated_by</h4>
@@ -3756,6 +4036,9 @@
 <th align="right" valign="top">definition</th>
 <td>Describes an item or items that are regarded as a reason for carrying out the :Event.</td>
 </tr>
+<pre><code>dig:was_motivated_by a owl:ObjectProperty ;
+    diga:crm_equivalent crm:P17_was_motivated_by ;
+    owl:subPropertyOf dig:was_influenced_by .</code></pre>
 </table>
 </div>
 <h3 id="toc-data-property">DataProperties</h3>
@@ -3778,6 +4061,8 @@
 <th align="right" valign="top">definition</th>
 <td>The geonames ADM1 code.</td>
 </tr>
+<pre><code>dig:adm1_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dig:iso_code .</code></pre>
 </table>
 </div>
 <h4 id="D-http://dig.isi.edu/ontologies/dig/cameo_code">cameo_code</h4>
@@ -3799,6 +4084,8 @@
 <th align="right" valign="top">definition</th>
 <td>A code used in the CAMEO ontology.</td>
 </tr>
+<pre><code>dig:cameo_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dig:code .</code></pre>
 </table>
 </div>
 <h4 id="D-http://dig.isi.edu/ontologies/dig/citation">citation</h4>
@@ -3995,11 +4282,19 @@
 <th align="right" valign="top">definition</th>
 <td>Records a numeric value associated with an entity.</td>
 </tr>
+<pre><code>dig:has_value a owl:DatatypeProperty ;
+    diga:crm_equivalent crm:has_value .</code></pre>
 </table>
 </div>
 <h4 id="D-http://dig.isi.edu/ontologies/dig-annotation/icon_color">icon_color</h4>
 <div class="entity">
 <table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-http://www.w3.org/2002/07/owl#Class">Class</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</a></td>
+</tr>
 <tr>
 <th align="right" valign="top">Range</th>
 <td>http://www.w3.org/2001/XMLSchema#string</td>
@@ -4017,6 +4312,12 @@
 <h4 id="D-http://dig.isi.edu/ontologies/dig-annotation/icon_name">icon_name</h4>
 <div class="entity">
 <table>
+<tr>
+<th align="right" valign="top">Domain</th>
+<td><a href="#C-http://www.w3.org/2002/07/owl#Class">Class</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#DatatypeProperty">DatatypeProperty</a><br />
+<a href="#C-http://www.w3.org/2002/07/owl#ObjectProperty">ObjectProperty</a></td>
+</tr>
 <tr>
 <th align="right" valign="top">Range</th>
 <td>http://www.w3.org/2001/XMLSchema#string</td>
@@ -4073,6 +4374,8 @@
 <th align="right" valign="top">definition</th>
 <td>A sanctioned ISO code for something.</td>
 </tr>
+<pre><code>dig:iso_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dig:code .</code></pre>
 </table>
 </div>
 <h4 id="D-http://dig.isi.edu/ontologies/dig/iso_country_code">iso_country_code</h4>
@@ -4094,6 +4397,8 @@
 <th align="right" valign="top">definition</th>
 <td>The ISO country code.</td>
 </tr>
+<pre><code>dig:iso_country_code a owl:DatatypeProperty ;
+    rdfs:subPropertyOf dig:iso_code .</code></pre>
 </table>
 </div>
 <h4 id="D-http://dig.isi.edu/ontologies/dig/label">label</h4>
@@ -4381,5 +4686,8 @@
 </tr>
 </table>
 </div>
+<h2>Logging</h2>
+<pre><code>Misssing a subproperty of http://dig.isi.edu/ontologies/dig/damaged with URI http://dig.isi.edu/ontologies/dig/participant
+</code></pre>
 </body>
 </html>

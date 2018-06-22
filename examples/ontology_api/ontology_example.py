@@ -9,8 +9,8 @@ output_doc = dir_path + "/default-ontology.html"
 doc_content = ""
 
 with open(input_turtle) as f:
-    ontology = Ontology(f.read())
-    doc_content = ontology.html_documentation()
+    ontology = Ontology(f.read(), validation=False, include_undefined_class=True)
+    doc_content = ontology.html_documentation(include_turtle=True)
 
 with open(output_doc, "w") as f:
     f.write(doc_content)
