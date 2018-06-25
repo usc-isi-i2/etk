@@ -2,6 +2,7 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.ontology_api import Ontology
+from etk.ontology_report_generator import OntologyReportGenerator
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 input_turtle = dir_path + "/../../ontologies/default-ontology.ttl"
@@ -10,7 +11,7 @@ doc_content = ""
 
 with open(input_turtle) as f:
     ontology = Ontology(f.read(), validation=False, include_undefined_class=True)
-    doc_content = ontology.html_documentation(include_turtle=True)
+    doc_content = OntologyReportGenerator(ontology).html_documentation(include_turtle=True)
 
 with open(output_doc, "w") as f:
     f.write(doc_content)
