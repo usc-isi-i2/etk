@@ -501,6 +501,11 @@ class Ontology(object):
         """
         return set(filter(lambda e: not e.super_classes(), self.classes))
 
+    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
+        from etk.ontology_report_generator import OntologyReportGenerator
+        return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
+
+
     def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
         if isinstance(config, str):
             import json

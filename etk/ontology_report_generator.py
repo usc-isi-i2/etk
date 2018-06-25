@@ -5,6 +5,7 @@ from etk.ontology_api import Ontology, OntologyClass, OntologyProperty, Ontology
 from etk.ontology_api import OntologyDatatypeProperty
 from etk.ontology_api import DIG, SCHEMA
 
+
 class OntologyReportGenerator:
     def __init__(self, ontology: Ontology):
         self.ontology = ontology
@@ -12,12 +13,14 @@ class OntologyReportGenerator:
         self.properties = ontology.all_properties()
         self.data_properties = ontology.data_properties
         self.object_properties = ontology.object_properties
+        self.item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
+        self.row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
 
     @staticmethod
     def sorted_name(arr):
         return sorted(arr, key=lambda x: x.name())
 
-    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
+    def generate_html_report(self, include_turtle=False, exclude_warning=False) -> str:
         """
         Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
         Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
@@ -28,86 +31,86 @@ class OntologyReportGenerator:
         import os
         template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
         with open(template) as f:
-            sorted_classes = self.sorted_name(self.classes)
-            sorted_properties = self.sorted_name(self.properties)
-            ### Lists
-            content = f.read().replace('{{{title}}}', 'Ontology Entities') \
-                              .replace('{{{class_list}}}',
-                                       self.__html_entities_hierarchy(self.classes)) \
-                              .replace('{{{dataproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.data_properties)) \
-                              .replace('{{{objectproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.object_properties))
+            # Lists
+            content = f.read().replace('{{{title}}}', 'Ontology Entities')
+            content = content.replace('{{{class_list}}}', self.__html_entities_hierarchy(self.classes))
+            content = content.replace('{{{dataproperty_list}}}', self.__html_entities_hierarchy(self.data_properties))
+            content = content.replace('{{{objectproperty_list}}}', self.__html_entities_hierarchy(self.object_properties))
+            # Classes
+            content = content.replace('{{{classes}}}', self.__html_classes(include_turtle))
+            # Properties
+            properties = self.__html_properties(include_turtle)
+            content = content.replace('{{{dataproperties}}}', properties[0])
+            content = content.replace('{{{objectproperties}}}', properties[1])
 
-            ### Classes
-            item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
-            row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
-            classes = []
-            properties_map, referenced_map = self.__html_build_properties()
-            for c in sorted_classes:
-                attr = []
-                subclass_of = self.sorted_name(c.super_classes())
-                superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
-                if subclass_of:
-                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
-                if superclass_of:
-                    attr.append(
-                        row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
-                attr.extend(self.__html_entity_basic_info(c, row))
-                properties = self.sorted_name(properties_map[c])
-                if properties:
-                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_class_property, properties))))
-                properties = self.sorted_name(referenced_map[c])
-                if properties:
-                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_class_referenced,
-                                                                                properties))))
-                if include_turtle:
-                    code = self.__html_extract_other_info(c.uri())
-                    if code:
-                        attr.append('<pre><code>{}</code></pre>'.format(code))
-                classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
-
-            ### Properties
-            dataproperties, objectproperties = [], []
-            for p in sorted_properties:
-                attr = []
-                domains = p.included_domains()
-                ranges = p.included_ranges()
-                if domains:
-                    attr.append(row.format('Domain', '<br />\n'.join(map(self.__html_entity_href,
-                                                                         self.sorted_name(domains)))))
-                if ranges:
-                    if isinstance(p, OntologyObjectProperty):
-                        attr.append(row.format('Range', '<br />\n'.join(map(self.__html_entity_href,
-                                                                            self.sorted_name(ranges)))))
-                    else:
-                        attr.append(row.format('Range', '<br />\n'.join(sorted(ranges))))
-                subproperty_of = self.sorted_name(p.super_properties())
-                superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
-                if subproperty_of:
-                    attr.append(row.format('Subproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, subproperty_of))))
-                if superproperty_of:
-                    attr.append(row.format('Superproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, superproperty_of))))
-                attr.extend(self.__html_entity_basic_info(p, row))
-                if include_turtle:
-                    code = self.__html_extract_other_info(p.uri())
-                    if code:
-                        attr.append('<pre><code>{}</code></pre>'.format(code))
-                if isinstance(p, OntologyObjectProperty):
-                    if p.inverse():
-                        attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
-                    objectproperties.append(item.format('O-'+p.uri(), p.name(), '\n'.join(attr)))
-                else:
-                    dataproperties.append(item.format('D-'+p.uri(), p.name(), '\n'.join(attr)))
-
-            content = content.replace('{{{classes}}}', '\n'.join(classes)) \
-                             .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
-                             .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
             logs = '' if exclude_warning else self.ontology.log_stream.getvalue()
             content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
         return content
+
+    def __html_classes(self, include_turtle):
+        sorted_classes = self.sorted_name(self.classes)
+        classes = []
+        properties_map, referenced_map = self.__html_build_properties()
+        for c in sorted_classes:
+            attr = []
+            subclass_of = self.sorted_name(c.super_classes())
+            superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
+            if subclass_of:
+                attr.append(self.row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
+            if superclass_of:
+                attr.append(
+                    self.row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
+            attr.extend(self.__html_entity_basic_info(c, self.row))
+            properties = self.sorted_name(properties_map[c])
+            if properties:
+                attr.append(self.row.format('Properties', '<br />\n'.join(map(self.__html_class_property, properties))))
+            properties = self.sorted_name(referenced_map[c])
+            if properties:
+                attr.append(self.row.format('Referenced by', '<br />\n'.join(map(self.__html_class_referenced,
+                                                                            properties))))
+            if include_turtle:
+                code = self.__html_extract_other_info(c.uri())
+                if code:
+                    attr.append('<pre><code>{}</code></pre>'.format(code))
+            classes.append(self.item.format('C-' + c.uri(), c.name(), '\n'.join(attr)))
+        return '\n'.join(classes)
+        
+    def __html_properties(self, include_turtle):
+        sorted_properties = self.sorted_name(self.properties)
+        dataproperties, objectproperties = [], []
+        for p in sorted_properties:
+            attr = []
+            domains = p.included_domains()
+            ranges = p.included_ranges()
+            if domains:
+                attr.append(self.row.format('Domain', '<br />\n'.join(
+                    map(self.__html_entity_href, self.sorted_name(domains)))))
+            if ranges:
+                if isinstance(p, OntologyObjectProperty):
+                    attr.append(self.row.format('Range', '<br />\n'.join(
+                        map(self.__html_entity_href, self.sorted_name(ranges)))))
+                else:
+                    attr.append(self.row.format('Range', '<br />\n'.join(sorted(ranges))))
+            subproperty_of = self.sorted_name(p.super_properties())
+            superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
+            if subproperty_of:
+                attr.append(self.row.format('Subproperty of', '<br />\n'.join(
+                    map(self.__html_entity_href, subproperty_of))))
+            if superproperty_of:
+                attr.append(self.row.format('Superproperty of', '<br />\n'.join(
+                    map(self.__html_entity_href, superproperty_of))))
+            attr.extend(self.__html_entity_basic_info(p, self.row))
+            if include_turtle:
+                code = self.__html_extract_other_info(p.uri())
+                if code:
+                    attr.append('<pre><code>{}</code></pre>'.format(code))
+            if isinstance(p, OntologyObjectProperty):
+                if p.inverse():
+                    attr.insert(0, self.row.format('Inverse', self.__html_entity_href(p.inverse())))
+                objectproperties.append(self.item.format('O-' + p.uri(), p.name(), '\n'.join(attr)))
+            else:
+                dataproperties.append(self.item.format('D-' + p.uri(), p.name(), '\n'.join(attr)))
+        return ('\n'.join(dataproperties), '\n'.join(objectproperties))
 
     def __html_class_property(self, property_):
         range_ = property_.included_ranges()
@@ -175,7 +178,8 @@ class OntologyReportGenerator:
         code = filter(lambda line: line[0]!='@', code)
         return '\n'.join(code)
 
-    def __html_entity_basic_info(self, e, tpl):
+    @staticmethod
+    def __html_entity_basic_info(e, tpl):
         attr = list()
         basic = ['label', 'definition', 'note', 'comment']
         for info in basic:
@@ -205,7 +209,8 @@ class OntologyReportGenerator:
 
         return hierarchy_builder(roots)
 
-    def __html_entity_href(self, e):
+    @staticmethod
+    def __html_entity_href(e):
         template = '<a href="#{}-{}">{}</a>'
         kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
         return template.format(kind[type(e)], e.uri(), e.name())
@@ -235,8 +240,8 @@ if __name__ == '__main__':
     contents = [open(f).read() for f in args.files]
     ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class,
                         quiet=args.quiet)
-    doc_content = OntologyReportGenerator(ontology).html_documentation(include_turtle=args.include_turtle,
-                                                                       exclude_warning=args.exclude_warning)
+    doc_content = OntologyReportGenerator(ontology).generate_html_report(include_turtle=args.include_turtle,
+                                                                         exclude_warning=args.exclude_warning)
 
     with open(args.out, "w") as f:
         f.write(doc_content)
