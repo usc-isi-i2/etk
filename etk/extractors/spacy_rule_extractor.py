@@ -603,7 +603,7 @@ class Pattern(object):
 
         result = []
         if not d["numbers"]:
-            this_token = {attrs.IS_DIGIT: True}
+            this_token = {attrs.LIKE_NUM: True}
             result.append(this_token)
             if d["length"]:
                 result = self.add_length_constrain(result, d["length"])
