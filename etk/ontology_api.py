@@ -500,7 +500,6 @@ class Ontology(object):
         from etk.ontology_report_generator import OntologyReportGenerator
         return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
 
-
     def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
         if isinstance(config, str):
             import json
@@ -591,4 +590,15 @@ class Ontology(object):
             XSD.NOTATION: 'string'
         }
         return xsd_ref.get(URIRef(uri), None)
+
+
+def rdf_generation(kg_object) -> str:
+    import json
+    if isinstance(kg_object, str):
+        kg_object = json.loads(kg_object)
+    if 'knowledge_graph' in kg_object:
+        kg_object = kg_object['knowledge_graph']
+    g = Graph().parse(data=json.dumps(kg_object), format='json-ld')
+    return g.serialize(format='nt').decode('utf-8')
+
 

@@ -167,7 +167,7 @@ class TestOntologyAPI(unittest.TestCase):
 
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
-    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
+    skos:definition """A group, organization, person who have the potential to do actions.""" ;
     rdfs:subClassOf :Group ;
     :crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
@@ -349,3 +349,23 @@ class TestOntologyAPI(unittest.TestCase):
         self.assertIn('had_participant', fields)
         self.assertIn('carried_out_by', fields)
         self.assertNotIn('custody_received_by', fields)
+
+    def test_rdf_generation(self):
+        from etk.ontology_api import rdf_generation
+        kg = '''{
+    "doc_id": "http://dig.isi.edu/ontologies/dig/Thing", 
+    "provenances": [],
+    "knowledge_graph": {
+        "@type": "http://www.w3.org/2002/07/owl#Class",
+        "@id": "http://dig.isi.edu/ontologies/dig/Thing",
+        "label": ["Thing", "thing"],
+        "subClassOf": {
+            "@id": "http://dig.isi.edu/ontologies/dig/Persistent_Item"
+        },
+        "@context": {
+            "label": "http://www.w3.org/2000/01/rdf-schema#label",
+            "subClassOf": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+        }}}'''
+        nt = rdf_generation(kg)
+        self.assertIsInstance(nt, str)
+        self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
