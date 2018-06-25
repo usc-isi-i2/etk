@@ -7,7 +7,7 @@ SCHEMA = Namespace('http://schema.org/')
 DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
 URI_PATTERN = re.compile(r'^http:|^urn:|^info:|^ftp:|^https:')
-URI_ABBR_PATTERN = re.compile(r'^([^:]+):([^:]+)$')
+URI_ABBR_PATTERN = re.compile(r'^([^:]*):([^:]+)$')
 
 
 class WrongFormatURIException(Exception):
@@ -25,6 +25,7 @@ class PrefixAlreadyUsedException(Exception):
 class OntologyNamespaceManager(NamespaceManager):
     def __init__(self, *args, **kwargs):
         super(OntologyNamespaceManager, self).__init__(*args, **kwargs)
+        self.graph.namespace_manager = self
         self.bind('owl', OWL)
         self.bind('schema', SCHEMA)
         self.bind('dig', DIG)
@@ -46,7 +47,7 @@ class OntologyNamespaceManager(NamespaceManager):
             else:
                 m = URI_ABBR_PATTERN.match(text)
                 if m:
-                    prefix, name = m.group()
+                    prefix, name = m.groups()
                     base = self.store.namespace(prefix)
                     if not base:
                         raise PrefixNotFoundException()
