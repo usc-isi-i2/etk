@@ -175,6 +175,9 @@ class OntologyProperty(OntologyEntity):
         domains = self.included_domains()
         return c in domains or c.super_classes_closure() & domains
 
+    def is_legal_object(self, object) -> bool:
+        raise NotImplementedError('Subclass should implement this.')
+
 
 class OntologyObjectProperty(OntologyProperty):
     def __init__(self, uri, inverse_property=None):
@@ -591,6 +594,12 @@ class Ontology(object):
         }
         return xsd_ref.get(URIRef(uri), None)
 
+    def is_valid(self, field_name, value) -> bool:
+        nm = self.g.namespace_manager
+        uri = nm.parse_uri(field_name)
+        entity = self.get_entity(uri)
+        return isinstance(entity, OntologyProperty) and entity.is_legal_subject(value)
+
 
 def rdf_generation(kg_object) -> str:
     import json
@@ -600,5 +609,4 @@ def rdf_generation(kg_object) -> str:
         kg_object = kg_object['knowledge_graph']
     g = Graph().parse(data=json.dumps(kg_object), format='json-ld')
     return g.serialize(format='nt').decode('utf-8')
-
 

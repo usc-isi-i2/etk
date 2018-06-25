@@ -110,7 +110,7 @@ class OntologyReportGenerator:
                 objectproperties.append(self.item.format('O-' + p.uri(), p.name(), '\n'.join(attr)))
             else:
                 dataproperties.append(self.item.format('D-' + p.uri(), p.name(), '\n'.join(attr)))
-        return ('\n'.join(dataproperties), '\n'.join(objectproperties))
+        return '\n'.join(dataproperties), '\n'.join(objectproperties)
 
     def __html_class_property(self, property_):
         range_ = property_.included_ranges()

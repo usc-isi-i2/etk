@@ -353,7 +353,7 @@ class TestOntologyAPI(unittest.TestCase):
     def test_rdf_generation(self):
         from etk.ontology_api import rdf_generation
         kg = '''{
-    "doc_id": "http://dig.isi.edu/ontologies/dig/Thing", 
+    "doc_id": "http://dig.isi.edu/ontologies/dig/Thing",
     "provenances": [],
     "knowledge_graph": {
         "@type": "http://www.w3.org/2002/07/owl#Class",
@@ -369,3 +369,18 @@ class TestOntologyAPI(unittest.TestCase):
         nt = rdf_generation(kg)
         self.assertIsInstance(nt, str)
         self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
+
+    def test_ontology_api_is_valid(self):
+        rdf_content = rdf_prefix + '''
+:Entity a owl:Class ; .
+:Place a owl:Class ;
+    :common_properties :region ; .
+:region a owl:DatatypeProperty ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ; .
+            '''
+        ontology = Ontology(rdf_content)
+        entity = ontology.get_entity('http://dig.isi.edu/ontologies/dig/Entity')
+        place = ontology.get_entity('http://dig.isi.edu/ontologies/dig/Place')
+        self.assertFalse(ontology.is_valid(':region', entity))
+        self.assertTrue(ontology.is_valid(':region', place))
