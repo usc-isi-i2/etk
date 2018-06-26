@@ -36,7 +36,7 @@ if __name__ == "__main__":
         "projects": [
             {
                 "name": "etk",
-                "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others."
+                "description": "version  2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others."
             },
             {
                 "name": "rltk",

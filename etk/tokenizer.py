@@ -36,7 +36,7 @@ class Tokenizer(object):
 
         return tokens
 
-    def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = False) -> Doc:
+    def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = True) -> Doc:
         """
         Tokenize the given text, returning a spacy doc. Used for spacy rule extractor
 
