@@ -170,10 +170,11 @@ class SpacyRuleExtractor(Extractor):
         Add constructed spacy rule to Matcher
         """
         for id_key in self.rule_lst:
-            pattern_lst = [a_pattern.spacy_token_lst for a_pattern in self.rule_lst[id_key].patterns]
+            if self.rule_lst[id_key].active:
+                pattern_lst = [a_pattern.spacy_token_lst for a_pattern in self.rule_lst[id_key].patterns]
 
-            for spacy_rule_id, spacy_rule in enumerate(itertools.product(*pattern_lst)):
-                self.matcher.add(self.construct_key(id_key, spacy_rule_id), None, list(spacy_rule))
+                for spacy_rule_id, spacy_rule in enumerate(itertools.product(*pattern_lst)):
+                    self.matcher.add(self.construct_key(id_key, spacy_rule_id), None, list(spacy_rule))
 
     def filter_match(self, span: span, relations: Dict, patterns: List) -> bool:
         """
