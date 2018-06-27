@@ -352,35 +352,59 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_rdf_generation(self):
         from etk.ontology_api import rdf_generation
-        kg = '''{
+        kg = '''
+{
     "doc_id": "http://dig.isi.edu/ontologies/dig/Thing",
     "provenances": [],
     "knowledge_graph": {
         "@type": "http://www.w3.org/2002/07/owl#Class",
-        "@id": "http://dig.isi.edu/ontologies/dig/Thing",
+        "@id": "dig:Thing",
         "label": ["Thing", "thing"],
         "subClassOf": {
-            "@id": "http://dig.isi.edu/ontologies/dig/Persistent_Item"
+            "@id": "dig:Persistent_Item"
         },
         "@context": {
-            "label": "http://www.w3.org/2000/01/rdf-schema#label",
-            "subClassOf": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-        }}}'''
+            "@vocab": "http://www.w3.org/2000/01/rdf-schema#", 
+            "dig": "http://dig.isi.edu/ontologies/dig/"
+        }}}
+        '''
         nt = rdf_generation(kg)
         self.assertIsInstance(nt, str)
         self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
 
     def test_ontology_api_is_valid(self):
         rdf_content = rdf_prefix + '''
-:Entity a owl:Class ; .
 :Place a owl:Class ;
     :common_properties :region ; .
 :region a owl:DatatypeProperty ;
     schema:domainIncludes :Place ;
     schema:rangeIncludes xsd:string ; .
             '''
+        kg = '''
+[{
+    "@id": "dig:Place",
+    "@type": "owl:Class",
+    "@context": {
+        "dig": "http://dig.isi.edu/ontologies/dig/",
+        "owl": "http://www.w3.org/2002/07/owl#"
+    }
+}, {
+    "@id": "dig:region",
+    "@type": "owl:DatatypeProperty",
+    "domainIncludes": [{
+        "@id": "dig:Place"
+    }],
+    "rangeIncludes": [{
+        "@id": "xsd:string"
+    }],
+    "@context": {
+        "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
+        "dig": "http://dig.isi.edu/ontologies/dig/",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+}]
+        '''
         ontology = Ontology(rdf_content)
-        entity = ontology.get_entity('http://dig.isi.edu/ontologies/dig/Entity')
-        place = ontology.get_entity('http://dig.isi.edu/ontologies/dig/Place')
-        self.assertFalse(ontology.is_valid(':region', entity))
-        self.assertTrue(ontology.is_valid(':region', place))
+        string = 'http://www.w3.org/2001/XMLSchema#string'
+        self.assertTrue(ontology.is_valid(':region', string, kg))

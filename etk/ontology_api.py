@@ -3,7 +3,7 @@ from typing import Set, Union
 from functools import reduce
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
-from etk.ontology_namespacemanager import OntologyNamespaceManager, DIG, SCHEMA
+from etk.ontology_namespacemanager import OntologyNamespaceManager
 
 
 
@@ -594,11 +594,19 @@ class Ontology(object):
         }
         return xsd_ref.get(URIRef(uri), None)
 
-    def is_valid(self, field_name, value) -> bool:
+    def is_valid(self, field_name, value, kg) -> bool:
         nm = self.g.namespace_manager
         uri = nm.parse_uri(field_name)
         entity = self.get_entity(uri)
-        return isinstance(entity, OntologyProperty) and entity.is_legal_subject(value)
+        if isinstance(entity, OntologyProperty) and entity.is_legal_object(value):
+            # check if this field is a valid property in the kg.
+            # kg_ = ConjunctiveGraph()
+            kg_ = Graph().parse(data=kg, format='json-ld')
+            for _ in kg_.triples((uri, RDF.type, OWL.DatatypeProperty)):
+                return True
+            for _ in kg_.triples((uri, RDF.type, OWL.ObjectProperty)):
+                return True
+        return False
 
 
 def rdf_generation(kg_object) -> str:
