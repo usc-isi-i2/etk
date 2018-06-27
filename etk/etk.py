@@ -34,7 +34,7 @@ class ETK(object):
         self.kg_schema = kg_schema
         self.em_lst = list()
         if modules:
-            if type(modules) == list:
+            if isinstance(modules, list):
                 for module in modules:
                     if isinstance(module, str):
                         self.em_lst.extend(self.load_ems(modules))

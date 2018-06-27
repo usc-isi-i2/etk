@@ -831,10 +831,10 @@ class Rule(object):
 
 
 def tf_transfer(x):
-    if type(x) == str:
-        if x == "true":
+    if isinstance(x, str):
+        if x.lower() == "true":
             return True
-        if x == "false":
+        if x.lower() == "false":
             return False
         return True
     else:
