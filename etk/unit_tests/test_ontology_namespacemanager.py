@@ -15,6 +15,7 @@ class TestOntologyNamespaceManager(unittest.TestCase):
             nm.parse_uri(':Event')
         nm.bind('', 'http://dig.isi.edu/ontologies/dig/')
         self.assertEqual(uri, nm.parse_uri(':Event'))
+        self.assertEqual(uri, nm.parse_uri('Event'))
 
     def test_ontology_namespace_bind(self):
         correct_content = '@prefix : <http://w.org/> . @prefix schema: <http://schema.org/> .'

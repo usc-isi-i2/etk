@@ -7,7 +7,7 @@ SCHEMA = Namespace('http://schema.org/')
 DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
 URI_PATTERN = re.compile(r'^http:|^urn:|^info:|^ftp:|^https:')
-URI_ABBR_PATTERN = re.compile(r'^([^:]*):([^:]+)$')
+URI_ABBR_PATTERN = re.compile(r'^(?:([^:]*):)?([^:]+)$')
 
 
 class WrongFormatURIException(Exception):
@@ -48,9 +48,9 @@ class OntologyNamespaceManager(NamespaceManager):
                 m = URI_ABBR_PATTERN.match(text)
                 if m:
                     prefix, name = m.groups()
-                    base = self.store.namespace(prefix)
+                    base = self.store.namespace(prefix if prefix else '')
                     if not base:
-                        raise PrefixNotFoundException()
+                        raise PrefixNotFoundException("Prefix: %s", prefix)
                     return URIRef(base + name)
         raise WrongFormatURIException()
 
