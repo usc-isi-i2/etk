@@ -48,6 +48,7 @@ class OntologyReportGenerator:
         return content
 
     def __html_classes(self, include_turtle):
+        if not self.classes: return ''
         sorted_classes = self.sorted_name(self.classes)
         classes = []
         properties_map, referenced_map = self.__html_build_properties()
