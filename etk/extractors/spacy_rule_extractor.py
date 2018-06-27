@@ -486,7 +486,7 @@ class Pattern(object):
         """
 
         self.type = d["type"]
-        self.in_output = False if d["is_in_output"] == "false" else True
+        self.in_output = tf_transfer(d["is_in_output"])
         self.max = d["maximum"]
         self.min = d["minimum"]
         self.prefix = d["prefix"]
@@ -516,7 +516,7 @@ class Pattern(object):
 
         result = []
         if len(d["token"]) == 1:
-            if d["match_all_forms"] == "true":
+            if tf_transfer(d["match_all_forms"]):
                 this_token = {attrs.LEMMA: nlp(d["token"][0])[0].lemma_}
             else:
                 this_token = {attrs.LOWER: d["token"][0].lower()}
@@ -525,13 +525,13 @@ class Pattern(object):
                 result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         elif not d["token"]:
-            if d["contain_digit"] == "true":
+            if tf_transfer(d["contain_digit"]):
                 this_token = {attrs.IS_ASCII: True, attrs.IS_PUNCT: False}
             else:
                 this_token = {attrs.IS_ALPHA: True}
-            if d["is_out_of_vocabulary"] == "true" and d["is_in_vocabulary"] != "true":
+            if tf_transfer(d["is_out_of_vocabulary"]) and not tf_transfer(d["is_in_vocabulary"]):
                 this_token[attrs.IS_OOV] = True
-            elif d["is_out_of_vocabulary"] != "true" and d["is_in_vocabulary"] == "true":
+            elif not tf_transfer(d["is_out_of_vocabulary"]) and tf_transfer(d["is_in_vocabulary"]):
                 this_token[attrs.IS_OOV] = False
             result.append(this_token)
             if d["length"]:
@@ -540,7 +540,7 @@ class Pattern(object):
                 result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         else:
-            if "match_all_forms" in d and d["match_all_forms"] == "false":
+            if "match_all_forms" in d and not tf_transfer(d["match_all_forms"]):
                 global FLAG_ID
                 token_set = set(d["token"])
 
@@ -691,7 +691,7 @@ class Pattern(object):
 
         result = []
         for a_token in token_lst:
-            if d["is_required"] == "false":
+            if not tf_transfer(d["is_required"]):
                 a_token["OP"] = "?"
             result.append(a_token)
         return result
@@ -820,11 +820,22 @@ class Rule(object):
 
         self.dependencies = d["dependencies"] if "dependencies" in d else []
         self.description = d["description"] if "description" in d else ""
-        self.active = True if d["is_active"] == "true" else False
+        self.active = tf_transfer(d["is_active"])
         self.identifier = d["identifier"]
         self.output_format = d["output_format"]
-        self.polarity = False if "polarity" in d and d["polarity"] == "false" else True
+        self.polarity = tf_transfer(d["polarity"])
         self.patterns = []
         for pattern_idx, a_pattern in enumerate(d["pattern"]):
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
+
+
+def tf_transfer(x):
+    if type(x) == str:
+        if x == "true":
+            return True
+        if x == "false":
+            return False
+        return True
+    else:
+        return x
