@@ -1,6 +1,7 @@
 import logging
 from typing import Set, Union
 from functools import reduce
+from datetime import datetime, time, date
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
 from etk.ontology_namespacemanager import OntologyNamespaceManager
@@ -595,18 +596,39 @@ class Ontology(object):
         return xsd_ref.get(URIRef(uri), None)
 
     def is_valid(self, field_name, value, kg) -> bool:
+        # property
         nm = self.g.namespace_manager
         uri = nm.parse_uri(field_name)
-        entity = self.get_entity(uri)
-        if isinstance(entity, OntologyProperty) and entity.is_legal_object(value):
-            # check if this field is a valid property in the kg.
-            # kg_ = ConjunctiveGraph()
-            kg_ = Graph().parse(data=kg, format='json-ld')
-            for _ in kg_.triples((uri, RDF.type, OWL.DatatypeProperty)):
-                return True
-            for _ in kg_.triples((uri, RDF.type, OWL.ObjectProperty)):
-                return True
-        return False
+        property_ = self.get_entity(uri)
+        if not isinstance(property_, OntologyProperty):
+            return False
+        # extract id a.k.a uri from kg
+        kg_ = Graph().parse(data=kg, format='json-ld')
+        for type_ in kg_.objects(None, RDF.type):
+            entity = self.get_entity(type_)
+            if property_.is_legal_subject(entity):
+                break
+            return False
+        # check if is valid range
+        # first determine the input value type
+        for class_ in self.type_infer:
+            if isinstance(value, class_):
+                types = self.type_infer[class_]
+                break
+        else:
+            return False
+        # check if is a valid range
+        return any(property_.is_legal_object(type_) for type_ in types)
+
+    type_infer = {
+        int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
+        float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
+        bool: {XSD.boolean},
+        str: {XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
+        datetime: {XSD.datetime},
+        time: {XSD.time},
+        date: {XSD.date}
+    }
 
 
 def rdf_generation(kg_object) -> str:
