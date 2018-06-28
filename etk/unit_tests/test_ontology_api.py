@@ -413,6 +413,16 @@ class TestOntologyAPI(unittest.TestCase):
     }
 }
         '''
+        kg_domain_doesnt_exist = '''
+{
+    "@type": "dig:People",
+    "@id": "some_doc_id",
+    "@context": {
+        "dig": "http://dig.isi.edu/ontologies/dig/"
+    }
+}
+        '''
         ontology = Ontology(rdf_content)
         self.assertTrue(ontology.is_valid('region', 'somewhere', kg))
         self.assertFalse(ontology.is_valid('region', 'somewhere', kg_wrong_domain))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', kg_domain_doesnt_exist))

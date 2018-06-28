@@ -174,7 +174,7 @@ class OntologyProperty(OntologyEntity):
 
         """
         domains = self.included_domains()
-        return c in domains or c.super_classes_closure() & domains
+        return c and (c in domains or c.super_classes_closure() & domains)
 
     def is_legal_object(self, object) -> bool:
         raise NotImplementedError('Subclass should implement this.')
@@ -608,7 +608,7 @@ class Ontology(object):
         kg_ = Graph().parse(data=kg, format='json-ld')
         for type_ in kg_.objects(None, RDF.type):
             entity = self.get_entity(type_)
-            if property_.is_legal_subject(entity):
+            if entity and property_.is_legal_subject(entity):
                 break
             return False
         # check if is valid range
