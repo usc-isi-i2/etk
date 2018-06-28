@@ -243,6 +243,7 @@ class OntologyDatatypeProperty(OntologyProperty):
         Returns:
 
         """
+        data_type = str(data_type)
         return data_type in self.included_ranges() or self.super_properties() and \
                any(x.is_legal_object(data_type) for x in self.super_properties())
 
@@ -572,28 +573,29 @@ class Ontology(object):
             ancestors.extend(list(super_property.super_properties() - added))
 
     def __merge_xsd_to_type(self, uri):
-        xsd_ref = {
-            XSD.string: 'string',
-            XSD.boolean: 'number',
-            XSD.decimal: 'number',
-            XSD.float: 'number',
-            XSD.double: 'number',
-            XSD.duration: 'number',
-            XSD.dateTime: 'date',
-            XSD.time: 'date',
-            XSD.date: 'date',
-            XSD.gYearMonth: 'date',
-            XSD.gYear: 'date',
-            XSD.gMonthDay: 'date',
-            XSD.gMonth: 'date',
-            XSD.gDay: 'date',
-            XSD.hexBinary: 'string',
-            XSD.base64Binary: 'string',
-            XSD.anyURI: 'string',
-            XSD.QName: 'string',
-            XSD.NOTATION: 'string'
-        }
-        return xsd_ref.get(URIRef(uri), None)
+        return self.xsd_ref.get(URIRef(uri), None)
+
+    xsd_ref = {
+        XSD.string: 'string',
+        XSD.boolean: 'number',
+        XSD.decimal: 'number',
+        XSD.float: 'number',
+        XSD.double: 'number',
+        XSD.duration: 'number',
+        XSD.dateTime: 'date',
+        XSD.time: 'date',
+        XSD.date: 'date',
+        XSD.gYearMonth: 'date',
+        XSD.gYear: 'date',
+        XSD.gMonthDay: 'date',
+        XSD.gMonth: 'date',
+        XSD.gDay: 'date',
+        XSD.hexBinary: 'string',
+        XSD.base64Binary: 'string',
+        XSD.anyURI: 'string',
+        XSD.QName: 'string',
+        XSD.NOTATION: 'string'
+    }
 
     def is_valid(self, field_name, value, kg) -> bool:
         # property
@@ -618,13 +620,13 @@ class Ontology(object):
         else:
             return False
         # check if is a valid range
-        return any(property_.is_legal_object(type_) for type_ in types)
+        return any(property_.is_legal_object(str(type_)) for type_ in types)
 
     type_infer = {
         int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
         float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
         bool: {XSD.boolean},
-        str: {XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
+        str: {XSD.string, XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
         datetime: {XSD.datetime},
         time: {XSD.time},
         date: {XSD.date}

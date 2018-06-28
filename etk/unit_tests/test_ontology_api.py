@@ -372,7 +372,7 @@ class TestOntologyAPI(unittest.TestCase):
         self.assertIsInstance(nt, str)
         self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
 
-    def test_ontology_api_is_valid(self):
+    def test_ontology_api_is_valid_with_empty_kg(self):
         rdf_content = rdf_prefix + '''
 :Place a owl:Class ;
     :common_properties :region ; .
@@ -380,31 +380,39 @@ class TestOntologyAPI(unittest.TestCase):
     schema:domainIncludes :Place ;
     schema:rangeIncludes xsd:string ; .
             '''
+        kg = '{}'
+        ontology = Ontology(rdf_content)
+        self.assertTrue(ontology.is_valid('region', 'somewhere', kg))
+        self.assertFalse(ontology.is_valid('region', 1, kg))
+        self.assertFalse(ontology.is_valid('region', True, kg))
+
+    def test_ontology_api_is_valid_with_kg(self):
+        rdf_content = rdf_prefix + '''
+:Human a owl:Class ; .
+:Place a owl:Class ;
+    :common_properties :region ; .
+:region a owl:DatatypeProperty ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ; .
+            '''
         kg = '''
-[{
-    "@id": "dig:Place",
-    "@type": "owl:Class",
+{
+    "@type": "dig:Place",
+    "@id": "some_doc_id",
     "@context": {
-        "dig": "http://dig.isi.edu/ontologies/dig/",
-        "owl": "http://www.w3.org/2002/07/owl#"
+        "dig": "http://dig.isi.edu/ontologies/dig/"
     }
-}, {
-    "@id": "dig:region",
-    "@type": "owl:DatatypeProperty",
-    "domainIncludes": [{
-        "@id": "dig:Place"
-    }],
-    "rangeIncludes": [{
-        "@id": "xsd:string"
-    }],
+}
+        '''
+        kg_wrong_domain = '''
+{
+    "@type": "dig:Human",
+    "@id": "some_doc_id",
     "@context": {
-        "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
-        "dig": "http://dig.isi.edu/ontologies/dig/",
-        "owl": "http://www.w3.org/2002/07/owl#",
-        "xsd": "http://www.w3.org/2001/XMLSchema#"
+        "dig": "http://dig.isi.edu/ontologies/dig/"
     }
-}]
+}
         '''
         ontology = Ontology(rdf_content)
-        string = 'http://www.w3.org/2001/XMLSchema#string'
-        self.assertTrue(ontology.is_valid(':region', string, kg))
+        self.assertTrue(ontology.is_valid('region', 'somewhere', kg))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', kg_wrong_domain))
