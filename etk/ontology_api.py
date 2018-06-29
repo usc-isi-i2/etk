@@ -485,19 +485,14 @@ class Ontology(object):
         """
         Find an ontology entity based on URI
 
-        Args:
-            uri:
-
-        Returns: the OntologyEntity having the specified uri, or None
-
+        :param uri: URIRef or str
+        :return: the OntologyEntity having the specified uri, or None
         """
         return self.entities.get(str(uri), None)
 
     def root_classes(self) -> Set[OntologyClass]:
         """
-
         Returns: All classes that don't have a super class.
-
         """
         return set(filter(lambda e: not e.super_classes(), self.classes))
 
@@ -506,6 +501,14 @@ class Ontology(object):
         return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
 
     def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
+        """
+        Merge current ontology with input master config.
+
+        :param config: master config, should be str or dict
+        :param defaults: a dict that sets default color and icon
+        :param delete_orphan_fields: if a property doesn't exist in the ontology then delete it
+        :return: merged master config in str
+        """
         if isinstance(config, str):
             import json
             config = json.loads(config)
@@ -598,6 +601,15 @@ class Ontology(object):
     }
 
     def is_valid(self, field_name, value, kg) -> bool:
+        """
+        Check if this value is valid for the given name property according to input knowledge graph and ontology.
+        No schema checked by this function.
+
+        :param field_name: name of the property, if prefix is omitted, then use default namespace
+        :param value: the value that try to add
+        :param kg: the knowledge graph that perform adding action
+        :return: if the value is valid for the property
+        """
         # property
         nm = self.g.namespace_manager
         uri = nm.parse_uri(field_name)
@@ -634,6 +646,12 @@ class Ontology(object):
 
 
 def rdf_generation(kg_object) -> str:
+    """
+    Covert input knowledge graph object into n-triples RDF
+
+    :param kg_object: str, dict, or json object
+    :return: n-triples RDF in str
+    """
     import json
     if isinstance(kg_object, str):
         kg_object = json.loads(kg_object)

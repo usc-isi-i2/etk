@@ -18,15 +18,23 @@ class OntologyReportGenerator:
 
     @staticmethod
     def sorted_name(arr):
+        """
+        Sorted input ontology entites by their names.
+
+        :param arr: a set or list container of ontology entities
+        :return: a sorted list
+        """
         return sorted(arr, key=lambda x: x.name())
 
     def generate_html_report(self, include_turtle=False, exclude_warning=False) -> str:
         """
-        Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
         Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
         description of all the classes with all the properties that apply to it.
-        Returns:
+        Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
 
+        :param include_turtle: include turtle related to this entity.
+        :param exclude_warning: Exclude warning messages in HTML report
+        :return: HTML in raw string
         """
         import os
         template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'

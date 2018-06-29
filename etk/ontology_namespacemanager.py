@@ -33,10 +33,12 @@ class OntologyNamespaceManager(NamespaceManager):
     def parse_uri(self, text: str) -> URIRef:
         """
         Parse input text into URI
-        text can be:
-          1. URI, directly return
-          2. prefix:name, query namespace for prefix, return expanded URI
-          3. name, use default namespace to expand it and return it
+
+        :param text: can be one of
+              1. URI, directly return
+              2. prefix:name, query namespace for prefix, return expanded URI
+              3. name, use default namespace to expand it and return it
+        :return: URIRef
         """
         if isinstance(text, URIRef):
             return text
@@ -56,15 +58,13 @@ class OntologyNamespaceManager(NamespaceManager):
 
     def bind(self, prefix: str, namespace: str, override=True, replace=False):
         """
-        bind a given namespace to the prefix
+        bind a given namespace to the prefix, forbids same prefix with different namespace
 
-        if override, rebind, even if the given namespace is already
-        bound to another prefix.
-
-        if replace, replace any existing prefix with the new namespace
-
+        :param prefix:
+        :param namespace:
+        :param override: if override, rebind, even if the given namespace is already bound to another prefix.
+        :param replace: if replace, replace any existing prefix with the new namespace
         """
-
         namespace = URIRef(str(namespace))
         # When documenting explain that override only applies in what cases
         if prefix is None:
