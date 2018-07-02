@@ -500,14 +500,14 @@ class Ontology(object):
         from etk.ontology_report_generator import OntologyReportGenerator
         return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
 
-    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
+    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> dict:
         """
         Merge current ontology with input master config.
 
         :param config: master config, should be str or dict
         :param defaults: a dict that sets default color and icon
         :param delete_orphan_fields: if a property doesn't exist in the ontology then delete it
-        :return: merged master config in str
+        :return: merged master config in dict
         """
         if isinstance(config, str):
             import json
