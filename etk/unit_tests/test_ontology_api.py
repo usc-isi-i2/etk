@@ -354,25 +354,42 @@ class TestOntologyAPI(unittest.TestCase):
         from etk.ontology_api import rdf_generation
         kg = '''
 {
-    "doc_id": "http://dig.isi.edu/ontologies/dig/Thing",
-    "provenances": [],
-    "knowledge_graph": {
-        "@type": "http://www.w3.org/2002/07/owl#Class",
-        "@id": "dig:Thing",
-        "label": ["Thing", "thing"],
-        "subClassOf": {
-            "@id": "dig:Persistent_Item"
-        },
-        "@context": {
-            "@vocab": "http://www.w3.org/2000/01/rdf-schema#", 
-            "dig": "http://dig.isi.edu/ontologies/dig/"
-        }}}
+  "uri": [
+    {
+      "value": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9",
+      "key": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9"
+    }
+  ],
+  "type": [
+    {
+      "value": "dig:Person",
+      "key": "dig:person"
+    },
+    {
+      "value": "dig:Entity",
+      "key": "dig:Entity"
+    }
+  ],
+  "label": [
+    {
+      "value": "xxx",
+      "key": "xxx"
+    }
+  ],
+  "@context": {
+    "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
+    "dig": "http://dig.isi.edu/ontologies/dig/Entity"
+  }
+}
         '''
         nt = rdf_generation(kg)
+        print(nt)
         self.assertIsInstance(nt, str)
         self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
 
     def test_ontology_api_is_valid_with_empty_kg(self):
+        import json
+
         rdf_content = rdf_prefix + '''
 :Place a owl:Class ;
     :common_properties :region ; .
@@ -382,11 +399,13 @@ class TestOntologyAPI(unittest.TestCase):
             '''
         kg = '{}'
         ontology = Ontology(rdf_content)
-        self.assertTrue(ontology.is_valid('region', 'somewhere', kg))
-        self.assertFalse(ontology.is_valid('region', 1, kg))
-        self.assertFalse(ontology.is_valid('region', True, kg))
+        self.assertTrue(ontology.is_valid('region', 'somewhere', json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', 1, json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', True, json.loads(kg)))
 
     def test_ontology_api_is_valid_with_kg(self):
+        import json
+
         rdf_content = rdf_prefix + '''
 :Human a owl:Class ; .
 :Place a owl:Class ;
@@ -397,8 +416,8 @@ class TestOntologyAPI(unittest.TestCase):
             '''
         kg = '''
 {
-    "@type": "dig:Place",
-    "@id": "some_doc_id",
+    "type": [{ "key": "dig:Place", "value": "dig:Place" }],
+    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
     "@context": {
         "dig": "http://dig.isi.edu/ontologies/dig/"
     }
@@ -406,8 +425,8 @@ class TestOntologyAPI(unittest.TestCase):
         '''
         kg_wrong_domain = '''
 {
-    "@type": "dig:Human",
-    "@id": "some_doc_id",
+    "type": [{ "key": "dig:Human", "value": "dig:Human" }],
+    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
     "@context": {
         "dig": "http://dig.isi.edu/ontologies/dig/"
     }
@@ -415,14 +434,14 @@ class TestOntologyAPI(unittest.TestCase):
         '''
         kg_domain_doesnt_exist = '''
 {
-    "@type": "dig:People",
-    "@id": "some_doc_id",
+    "type": [{ "key": "dig:People", "value": "dig:People" }],
+    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
     "@context": {
         "dig": "http://dig.isi.edu/ontologies/dig/"
     }
 }
         '''
         ontology = Ontology(rdf_content)
-        self.assertTrue(ontology.is_valid('region', 'somewhere', kg))
-        self.assertFalse(ontology.is_valid('region', 'somewhere', kg_wrong_domain))
-        self.assertFalse(ontology.is_valid('region', 'somewhere', kg_domain_doesnt_exist))
+        self.assertTrue(ontology.is_valid('region', 'somewhere', json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', json.loads(kg_wrong_domain)))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', json.loads(kg_domain_doesnt_exist)))
