@@ -3,7 +3,7 @@ from rdflib import Graph, URIRef
 from rdflib.namespace import RDFS, OWL, SKOS
 from etk.ontology_api import Ontology, OntologyClass, OntologyProperty, OntologyObjectProperty
 from etk.ontology_api import OntologyDatatypeProperty
-from etk.ontology_api import DIG, SCHEMA
+from etk.ontology_namespacemanager import DIG, SCHEMA
 
 
 class OntologyReportGenerator:
