@@ -610,8 +610,7 @@ class Ontology(object):
         :param kg: the knowledge graph that perform adding action
         :return: if the value is valid for the property
         """
-        if field_name in {"uri", "type"}:
-            return True
+        import json
         # property
         nm = self.g.namespace_manager
         uri = nm.parse_uri(field_name)
@@ -619,13 +618,14 @@ class Ontology(object):
         if not isinstance(property_, OntologyProperty):
             return False
         # extract id a.k.a uri from kg
-        if "type" in kg:
-            for type_ in kg["type"]:
-                entity = self.get_entity(nm.parse_uri(type_["value"]))  # TODO{Xi} should read from kg's context instead of ontology namespacemanager
-                if entity and property_.is_legal_subject(entity):
-                    break
-            else:
-                return False
+        if isinstance(kg, dict):
+            kg = json.dumps(kg)
+        kg_ = Graph().parse(data=kg, format='json-ld')
+        for type_ in kg_.objects(None, RDF.type):
+            entity = self.get_entity(type_)
+            if entity and property_.is_legal_subject(entity):
+                break
+            return False
         # check if is valid range
         # first determine the input value type
         for class_ in self.type_infer:
@@ -656,29 +656,9 @@ def rdf_generation(kg_object) -> str:
     :return: n-triples RDF in str
     """
     import json
-    if isinstance(kg_object, str):
-        kg_object = json.loads(kg_object)
-    if 'knowledge_graph' in kg_object:
-        kg_object = kg_object['knowledge_graph']
-    # TODO {xi} need to support key-value format kg instead of json-ld @NEXT
-    # TODO {xi} how to read @context info with it?
-    g = Graph()
-    nm = OntologyNamespaceManager(graph=g)
-    if '@context' in kg_object:
-        context = kg_object['@context']
-        for prefix in context:
-            nm.bind(prefix if prefix != '@vocab' else None, context[prefix])
-    uri = nm.parse_uri(kg_object['uri'][0]['value'])
-    if 'type' in kg_object:
-        for type_ in kg_object['type']:
-            full_type = nm.parse_uri(type_['value'])
-            g.add((uri, RDF.type, full_type))
-    for pred in kg_object:
-        if pred in {'uri', 'type', '@context'}:
-            continue
-        full_pred = nm.parse_uri(pred)
-        for obj in kg_object[pred]:
-            full_obj = nm.parse_uri(obj['value'])
-            g.add((uri, full_pred, full_obj))
-    return g.serialize(format='nt').decode('utf-8')
 
+    if isinstance(kg_object, dict):
+        kg_object = json.dumps(kg_object)
+    g = Graph()
+    g.parse(data=kg_object, format='json-ld')
+    return g.serialize(format='nt').decode('utf-8')

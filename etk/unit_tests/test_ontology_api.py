@@ -354,36 +354,20 @@ class TestOntologyAPI(unittest.TestCase):
         from etk.ontology_api import rdf_generation
         kg = '''
 {
-  "uri": [
-    {
-      "value": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9",
-      "key": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9"
-    }
-  ],
-  "type": [
-    {
-      "value": "dig:Person",
-      "key": "dig:person"
-    },
-    {
-      "value": "dig:Entity",
-      "key": "dig:Entity"
-    }
-  ],
-  "label": [
-    {
-      "value": "xxx",
-      "key": "xxx"
-    }
-  ],
+  "@id": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9",
+  "@type": ["dig:Person", "dig:Entity"],
+  "label": [{
+    "@value": "Jason"
+  }, {
+    "@value": "json"
+  }],
   "@context": {
     "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
-    "dig": "http://dig.isi.edu/ontologies/dig/Entity"
+    "dig": "http://dig.isi.edu/ontologies/dig/"
   }
 }
         '''
         nt = rdf_generation(kg)
-        print(nt)
         self.assertIsInstance(nt, str)
         self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
 
@@ -416,29 +400,29 @@ class TestOntologyAPI(unittest.TestCase):
             '''
         kg = '''
 {
-    "type": [{ "key": "dig:Place", "value": "dig:Place" }],
-    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
-    "@context": {
-        "dig": "http://dig.isi.edu/ontologies/dig/"
-    }
+  "@type": ["dig:Place"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
 }
         '''
         kg_wrong_domain = '''
 {
-    "type": [{ "key": "dig:Human", "value": "dig:Human" }],
-    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
-    "@context": {
-        "dig": "http://dig.isi.edu/ontologies/dig/"
-    }
+  "@type": ["dig:Human"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
 }
         '''
         kg_domain_doesnt_exist = '''
 {
-    "type": [{ "key": "dig:People", "value": "dig:People" }],
-    "uri": [{ "key": "some_doc_id", "value": "some_doc_id" }],
-    "@context": {
-        "dig": "http://dig.isi.edu/ontologies/dig/"
-    }
+  "@type": ["dig:People"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
 }
         '''
         ontology = Ontology(rdf_content)
