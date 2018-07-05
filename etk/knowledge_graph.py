@@ -217,3 +217,25 @@ class KnowledgeGraph(object):
         if kg_provenance_record.json_path is not None:
             _dict["json_path"] = kg_provenance_record.json_path
         return _dict
+
+    def context_resolve(self, field_uri):
+        from rdflib.namespace import split_uri
+        context = self._kg["@context"] = self._kg.get("@context", dict())
+        nm = self.ontology.g.namespace_manager
+        space, name = split_uri(field_uri)
+        if "@vocab" not in context and None in nm.namespaces():
+            context["@vocab"] = nm.store.prefix(space)
+        if "@vocab" in context and space == context["@vocab"]:
+            # case #1, can directly use name
+            return name
+        if self.schema.has_field(name):
+            if name not in context:
+                context[name] = field_uri
+            return name
+        prefix = nm.store.prefix(space)
+        if prefix:
+            context[prefix] = space
+            return nm.qname(field_uri)
+        return field_uri
+
+

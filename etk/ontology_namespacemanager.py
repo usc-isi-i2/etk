@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from rdflib.namespace import OWL, Namespace, NamespaceManager
 from rdflib import URIRef
 
@@ -40,20 +41,17 @@ class OntologyNamespaceManager(NamespaceManager):
               3. name, use default namespace to expand it and return it
         :return: URIRef
         """
-        if isinstance(text, URIRef):
-            return text
+        if self.check_uriref(text):
+            return self.check_uriref(text)
         elif isinstance(text, str):
             text = text.strip()
-            if URI_PATTERN.match(text):
-                return URIRef(text)
-            else:
-                m = URI_ABBR_PATTERN.match(text)
-                if m:
-                    prefix, name = m.groups()
-                    base = self.store.namespace(prefix if prefix else '')
-                    if not base:
-                        raise PrefixNotFoundException("Prefix: %s", prefix)
-                    return URIRef(base + name)
+            m = URI_ABBR_PATTERN.match(text)
+            if m:
+                prefix, name = m.groups()
+                base = self.store.namespace(prefix if prefix else '')
+                if not base:
+                    raise PrefixNotFoundException("Prefix: %s", prefix)
+                return URIRef(base + name)
         raise WrongFormatURIException()
 
     def bind(self, prefix: str, namespace: str, override=True, replace=False):
@@ -89,3 +87,12 @@ class OntologyNamespaceManager(NamespaceManager):
             else:
                 if override or bound_prefix.startswith("_"):
                     self.store.bind(prefix, namespace)
+
+    @staticmethod
+    def check_uriref(text: str) -> Optional[URIRef]:
+        if isinstance(text, URIRef):
+            return text
+        if isinstance(text, str):
+            text = text.strip()
+            if URI_PATTERN.match(text.strip()):
+                return URIRef(text)

@@ -1,5 +1,5 @@
 import logging
-from typing import Set, Union
+from typing import Set, Union, Optional
 from functools import reduce
 from datetime import datetime, time, date
 from rdflib import Graph, URIRef
@@ -600,7 +600,7 @@ class Ontology(object):
         XSD.NOTATION: 'string'
     }
 
-    def is_valid(self, field_name, value, kg) -> bool:
+    def is_valid(self, field_name, value, kg) -> Optional[dict]:
         """
         Check if this value is valid for the given name property according to input knowledge graph and ontology.
         No schema checked by this function.
@@ -612,11 +612,23 @@ class Ontology(object):
         """
         import json
         # property
-        nm = self.g.namespace_manager
-        uri = nm.parse_uri(field_name)
+        uri = OntologyNamespaceManager.check_uriref(field_name)
+        if not uri and '@context' in kg:
+            if field_name in kg['@context']:
+                uri = kg['@context'][field_name]
+            else:
+                try_split = field_name.split(':')
+                if len(try_split) == 2:
+                    prefix, name = try_split
+                    if prefix in kg['@context']:
+                        uri = kg['@context'][prefix] + name
+                elif '@vocab' in kg['@context']:
+                    uri = kg['@context']['@vocab'] + field_name
+        if not uri:
+            uri = self.g.namespace_manager.parse_uri(field_name)
         property_ = self.get_entity(uri)
         if not isinstance(property_, OntologyProperty):
-            return False
+            return None
         # extract id a.k.a uri from kg
         if isinstance(kg, dict):
             kg = json.dumps(kg)
@@ -625,7 +637,8 @@ class Ontology(object):
             entity = self.get_entity(type_)
             if entity and property_.is_legal_subject(entity):
                 break
-            return False
+        else:
+            return None
         # check if is valid range
         # first determine the input value type
         for class_ in self.type_infer:
@@ -633,9 +646,14 @@ class Ontology(object):
                 types = self.type_infer[class_]
                 break
         else:
-            return False
+            return None
         # check if is a valid range
-        return any(property_.is_legal_object(str(type_)) for type_ in types)
+        if any(property_.is_legal_object(str(type_)) for type_ in types):
+            if isinstance(property_, OntologyObjectProperty):
+                return {'@id': value}
+            else:
+                return {'@value': value}
+        return None
 
     type_infer = {
         int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
