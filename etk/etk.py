@@ -14,7 +14,7 @@ TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path=os.path.join(TEMP_DIR, 'etk.log')):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None):
         if logger:
             self.logger = logger
         else:
@@ -32,6 +32,7 @@ class ETK(object):
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         self.parsed = dict()
         self.kg_schema = kg_schema
+        self.ontology = ontology
         self.em_lst = list()
         if modules:
             if type(modules) == list:
@@ -55,7 +56,7 @@ class ETK(object):
             self.error_policy = ErrorPolicy.PROCESS
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123",
-                        doc_id=None) -> Document:
+                        doc_id=None, type_=None) -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -64,11 +65,12 @@ class ETK(object):
             mime_type (str): if doc is a string, the mime_type tells what it is
             url (str): if the doc came from the web, specifies the URL for it
             doc_id
+            type_
 
         Returns: wrapped Document
 
         """
-        return Document(self, doc, mime_type, url, doc_id=doc_id)
+        return Document(self, doc, mime_type, url, doc_id=doc_id).with_type(type_)
 
     def parse_json_path(self, jsonpath):
 

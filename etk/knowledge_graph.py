@@ -7,6 +7,7 @@ from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
 from etk.segment import Segment
 from etk.utilities import Utility
+from etk.ontology_api import Ontology
 
 
 class KnowledgeGraph(object):
@@ -15,10 +16,12 @@ class KnowledgeGraph(object):
     Add field and value to the kg object, analysis on provenance
     """
 
-    def __init__(self, schema: KGSchema, doc) -> None:
+    def __init__(self, schema: KGSchema, ontology: Ontology, doc) -> None:
         self._kg = {}
         self.origin_doc = doc
         self.schema = schema
+        self.ontology = ontology
+        self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
     def validate_field(self, field_name: str) -> bool:
         """
@@ -29,6 +32,8 @@ class KnowledgeGraph(object):
         Returns: True if the field is present.
 
         """
+        if field_name in {"@id", "@type"}:
+            return True
         result = self.schema.has_field(field_name)
         if not result:
             # todo: how to comply with our error handling policies?
@@ -36,17 +41,25 @@ class KnowledgeGraph(object):
         return result
 
     def _add_single_value(self, field_name: str, value, provenance_path=None,
-                          reference_type="location") -> bool:
+                          reference_type="location", field_uri: str=None) -> bool:
+        if field_name == "@id":
+            self._kg["@id"] = value
+            return True
+        if field_name == "@type":
+            self._kg["@type"] = self._kg.get("@type", list())
+            if value not in self._kg["@type"]:
+                self._kg["@type"].append(value)
+            return True
         (valid, this_value) = self.schema.is_valid(field_name, value)
-        if valid:
-            if {
-                "value": this_value,
-                "key": self.create_key_from_value(this_value, field_name)
-            } not in self._kg[field_name]:
-                self._kg[field_name].append({
-                    "value": this_value,
-                    "key": self.create_key_from_value(this_value, field_name)
-                })
+        if self.ontology:
+            # DONE {Xi} use ontology is_valid to return if it is a DataProperty or ObjectProperty
+            # DONE {Xi} how do I know skos:prefLabel takes string not number and return its value
+            valid_value = valid and self.ontology.is_valid(field_name, this_value, self._kg)
+        else:
+            valid_value = valid and this_value
+        if valid_value:
+            if valid_value not in self._kg[field_name]:
+                self._kg[field_name].append(valid_value)
             self.create_kg_provenance(reference_type, str(this_value), provenance_path) \
                 if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
             return True
@@ -95,7 +108,7 @@ class KnowledgeGraph(object):
             raise KgValueError("Some kg value type invalid according to schema")
 
     def add_value(self, field_name: str, value: object = None, json_path: str = None,
-                  json_path_extraction: str = None) -> None:
+                  json_path_extraction: str = None, field_uri: str = None) -> None:
         """
         Add a value to knowledge graph.
         Input can either be a value or a json_path. If the input is json_path, the helper function _add_doc_value is
@@ -129,7 +142,7 @@ class KnowledgeGraph(object):
                     valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                   reference_type="constant")
+                                                   reference_type="constant", field_uri=field_uri)
 
                 all_valid = all_valid and valid
 
