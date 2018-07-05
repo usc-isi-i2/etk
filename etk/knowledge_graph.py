@@ -41,7 +41,7 @@ class KnowledgeGraph(object):
         return result
 
     def _add_single_value(self, field_name: str, value, provenance_path=None,
-                          reference_type="location", field_uri: str=None) -> bool:
+                          reference_type="location") -> bool:
         if field_name == "@id":
             self._kg["@id"] = value
             return True
@@ -108,7 +108,7 @@ class KnowledgeGraph(object):
             raise KgValueError("Some kg value type invalid according to schema")
 
     def add_value(self, field_name: str, value: object = None, json_path: str = None,
-                  json_path_extraction: str = None, field_uri: str = None) -> None:
+                  json_path_extraction: str = None) -> None:
         """
         Add a value to knowledge graph.
         Input can either be a value or a json_path. If the input is json_path, the helper function _add_doc_value is
@@ -142,7 +142,7 @@ class KnowledgeGraph(object):
                     valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                   reference_type="constant", field_uri=field_uri)
+                                                   reference_type="constant")
 
                 all_valid = all_valid and valid
 
