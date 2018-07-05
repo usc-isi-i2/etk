@@ -638,7 +638,12 @@ class Ontology(object):
             if entity and property_.is_legal_subject(entity):
                 break
         else:
-            return None
+            # if empty kg without any type
+            try:
+                next(kg_.objects(None, RDF.type))
+                return None
+            except StopIteration:
+                pass
         # check if is valid range
         # first determine the input value type
         for class_ in self.type_infer:
