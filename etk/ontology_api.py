@@ -600,50 +600,25 @@ class Ontology(object):
         XSD.NOTATION: 'string'
     }
 
-    def is_valid(self, field_name, value, kg) -> Optional[dict]:
+    def is_valid(self, field_name: str, value, kg: dict) -> Optional[dict]:
         """
         Check if this value is valid for the given name property according to input knowledge graph and ontology.
+        If is valid, then return a dict with key @id or @value for ObjectProperty or DatatypeProperty.
         No schema checked by this function.
 
         :param field_name: name of the property, if prefix is omitted, then use default namespace
         :param value: the value that try to add
         :param kg: the knowledge graph that perform adding action
-        :return: if the value is valid for the property
+        :return: None if the value isn't valid for the property, otherwise return {key: value}, key is @id for
+            ObjectProperty and @value for DatatypeProperty.
         """
-        import json
         # property
-        uri = OntologyNamespaceManager.check_uriref(field_name)
-        if not uri and '@context' in kg:
-            if field_name in kg['@context']:
-                uri = kg['@context'][field_name]
-            else:
-                try_split = field_name.split(':')
-                if len(try_split) == 2:
-                    prefix, name = try_split
-                    if prefix in kg['@context']:
-                        uri = kg['@context'][prefix] + name
-                elif '@vocab' in kg['@context']:
-                    uri = kg['@context']['@vocab'] + field_name
-        if not uri:
-            uri = self.g.namespace_manager.parse_uri(field_name)
+        uri = self.__is_valid_uri_resolve(field_name, kg.get("@context"))
         property_ = self.get_entity(uri)
         if not isinstance(property_, OntologyProperty):
             return None
-        # extract id a.k.a uri from kg
-        if isinstance(kg, dict):
-            kg = json.dumps(kg)
-        kg_ = Graph().parse(data=kg, format='json-ld')
-        for type_ in kg_.objects(None, RDF.type):
-            entity = self.get_entity(type_)
-            if entity and property_.is_legal_subject(entity):
-                break
-        else:
-            # if empty kg without any type
-            try:
-                next(kg_.objects(None, RDF.type))
-                return None
-            except StopIteration:
-                pass
+        if not self.__is_valid_domain(property_, kg):
+            return None
         # check if is valid range
         # first determine the input value type
         for class_ in self.type_infer:
@@ -659,6 +634,35 @@ class Ontology(object):
             else:
                 return {'@value': value}
         return None
+
+    def __is_valid_domain(self, property_, kg):
+        import json
+        # extract id a.k.a uri from kg
+        empty_kg = True
+        kg_ = Graph().parse(data=json.dumps(kg), format='json-ld')
+        for type_ in kg_.objects(None, RDF.type):
+            empty_kg = False
+            entity = self.get_entity(type_)
+            if entity and property_.is_legal_subject(entity):
+                return True
+        return empty_kg
+
+    def __is_valid_uri_resolve(self, field_name: str, context: Optional[dict]) -> URIRef:
+        uri = OntologyNamespaceManager.check_uriref(field_name)
+        if not uri and context:
+            if field_name in context:
+                uri = context[field_name]
+            else:
+                try_split = field_name.split(':')
+                if len(try_split) == 2:
+                    prefix, name = try_split
+                    if prefix in context:
+                        uri = context[prefix] + name
+                elif '@vocab' in context:
+                    uri = context['@vocab'] + field_name
+        if not uri:
+            uri = self.g.namespace_manager.parse_uri(field_name)
+        return uri
 
     type_infer = {
         int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
