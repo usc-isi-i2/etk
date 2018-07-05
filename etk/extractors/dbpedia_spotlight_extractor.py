@@ -45,28 +45,20 @@ class DBpediaSpotlightExtractor(Extractor):
             resources_results = results["Resources"]
             for one_result in resources_results:
                 types = one_result['@types'].split(',')
+                values = {'surface_form': one_result['@surfaceForm'],
+                          'uri': one_result['@URI'],
+                          'types': types,
+                          'similarity_scores': float(one_result['@similarityScore'])}
                 if self.get_attr:
                     attr = self.attr_finder(one_result['@URI'])
-                    return_result.append(Extraction(confidence=float(results['@confidence']),
-                                                    extractor_name=self.name,
-                                                    start_char=int(one_result['@offset']),
-                                                    end_char=int(one_result['@offset']) + len(
-                                                        one_result['@surfaceForm']),
-                                                    value={'surface_form': one_result['@surfaceForm'],
-                                                           'uri': one_result['@URI'],
-                                                           'types': types,
-                                                           'similarity_scores': float(one_result['@similarityScore']),
-                                                           'attributes': attr}))
-                else:
-                    return_result.append(Extraction(confidence=float(results['@confidence']),
-                                                    extractor_name=self.name,
-                                                    start_char=int(one_result['@offset']),
-                                                    end_char=int(one_result['@offset']) + len(
-                                                        one_result['@surfaceForm']),
-                                                    value={'surface_form': one_result['@surfaceForm'],
-                                                           'uri': one_result['@URI'],
-                                                           'types': types,
-                                                           'similarity_scores': float(one_result['@similarityScore'])}))
+                    values['attributes'] = attr
+                return_result.append(Extraction(confidence=float(results['@confidence']),
+                                                extractor_name=self.name,
+                                                start_char=int(one_result['@offset']),
+                                                end_char=int(one_result['@offset']) + len(
+                                                    one_result['@surfaceForm']),
+                                                value=values))
+
             return return_result
         return list()
 
