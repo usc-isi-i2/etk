@@ -77,7 +77,9 @@ class OntologyNamespaceManager(NamespaceManager):
             if replace:
                 self.store.bind(prefix, namespace)
             # prefix already in use for different namespace
-            raise PrefixAlreadyUsedException
+            raise PrefixAlreadyUsedException("Prefix (%s, %s) already used, instead of (%s, %s).",
+                                             prefix, self.store.namespace(prefix).toPython(),
+                                             prefix, namespace.toPython())
         else:
             bound_prefix = self.store.prefix(namespace)
             if bound_prefix is None:
