@@ -53,11 +53,9 @@ class KnowledgeGraph(object):
             return True
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if self.ontology:
-            # DONE {Xi} use ontology is_valid to return if it is a DataProperty or ObjectProperty
-            # DONE {Xi} how do I know skos:prefLabel takes string not number and return its value
             valid_value = valid and self.ontology.is_valid(field_name, this_value, self._kg)
         else:
-            valid_value = valid and this_value
+            valid_value = valid and {'value': this_value, 'key': self.create_key_from_value(this_value, field_name)}
         if valid_value:
             if valid_value not in self._kg[field_name]:
                 self._kg[field_name].append(valid_value)
@@ -232,7 +230,13 @@ class KnowledgeGraph(object):
             _dict["json_path"] = kg_provenance_record.json_path
         return _dict
 
-    def context_resolve(self, field_uri):
+    def context_resolve(self, field_uri: str) -> str:
+        """
+        According to field_uri to add corresponding context and return a resolvable field_name
+
+        :param field_uri:
+        :return: a field_name that can be resolved with kg's @context
+        """
         from rdflib.namespace import split_uri
         context = self._kg["@context"] = self._kg.get("@context", dict())
         nm = self.ontology.g.namespace_manager
