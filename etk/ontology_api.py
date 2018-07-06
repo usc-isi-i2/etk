@@ -622,15 +622,13 @@ class Ontology(object):
         # check if is valid range
         # first determine the input value type
         if isinstance(property_, OntologyDatatypeProperty):
-            for class_ in self.type_infer:
-                if isinstance(value, class_):
-                    types = [x.toPython() for x in self.type_infer[class_]]
-                    break
-            else:
-                return None
+            types = self.__is_valid_determine_value_type(value)
         else:
             if isinstance(value, dict):
-                types = map(self.get_entity, value['@type'])
+                try:
+                    types = map(self.get_entity, value['@type'])
+                except KeyError:
+                    return None  # input entity without type
             else:
                 return {'@id': value}
         # check if is a valid range
@@ -639,6 +637,22 @@ class Ontology(object):
                 return value
             else:
                 return {'@value': value}
+        return None
+
+    @staticmethod
+    def __is_valid_determine_value_type(value):
+        type_infer = {
+            int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
+            float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
+            bool: {XSD.boolean},
+            str: {XSD.string, XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
+            datetime: {XSD.datetime},
+            time: {XSD.time},
+            date: {XSD.date}
+        }
+        for class_ in type_infer:
+            if isinstance(value, class_):
+                return [x.toPython() for x in type_infer[class_]]
         return None
 
     def __is_valid_domain(self, property_, kg):
@@ -669,16 +683,6 @@ class Ontology(object):
         if not uri:
             uri = self.g.namespace_manager.parse_uri(field_name)
         return uri
-
-    type_infer = {
-        int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
-        float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
-        bool: {XSD.boolean},
-        str: {XSD.string, XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
-        datetime: {XSD.datetime},
-        time: {XSD.time},
-        date: {XSD.date}
-    }
 
 
 def rdf_generation(kg_object) -> str:
