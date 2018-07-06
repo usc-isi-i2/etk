@@ -21,7 +21,8 @@ class KnowledgeGraph(object):
         self.origin_doc = doc
         self.schema = schema
         self.ontology = ontology
-        self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
+        if "doc_id" in doc.cdr_document:
+            self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
     def validate_field(self, field_name: str) -> bool:
         """

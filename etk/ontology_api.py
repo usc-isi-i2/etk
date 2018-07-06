@@ -621,16 +621,22 @@ class Ontology(object):
             return None
         # check if is valid range
         # first determine the input value type
-        for class_ in self.type_infer:
-            if isinstance(value, class_):
-                types = self.type_infer[class_]
-                break
+        if isinstance(property_, OntologyDatatypeProperty):
+            for class_ in self.type_infer:
+                if isinstance(value, class_):
+                    types = [x.toPython() for x in self.type_infer[class_]]
+                    break
+            else:
+                return None
         else:
-            return None
-        # check if is a valid range
-        if any(property_.is_legal_object(str(type_)) for type_ in types):
-            if isinstance(property_, OntologyObjectProperty):
+            if isinstance(value, dict):
+                types = map(self.get_entity, value['@type'])
+            else:
                 return {'@id': value}
+        # check if is a valid range
+        if any(property_.is_legal_object(type_) for type_ in types):
+            if isinstance(property_, OntologyObjectProperty):
+                return value
             else:
                 return {'@value': value}
         return None
