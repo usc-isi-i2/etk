@@ -1,11 +1,11 @@
 import logging
-from typing import Set, Union
+from typing import Set, Union, Optional
 from functools import reduce
+from datetime import datetime, time, date
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
+from etk.ontology_namespacemanager import OntologyNamespaceManager
 
-SCHEMA = Namespace('http://schema.org/')
-DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
 
 
 class OntologyEntity(object):
@@ -174,7 +174,10 @@ class OntologyProperty(OntologyEntity):
 
         """
         domains = self.included_domains()
-        return c in domains or c.super_classes_closure() & domains
+        return c and (c in domains or c.super_classes_closure() & domains)
+
+    def is_legal_object(self, object) -> bool:
+        raise NotImplementedError('Subclass should implement this.')
 
 
 class OntologyObjectProperty(OntologyProperty):
@@ -240,6 +243,7 @@ class OntologyDatatypeProperty(OntologyProperty):
         Returns:
 
         """
+        data_type = str(data_type)
         return data_type in self.included_ranges() or self.super_properties() and \
                any(x.is_legal_object(data_type) for x in self.super_properties())
 
@@ -272,14 +276,12 @@ class Ontology(object):
         self.classes = set()
         self.object_properties = set()
         self.data_properties = set()
-        self.g = Graph()
         self.log_stream = io.StringIO()
         logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
         if not quiet:
             logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-        self.__init_graph_parse(turtle)
-        self.__init_graph_namespace()
+        self.g = self.__init_graph_parse(turtle)
 
         # Class
         for uri in self.g.subjects(RDF.type, OWL.Class):
@@ -337,16 +339,14 @@ class Ontology(object):
                 self.__validation_property_domain(p)
 
     def __init_graph_parse(self, contents):
+        nm = OntologyNamespaceManager(Graph())
+        g = nm.graph
         if isinstance(contents, str):
-            self.g.parse(data=contents, format='ttl')
+            g.parse(data=contents, format='ttl')
         else:
             for content in contents:
-                self.g.parse(data=content, format='ttl')
-
-    def __init_graph_namespace(self):
-        for ns in ('rdfs', 'rdf', 'owl', 'schema', 'dig'):
-            if ns not in self.g.namespaces():
-                self.g.namespace_manager.bind(ns, eval(ns.upper()))
+                g.parse(data=content, format='ttl')
+        return g
 
     def __init_ontology_class(self, uri):
         if isinstance(uri, URIRef):
@@ -485,23 +485,30 @@ class Ontology(object):
         """
         Find an ontology entity based on URI
 
-        Args:
-            uri:
-
-        Returns: the OntologyEntity having the specified uri, or None
-
+        :param uri: URIRef or str
+        :return: the OntologyEntity having the specified uri, or None
         """
         return self.entities.get(str(uri), None)
 
     def root_classes(self) -> Set[OntologyClass]:
         """
-
         Returns: All classes that don't have a super class.
-
         """
         return set(filter(lambda e: not e.super_classes(), self.classes))
 
-    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> str:
+    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
+        from etk.ontology_report_generator import OntologyReportGenerator
+        return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
+
+    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> dict:
+        """
+        Merge current ontology with input master config.
+
+        :param config: master config, should be str or dict
+        :param defaults: a dict that sets default color and icon
+        :param delete_orphan_fields: if a property doesn't exist in the ontology then delete it
+        :return: merged master config in dict
+        """
         if isinstance(config, str):
             import json
             config = json.loads(config)
@@ -546,7 +553,7 @@ class Ontology(object):
             # icon
             if 'icon' not in field:
                 icon = self.__merge_close_ancestor_color(p, fields, attr='icon')
-                fields['icon'] = icon if icon else d_icon
+                field['icon'] = icon if icon else d_icon
             # type
             if isinstance(p, OntologyObjectProperty):
                 field['type'] = 'kg_id'
@@ -569,229 +576,126 @@ class Ontology(object):
             ancestors.extend(list(super_property.super_properties() - added))
 
     def __merge_xsd_to_type(self, uri):
-        xsd_ref = {
-            XSD.string: 'string',
-            XSD.boolean: 'number',
-            XSD.decimal: 'number',
-            XSD.float: 'number',
-            XSD.double: 'number',
-            XSD.duration: 'number',
-            XSD.dateTime: 'date',
-            XSD.time: 'date',
-            XSD.date: 'date',
-            XSD.gYearMonth: 'date',
-            XSD.gYear: 'date',
-            XSD.gMonthDay: 'date',
-            XSD.gMonth: 'date',
-            XSD.gDay: 'date',
-            XSD.hexBinary: 'string',
-            XSD.base64Binary: 'string',
-            XSD.anyURI: 'string',
-            XSD.QName: 'string',
-            XSD.NOTATION: 'string'
-        }
-        return xsd_ref.get(URIRef(uri), None)
+        return self.xsd_ref.get(URIRef(uri), None)
 
-    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
+    xsd_ref = {
+        XSD.string: 'string',
+        XSD.boolean: 'number',
+        XSD.decimal: 'number',
+        XSD.float: 'number',
+        XSD.double: 'number',
+        XSD.duration: 'number',
+        XSD.dateTime: 'date',
+        XSD.time: 'date',
+        XSD.date: 'date',
+        XSD.gYearMonth: 'date',
+        XSD.gYear: 'date',
+        XSD.gMonthDay: 'date',
+        XSD.gMonth: 'date',
+        XSD.gDay: 'date',
+        XSD.hexBinary: 'string',
+        XSD.base64Binary: 'string',
+        XSD.anyURI: 'string',
+        XSD.QName: 'string',
+        XSD.NOTATION: 'string'
+    }
+
+    def is_valid(self, field_name: str, value, kg: dict) -> Optional[dict]:
         """
-        Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
-        Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
-        description of all the classes with all the properties that apply to it.
-        Returns:
+        Check if this value is valid for the given name property according to input knowledge graph and ontology.
+        If is valid, then return a dict with key @id or @value for ObjectProperty or DatatypeProperty.
+        No schema checked by this function.
 
+        :param field_name: name of the property, if prefix is omitted, then use default namespace
+        :param value: the value that try to add
+        :param kg: the knowledge graph that perform adding action
+        :return: None if the value isn't valid for the property, otherwise return {key: value}, key is @id for
+            ObjectProperty and @value for DatatypeProperty.
         """
-        import os
-        sorted_by_name = lambda arr: sorted(arr, key=lambda x: x.name())
-        template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
-        with open(template) as f:
-            sorted_classes = sorted_by_name(self.classes)
-            sorted_properties = sorted_by_name(self.all_properties())
-            ### Lists
-            content = f.read().replace('{{{title}}}', 'Ontology Entities') \
-                              .replace('{{{class_list}}}',
-                                       self.__html_entities_hierarchy(self.classes)) \
-                              .replace('{{{dataproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.data_properties)) \
-                              .replace('{{{objectproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.object_properties))
-
-            ### Classes
-            item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
-            row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
-            classes = []
-            properties_map, referenced_map = self.__html_build_properties()
-            for c in sorted_classes:
-                attr = []
-                subclass_of = sorted_by_name(c.super_classes())
-                superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
-                if subclass_of:
-                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
-                if superclass_of:
-                    attr.append(
-                        row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
-                attr.extend(self.__html_entity_basic_info(c, row))
-                properties = sorted_by_name(properties_map[c])
-                if properties:
-                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                properties = sorted_by_name(referenced_map[c])
-                if properties:
-                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                if include_turtle:
-                    code = self.__html_extract_other_info(c.uri())
-                    if code:
-                        attr.append('<pre><code>{}</code></pre>'.format(code))
-                classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
-
-            ### Properties
-            dataproperties, objectproperties = [], []
-            for p in sorted_properties:
-                attr = []
-                domains = p.included_domains()
-                ranges = p.included_ranges()
-                if domains:
-                    attr.append(row.format('Domain', '<br />\n'.join(map(self.__html_entity_href,
-                                                                         sorted_by_name(domains)))))
-                if ranges:
-                    if isinstance(p, OntologyObjectProperty):
-                        attr.append(row.format('Range', '<br />\n'.join(map(self.__html_entity_href,
-                                                                            sorted_by_name(ranges)))))
-                    else:
-                        attr.append(row.format('Range', '<br />\n'.join(sorted(ranges))))
-                subproperty_of = sorted_by_name(p.super_properties())
-                superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
-                if subproperty_of:
-                    attr.append(row.format('Subproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, subproperty_of))))
-                if superproperty_of:
-                    attr.append(row.format('Superproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, superproperty_of))))
-                attr.extend(self.__html_entity_basic_info(p, row))
-                if include_turtle:
-                    code = self.__html_extract_other_info(p.uri())
-                    if code:
-                        attr.append('<pre><code>{}</code></pre>'.format(code))
-                if isinstance(p, OntologyObjectProperty):
-                    if p.inverse():
-                        attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
-                    objectproperties.append(item.format('O-'+p.uri(), p.name(), '\n'.join(attr)))
-                else:
-                    dataproperties.append(item.format('D-'+p.uri(), p.name(), '\n'.join(attr)))
-
-            content = content.replace('{{{classes}}}', '\n'.join(classes)) \
-                             .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
-                             .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
-            logs = '' if exclude_warning else self.log_stream.getvalue()
-            content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
-        return content
-
-    def __html_build_properties(self):
-        properties_map = {c: set() for c in self.all_classes()}
-        referenced_map = {c: set() for c in self.all_classes()}
-        for property_ in self.all_properties():
-            for domain in property_.included_domains():
-                properties_map[domain].add(property_)
+        # property
+        uri = self.__is_valid_uri_resolve(field_name, kg.get("@context"))
+        property_ = self.get_entity(uri)
+        if not isinstance(property_, OntologyProperty):
+            return None
+        if not self.__is_valid_domain(property_, kg):
+            return None
+        # check if is valid range
+        # first determine the input value type
+        if isinstance(property_, OntologyDatatypeProperty):
+            types = self.__is_valid_determine_value_type(value)
+        else:
+            if isinstance(value, dict):
+                try:
+                    types = map(self.get_entity, value['@type'])
+                except KeyError:
+                    return None  # input entity without type
+            else:
+                return {'@id': value}
+        # check if is a valid range
+        if any(property_.is_legal_object(type_) for type_ in types):
             if isinstance(property_, OntologyObjectProperty):
-                for range_ in property_.included_ranges():
-                    referenced_map[range_].add(property_)
-        leaves = {c for c in self.all_classes()} - reduce(set.union, [c.super_classes() for c in self.all_classes()])
-        while leaves:
-            for class_ in leaves:
-                for super_class in class_.super_classes():
-                    properties_map[super_class] |= properties_map[class_]
-                    referenced_map[super_class] |= referenced_map[class_]
-            leaves = reduce(set.union, [c.super_classes() for c in leaves])
-        return properties_map, referenced_map
+                return value
+            else:
+                return {'@value': value}
+        return None
 
-    def __html_extract_other_info(self, uri):
-        g = Graph()
-        g.namespace_manager = self.g.namespace_manager
-        if isinstance(uri, str):
-            uri = URIRef(uri)
-        for pred, obj in self.g.predicate_objects(uri):
-            g.add((uri, pred, obj))
-        g.remove((uri, DIG.commen_properties, None))
-        g.remove((uri, SCHEMA.domainIncludes, None))
-        g.remove((uri, SCHEMA.rangeIncludes, None))
-        g.remove((uri, RDFS.domain, None))
-        g.remove((uri, RDFS.range, None))
-        g.remove((uri, RDFS.label, None))
-        g.remove((uri, RDFS.comment, None))
-        g.remove((uri, SKOS.definition, None))
-        g.remove((uri, SKOS.note, None))
-        g.remove((uri, OWL.subPropertyOf, None))
-        for obj in self.g.objects(uri, RDFS.subClassOf):
-            if isinstance(self.get_entity(uri), OntologyClass) and \
-                    isinstance(self.get_entity(obj), OntologyClass):
-                g.remove((uri, RDFS.subClassOf, obj))
-        if len(g) < 2:
-            return ''
-        code = g.serialize(format='turtle').decode('utf-8').split('\n')
-        code = filter(bool, code)
-        code = filter(lambda line: line[0]!='@', code)
-        return '\n'.join(code)
+    @staticmethod
+    def __is_valid_determine_value_type(value):
+        type_infer = {
+            int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
+            float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
+            bool: {XSD.boolean},
+            str: {XSD.string, XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
+            datetime: {XSD.datetime},
+            time: {XSD.time},
+            date: {XSD.date}
+        }
+        for class_ in type_infer:
+            if isinstance(value, class_):
+                return [x.toPython() for x in type_infer[class_]]
+        return None
 
-    def __html_entity_basic_info(self, e, tpl):
-        attr = list()
-        basic = ['label', 'definition', 'note', 'comment']
-        for info in basic:
-            attr.extend([tpl.format(info, item) for item in getattr(e, info)()])
-        return attr
+    def __is_valid_domain(self, property_, kg):
+        import json
+        # extract id a.k.a uri from kg
+        empty_kg = True
+        kg_ = Graph().parse(data=json.dumps(kg), format='json-ld')
+        for type_ in kg_.objects(None, RDF.type):
+            empty_kg = False
+            entity = self.get_entity(type_)
+            if entity and property_.is_legal_subject(entity):
+                return True
+        return empty_kg
 
-    def __html_entities_hierarchy(self, entities):
-        tree = {node: list() for node in entities}
-        roots = []
-        super = 'super_properties' if entities and \
-            isinstance(next(iter(entities)), OntologyProperty) else 'super_classes'
-        for child in entities:
-            parents = getattr(child, super)()
-            if not parents:
-                roots.append(child)
-            for parent in parents:
-                tree[parent].append(child)
-
-        def hierarchy_builder(children):
-            if not children: return ''
-            s = '<ul>\n'
-            for child in sorted(children, key=lambda x: x.name()):
-                s += '<li>{}</li>\n'.format(self.__html_entity_href(child))
-                s += hierarchy_builder(tree[child])
-            s += '</ul>\n'
-            return s
-
-        return hierarchy_builder(roots)
-
-    def __html_entity_href(self, e):
-        template = '<a href="#{}-{}">{}</a>'
-        kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
-        return template.format(kind[type(e)], e.uri(), e.name())
+    def __is_valid_uri_resolve(self, field_name: str, context: Optional[dict]) -> URIRef:
+        uri = OntologyNamespaceManager.check_uriref(field_name)
+        if not uri and context:
+            if field_name in context:
+                uri = context[field_name]
+            else:
+                try_split = field_name.split(':')
+                if len(try_split) == 2:
+                    prefix, name = try_split
+                    if prefix in context:
+                        uri = context[prefix] + name
+                elif '@vocab' in context:
+                    uri = context['@vocab'] + field_name
+        if not uri:
+            uri = self.g.namespace_manager.parse_uri(field_name)
+        return uri
 
 
-if __name__ == '__main__':
-    import argparse
+def rdf_generation(kg_object) -> str:
+    """
+    Covert input knowledge graph object into n-triples RDF
 
-    parser = argparse.ArgumentParser(description='Generate HTML report for the input ontology files')
-    parser.add_argument('files', nargs='+', help='Input turtle files.')
-    parser.add_argument('--no-validation', action='store_false', dest='validation', default=True,
-                        help='Don\'t perform domain and range validation.')
-    parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
-                        help='Location of generated HTML report.')
-    parser.add_argument('-i', '--include-undefined-classes', action='store_true',
-                        dest='include_class', default=False, help='Include those undefined classes '
-                                                                  'but referenced by others.')
-    parser.add_argument('-t', '--include-turtle', action='store_true', dest='include_turtle',
-                        default=False, help='Include turtle related to this entity. NOTE: this may '
-                                            'takes longer time.')
-    parser.add_argument('-q', '--quiet', action='store_true', dest='quiet', default=False,
-                        help='Suppress warning.')
-    parser.add_argument('--exclude-warning', action='store_true', dest='exclude_warning',
-                        default=False, help='Exclude warning messages in HTML report')
-    args = parser.parse_args()
+    :param kg_object: str, dict, or json object
+    :return: n-triples RDF in str
+    """
+    import json
 
-    contents = [open(f).read() for f in args.files]
-    ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class,
-                        quiet=args.quiet)
-    doc_content = ontology.html_documentation(include_turtle=args.include_turtle,
-                                              exclude_warning=args.exclude_warning)
-
-    with open(args.out, "w") as f:
-        f.write(doc_content)
+    if isinstance(kg_object, dict):
+        kg_object = json.dumps(kg_object)
+    g = Graph()
+    g.parse(data=kg_object, format='json-ld')
+    return g.serialize(format='nt').decode('utf-8')

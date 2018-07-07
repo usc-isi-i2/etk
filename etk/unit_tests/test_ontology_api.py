@@ -1,11 +1,10 @@
 import unittest
-from rdflib.namespace import XSD, Namespace
+from rdflib.namespace import XSD
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
 from etk.ontology_api import ValidationError
+from etk.ontology_namespacemanager import DIG, SCHEMA
 
-DIG = Namespace('http://dig.isi.edu/ontologies/dig/')
-SCHEMA = Namespace('http://schema.org/')
 
 rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
@@ -168,7 +167,7 @@ class TestOntologyAPI(unittest.TestCase):
 
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
-    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
+    skos:definition """A group, organization, person who have the potential to do actions.""" ;
     rdfs:subClassOf :Group ;
     :crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
@@ -350,3 +349,83 @@ class TestOntologyAPI(unittest.TestCase):
         self.assertIn('had_participant', fields)
         self.assertIn('carried_out_by', fields)
         self.assertNotIn('custody_received_by', fields)
+
+    def test_rdf_generation(self):
+        from etk.ontology_api import rdf_generation
+        kg = '''
+{
+  "@id": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9",
+  "@type": ["dig:Person", "dig:Entity"],
+  "label": [{
+    "@value": "Jason"
+  }, {
+    "@value": "json"
+  }],
+  "@context": {
+    "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
+}
+        '''
+        nt = rdf_generation(kg)
+        self.assertIsInstance(nt, str)
+        self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
+
+    def test_ontology_api_is_valid_with_empty_kg(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+:Place a owl:Class ;
+    :common_properties :region ; .
+:region a owl:DatatypeProperty ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ; .
+            '''
+        kg = '{}'
+        ontology = Ontology(rdf_content)
+        self.assertTrue(ontology.is_valid('region', 'somewhere', json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', 1, json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', True, json.loads(kg)))
+
+    def test_ontology_api_is_valid_with_kg(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+:Human a owl:Class ; .
+:Place a owl:Class ;
+    :common_properties :region ; .
+:region a owl:DatatypeProperty ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ; .
+            '''
+        kg = '''
+{
+  "@type": ["dig:Place"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
+}
+        '''
+        kg_wrong_domain = '''
+{
+  "@type": ["dig:Human"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
+}
+        '''
+        kg_domain_doesnt_exist = '''
+{
+  "@type": ["dig:People"],
+  "@id": "some_doc_id",
+  "@context": {
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
+}
+        '''
+        ontology = Ontology(rdf_content)
+        self.assertTrue(ontology.is_valid('region', 'somewhere', json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', json.loads(kg_wrong_domain)))
+        self.assertFalse(ontology.is_valid('region', 'somewhere', json.loads(kg_domain_doesnt_exist)))

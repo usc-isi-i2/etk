@@ -7,6 +7,7 @@ from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
 from etk.segment import Segment
 from etk.utilities import Utility
+from etk.ontology_api import Ontology
 
 
 class KnowledgeGraph(object):
@@ -15,10 +16,13 @@ class KnowledgeGraph(object):
     Add field and value to the kg object, analysis on provenance
     """
 
-    def __init__(self, schema: KGSchema, doc) -> None:
+    def __init__(self, schema: KGSchema, ontology: Ontology, doc) -> None:
         self._kg = {}
         self.origin_doc = doc
         self.schema = schema
+        self.ontology = ontology
+        if "doc_id" in doc.cdr_document:
+            self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
     def validate_field(self, field_name: str) -> bool:
         """
@@ -29,6 +33,8 @@ class KnowledgeGraph(object):
         Returns: True if the field is present.
 
         """
+        if field_name in {"@id", "@type"}:
+            return True
         result = self.schema.has_field(field_name)
         if not result:
             # todo: how to comply with our error handling policies?
@@ -37,16 +43,22 @@ class KnowledgeGraph(object):
 
     def _add_single_value(self, field_name: str, value, provenance_path=None,
                           reference_type="location") -> bool:
+        if field_name == "@id":
+            self._kg["@id"] = value
+            return True
+        if field_name == "@type":
+            self._kg["@type"] = self._kg.get("@type", list())
+            if value not in self._kg["@type"]:
+                self._kg["@type"].append(value)
+            return True
         (valid, this_value) = self.schema.is_valid(field_name, value)
-        if valid:
-            if {
-                "value": this_value,
-                "key": self.create_key_from_value(this_value, field_name)
-            } not in self._kg[field_name]:
-                self._kg[field_name].append({
-                    "value": this_value,
-                    "key": self.create_key_from_value(this_value, field_name)
-                })
+        if self.ontology:
+            valid_value = valid and self.ontology.is_valid(field_name, this_value, self._kg)
+        else:
+            valid_value = valid and {'value': this_value, 'key': self.create_key_from_value(this_value, field_name)}
+        if valid_value:
+            if valid_value not in self._kg[field_name]:
+                self._kg[field_name].append(valid_value)
             self.create_kg_provenance(reference_type, str(this_value), provenance_path) \
                 if provenance_path else self.create_kg_provenance(reference_type, str(this_value))
             return True
@@ -217,3 +229,31 @@ class KnowledgeGraph(object):
         if kg_provenance_record.json_path is not None:
             _dict["json_path"] = kg_provenance_record.json_path
         return _dict
+
+    def context_resolve(self, field_uri: str) -> str:
+        """
+        According to field_uri to add corresponding context and return a resolvable field_name
+
+        :param field_uri:
+        :return: a field_name that can be resolved with kg's @context
+        """
+        from rdflib.namespace import split_uri
+        context = self._kg["@context"] = self._kg.get("@context", dict())
+        nm = self.ontology.g.namespace_manager
+        space, name = split_uri(field_uri)
+        if "@vocab" not in context and None in nm.namespaces():
+            context["@vocab"] = nm.store.prefix(space)
+        if "@vocab" in context and space == context["@vocab"]:
+            # case #1, can directly use name
+            return name
+        if self.schema.has_field(name):
+            if name not in context:
+                context[name] = field_uri
+            return name
+        prefix = nm.store.prefix(space)
+        if prefix:
+            context[prefix] = space
+            return nm.qname(field_uri)
+        return field_uri
+
+
