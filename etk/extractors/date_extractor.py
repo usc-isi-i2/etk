@@ -301,15 +301,18 @@ class DateExtractor(Extractor):
                     if x['order'] in ['SINGLE_YEAR']:
                         cur_max = x
                     elif len(x['order']) == len(cur_max['order']):
-                        if sum(ele is not None for ele in x['groups']) < sum(ele is not None for ele in cur_max['groups']):
+                        if len(x['groups']) < len(cur_max['groups']):
                             cur_max = x
-                        elif self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
-                            if x['order'] == language_date_order[self.lan]:
+                        elif len(x['groups']) == len(cur_max['groups']):
+                            if sum(ele is not None for ele in x['groups']) < sum(ele is not None for ele in cur_max['groups']):
                                 cur_max = x
+                            elif self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
+                                if x['order'] == language_date_order[self.lan]:
+                                    cur_max = x
+                                elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
+                                    cur_max = x
                             elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                                 cur_max = x
-                        elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
-                            cur_max = x
         parsed_date = self.parse_date(cur_max)
         if parsed_date:
             if self.settings[EXTRACT_FIRST_DATE_ONLY]:
