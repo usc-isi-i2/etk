@@ -301,13 +301,18 @@ class DateExtractor(Extractor):
                     if x['order'] in ['SINGLE_YEAR']:
                         cur_max = x
                     elif len(x['order']) == len(cur_max['order']):
-                        if self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
-                            if x['order'] == language_date_order[self.lan]:
+                        if len(x['groups']) < len(cur_max['groups']):
+                            cur_max = x
+                        elif len(x['groups']) == len(cur_max['groups']):
+                            if sum(ele is not None for ele in x['groups']) < sum(ele is not None for ele in cur_max['groups']):
                                 cur_max = x
+                            elif self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
+                                if x['order'] == language_date_order[self.lan]:
+                                    cur_max = x
+                                elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
+                                    cur_max = x
                             elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                                 cur_max = x
-                        elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
-                            cur_max = x
         parsed_date = self.parse_date(cur_max)
         if parsed_date:
             if self.settings[EXTRACT_FIRST_DATE_ONLY]:
@@ -361,6 +366,11 @@ class DateExtractor(Extractor):
             try:
                 if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
                     self.settings[MIN_RESOLUTION] = DateResolutionHelper.min_resolution(pattern)
+                for i in range(len(pattern)):
+                    if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
+                        del formatted[i]
+                        del pattern[i]
+                        break
 
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
