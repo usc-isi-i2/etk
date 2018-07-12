@@ -1,0 +1,223 @@
+# The format of this file is that each line contains a ground truth
+# <text to extract>|<desired extraction>|<format>
+
+2017-02-12 14:29:11|2017-02-12|%Y-%m-%d %H:%M:%S
+
+Friday, October 2, 2015 1:35 AM|2015-10-02|%A, %B %d, %Y %I:%M %p
+Friday, October 2, 2015|2015-10-02|%A, %B %d, %Y
+October 2, 2015|2015-10-02|%B %d, %Y
+
+Friday, 2 October 2015, 18:23|2015-10-02|%A, %d %B %Y, %H:%M
+2 October 2015, 18:23|2015-10-02|%d %B %Y, %H:%M
+Friday, 2 October 2015|2015-10-02|%A, %d %B %Y
+
+Thu October 01st, 2015|2015-10-01|%a %B %dst, %Y
+October 01st, 2015|2015-10-01|%B %dst, %Y
+
+Thu October 02nd, 2015|2015-10-02|%a %B %dnd, %Y
+October 02nd, 2015|2015-10-02|%B %dnd, %Y
+
+Thu October 03rd, 2015|2015-10-03|%a %B %drd, %Y
+October 03rd, 2015|2015-10-03|%B %drd, %Y
+
+Thu October 04th, 2015|2015-10-04|%a %B %dth, %Y
+October 04th, 2015|2015-10-04|%B %dth, %Y
+
+2018-03-10 02:07:57 UTC|2018-03-10|%Y-%m-%d %H:%M:%S %Z
+
+2018-03-10T02:07:11Z|2018-03-10|%Y-%m-%dT%H:%M:%SZ
+
+Saturday, Mar 10, 2018|2018-03-10|%A, %b %d, %Y
+
+Saturday, March 10, 2018|2018-03-10|%A, %B %d, %Y
+
+Sat, Mar 10|2018-03-10|%a, %b %d
+
+2018-03-10 02:08:57.0|2018-03-10|%Y-%m-%d %H:%M:%S.0
+
+2018-03-10|2018-03-10|%Y-%m-%d
+
+Mar 10, 2018|2018-03-10|%b %d, %Y
+
+March 10, 2018|2018-03-10|%B %d, %Y
+
+March 10, 2018|2018-03-10|%B %d, %Y
+
+March 10, 2018 02:10 AM|2018-03-10|%B %d, %Y %I:%M %p
+
+Mar 10, 2018 at 02:10 AM|2018-03-10|%b %d, %Y at %I:%M %p
+
+03-10-2018|2018-03-10|%m-%d-%Y
+
+2018-03-10T02:11:24|2018-03-10|%Y-%m-%dT%H:%M:%S
+
+2018-03-10T02:11:44Z|2018-03-10|%Y-%m-%dT%H:%M:%SZ
+
+10 Mar 2018|2018-03-10|%d %b %Y
+
+# Adult service regex
+#adultservice_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+Thursday, September 4, 2014, 4:57 PM PST|2014-09-04|%A, %B %d, %Y, %I:%M %p %Z
+
+# Citiguide regex
+# citiguide_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+September 9, 2012  10:29 AM|2012-09-09|%B %d, %Y  %I:%M %p
+
+# anunico regex
+# anunico_regex_day = r"(\d\d?)\s(" + months_long_regex + r"),\s+(\d\d\d\d)"
+#Domingo, 20
+# Diciembre, 2009 & nbsp;
+# 04:11
+Domingo, 20 Diciembre, 2009 04:11|2009-12-20|%A, %d %B, %Y %H:%M
+
+# craigslist regex
+# craigslist_regex_day = r"(\d\d\d\d)-(\d\d)-(\d\d)"
+2013-12-04,  7:44PM CST|2013-12-04|%Y-%m-%d,  %I:%M%p %Z
+
+# backpage regex
+# backpage1_regex_day = r"(\d\d?)\s+(" + months_long_regex + r")\s+(\d\d\d\d)"
+# backpage2_regex_day = r"(" + months_long_regex + r")\s+(\d\d?),\s+(\d\d\d\d)"
+saturday, 1 february 2014, 12:03 am|2014-02-01|%A, %d %B %Y, %I:%M %p
+friday, december 6, 2013 3:16 pm|2013-12-06|%A, %B %d, %Y %I:%M %p
+
+# myproviderguide regex
+# myproviderguide_regex_day = r"(" + months_long_regex + r")\s+(\d\d?)\w+,\s+(\d\d\d\d)"
+wednesday, april 16th, 2014|2014-04-16|%A, %B %dth, %Y
+
+# sipsap regex
+# sipsap_regex_day = r"(" + months_long_regex + r")\s+(\d\d?)\w+\s+(\d\d\d\d)"
+wednesday, april 16th, 2014|2014-04-16|%A, %B %dth, %Y
+
+# spanish backpage regex
+#  lunes, 27 de junio de 2016, 14:07
+# backpage3_regex_day = r"(\d\d?)\s+de\s+(" +  months_long_regex + r")\s+de\s+(\d\d\d\d)"
+lunes, 4 de julio de 2016, 9:01|2016-07-04|%A, %d de %B de %Y, %H:%M
+
+# european backpahe dates
+# backpage4_regex_day = r"(\d\d?)\.\s+(" +  months_long_regex + r")\s+(\d\d\d\d)"
+torsdag, 7. juli 2016, 12:01|2016-07-07|%A, %d. %B %Y, %H:%M
+
+# Need to create ground truth examples for the following entries:
+# dd/mm/yy	03/08/06
+03/08/06|2006-08-03|%d/%m/%y
+
+# dd/mm/yyyy	03/08/2006
+03/08/2006|2006-08-03|%d/%m/%Y
+
+# d/m/yy	3/8/06
+3/8/06|2006-08-03|%d/%m/%y
+
+# d/m/yyyy	3/8/2006
+3/8/2006|2006-08-03|%d/%m/%Y
+
+# ddmmyy	030806
+030806|2006-08-03|%d%m%y
+
+# ddmmyyyy	03082006
+03082006|2006-08-03|%d%m%Y
+
+# ddmmmyy	03Aug06
+03Aug06|2006-08-03|%d%b%y
+
+# ddmmmyyyy	03Aug2006
+03Aug2006|2006-08-03|%d%b%Y
+
+# dd-mmm-yy	03-Aug-06
+03-Aug-06|2006-08-03|%d-%b-%y
+
+# dd-mmm-yyyy	03-Aug-2006
+03-Aug-2006|2006-08-03|%d-%b-%Y
+
+# dmmmyy	3Aug06
+03Aug06|2006-08-03|%d%b%y
+
+# dmmmyyyy	3Aug2006
+03Aug2006|2006-08-03|%d%b%Y
+
+# d-mmm-yy	3-Aug-06
+03-Aug-06|2006-08-03|%d-%b-%y
+
+# d-mmm-yyyy	3-Aug-2006
+03-Aug-2006|2006-08-03|%d-%b-%Y
+
+# d-mmmm-yy	3-August-06
+03-August-06|2006-08-03|%d-%B-%y
+
+# d-mmmm-yyyy	3-August-2006
+03-August-2006|2006-08-03|%d-%B-%Y
+
+# yymmdd	060803
+060803|2006-08-03|%y%m%d
+
+# yyyymmdd	20060803
+20060803|2006-08-03|%Y%m%d
+
+# yy/mm/dd	06/08/03
+06/08/03|2006-08-03|%y/%m/%d
+
+# yyyy/mm/dd	2006/08/03
+2006/08/03|2006-08-03|%Y/%m/%d
+
+# mmddyy	080306
+080306|2006-08-03|%m%d%y
+
+# mmddyyyy	08032006
+08032006|2006-08-03|%m%d%Y
+
+# mm/dd/yy	08/03/06
+08/03/06|2006-08-03|%m/%d/%y
+
+# mm/dd/yyyy	08/03/2006
+08/03/2006|2006-08-03|%m/%d/%Y
+
+# mmm-dd-yy	Aug-03-06
+Aug-03-06|2006-08-03|%b-%d-%y
+
+# mmm-dd-yyyy	Aug-03-2006
+Aug-03-2006|2006-08-03|%b-%d-%Y
+
+# yyyy-mm-dd	2006-08-03
+2006-08-03|2006-08-03|%Y-%m-%d
+
+# weekday, dth mmmm yyyy	Monday, 3 of August 2006
+Monday, 3 of August 2006|2006-08-03|%A, %d of %B %Y
+
+# dd-mmm-yyyy time	03-Aug-2006 18:55:30.35
+03-Aug-2006 18:55:30.35|2006-08-03|%d-%b-%Y %H:%M:%S
+
+# yyyy-mm-dd time24 (ODBC Std)	2006-08-03 18:55:30
+2006-08-03 18:55:30|2006-08-03|%Y-%m-%d %H:%M:%S
+
+# dd-mmm-yyyy time12	03-Aug-2006 6:55:30 pm
+2006-08-03 6:55:30 pm|2006-08-03|%Y-%m-%d %I:%M:%S %p
+
+# mmm-yy	Aug-06  use first day as default
+Aug-06|2006-08-01|%b-%y
+
+# yy	06  use first day as default
+06|2006-01-01|%y
+
+# yyyy	2006  use first day as default
+2006|2006-01-01|%Y
+
+# mmm Aug
+Aug|2018-08-01|%b
+
+# weekday	Tuesday
+Tuesday|@nearestTuesday|%A
+
+# time24	18:55:30
+18:55:30|@todayT18:55:30|%H:%M:%S
+
+# time12	6:55:30 pm
+6:55:30 pm|@todayT18:55:30|%I:%M:%S %p
+
+# hours	48:55:30
+
+# seconds	68538.350
+
+# days_relative_regex = r'(\b\d\d?)\s+days?\s+ago\b'    use 2018-01-01 as base date
+9 days ago|2017-12-23|
+
+# hours_relative_regex = r'(\b\d\d?)\s+hours?\s+ago\b'    use 2018-01-01 as base date
+22 hours ago|2017-12-31|
