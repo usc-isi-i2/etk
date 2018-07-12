@@ -44,8 +44,6 @@ class Document(Segment):
             self.kg = None
             if not self.etk.kg_schema:
                 self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
-        if not self.etk.ontology:
-            self.etk.log("Ontology not found.", "warning", self.doc_id, self.url)
         self._provenance_id_index = 0
         self._provenances = dict()
         self._jsonpath_provenances = dict()
