@@ -1,23 +1,16 @@
 sudo: required
 language: python
 python:
-- 3.6.2
+- 3.6.5
 services:
   - docker
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-  - conda-env create .
-  - source activate etk2_env
+  - python3 -m venv etk2_env
+  - source etk2_env/bin/activate
+  - pip install -r requirements.txt
 script:
   - python -m spacy download en_core_web_sm
   - python -W ignore -m unittest discover
