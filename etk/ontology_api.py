@@ -687,7 +687,7 @@ class Ontology(object):
 
 def rdf_generation(kg_object) -> str:
     """
-    Covert input knowledge graph object into n-triples RDF
+    Convert input knowledge graph object into n-triples RDF
 
     :param kg_object: str, dict, or json object
     :return: n-triples RDF in str

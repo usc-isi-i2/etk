@@ -4,7 +4,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 from etk.etk_module import ETKModule
-from etk.ontology_api import Ontology
+from etk.ontology_api import Ontology, rdf_generation
 from rdflib.namespace import RDF
 
 
@@ -13,23 +13,29 @@ class ExampleETKModule(ETKModule):
         ETKModule.__init__(self, etk)
 
     def process_document(self, doc):
-        return [self.__create_document(data) for data in doc.cdr_document.get('data', [])]
+        docs = list()
+        for data in doc.cdr_document.get('data', []):
+            docs.extend(self.__create_document(data))
+        return docs
 
     def __create_document(self, data):
         type_ = data.get(RDF.type.toPython(), list())
         type_.extend(data.get('@type', list()))
         doc = self.etk.create_document(dict(), doc_id=data['@id'], type_=type_)
+        docs = [doc]
         for key in data:
             if key in {'@id', '@type', RDF.type.toPython()}:
                 continue
             field_name = doc.kg.context_resolve(key)
             for value in data[key]:
                 if isinstance(value, dict):
+                    # at most nest 1 level, no need to worry what it returns
                     subdoc = self.__create_document(value)
-                    doc.kg.add_value(field_name, subdoc.kg._kg)
+                    docs.append(subdoc[0])
+                    doc.kg.add_value(field_name, subdoc[0].doc_id)
                 else:
                     doc.kg.add_value(field_name, value)
-        return doc
+        return docs
 
 
 if __name__ == "__main__":
@@ -114,6 +120,9 @@ skos:prefLabel a owl:DatatypeProperty ;
     input_data = {'doc_id': '1', 'data': json.loads(sample_input)}
     doc = etk.create_document(input_data)
     docs = etk.process_ems(doc)
-    for doc in docs[1:]:
-        print(json.dumps(doc.kg.value, indent=2))
+    kgs = [json.dumps(doc.kg.value) for doc in docs[1:]]
+    with open('output.jsonl', 'w') as f:
+        f.write('\n'.join(kgs))
+    with open('output.nt', 'w') as f:
+        f.writelines(map(rdf_generation, kgs))
 
