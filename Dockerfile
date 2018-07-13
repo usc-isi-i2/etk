@@ -20,16 +20,22 @@ RUN locale-gen en_US.UTF-8
 RUN wget https://bootstrap.pypa.io/get-pip.py && \
     python get-pip.py
 
+# install conda
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    chmod +x Miniconda3-latest-Linux-x86_64.sh && \
+    ./Miniconda3-latest-Linux-x86_64.sh -p /app/miniconda -b && \
+    rm Miniconda3-latest-Linux-x86_64.sh
+ENV PATH=/app/miniconda/bin:${PATH}
+RUN conda update -y conda
 
 # install etk dependencies (install them here for cache of image building)
 RUN mkdir /app/etk
-RUN python3 -m venv /app/etk/etk2_env
-ADD requirements.txt /app/etk
+ADD environment.yml /app/etk
 
-RUN cd /app/etk && source etk2_env/bin/activate && pip install -r requirements.txt
-
+# create and config conda-env for etk
+RUN cd /app/etk && conda-env create .
 # set etk2_env as default env
-ENV PATH /app/etk/etk2_env/bin:$PATH
+ENV PATH /app/miniconda/envs/etk2_env/bin:$PATH
 RUN /bin/bash -c "python -m spacy download en_core_web_sm"
 
 # add etk
