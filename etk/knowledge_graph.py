@@ -6,7 +6,6 @@ from etk.etk_exceptions import KgValueError, UndefinedFieldError
 from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
 from etk.segment import Segment
-from etk.utilities import Utility
 from etk.ontology_api import Ontology
 
 
@@ -21,8 +20,9 @@ class KnowledgeGraph(object):
         self.origin_doc = doc
         self.schema = schema
         self.ontology = ontology
-        if "doc_id" in doc.cdr_document:
-            self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
+        if self.origin_doc.etk.generate_json_ld:
+            if "doc_id" in doc.cdr_document:
+                self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
     def validate_field(self, field_name: str) -> bool:
         """
@@ -46,13 +46,13 @@ class KnowledgeGraph(object):
         if field_name == "@id":
             self._kg["@id"] = value
             return True
-        if field_name == "@type":
+        if field_name == "@type" and self.origin_doc.etk.generate_json_ld:
             self._kg["@type"] = self._kg.get("@type", list())
             if value not in self._kg["@type"]:
                 self._kg["@type"].append(value)
             return True
         (valid, this_value) = self.schema.is_valid(field_name, value)
-        if self.ontology:
+        if self.ontology and self.origin_doc.etk.generate_json_ld:
             valid_value = valid and self.ontology.is_valid(field_name, this_value, self._kg)
         else:
             valid_value = valid and {'value': this_value, 'key': self.create_key_from_value(this_value, field_name)}
@@ -255,5 +255,3 @@ class KnowledgeGraph(object):
             context[prefix] = space
             return nm.qname(field_uri)
         return field_uri
-
-

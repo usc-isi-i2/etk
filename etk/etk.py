@@ -14,7 +14,10 @@ TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False):
+
+        self.generate_json_ld = generate_json_ld
+
         if logger:
             self.logger = logger
         else:
@@ -118,7 +121,8 @@ class ETK(object):
                                 field_extraction = field_extractions[i]
                                 if 'value' in field_extraction and field_extraction['value'] == doc_id:
                                     del field_extractions[i]
-                                    field_extractions.append({'value': json_doc, 'key':field_extraction['key'], 'is_nested': True})
+                                    field_extractions.append(
+                                        {'value': json_doc, 'key': field_extraction['key'], 'is_nested': True})
 
     def process_ems(self, doc: Document) -> List[Document]:
         """
@@ -158,6 +162,9 @@ class ETK(object):
 
         # Do house cleaning.
         doc.insert_kg_into_cdr()
+        if not self.generate_json_ld:
+            if "knowledge_graph" in doc.cdr_document:
+                doc.cdr_document["knowledge_graph"].pop("@context", None)
         Utility.make_json_serializable(doc.cdr_document)
         if not doc.doc_id:
             doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
