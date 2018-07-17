@@ -1,249 +1,203 @@
-# -*- coding: utf-8 -*-
-import unittest
-import sys, os
+import unittest, json
+from etk.knowledge_graph import KGSchema
+from etk.etk import ETK
+from etk.etk_exceptions import KgValueError
+from datetime import date, datetime
+from etk.ontology_api import Ontology
+from etk.ontology_namespacemanager import DIG
 
-sys.path.append('../../')
-from etk.core import Core
-import json
-import codecs
 
-
-class TestExtractionsInputPaths(unittest.TestCase):
+class TestKnowledgeGraph(unittest.TestCase):
     def setUp(self):
-        file_path = os.path.join(os.path.dirname(__file__), "ground_truth/1_content_extracted.jl")
-        self.doc = json.load(codecs.open(file_path))
-
-    def test_extraction_input_path(self):
-        women_name_file_path = os.path.join(os.path.dirname(__file__), "resources/female-names.json.gz")
-        e_config = {"document_id": "doc_id",
-                    "resources": {
-                        "dictionaries": {
-                            "women_name": women_name_file_path
-                        }
-                    },
-                    "data_extraction": [
-                        {
-                            "input_path": "*.*.text.`parent`"
-                            ,
-                            "fields": {
-                                "name": {
-                                    "extractors": {
-                                        "extract_using_dictionary": {
-                                            "config": {
-                                                "dictionary": "women_name",
-                                                "ngrams": 1,
-                                                "joiner": " ",
-                                                "pre_process": [
-                                                    "x.lower()"
-                                                ],
-                                                "pre_filter": [
-                                                    "x"
-                                                ],
-                                                "post_filter": [
-                                                    "isinstance(x, basestring)"
-                                                ]
-                                            },
-                                            "extraction_policy": "keep_existing"
-                                        },
-                                        "extract_using_regex": {
-                                            "config": {
-                                                "include_context": "true",
-                                                "regex": "(?:my[\\s]+name[\\s]+is[\\s]+([-a-z0-9@$!]+))",
-                                                "regex_options": [
-                                                    "IGNORECASE"
-                                                ],
-                                                "pre_filter": [
-                                                    "x.replace('\\n', '')",
-                                                    "x.replace('\\r', '')"
-                                                ]
-                                            },
-                                            "extraction_policy": "replace"
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    ]
-                    }
-        c = Core(extraction_config=e_config)
-        r = c.process(self.doc, create_knowledge_graph=True)
-        self.assertTrue('knowledge_graph' in r)
-        kg = r['knowledge_graph']
-        expected_kg = {
-            "title": [
+        sample_doc = {
+            "projects": [
                 {
-                    "confidence": 1,
-                    "provenance": [
-                        {
-                            "source": {
-                                "segment": "html",
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "method": "rearrange_title"
-                        }
+                    "name": "etk",
+                    "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others.",
+                    "members": [
+                        "dongyu",
+                        "amandeep",
+                        "sylvia",
+                        "Runqi12"
                     ],
-                    "key": "title",
-                    "value": "323-452-2013 ESCORT ALERT! - Luna The Hot Playmate (323) 452-2013 - 23"
-                }
-            ],
-            "name": [
-                {
-                    "confidence": 1,
-                    "provenance": [
-                        {
-                            "source": {
-                                "segment": "content_relaxed",
-                                "context": {
-                                    "start": 10,
-                                    "end": 11,
-                                    "input": "tokens",
-                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_dictionary",
-                            "extracted_value": "helena"
-                        },
-                        {
-                            "source": {
-                                "segment": "content_relaxed",
-                                "context": {
-                                    "start": 41,
-                                    "end": 58,
-                                    "input": "text",
-                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_regex",
-                            "extracted_value": "Helena"
-                        },
-                        {
-                            "source": {
-                                "segment": "content_strict",
-                                "context": {
-                                    "start": 10,
-                                    "end": 11,
-                                    "input": "tokens",
-                                    "text": "27 \n my name is <etk 'attribute' = 'name'>helena</etk> height 160cms weight 55 kilos "
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_dictionary",
-                            "extracted_value": "helena"
-                        },
-                        {
-                            "source": {
-                                "segment": "content_strict",
-                                "context": {
-                                    "start": 41,
-                                    "end": 58,
-                                    "input": "text",
-                                    "text": "91  27  \n  <etk 'attribute' = 'name'>My name is Helena</etk>  height 16"
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_regex",
-                            "extracted_value": "Helena"
-                        }
-                    ],
-                    "key": "helena",
-                    "value": "helena"
+                    "date": "2007-12-05",
+                    "place": "columbus:georgia:united states:-84.98771:32.46098",
+                    "s": "segment_test_1"
                 },
                 {
-                    "confidence": 1,
-                    "provenance": [
-                        {
-                            "source": {
-                                "segment": "content_relaxed",
-                                "context": {
-                                    "start": 136,
-                                    "end": 137,
-                                    "input": "tokens",
-                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_dictionary",
-                            "extracted_value": "luna"
-                        },
-                        {
-                            "source": {
-                                "segment": "content_strict",
-                                "context": {
-                                    "start": 136,
-                                    "end": 137,
-                                    "input": "tokens",
-                                    "text": "\n hey i ' m <etk 'attribute' = 'name'>luna</etk> 3234522013 let ' s explore "
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_dictionary",
-                            "extracted_value": "luna"
-                        },
-                        {
-                            "source": {
-                                "segment": "title",
-                                "context": {
-                                    "start": 9,
-                                    "end": 10,
-                                    "input": "tokens",
-                                    "text": "2013 escort alert ! - <etk 'attribute' = 'name'>luna</etk> the hot playmate ( 323 "
-                                },
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "confidence": {
-                                "extraction": 1.0
-                            },
-                            "method": "extract_using_dictionary",
-                            "extracted_value": "luna"
-                        }
+                    "name": "rltk",
+                    "description": "record linkage toolkit, implemented by Pedro, Mayank, Yixiang and several students.",
+                    "members": [
+                        "mayank",
+                        "yixiang"
                     ],
-                    "key": "luna",
-                    "value": "luna"
-                }
-            ],
-            "description": [
-                {
-                    "confidence": 1,
-                    "provenance": [
-                        {
-                            "source": {
-                                "segment": "inferlink",
-                                "document_id": "1A4A5FF5BD066309C72C8EEE6F7BCCCFD21B83245AFCDADDF014455BCF990A21"
-                            },
-                            "method": "rearrange_description"
-                        }
-                    ],
-                    "key": "description",
-                    "value": "Hey I'm luna 3234522013 Let's explore , embrace and indulge in your favorite fantasy % independent. discreet no drama Firm Thighs and Sexy. My Soft skin & Tight Grip is exactly what you deserve Call or text Fetish friendly Fantasy friendly Party friendly 140 Hr SPECIALS 3234522013"
+                    "date": ["2007-12-05T23:19:00"],
+                    "cost": -3213.32,
+                    "s": "segment_test_2"
                 }
             ]
         }
-        for key in kg.keys():
-            self.assertTrue(key in expected_kg)
-            if key != 'title' and key != 'description':
-                self.assertEqual(kg[key], expected_kg[key])
+        kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
+
+        etk = ETK(kg_schema)
+        self.doc = etk.create_document(sample_doc)
+
+    def test_add_segment_kg(self) -> None:
+        sample_doc = self.doc
+        segments = sample_doc.select_segments("projects[*].s")
+        sample_doc.kg.add_value("segment", segments)
+        expected_segments = ["segment_test_1", "segment_test_2"]
+        self.assertTrue(sample_doc.kg.value["segment"][0]["key"] in expected_segments)
+        self.assertTrue(sample_doc.kg.value["segment"][1]["key"] in expected_segments)
+        self.assertTrue('provenances' in sample_doc.value)
+        provenances = sample_doc.value['provenances']
+        self.assertTrue(len(provenances) == 2)
+        self.assertTrue(provenances[0]['reference_type'] == 'location')
+
+    def test_KnowledgeGraph(self) -> None:
+        sample_doc = self.doc
+
+        try:
+            sample_doc.kg.add_value("developer", json_path="projects[*].members[*]")
+        except KgValueError:
+            pass
+
+        try:
+            sample_doc.kg.add_value("test_date", json_path="projects[*].date[*]")
+        except KgValueError:
+            pass
+
+        try:
+            sample_doc.kg.add_value("test_add_value_date",
+                                    value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)])
+        except KgValueError:
+            pass
+
+        try:
+            sample_doc.kg.add_value("test_location", json_path="projects[*].place")
+        except KgValueError:
+            pass
+
+        expected_developers = [
+            {
+                "value": "dongyu",
+                "key": "dongyu"
+            },
+            {
+                "value": "amandeep",
+                "key": "amandeep"
+            },
+            {
+                "value": "sylvia",
+                "key": "sylvia"
+            },
+            {
+                "value": "Runqi12",
+                "key": "runqi12"
+            },
+            {
+                "value": "mayank",
+                "key": "mayank"
+            },
+            {
+                "value": "yixiang",
+                "key": "yixiang"
+            }
+        ]
+
+        expected_date = [
+            {
+                "value": "2007-12-05T00:00:00",
+                "key": "2007-12-05T00:00:00"
+            },
+            {
+                "value": "2007-12-05T23:19:00",
+                "key": "2007-12-05T23:19:00"
+            }
+        ]
+
+        expected_add_value_date = [
+            {
+                "value": "2018-03-28",
+                "key": "2018-03-28"
+            },
+            {
+                "value": "2018-03-28T01:01:01",
+                "key": "2018-03-28T01:01:01"
+            }
+        ]
+
+        expected_location = [
+            {
+                "value": "columbus:georgia:united states:-84.98771:32.46098",
+                "key": "columbus:georgia:united states:-84.98771:32.46098"
+            }
+        ]
+
+        self.assertEqual(expected_developers, sample_doc.kg.value["developer"])
+        self.assertEqual(expected_date, sample_doc.kg.value["test_date"])
+        self.assertEqual(expected_location, sample_doc.kg.value["test_location"])
+        self.assertEqual(expected_add_value_date, sample_doc.kg.value["test_add_value_date"])
 
 
-if __name__ == '__main__':
-    unittest.main()
+class TestKnowledgeGraphWithOntology(unittest.TestCase):
+    def setUp(self):
+        ontology_content = '''
+                @prefix : <http://dig.isi.edu/ontologies/dig/> .
+                @prefix owl: <http://www.w3.org/2002/07/owl#> .
+                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+                @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+                @prefix schema: <http://schema.org/> .
+                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+                :Person a owl:Class ;
+                    rdfs:subClassOf :Actor, :Biological_Object ;
+                    :common_properties :label, :title, :religion ; .
+                :has_name a owl:DatatypeProperty ;
+                    schema:domainIncludes :Person ;
+                    schema:rangeIncludes xsd:string ; .
+                :has_child a owl:ObjectProperty ;
+                    schema:domainIncludes :Person ;
+                    schema:rangeIncludes :Person ; .
+            '''
+        ontology = Ontology(ontology_content, validation=False, include_undefined_class=True, quiet=True)
+        kg_schema = KGSchema(ontology.merge_with_master_config(dict()))
+        etk = ETK(kg_schema=kg_schema, ontology=ontology, generate_json_ld=True)
+        etk2 = ETK(kg_schema=kg_schema, ontology=ontology, generate_json_ld=False)
+        self.doc = etk.create_document(dict(), doc_id='http://xxx/1', type_=[DIG.Person.toPython()])
+        self.doc2 = etk2.create_document(dict(), doc_id='http://xxx/2', type_=[DIG.Person.toPython()])
+
+    def test_valid_kg_jsonld(self):
+        kg = self.doc.kg
+        self.assertIn('@id', kg._kg)
+        self.assertEqual('http://xxx/1', kg._kg['@id'])
+        self.assertIn('@type', kg._kg)
+        self.assertIn(DIG.Person.toPython(), kg._kg['@type'])
+
+    def test_valid_kg(self):
+        kg = self.doc2.kg
+        self.assertNotIn('@id', kg._kg)
+        self.assertNotIn('@type', kg._kg)
+
+    def test_add_value_kg_jsonld(self):
+        kg = self.doc.kg
+        field_name = kg.context_resolve(DIG.has_name)
+        self.assertEqual('has_name', field_name)
+        kg.add_value(field_name, 'Jack')
+        self.assertIn({'@value': 'Jack'}, kg._kg[field_name])
+        field_child = kg.context_resolve(DIG.has_child)
+        self.assertEqual('has_child', field_child)
+        child1 = 'http://xxx/2'
+        child2 = {'@id': 'http://xxx/3', 'has_name': 'Daniels', '@type': [DIG.Person],
+                  '@context': {'has_name': DIG.has_name.toPython()}}
+        kg.add_value(field_child, child1)
+        kg.add_value(field_child, child2)
+        self.assertIn({'@id': 'http://xxx/2'}, kg._kg[field_child])
+
+    def test_add_value_kg(self):
+        kg = self.doc2.kg
+
+        field_name = kg.context_resolve(DIG.has_name)
+
+        self.assertEqual('has_name', field_name)
+        kg.add_value(field_name, 'Jack')
+        self.assertIn({'value': 'Jack', "key": "jack"}, kg._kg[field_name])
