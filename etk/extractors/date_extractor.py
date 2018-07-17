@@ -362,16 +362,17 @@ class DateExtractor(Extractor):
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
             i += 1
 
+        for i in range(len(pattern)):
+            if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
+                del formatted[i]
+                del pattern[i]
+                miss_week = True
+                break
+
         if formatted and pattern:
             try:
                 if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
                     self.settings[MIN_RESOLUTION] = DateResolutionHelper.min_resolution(pattern)
-                for i in range(len(pattern)):
-                    if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
-                        del formatted[i]
-                        del pattern[i]
-                        break
-
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
                 try:
