@@ -8,6 +8,7 @@ from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 from etk.utilities import Utility
+import gzip
 
 TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
@@ -185,10 +186,12 @@ class ETK(object):
             read_json (bool): set True if the glossary is in json format
         Returns: List of the strings in the glossary.
         """
-        with open(file_path) as fp:
-            if read_json:
-                return json.load(fp)
-            return fp.read().splitlines()
+        if read_json:
+            if file_path.endswith(".gz"):
+                return json.load(gzip.open(file_path))
+            return json.load(open(file_path))
+
+        return open(file_path).read().splitlines()
 
     @staticmethod
     def load_spacy_rule(file_path: str) -> Dict:
