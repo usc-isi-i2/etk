@@ -362,12 +362,17 @@ class DateExtractor(Extractor):
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
             i += 1
 
+        # TODO: deduplicate in the regex extraction part would be better
+        exist, new_formatted, new_pattern = set(), [], []
         for i in range(len(pattern)):
-            if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
-                del formatted[i]
-                del pattern[i]
-                miss_week = True
-                break
+            if pattern[i] not in exist:
+                if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
+                    miss_week = True
+                else:
+                    new_pattern.append(pattern[i])
+                    new_formatted.append(formatted[i])
+                    exist.add(pattern[i])
+        formatted, pattern = new_formatted, new_pattern
 
         if formatted and pattern:
             try:
@@ -551,7 +556,7 @@ class DateExtractor(Extractor):
                     return date_str[:19]
                 return date_str
         except Exception as e:
-            warn('DateExtractor: Failed to convert {} to ISO format. Catch {}.'.format(date, e))
+            warn('DateExtractor: Failed to convert {} to ISO format. Catch {}.'.format(date, str(e)))
             return None
         warn('DateExtractor: Failed to convert {} to ISO format.'.format(date))
         return None
