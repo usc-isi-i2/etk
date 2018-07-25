@@ -710,11 +710,9 @@ class Pattern(object):
         result = []
         for a_token in token_lst:
             for length in lengths:
-                try:
+                if length and length.isdigit():
                     a_token[attrs.LENGTH] = int(length)
                     result.append(copy.deepcopy(a_token))
-                except:
-                    pass
         return result
 
     @staticmethod
