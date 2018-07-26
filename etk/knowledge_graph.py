@@ -119,7 +119,7 @@ class KnowledgeGraph(object):
             value: the value to be added to the knowledge graph
             json_path: str, if json_path is provided, then get the value at this path in the doc
             json_path_extraction: str,
-            discard_empty_string: bool,
+            discard_empty: bool,
         Returns:
         """
         self.validate_field(field_name)
