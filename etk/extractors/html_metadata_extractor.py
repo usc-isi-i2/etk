@@ -49,7 +49,7 @@ class HTMLMetadataExtractor(Extractor):
         soup = BeautifulSoup(html_text, 'html.parser')
 
         if soup.title and extract_title:
-            title = self.wrap_data("title", soup.title.string)
+            title = self.wrap_data("title", soup.title.string.encode('utf-8').decode('utf-8'))
             res.append(title)
 
         if soup.title and extract_meta:
