@@ -107,7 +107,7 @@ class KnowledgeGraph(object):
             raise KgValueError("Some kg value type invalid according to schema")
 
     def add_value(self, field_name: str, value: object = None, json_path: str = None,
-                  json_path_extraction: str = None) -> None:
+                  json_path_extraction: str = None, discard_empty: bool = True) -> None:
         """
         Add a value to knowledge graph.
         Input can either be a value or a json_path. If the input is json_path, the helper function _add_doc_value is
@@ -119,7 +119,7 @@ class KnowledgeGraph(object):
             value: the value to be added to the knowledge graph
             json_path: str, if json_path is provided, then get the value at this path in the doc
             json_path_extraction: str,
-
+            discard_empty_string: bool,
         Returns:
         """
         self.validate_field(field_name)
@@ -129,7 +129,8 @@ class KnowledgeGraph(object):
         if json_path:
             self._add_doc_value(field_name, json_path)
 
-        if value:
+        if value or (value is not None and not discard_empty):
+
             if not isinstance(value, list):
                 value = [value]
 
