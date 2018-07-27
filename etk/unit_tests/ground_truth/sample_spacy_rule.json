@@ -1,0 +1,170 @@
+{
+  "rules": [
+    {
+      "polarity": true,
+      "description": "",
+      "pattern": [
+        {
+          "prefix": "",
+          "suffix": "",
+          "capitalization": [],
+          "part_of_speech": [],
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "shapes": [],
+          "token": [
+            "Iranian",
+            "General",
+            "Locks",
+            "Horns",
+            "With"
+          ],
+          "numbers": [],
+          "is_in_vocabulary": false,
+          "is_out_of_vocabulary": false,
+          "is_required": true,
+          "type": "word",
+          "is_in_output": false,
+          "match_all_forms": false,
+          "contain_digit": false
+        },
+        {
+          "prefix": "",
+          "suffix": "",
+          "capitalization": [],
+          "part_of_speech": [],
+          "length": [],
+          "maximum": "",
+          "minimum": "",
+          "shapes": [],
+          "token": [
+            "Trump"
+          ],
+          "numbers": [],
+          "is_in_vocabulary": false,
+          "is_out_of_vocabulary": false,
+          "is_required": true,
+          "type": "word",
+          "is_in_output": true,
+          "match_all_forms": false,
+          "contain_digit": false
+        }
+      ],
+      "output_format": "",
+      "is_active": true,
+      "dependencies": [],
+      "identifier": "current rule"
+    }
+  ],
+  "test_text": "Iranian General Locks Horns With Trump, Escalating Threat-Filled Feud - The New York Times",
+  "field_name": "dummy",
+  "test_tokens": [
+    {
+      "index": 0,
+      "whitespace": " ",
+      "text": "Iranian"
+    },
+    {
+      "index": 1,
+      "whitespace": " ",
+      "text": "General"
+    },
+    {
+      "index": 2,
+      "whitespace": " ",
+      "text": "Locks"
+    },
+    {
+      "index": 3,
+      "whitespace": " ",
+      "text": "Horns"
+    },
+    {
+      "index": 4,
+      "whitespace": " ",
+      "text": "With"
+    },
+    {
+      "index": 5,
+      "whitespace": "",
+      "text": "Trump"
+    },
+    {
+      "index": 6,
+      "whitespace": " ",
+      "text": ","
+    },
+    {
+      "index": 7,
+      "whitespace": " ",
+      "text": "Escalating"
+    },
+    {
+      "index": 8,
+      "whitespace": "",
+      "text": "Threat"
+    },
+    {
+      "index": 9,
+      "whitespace": "",
+      "text": "-"
+    },
+    {
+      "index": 10,
+      "whitespace": " ",
+      "text": "Filled"
+    },
+    {
+      "index": 11,
+      "whitespace": " ",
+      "text": "Feud"
+    },
+    {
+      "index": 12,
+      "whitespace": " ",
+      "text": "-"
+    },
+    {
+      "index": 13,
+      "whitespace": " ",
+      "text": "The"
+    },
+    {
+      "index": 14,
+      "whitespace": " ",
+      "text": "New"
+    },
+    {
+      "index": 15,
+      "whitespace": " ",
+      "text": "York"
+    },
+    {
+      "index": 16,
+      "whitespace": "",
+      "text": "Times"
+    }
+  ],
+  "results": [
+    {
+      "confidence": 1.0,
+      "start_token": 4,
+      "end_token": 6,
+      "start_char": 28,
+      "end_char": 38,
+      "identifier": "current rule",
+      "text": "Trump",
+      "token_based_match_mapping": {
+        "0": [
+          0,
+          1
+        ],
+        "1": [
+          1,
+          2
+        ]
+      }
+    }
+  ]
+}
