@@ -1,7 +1,5 @@
-import unittest, json
+import unittest
 from etk.extractors.mailman_extractor import MailmanExtractor
-from etk.etk import ETK
-from etk.knowledge_graph_schema import KGSchema
 
 class TestMailmanExtractor(unittest.TestCase):
 
