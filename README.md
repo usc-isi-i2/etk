@@ -36,12 +36,26 @@ ETK is open-source software, released under the MIT license.
   <tr><td><b>Python version:</td><td>Python 3.6+</td></tr>
 <table>
 
-Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands:
+1. Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands:
 ```
-conda-env create .
-source activate etk2_env
+python3 -m venv etk2_env
+source etk2_env/bin/activate
+pip install -r requirements.txt
+```
+
+2. Install using pip
+```
+pip install etk
+```
+
+Load the spacy modules
+```
 python -m spacy download en_core_web_sm
 python -m spacy download en_core_web_lg
+```
+To deactivate this virtual environment
+```
+deactivate
 ```
 
 ## Run Tests

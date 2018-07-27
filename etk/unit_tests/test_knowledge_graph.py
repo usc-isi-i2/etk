@@ -78,6 +78,14 @@ class TestKnowledgeGraph(unittest.TestCase):
         except KgValueError:
             pass
 
+        try:
+            sample_doc.kg.add_value("test_non_empty", value="")
+            sample_doc.kg.add_value("test_non_empty", value="non-empty")
+            sample_doc.kg.add_value("test_empty", value="", discard_empty=False)
+            sample_doc.kg.add_value("test_empty", value="empty", discard_empty=False)
+        except KgValueError:
+            pass
+
         expected_developers = [
             {
                 "value": "dongyu",
@@ -134,44 +142,56 @@ class TestKnowledgeGraph(unittest.TestCase):
             }
         ]
 
+        expected_non_empty = [{"key": "non-empty", "value": "non-empty"}]
+        expected_empty = [{"key": "", "value": ""}, {"key": "empty", "value": "empty"}]
+
         self.assertEqual(expected_developers, sample_doc.kg.value["developer"])
         self.assertEqual(expected_date, sample_doc.kg.value["test_date"])
         self.assertEqual(expected_location, sample_doc.kg.value["test_location"])
         self.assertEqual(expected_add_value_date, sample_doc.kg.value["test_add_value_date"])
+        self.assertEqual(expected_non_empty, sample_doc.kg.value["test_non_empty"])
+        self.assertEqual(expected_empty, sample_doc.kg.value["test_empty"])
 
 
 class TestKnowledgeGraphWithOntology(unittest.TestCase):
     def setUp(self):
         ontology_content = '''
-@prefix : <http://dig.isi.edu/ontologies/dig/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix schema: <http://schema.org/> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-:Person a owl:Class ;
-    rdfs:subClassOf :Actor, :Biological_Object ;
-    :common_properties :label, :title, :religion ; .
-:has_name a owl:DatatypeProperty ;
-    schema:domainIncludes :Person ;
-    schema:rangeIncludes xsd:string ; .
-:has_child a owl:ObjectProperty ;
-    schema:domainIncludes :Person ;
-    schema:rangeIncludes :Person ; .
-        '''
+                @prefix : <http://dig.isi.edu/ontologies/dig/> .
+                @prefix owl: <http://www.w3.org/2002/07/owl#> .
+                @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+                @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+                @prefix schema: <http://schema.org/> .
+                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+                :Person a owl:Class ;
+                    rdfs:subClassOf :Actor, :Biological_Object ;
+                    :common_properties :label, :title, :religion ; .
+                :has_name a owl:DatatypeProperty ;
+                    schema:domainIncludes :Person ;
+                    schema:rangeIncludes xsd:string ; .
+                :has_child a owl:ObjectProperty ;
+                    schema:domainIncludes :Person ;
+                    schema:rangeIncludes :Person ; .
+            '''
         ontology = Ontology(ontology_content, validation=False, include_undefined_class=True, quiet=True)
         kg_schema = KGSchema(ontology.merge_with_master_config(dict()))
-        etk = ETK(kg_schema=kg_schema, ontology=ontology)
+        etk = ETK(kg_schema=kg_schema, ontology=ontology, generate_json_ld=True)
+        etk2 = ETK(kg_schema=kg_schema, ontology=ontology, generate_json_ld=False)
         self.doc = etk.create_document(dict(), doc_id='http://xxx/1', type_=[DIG.Person.toPython()])
+        self.doc2 = etk2.create_document(dict(), doc_id='http://xxx/2', type_=[DIG.Person.toPython()])
 
-    def test_valid_kg(self):
+    def test_valid_kg_jsonld(self):
         kg = self.doc.kg
         self.assertIn('@id', kg._kg)
         self.assertEqual('http://xxx/1', kg._kg['@id'])
         self.assertIn('@type', kg._kg)
         self.assertIn(DIG.Person.toPython(), kg._kg['@type'])
 
-    def test_add_value_kg(self):
+    def test_valid_kg(self):
+        kg = self.doc2.kg
+        self.assertNotIn('@id', kg._kg)
+        self.assertNotIn('@type', kg._kg)
+
+    def test_add_value_kg_jsonld(self):
         kg = self.doc.kg
         field_name = kg.context_resolve(DIG.has_name)
         self.assertEqual('has_name', field_name)
@@ -186,5 +206,11 @@ class TestKnowledgeGraphWithOntology(unittest.TestCase):
         kg.add_value(field_child, child2)
         self.assertIn({'@id': 'http://xxx/2'}, kg._kg[field_child])
 
+    def test_add_value_kg(self):
+        kg = self.doc2.kg
 
+        field_name = kg.context_resolve(DIG.has_name)
 
+        self.assertEqual('has_name', field_name)
+        kg.add_value(field_name, 'Jack')
+        self.assertIn({'value': 'Jack', "key": "jack"}, kg._kg[field_name])
