@@ -8,7 +8,7 @@ from spacy.tokens import span, doc
 import copy
 import itertools
 import sys
-
+import re
 
 FLAG_DICT = {
     20: attrs.FLAG20,
@@ -364,34 +364,50 @@ class SpacyRuleExtractor(Extractor):
         if not output_format:
             return " ".join(format_value)
 
-        result_str = ""
-        s = list(output_format)
-        t1 = s.pop(0)
-        t2 = s.pop(0)
-        while 1:
-            t3 = s.pop(0)
-            if t1 == '{' and t2.isdigit() and t3 == '}':
-                if int(t2) > len(format_value):
-                    return result_str + t1 + t2 + t3 + "".join(s)
-                result_str += format_value[int(t2) - 1]
-                if not s:
-                    break
+        result_str = re.sub("{}", " ".join(format_value), output_format)
+
+        try:
+            result_str = result_str.format(*format_value)
+        except:
+            try:
+                result_str = result_str.format("", *format_value)
+            except:
+                new_str = ""
+                s = list(result_str)
                 t1 = s.pop(0)
-                if not s:
-                    result_str += t1
-                    break
                 t2 = s.pop(0)
-                if not s:
-                    result_str += t2
-                    break
-            else:
-                result_str += t1
-                t1 = t2
-                t2 = t3
-                if not s:
-                    result_str += t1
-                    result_str += t2
-                    break
+                while 1:
+                    t3 = s.pop(0)
+                    if t1 == '{' and t2.isdigit() and t3 == '}':
+                        if int(t2) > len(format_value):
+                            new_str =  new_str + t1 + t2 + t3 + "".join(s)
+                            break
+                        new_str += format_value[int(t2) - 1]
+                        if not s:
+                            break
+                        t1 = s.pop(0)
+                        if not s:
+                            new_str += t1
+                            break
+                        t2 = s.pop(0)
+                        if not s:
+                            new_str += t2
+                            break
+                    else:
+                        new_str += t1
+                        t1 = t2
+                        t2 = t3
+                        if not s:
+                            new_str += t1
+                            new_str += t2
+                            break
+                result_str = new_str
+
+        if result_str and result_str == output_format:
+            result_str = result_str + " ".join(format_value)
+
+        result_str = re.sub("{[0-9]+}", "", result_str)
+
         return result_str
 
     def construct_key(self, rule_id: str, spacy_rule_id:int) -> int:
@@ -710,7 +726,10 @@ class Pattern(object):
         result = []
         for a_token in token_lst:
             for length in lengths:
-                if length and length.isdigit():
+                if type(length) == str and length and length.isdigit():
+                    a_token[attrs.LENGTH] = int(length)
+                    result.append(copy.deepcopy(a_token))
+                elif type(length) == int:
                     a_token[attrs.LENGTH] = int(length)
                     result.append(copy.deepcopy(a_token))
         return result
