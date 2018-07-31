@@ -136,7 +136,6 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
             "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
-
         expected = [('rule_0', 'Name: Sylvia lin')]
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
@@ -600,7 +599,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
                     "description": "",
                     "identifier": "rule_0",
                     "is_active": "true",
-                    "output_format": "Length 3 linebreak: ",
+                    "output_format": "Length 3 linebreak: {}",
                     "pattern": [
                         {
                             "capitalization": ["title"],
@@ -634,6 +633,204 @@ class TestSpacyRuleExtractor(unittest.TestCase):
             "version 2 of etk, implemented by Rq? Shao. DongYu94 Li, \n\n\n Sylvia-lin, Amandeep and others.")
 
         expected = [('rule_0', 'Length 3 linebreak: \n\n\n ')]
+        self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
+
+    def test_SpacyRuleExtractor_output_format_1(self) -> None:
+        sample_rules = {
+            "field_name": "test",
+            "rules": [
+                {
+                    "dependencies": [],
+                    "description": "",
+                    "identifier": "rule_0",
+                    "is_active": "true",
+                    "output_format": "Name: {1}, {2}",
+                    "pattern": [
+                        {
+                            "capitalization": ["title"],
+                            "contain_digit": "true",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "true",
+                            "length": [6],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        },
+                        {
+                            "capitalization": [],
+                            "contain_digit": "false",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "True",
+                            "length": [3],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        }
+                    ],
+                    "polarity": "true"
+                }
+            ]
+        }
+
+        sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
+        extractions = sample_rule_extractor.extract(
+            "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
+
+        expected = [('rule_0', 'Name: Sylvia, lin')]
+        self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
+
+    def test_SpacyRuleExtractor_output_format_2(self) -> None:
+        sample_rules = {
+            "field_name": "test",
+            "rules": [
+                {
+                    "dependencies": [],
+                    "description": "",
+                    "identifier": "rule_0",
+                    "is_active": "true",
+                    "output_format": "Name: {0}, {1}",
+                    "pattern": [
+                        {
+                            "capitalization": ["title"],
+                            "contain_digit": "true",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "true",
+                            "length": [6],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        },
+                        {
+                            "capitalization": [],
+                            "contain_digit": "false",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "True",
+                            "length": [3],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        }
+                    ],
+                    "polarity": "true"
+                }
+            ]
+        }
+
+        sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
+        extractions = sample_rule_extractor.extract(
+            "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
+
+        expected = [('rule_0', 'Name: Sylvia, lin')]
+        self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
+
+    def test_SpacyRuleExtractor_output_format_3(self) -> None:
+        sample_rules = {
+            "field_name": "test",
+            "rules": [
+                {
+                    "dependencies": [],
+                    "description": "",
+                    "identifier": "rule_0",
+                    "is_active": "true",
+                    "output_format": "Name: {0}, {5}, {1}",
+                    "pattern": [
+                        {
+                            "capitalization": ["title"],
+                            "contain_digit": "true",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "true",
+                            "length": [6],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        },
+                        {
+                            "capitalization": [],
+                            "contain_digit": "false",
+                            "is_in_output": "true",
+                            "is_in_vocabulary": "false",
+                            "is_out_of_vocabulary": "false",
+                            "is_required": "True",
+                            "length": [3],
+                            "match_all_forms": "true",
+                            "maximum": "",
+                            "minimum": "",
+                            "numbers": [],
+                            "part_of_speech": [],
+                            "prefix": "",
+                            "shapes": [
+                            ],
+                            "suffix": "",
+                            "token": [
+                            ],
+                            "type": "word"
+                        }
+                    ],
+                    "polarity": "true"
+                }
+            ]
+        }
+
+        sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
+        extractions = sample_rule_extractor.extract(
+            "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
+
+        expected = [('rule_0', 'Name: Sylvia, , lin')]
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
 
