@@ -366,47 +366,22 @@ class SpacyRuleExtractor(Extractor):
 
         result_str = re.sub("{}", " ".join(format_value), output_format)
 
-        try:
+        positions = re.findall("{[0-9]+}", result_str)
+
+        if not positions:
+            return result_str
+
+        position_indices = [int(x[1:-1]) for x in positions]
+        if max(position_indices) < len(format_value):
             result_str = result_str.format(*format_value)
-        except:
+        else:
             try:
                 result_str = result_str.format("", *format_value)
             except:
-                new_str = ""
-                s = list(result_str)
-                t1 = s.pop(0)
-                t2 = s.pop(0)
-                while 1:
-                    t3 = s.pop(0)
-                    if t1 == '{' and t2.isdigit() and t3 == '}':
-                        if int(t2) > len(format_value):
-                            new_str =  new_str + t1 + t2 + t3 + "".join(s)
-                            break
-                        new_str += format_value[int(t2) - 1]
-                        if not s:
-                            break
-                        t1 = s.pop(0)
-                        if not s:
-                            new_str += t1
-                            break
-                        t2 = s.pop(0)
-                        if not s:
-                            new_str += t2
-                            break
-                    else:
-                        new_str += t1
-                        t1 = t2
-                        t2 = t3
-                        if not s:
-                            new_str += t1
-                            new_str += t2
-                            break
-                result_str = new_str
-
-        if result_str and result_str == output_format:
-            result_str = result_str + " ".join(format_value)
-
-        result_str = re.sub("{[0-9]+}", "", result_str)
+                positions = [x for x in positions if int(x[1:-1]) > len(format_value)-1 or int(x[1:-1]) < 0]
+                for pos in positions:
+                    result_str = result_str.replace(pos, "")
+                result_str = result_str.format(*format_value)
 
         return result_str
 
