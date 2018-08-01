@@ -1,6 +1,9 @@
 import unittest
 from etk.extractors.spacy_rule_extractor import SpacyRuleExtractor
 import spacy
+import json
+
+rules = json.load(open('etk/unit_tests/ground_truth/spacy_rules.json', "r"))
 
 
 class TestSpacyRuleExtractor(unittest.TestCase):
@@ -9,63 +12,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.nlp = spacy.load("en_core_web_sm")
 
     def test_SpacyRuleExtractor_word_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "false",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_word_1"]
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
             "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
@@ -75,64 +22,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_word_2(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [6],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [3],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
-
+        sample_rules = rules["test_SpacyRuleExtractor_word_2"]
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
             "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and others.")
@@ -140,115 +30,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_word_3(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["mixed"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                },
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_1",
-                    "is_active": "true",
-                    "output_format": "Name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_word_3"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -258,42 +40,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_word_4(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": [],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": ["sylvia", "amandeep"
-                                      ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_word_4"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -303,63 +50,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_word_5(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "First Name: {0}, Last Name: {1}. Full name: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title", "mixed"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_word_5"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -369,42 +60,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_number_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "",
-                    "pattern": [
-                        {
-                            "capitalization": [],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "5000",
-                            "minimum": "100",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "number"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_number_1"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -414,42 +70,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_number_2(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "",
-                    "pattern": [
-                        {
-                            "capitalization": [],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": ["sada", 2, "4"],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "number"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_number_2"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -459,42 +80,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_shape_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "",
-                    "pattern": [
-                        {
-                            "capitalization": [],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": ["XxxxXxdd", "XxX"
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "shape"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_shape_1"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -504,84 +90,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_punc_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {1}, {3}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [2, "6"],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                                       ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": ["?", "-"
-                            ],
-                            "type": "punctuation"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                                       ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_punc_1"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -591,42 +100,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_linebreak_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Length 3 linebreak: {}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [3],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                                       ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "linebreak"
-                        },
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_linebreak_1"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -636,63 +110,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_output_format_1(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {1}, {2}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [6],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [3],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_output_format_1"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -702,63 +120,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_output_format_2(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {0}, {1}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [6],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [3],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_output_format_2"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
@@ -768,63 +130,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_output_format_3(self) -> None:
-        sample_rules = {
-            "field_name": "test",
-            "rules": [
-                {
-                    "dependencies": [],
-                    "description": "",
-                    "identifier": "rule_0",
-                    "is_active": "true",
-                    "output_format": "Name: {0}, {5}, {1}",
-                    "pattern": [
-                        {
-                            "capitalization": ["title"],
-                            "contain_digit": "true",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "true",
-                            "length": [6],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        },
-                        {
-                            "capitalization": [],
-                            "contain_digit": "false",
-                            "is_in_output": "true",
-                            "is_in_vocabulary": "false",
-                            "is_out_of_vocabulary": "false",
-                            "is_required": "True",
-                            "length": [3],
-                            "match_all_forms": "true",
-                            "maximum": "",
-                            "minimum": "",
-                            "numbers": [],
-                            "part_of_speech": [],
-                            "prefix": "",
-                            "shapes": [
-                            ],
-                            "suffix": "",
-                            "token": [
-                            ],
-                            "type": "word"
-                        }
-                    ],
-                    "polarity": "true"
-                }
-            ]
-        }
+        sample_rules = rules["test_SpacyRuleExtractor_output_format_3"]
 
         sample_rule_extractor = SpacyRuleExtractor(self.nlp, sample_rules, "test_extractor")
         extractions = sample_rule_extractor.extract(
