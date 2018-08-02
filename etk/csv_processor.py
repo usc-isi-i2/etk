@@ -29,7 +29,7 @@ class CsvProcessor(object):
             self.heading_row = self.heading_row - 1
 
         if self.heading_row is not None:
-            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row+2) - 1
+            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row + 2) - 1
 
         if self.heading_row is None:
             self.content_start_row = mapping_spec.get("content_start_row", 1) - 1
@@ -62,6 +62,7 @@ class CsvProcessor(object):
             self.column_name_prefix = "C"
 
         self._get_data_function = {
+            ".tab": pyexcel_io.get_data,
             ".csv": pyexcel_io.get_data,
             ".tsv": pyexcel_io.get_data,
             ".xls": pyexcel_xlsx.get_data,
@@ -69,7 +70,9 @@ class CsvProcessor(object):
         }
 
     def tabular_extractor(self, table_str: str = None, filename: str = None,
-                          sheet_name:str = None,
+                          file_content=None,
+                          file_type=None,
+                          sheet_name: str = None,
                           dataset: str = None,
                           nested_key: str = None,
                           doc_id_field: str = None) -> List[Document]:
@@ -95,8 +98,12 @@ class CsvProcessor(object):
                 raise InvalidFilePathError("file extension can not read")
 
             try:
-                data = get_data(filename, auto_detect_datetime=False,
-                                auto_detect_float=False, encoding="utf-8")
+                if file_content and file_type:
+                    data = get_data(file_content, file_type=file_type, auto_detect_datetime=False,
+                                    auto_detect_float=False, encoding="utf-8")
+                else:
+                    data = get_data(filename, auto_detect_datetime=False,
+                                    auto_detect_float=False, encoding="utf-8")
             except:
                 try:
                     data = get_data(filename, auto_detect_datetime=False,
@@ -111,8 +118,11 @@ class CsvProcessor(object):
 
                 data = data[sheet_name]
             else:
-                file_name = fn.split('/')[-1] + extension
-                data = data[file_name]
+                if extension == '.tab':
+                    data = data['tsv']
+                else:
+                    file_name = fn.split('/')[-1] + extension
+                    data = data[file_name]
 
         table_content, heading = self.content_recognizer(data)
 
@@ -165,7 +175,7 @@ class CsvProcessor(object):
             else:
                 processed_heading.append(heading[i])
 
-        return processed_heading, col_start-1, col_end
+        return processed_heading, col_start - 1, col_end
 
     # slicing table by start and end col
     def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:
