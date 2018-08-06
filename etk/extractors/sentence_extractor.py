@@ -23,7 +23,7 @@ class SentenceExtractor(Extractor):
                 custom_pipeline = copy.deepcopy(custom_nlp)
                 pipe_names = custom_pipeline.pipe_names
                 for pipe in pipe_names:
-                    if pipe is not "parser":
+                    if pipe != "parser":
                         custom_pipeline.remove_pipe(pipe)
 
                 try:
