@@ -62,7 +62,6 @@ class CsvProcessor(object):
             self.column_name_prefix = "C"
 
         self._get_data_function = {
-            ".tab": pyexcel_io.get_data,
             ".csv": pyexcel_io.get_data,
             ".tsv": pyexcel_io.get_data,
             ".xls": pyexcel_xlsx.get_data,
@@ -76,6 +75,21 @@ class CsvProcessor(object):
                           dataset: str = None,
                           nested_key: str = None,
                           doc_id_field: str = None) -> List[Document]:
+        """
+        Read the input file/content and return a list of Document(s)
+        Args:
+            table_str: use this parameter, if you are 100% sure that the content is a csv
+            filename: use this parameter if the file extension is one of tab, csv, tsv, xls, xlsx
+            file_content: if the input has some arbitrary extension, read it yourself and pass the contents along
+            file_type: use this parameter with file_content, can be tsv, csv, etc
+            sheet_name: sheet name as in xls or xlsx files
+            dataset: user provided string to be added to output Document(s)
+            nested_key: user provided string to be added to output Document(s)
+            doc_id_field: specify this field(should be present in the input file), its value will be used as doc_id
+
+        Returns: List[Document]
+
+        """
         data = list()
 
         if table_str is not None and filename is not None:
@@ -95,7 +109,9 @@ class CsvProcessor(object):
             if extension in self._get_data_function:
                 get_data = self._get_data_function[extension]
             else:
-                raise InvalidFilePathError("file extension can not read")
+                # in pyexcel we trust
+                # if there is an extension we have not mapped, just let pyexcel figure it out
+                get_data = pyexcel_io.get_data
 
             try:
                 if file_content and file_type:
@@ -118,11 +134,7 @@ class CsvProcessor(object):
 
                 data = data[sheet_name]
             else:
-                if extension == '.tab':
-                    data = data['tsv']
-                else:
-                    file_name = fn.split('/')[-1] + extension
-                    data = data[file_name]
+                data = data[file_type] if file_type else data[fn.split('/')[-1] + extension]
 
         table_content, heading = self.content_recognizer(data)
 
