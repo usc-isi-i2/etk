@@ -18,9 +18,9 @@ class SpacyNerExtractor(Extractor):
         attr_list = list()
         for ent in doc.ents:
             if ent.label_ in get_attr:
-                values = {'text': ent.text, 'label_': ent.label_}
                 attr_list.append(Extraction(extractor_name=self.name,
                                             start_char=int(ent.start_char),
                                             end_char=int(ent.end_char),
-                                            value=values))
+                                            value=ent.text,
+                                            tag=ent.label_))
         return attr_list
