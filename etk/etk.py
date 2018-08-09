@@ -292,3 +292,4 @@ class ETK(object):
             self.logger.critical(message)
         elif level == "exception":
             self.logger.exception(message)
+    
