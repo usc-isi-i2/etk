@@ -1,0 +1,39 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix memex: <http://schema.dig.isi.edu/ontology/> .
+@prefix uci:     <http://uas-c2-initiative.mil/#> .
+@prefix schema: <http://schema.org/> .
+
+<http://http://www.w3.org/ns/prov#> a owl:Ontology ;
+	.
+
+prov:dateRecorded a owl:DatatypeProperty ;
+	rdfs:label "dateRecorded" ;
+	rdfs:range xsd:datetime ;
+	rdfs:comment """Specifies the point in time when Role information was recorded. Use this property to create a time series of Roles that record multiple values of  a property changing over time.""" ;
+	schema:domainIncludes schema:Thing ;
+	memex:es_directive memex:ES_format_date_optional_time ;
+	memex:es_directive memex:ES_type_date ;
+	.
+
+prov:publisher a owl:DatatypeProperty ;
+	rdfs:label "publisher" ;
+	rdfs:range xsd:string ;
+	rdfs:comment """Specifies the source API / Page etc that created the object""" ;
+	schema:domainIncludes schema:Thing ;
+	memex:es_directive memex:ES_not_analyzed ;
+	.
+
+prov:source a owl:DatatypeProperty ;
+	rdfs:label "source" ;
+	rdfs:range xsd:string ;
+	rdfs:comment """Specifies the ID of the row in the source API / Page etc that created the object""" ;
+	schema:domainIncludes schema:Thing ;
+	memex:es_directive memex:ES_not_analyzed ;
+	.
+
+

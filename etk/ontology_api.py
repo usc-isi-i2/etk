@@ -254,7 +254,7 @@ class ValidationError(Exception):
 
 
 class Ontology(object):
-    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False) -> None:
+    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False, expanded_jsonld=True) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -277,6 +277,8 @@ class Ontology(object):
         self.object_properties = set()
         self.data_properties = set()
         self.log_stream = io.StringIO()
+        self.expanded_jsonld = expanded_jsonld
+
         logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
         if not quiet:
             logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -289,11 +291,26 @@ class Ontology(object):
         # Datatype Property
         for uri in self.g.subjects(RDF.type, OWL.DatatypeProperty):
             self.__init_ontology_datatype_property(uri)
+
         # Object Property
         for uri, inv in self.g.query("""SELECT ?uri ?inv
                                    WHERE { ?uri a owl:ObjectProperty .
                                            OPTIONAL {?uri dig:inverse ?inv }}"""):
             self.__init_ontology_object_property(uri, inv)
+        for uri, inv in self.g.query("""SELECT ?uri ?inv
+                                   WHERE { ?uri a rdf:Property .
+                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
+            self.__init_ontology_object_property(uri, inv)
+
+        #Datatype property as range is a schema:DataType
+        # for uri, range in self.g.query("""
+        #                         SELECT ?uri ?range
+        #                         WHERE {?uri schema:rangeIncludes ?range .
+        #                                ?range a schema:DataType
+        #                         }
+        #                         """):
+        #     self.__init_ontology_datatype_property(uri)
+
         # subClassOf
         for uri, sub in self.g.query("""SELECT ?uri ?sub
                                     WHERE  {{ ?uri rdfs:subClassOf ?sub }
@@ -317,6 +334,23 @@ class Ontology(object):
                              WHERE {{ ?uri rdfs:range ?range }
                                     UNION { ?uri schema:rangeIncludes ?range }}"""):
             self.__init_ontology_property_range(uri, r, include_undefined_class)
+
+        for uri, range in self.g.query("""
+                                        SELECT ?uri ?range
+                                        WHERE {?uri schema:rangeIncludes ?range .
+                                               ?range a schema:DataType
+                                        }
+                                        """):
+            self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
+        for uri, range in self.g.query("""
+                                        SELECT ?uri ?range
+                                        WHERE {?uri schema:rangeIncludes ?range .
+                                               ?range rdfs:subClassOf ?x .
+                                               ?x a schema:DataType
+                                        }
+                                        """):
+            self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
+
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
@@ -616,8 +650,10 @@ class Ontology(object):
         uri = self.__is_valid_uri_resolve(field_name, kg.get("@context"))
         property_ = self.get_entity(uri)
         if not isinstance(property_, OntologyProperty):
+            logging.warning("Property is not OntologyProperty, ignoring it:  %s", uri)
             return None
         if not self.__is_valid_domain(property_, kg):
+            logging.warning("Property does not have valid domain, ignoring it:  %s", uri)
             return None
         # check if is valid range
         # first determine the input value type
@@ -629,15 +665,39 @@ class Ontology(object):
                     types = map(self.get_entity, value['@type'])
                 except KeyError:
                     return None  # input entity without type
+            elif self.__is_schema_org_datatype(property_):
+                if self.expanded_jsonld:
+                    return {'@value': value}
+                else:
+                    return value
             else:
                 return {'@id': value}
         # check if is a valid range
         if any(property_.is_legal_object(type_) for type_ in types):
             if isinstance(property_, OntologyObjectProperty):
                 return value
+            elif self.expanded_jsonld:
+                return {'@value': self.__serialize_type(value)}
             else:
-                return {'@value': value}
+                return self.__serialize_type(value)
         return None
+
+    @staticmethod
+    def __is_schema_org_datatype(property_):
+        ranges = property_.ranges
+        for range_ in ranges:
+            if range_._uri == "http://schema.org/DataType" or range_._uri == "schema:DataType":
+                return True
+            for super_class in range_.super_classes_closure():
+                if super_class._uri == "http://schema.org/DataType" or range_._uri == "schema:DataType":
+                    return True
+        return False
+
+    @staticmethod
+    def __serialize_type(value):
+        if isinstance(value, datetime):
+            return value.isoformat()
+        return value
 
     @staticmethod
     def __is_valid_determine_value_type(value):
