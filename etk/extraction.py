@@ -100,7 +100,7 @@ class Extractable(ExtractableBase):
         self._value = value
         self.prov_id = prov_id
 
-    def get_tokens(self, tokenizer: Tokenizer, keep_multi_space: bool = True) -> List[Token]:
+    def get_tokens(self, tokenizer: Tokenizer) -> List[Token]:
         """
         Tokenize this Extractable.
 
@@ -114,7 +114,6 @@ class Extractable(ExtractableBase):
 
         Args:
             tokenizer (Tokenizer)
-            keep_multi_space
 
         Returns: a sequence of tokens.
         """
@@ -123,7 +122,7 @@ class Extractable(ExtractableBase):
             return self.tokenize_results[(self, tokenizer)]
         else:
             segment_value_for_tokenize = self.get_string()
-            tokens = tokenizer.tokenize(segment_value_for_tokenize, keep_multi_space)
+            tokens = tokenizer.tokenize(segment_value_for_tokenize)
             self.tokenize_results[(self, tokenizer)] = tokens
             return tokens
 
@@ -163,8 +162,8 @@ class Extraction(Extractable):
         """
         self._addition_inf = dict()
         self._addition_inf["tag"] = options["tag"] if "tag" in options else None
-        self._addition_inf["spacy_rule_id"] = options["rule_id"] if "rule_id" in options else None
-        self._addition_inf["spacy_rule_mapping"] = options["match_mapping"] if "match_mapping" in options else None
+        self._addition_inf["rule_id"] = options["rule_id"] if "rule_id" in options else None
+        self._addition_inf["token_based_match_mapping"] = options["match_mapping"] if "match_mapping" in options else None
         self._addition_inf["date_object"] = options["date_object"] if "date_object" in options else None
         self._addition_inf["original_date"] = options["original_date"] if "original_date" in options else None
         self._extractor_name = extractor_name
@@ -222,16 +221,16 @@ class Extraction(Extractable):
         Returns: the rule_id associated with this Extraction.
 
         """
-        return self._addition_inf["spacy_rule_id"]
+        return self._addition_inf["rule_id"]
 
     @property
-    def spacy_rule_mapping(self) -> Dict:
+    def token_based_match_mapping(self) -> Dict:
         """
 
-        Returns: the spacy_rule_mapping associated with this Extraction.
+        Returns: the token_based_match_mapping associated with this Extraction.
 
         """
-        return self._addition_inf["spacy_rule_mapping"]
+        return self._addition_inf["token_based_match_mapping"]
 
     @property
     def original_date(self):

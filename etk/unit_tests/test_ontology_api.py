@@ -1,13 +1,12 @@
 import unittest
-from rdflib.namespace import XSD, Namespace
+from rdflib.namespace import XSD
 from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
 from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
 from etk.ontology_api import ValidationError
+from etk.ontology_namespacemanager import DIG, SCHEMA
 
-DIG = Namespace('http://isi.edu/ontologies/dig/')
-SCHEMA = Namespace('http://schema.org/')
 
-rdf_prefix = '''@prefix : <http://isi.edu/ontologies/dig/> .
+rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -168,7 +167,7 @@ class TestOntologyAPI(unittest.TestCase):
 
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
-    skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ;
+    skos:definition """A group, organization, person who have the potential to do actions.""" ;
     rdfs:subClassOf :Group ;
     :crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
@@ -277,3 +276,228 @@ class TestOntologyAPI(unittest.TestCase):
         '''
         with self.assertRaises(ValidationError):
             Ontology(rdf_content)
+
+    def test_property_merge_master_config(self):
+        rdf_content = rdf_prefix + ':had_participant a owl:ObjectProperty . '
+        ontology = Ontology(rdf_content)
+        d_color = 'red'
+        config = ontology.merge_with_master_config('{}', {'color': d_color})
+        self.assertIn('fields', config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual(property_['color'], d_color)
+
+    def test_property_merge_config_inherit(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:transferred_custody_of a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"}}}')
+        self.assertIn('fields', config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual(property_['color'], 'red')
+        self.assertIn('transferred_custody_of', fields)
+        sub_property = fields['transferred_custody_of']
+        self.assertIn('color', sub_property)
+        self.assertEqual(property_['color'], sub_property['color'])
+
+    def test_property_merge_config_closest_inherit(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+:custody_received_by a owl:ObjectProperty ;
+    owl:subPropertyOf :carried_out_by ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"},'
+                                                   '"carried_out_by":{"color":"blue"}}}')
+        self.assertTrue('fields' in config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        property_ = fields['had_participant']
+        self.assertIn('color', property_)
+        self.assertEqual('red', property_['color'])
+        self.assertIn('carried_out_by', fields)
+        sub_property = fields['carried_out_by']
+        self.assertIn('color', sub_property)
+        self.assertEqual('blue', sub_property['color'])
+        self.assertIn('custody_received_by', fields)
+        subsub = fields['custody_received_by']
+        self.assertIn('color', subsub)
+        self.assertEqual(sub_property['color'], subsub['color'])
+
+    def test_property_merge_config_delete_orphan(self):
+        rdf_content = rdf_prefix + '''
+:had_participant a owl:ObjectProperty ; .
+:carried_out_by a owl:ObjectProperty ;
+    owl:subPropertyOf :had_participant ; .
+        '''
+        ontology = Ontology(rdf_content)
+        config = ontology.merge_with_master_config('{"fields":{"had_participant":{"color":"red"},'
+                                                   '"custody_received_by":{"color":"blue"}}}',
+                                                   delete_orphan_fields=True)
+        self.assertTrue('fields' in config)
+        fields = config['fields']
+        self.assertIn('had_participant', fields)
+        self.assertIn('carried_out_by', fields)
+        self.assertNotIn('custody_received_by', fields)
+
+    def test_rdf_generation(self):
+        from etk.ontology_api import rdf_generation
+        kg = '''
+{
+  "@id": "http://www.isi.edu/aida/events/dabaf6a2-744b-4f0a-a872-3c11c4aea0a9",
+  "@type": ["dig:Person", "dig:Entity"],
+  "label": [{
+    "@value": "Jason"
+  }, {
+    "@value": "json"
+  }],
+  "@context": {
+    "@vocab": "http://www.w3.org/2000/01/rdf-schema#",
+    "dig": "http://dig.isi.edu/ontologies/dig/"
+  }
+}
+        '''
+        nt = rdf_generation(kg)
+        self.assertIsInstance(nt, str)
+        self.assertEqual(4, len([*filter(bool, nt.split('\n'))]))
+
+    def test_ontology_api_is_valid_with_empty_kg(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+:Place a owl:Class ;
+    :common_properties :region ; .
+:region a owl:DatatypeProperty ;
+    schema:domainIncludes :Place ;
+    schema:rangeIncludes xsd:string ; .
+            '''
+        kg = '{}'
+        ontology = Ontology(rdf_content)
+        self.assertTrue(ontology.is_valid('region', 'somewhere', json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', 1, json.loads(kg)))
+        self.assertFalse(ontology.is_valid('region', True, json.loads(kg)))
+
+    def test_ontology_schema_org(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+        schema:Person a owl:Class ; .
+        schema:relatedTo
+              a rdf:Property ;
+              schema:domainIncludes schema:Person ;
+              schema:rangeIncludes schema:Person .
+        '''
+        kg = '''
+        {
+          "@type": ["http://schema.org/Person"],
+          "@id": "person1",
+          "http://schema.org/relatedTo": {
+            "@type": ["http://schema.org/Person"],
+            "@id": "person2"
+          }
+        }
+        '''
+
+        ontology = Ontology(rdf_content)
+        for entity in ontology.all_classes():
+            self.assertIsInstance(entity, OntologyEntity)
+            self.assertIsInstance(entity, OntologyClass)
+        self.assertEqual(len(ontology.all_properties()), 1)
+
+        kg_json = json.loads(kg)
+        config = ontology.merge_with_master_config(kg_json,
+                                                   delete_orphan_fields=True)
+        self.assertTrue('fields' in config)
+        fields = config['fields']
+        self.assertIn('relatedTo', fields)
+        #
+        self.assertTrue(ontology.is_valid('schema:relatedTo',
+                                          kg_json["http://schema.org/relatedTo"],
+                                          kg_json))
+
+    def test_ontology_schema_org_datatype(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+        schema:Person a owl:Class ; .
+        schema:Text a schema:DataType, rdfs:Class ; .
+        schema:name
+              a rdf:Property ;
+              schema:domainIncludes schema:Person ;
+              schema:rangeIncludes schema:Person .
+        '''
+        kg = '''
+        {
+          "@type": ["http://schema.org/Person"],
+          "@id": "person1",
+          "http://schema.org/name": "Person Name"
+        }
+        '''
+
+        ontology = Ontology(rdf_content)
+        for entity in ontology.all_classes():
+            self.assertIsInstance(entity, OntologyEntity)
+            self.assertIsInstance(entity, OntologyClass)
+        self.assertEqual(len(ontology.all_properties()), 1)
+
+        return_value = ontology.is_valid('schema:name',
+                                          "person name1",
+                                          json.loads(kg))
+        self.assertEqual(return_value, {'@id': 'person name1'})
+
+        rdf_content = rdf_prefix + '''
+                schema:Person a owl:Class ; .
+                schema:DataType a owl:Class ; .
+                schema:Text a schema:DataType, owl:Class ; .
+                schema:name
+                      a rdf:Property ;
+                      schema:domainIncludes schema:Person ;
+                      schema:rangeIncludes schema:Text .
+                '''
+        ontology = Ontology(rdf_content)
+        kg = '''
+                {
+                  "@type": ["http://schema.org/Person"],
+                  "@id": "person1",
+                  "http://schema.org/name": "Person Name"
+                }
+                '''
+        return_value = ontology.is_valid('schema:name',
+                                         "person name1",
+                                         json.loads(kg))
+        self.assertEqual(return_value, {'@value': 'person name1'})
+
+    def test_ontology_condensed_json(self):
+        import json
+
+        rdf_content = rdf_prefix + '''
+                schema:Person a owl:Class ; .
+                schema:DataType a owl:Class ; .
+                schema:Text a schema:DataType, owl:Class ; .
+                schema:name
+                      a rdf:Property ;
+                      schema:domainIncludes schema:Person ;
+                      schema:rangeIncludes schema:Text .
+                '''
+        ontology = Ontology(rdf_content, expanded_jsonld=False)
+        kg = '''
+                {
+                  "@type": ["http://schema.org/Person"],
+                  "@id": "person1",
+                  "http://schema.org/name": "Person Name"
+                }
+                '''
+        return_value = ontology.is_valid('schema:name',
+                                         "person name1",
+                                         json.loads(kg))
+        self.assertEqual(return_value, 'person name1')

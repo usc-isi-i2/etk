@@ -4,14 +4,16 @@ from etk.tokenizer import Tokenizer
 
 
 class TestGlossaryExtractor(unittest.TestCase):
+    def setUp(self):
+        self.glossary_1 = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
+        self.glossary_2 = ['Beijing', 'Los Angeles', 'New York City', 'Shanghai']
 
     def test_glossary_extractor(self) -> None:
         t = Tokenizer()
         text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
         tokens = t.tokenize(text)
 
-        g = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
-        ge = GlossaryExtractor(g, 'test_glossary', t, 3, False)
+        ge = GlossaryExtractor(self.glossary_1, 'test_glossary', t, 3, False)
 
         results = [i.value for i in ge.extract(tokens)]
         expected = ['Beijing', 'los angeles', 'New York']
@@ -23,8 +25,7 @@ class TestGlossaryExtractor(unittest.TestCase):
         text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
         tokens = t.tokenize(text)
 
-        g = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
-        ge = GlossaryExtractor(g, 'test_glossary', t, 2, True)
+        ge = GlossaryExtractor(self.glossary_1, 'test_glossary', t, 2, True)
 
         results = [i.value for i in ge.extract(tokens)]
         expected = ['Beijing', 'New York']
@@ -36,8 +37,7 @@ class TestGlossaryExtractor(unittest.TestCase):
         text = 'i live in los angeles. my hometown is Beijing. I love New York City.'
         tokens = t.tokenize(text)
 
-        g = ['Beijing', 'Los Angeles', 'New York City', 'Shanghai']
-        ge = GlossaryExtractor(g, 'test_glossary', t, 2, False)
+        ge = GlossaryExtractor(self.glossary_2, 'test_glossary', t, 2, False)
 
         results = [i.value for i in ge.extract(tokens)]
         expected = ['Beijing', 'los angeles']

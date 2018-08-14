@@ -3,7 +3,7 @@ from typing import List
 from etk.extractor import Extractor, InputType
 from etk.extraction import Extraction
 from etk.etk_exceptions import ExtractorError
-from etk.dependencies.landmark.landmark_extractor.extraction.Landmark import ItemRule, IterationRule
+from etk.dependencies.landmark.landmark_extractor.extraction.Landmark import ItemRule, IterationRule, loadRule
 
 
 class InferlinkRule(object):
@@ -16,15 +16,7 @@ class InferlinkRule(object):
         self._value = None
         self._start_char = None
         self._end_char = None
-        if 'rule_type' in rule:
-            if rule['rule_type'] == 'IterationRule':
-                del rule['rule_type']
-                self._rule = IterationRule(**rule)
-            else:
-                del rule['rule_type']
-                self._rule = ItemRule(**rule)
-        else:
-            self._rule = ItemRule(**rule)
+        self._rule = loadRule(rule)
 
     @property
     def name(self) -> str:
@@ -43,9 +35,10 @@ class InferlinkRule(object):
         return self._end_char
 
     def apply(self, html_text: str):
-        extraction = self._rule.apply(html_text)    # a dict with 'rule_id', 'extract', 'begin_index', 'end_index'...
+        extraction = self._rule.apply(html_text)  # a dict with 'rule_id', 'extract', 'begin_index', 'end_index'...
         self._value = extraction['extract'] if 'extract' in extraction and extraction['extract'] != '' else None
-        self._start_char = extraction['begin_index'] if 'begin_index' in extraction and extraction['extract'] != -1 else None
+        self._start_char = extraction['begin_index'] if 'begin_index' in extraction and extraction[
+            'extract'] != -1 else None
         self._end_char = extraction['end_index'] if 'end_index' in extraction and extraction['extract'] != -1 else None
 
 
@@ -103,7 +96,7 @@ class InferlinkExtractor(Extractor):
                     result.append(Extraction(value, self.name, start_char=start_char, end_char=end_char, tag=rule.name))
 
             # Test whether the fraction of extractions meets the desired threshold
-            if len(self.rule_set.rules) > 0 and float(len(result))/len(self.rule_set.rules) >= threshold:
+            if len(self.rule_set.rules) > 0 and float(len(result)) / len(self.rule_set.rules) >= threshold:
                 return result
             else:
                 return list()

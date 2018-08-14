@@ -8,13 +8,19 @@ from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 from etk.utilities import Utility
+import gzip
 
 TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path=os.path.join(TEMP_DIR, 'etk.log')):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False,
+                 output_kg_only=False):
+
+        self.generate_json_ld = generate_json_ld
+        self.output_kg_only = output_kg_only
+
         if logger:
             self.logger = logger
         else:
@@ -32,9 +38,10 @@ class ETK(object):
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         self.parsed = dict()
         self.kg_schema = kg_schema
+        self.ontology = ontology
         self.em_lst = list()
         if modules:
-            if type(modules) == list:
+            if isinstance(modules, list):
                 for module in modules:
                     if isinstance(module, str):
                         self.em_lst.extend(self.load_ems(modules))
@@ -55,7 +62,7 @@ class ETK(object):
             self.error_policy = ErrorPolicy.PROCESS
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123",
-                        doc_id=None) -> Document:
+                        doc_id=None, type_=None) -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -64,11 +71,12 @@ class ETK(object):
             mime_type (str): if doc is a string, the mime_type tells what it is
             url (str): if the doc came from the web, specifies the URL for it
             doc_id
+            type_
 
         Returns: wrapped Document
 
         """
-        return Document(self, doc, mime_type, url, doc_id=doc_id)
+        return Document(self, doc, mime_type, url, doc_id=doc_id).with_type(type_)
 
     def parse_json_path(self, jsonpath):
 
@@ -116,7 +124,8 @@ class ETK(object):
                                 field_extraction = field_extractions[i]
                                 if 'value' in field_extraction and field_extraction['value'] == doc_id:
                                     del field_extractions[i]
-                                    field_extractions.append({'value': json_doc, 'key':field_extraction['key'], 'is_nested': True})
+                                    field_extractions.append(
+                                        {'value': json_doc, 'key': field_extraction['key'], 'is_nested': True})
 
     def process_ems(self, doc: Document) -> List[Document]:
         """
@@ -156,8 +165,14 @@ class ETK(object):
 
         # Do house cleaning.
         doc.insert_kg_into_cdr()
+        if not self.generate_json_ld:
+            if "knowledge_graph" in doc.cdr_document:
+                doc.cdr_document["knowledge_graph"].pop("@context", None)
         Utility.make_json_serializable(doc.cdr_document)
-        if not doc.doc_id:
+
+        if self.output_kg_only:
+            doc = doc.kg.value
+        elif not doc.doc_id:
             doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
         results = [doc]
@@ -176,10 +191,12 @@ class ETK(object):
             read_json (bool): set True if the glossary is in json format
         Returns: List of the strings in the glossary.
         """
-        with open(file_path) as fp:
-            if read_json:
-                return json.load(fp)
-            return fp.read().splitlines()
+        if read_json:
+            if file_path.endswith(".gz"):
+                return json.load(gzip.open(file_path))
+            return json.load(open(file_path))
+
+        return open(file_path).read().splitlines()
 
     @staticmethod
     def load_spacy_rule(file_path: str) -> Dict:
@@ -280,3 +297,4 @@ class ETK(object):
             self.logger.critical(message)
         elif level == "exception":
             self.logger.exception(message)
+    

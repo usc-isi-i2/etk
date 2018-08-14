@@ -106,7 +106,6 @@ class Segment(Extractable):
             if a_extraction.value not in self._value[attribute]:
                 self._value[attribute].append(a_extraction.value)
 
-        print(self._document)
         new_id = self._document.provenance_id_index  # for the purpose of provenance hierarchy tracking
         storage_provenance_record: StorageProvenanceRecord = StorageProvenanceRecord(new_id, self.json_path, attribute,
                                                                                      extraction_provenances,

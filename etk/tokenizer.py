@@ -10,44 +10,63 @@ class Tokenizer(object):
     Abstract class used for all tokenizer implementations.
     """
 
-    def __init__(self, nlp=spacy.load('en_core_web_sm')) -> None:
+    def __init__(self, nlp=spacy.load('en_core_web_sm'), keep_multi_space=True) -> None:
         """Load vocab, more vocab are available at: https://spacy.io/models/en"""
         self.nlp = nlp
+        self._keep_multi_space = keep_multi_space
 
         """Custom tokenizer"""
         self.nlp.tokenizer = self.custom_tokenizer()
 
-    def tokenize(self, text: str, keep_multi_space: bool = True) -> List[Token]:
+    @property
+    def keep_multi_space(self):
+        """
+        Returns: the doc_id of the CDR document
+
+        """
+        return self._keep_multi_space
+
+    @keep_multi_space.setter
+    def keep_multi_space(self, new_keep_multi_space):
+        """
+
+        Args:
+           new_keep_multi_space:
+
+        Returns:
+
+        """
+        self._keep_multi_space = new_keep_multi_space
+
+    def tokenize(self, text: str) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
         Args:
             text (string):
-            keep_multi_space
 
         Returns: [tokens]
 
         """
         """Tokenize text"""
-        if not keep_multi_space:
+        if not self.keep_multi_space:
             text = re.sub(' +', ' ', text)
         spacy_tokens = self.nlp(text)
         tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
 
         return tokens
 
-    def tokenize_to_spacy_doc(self, text: str, keep_multi_space: bool = False) -> Doc:
+    def tokenize_to_spacy_doc(self, text: str) -> Doc:
         """
         Tokenize the given text, returning a spacy doc. Used for spacy rule extractor
 
         Args:
             text (string):
-            keep_multi_space
 
         Returns: Doc
 
         """
-        if not keep_multi_space:
+        if not self.keep_multi_space:
             text = re.sub(' +', ' ', text)
         doc = self.nlp(text)
         for a_token in doc:

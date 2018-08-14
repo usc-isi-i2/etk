@@ -301,13 +301,18 @@ class DateExtractor(Extractor):
                     if x['order'] in ['SINGLE_YEAR']:
                         cur_max = x
                     elif len(x['order']) == len(cur_max['order']):
-                        if self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
-                            if x['order'] == language_date_order[self.lan]:
+                        if len(x['groups']) < len(cur_max['groups']):
+                            cur_max = x
+                        elif len(x['groups']) == len(cur_max['groups']):
+                            if sum(ele is not None for ele in x['groups']) < sum(ele is not None for ele in cur_max['groups']):
                                 cur_max = x
+                            elif self.settings[PREFER_LANGUAGE_DATE_ORDER] and self.lan in language_date_order:
+                                if x['order'] == language_date_order[self.lan]:
+                                    cur_max = x
+                                elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
+                                    cur_max = x
                             elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                                 cur_max = x
-                        elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
-                            cur_max = x
         parsed_date = self.parse_date(cur_max)
         if parsed_date:
             if self.settings[EXTRACT_FIRST_DATE_ONLY]:
@@ -357,11 +362,22 @@ class DateExtractor(Extractor):
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
             i += 1
 
+        # TODO: deduplicate in the regex extraction part would be better
+        exist, new_formatted, new_pattern = set(), [], []
+        for i in range(len(pattern)):
+            if pattern[i] not in exist:
+                if re.match(r'[a-zA-Z]', formatted[i]) and pattern[i] == '%a':
+                    miss_week = True
+                else:
+                    new_pattern.append(pattern[i])
+                    new_formatted.append(formatted[i])
+                    exist.add(pattern[i])
+        formatted, pattern = new_formatted, new_pattern
+
         if formatted and pattern:
             try:
                 if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
                     self.settings[MIN_RESOLUTION] = DateResolutionHelper.min_resolution(pattern)
-
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
                 try:
@@ -540,7 +556,7 @@ class DateExtractor(Extractor):
                     return date_str[:19]
                 return date_str
         except Exception as e:
-            warn('DateExtractor: Failed to convert {} to ISO format. Catch {}.'.format(date, e))
+            warn('DateExtractor: Failed to convert {} to ISO format. Catch {}.'.format(date, str(e)))
             return None
         warn('DateExtractor: Failed to convert {} to ISO format.'.format(date))
         return None

@@ -39,10 +39,11 @@ class Document(Segment):
             self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = list()
         if self.etk.kg_schema:
-            self.kg = KnowledgeGraph(self.etk.kg_schema, self)
+            self.kg = KnowledgeGraph(self.etk.kg_schema, self.etk.ontology, self)
         else:
             self.kg = None
-            self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
+            if not self.etk.kg_schema:
+                self.etk.log("Schema not found.", "warning", self.doc_id, self.url)
         self._provenance_id_index = 0
         self._provenances = dict()
         self._jsonpath_provenances = dict()
@@ -256,7 +257,7 @@ class Document(Segment):
         }
         Currently json ontology representation is supported, might add new ways later
         Args:
-            json_ontology: a json ontology representation of a knoledge graph
+            json_ontology: a json ontology representation of a knowledge graph
 
         Returns: returns  a list of nested documents created
 
@@ -294,3 +295,11 @@ class Document(Segment):
                         nested_docs.append(child_doc)
 
         return nested_docs
+
+    def add_type(self, type_):
+        self.kg.add_value('@type', value=type_)
+
+    def with_type(self, type_):
+        if type_:
+            self.add_type(type_)
+        return self

@@ -44,8 +44,8 @@ class TestDateExtractor(unittest.TestCase):
                         self.assertEqual(e[0].value if e else '', expected)
 
     def test_additional_formats(self) -> None:
-        text = '2018@3@25  July 29 in 2018, 4/3@2018  2009-10-23 Jun 27 2017'
-        formats = ['%Y@%m@%d', '%B %d in %Y', '%m/%d@%Y']
+        text = '2018@3@25  July 29 in 2018, 4/3@2018  2009-10-23 Jun 27 2017    D-3/8/91    S-07-08-2018'
+        formats = ['%Y@%m@%d', '%B %d in %Y', '%m/%d@%Y', 'D-%d/%m/%y', 'S-%m-%d-%Y']
 
         extractions_with_default = de.extract(text, additional_formats=formats, use_default_formats=True )
         extractions_without_default = de.extract(text, additional_formats=formats, use_default_formats=False )
@@ -53,8 +53,8 @@ class TestDateExtractor(unittest.TestCase):
         results_with_default = [e.value for e in extractions_with_default]
         results_without_default = [e.value for e in extractions_without_default]
 
-        expected_with_default = ['2018-03-25', '2018-07-29', '2018-04-03', '2009-10-23', '2017-06-27']
-        expected_without_default = ['2018-03-25', '2018-07-29', '2018-04-03']
+        expected_with_default = ['2018-03-25', '2018-07-29', '2018-04-03', '2009-10-23', '2017-06-27', '1991-08-03', '2018-07-08']
+        expected_without_default = ['2018-03-25', '2018-07-29', '2018-04-03', '1991-08-03', '2018-07-08']
 
         self.assertEqual(results_with_default, expected_with_default)
         self.assertEqual(results_without_default, expected_without_default)
@@ -124,13 +124,13 @@ class TestDateExtractor(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_original_resolution(self) -> None:
-        text = '2019-10-23 | 2017-06 | 2018-03-10 10:12'
+        text = '2019-10-23 | 2017-06 | 2018-03-10 10:12 | July 2018 | Mar 2000 | year 2020'
 
         extractions = de.extract(text, date_value_resolution=DateResolution.ORIGINAL)
 
         results = [e.value for e in extractions]
 
-        expected = ['2019-10-23', '2017-06', '2018-03-10T10:12']
+        expected = ['2019-10-23', '2017-06', '2018-03-10T10:12', '2018-07', '2000-03', '2020']
 
         self.assertEqual(results, expected)
 

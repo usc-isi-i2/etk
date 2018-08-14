@@ -1,15 +1,18 @@
 import logging
-from typing import Set, Union
+from typing import Set, Union, Optional
 from functools import reduce
+from datetime import datetime, time, date
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDF, RDFS, OWL, SKOS, Namespace, XSD
+from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
+from etk.ontology_namespacemanager import OntologyNamespaceManager
 
-SCHEMA = Namespace('http://schema.org/')
+
 
 class OntologyEntity(object):
     """
     Superclass of all ontology objects, including classes and properties.
     """
+
     def __init__(self, uri):
         self._uri = uri
         self._label = set()
@@ -98,7 +101,7 @@ class OntologyClass(OntologyEntity):
         """
         if not self._super_classes:
             return set()
-        return self._super_classes | reduce(set.union, [x._super_classes for x in self._super_classes])
+        return self._super_classes | reduce(set.union, [x.super_classes() for x in self._super_classes])
 
 
 class OntologyProperty(OntologyEntity):
@@ -125,7 +128,8 @@ class OntologyProperty(OntologyEntity):
         """
         if not self._super_properties:
             return set()
-        return self._super_properties | reduce(set.union, [x.super_properties_closure() for x in self._super_properties])
+        return self._super_properties | reduce(set.union, [x.super_properties_closure()
+                                                           for x in self._super_properties])
 
     def included_domains(self) -> Set[OntologyClass]:
         """
@@ -170,7 +174,10 @@ class OntologyProperty(OntologyEntity):
 
         """
         domains = self.included_domains()
-        return c in domains or c.super_classes_closure() & domains
+        return c and (c in domains or c.super_classes_closure() & domains)
+
+    def is_legal_object(self, object) -> bool:
+        raise NotImplementedError('Subclass should implement this.')
 
 
 class OntologyObjectProperty(OntologyProperty):
@@ -236,7 +243,9 @@ class OntologyDatatypeProperty(OntologyProperty):
         Returns:
 
         """
-        return data_type in self.included_ranges() or self.super_properties() and any(x.is_legal_object(data_type) for x in self.super_properties())
+        data_type = str(data_type)
+        return data_type in self.included_ranges() or self.super_properties() and \
+               any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
 class ValidationError(Exception):
@@ -245,8 +254,7 @@ class ValidationError(Exception):
 
 
 class Ontology(object):
-
-    def __init__(self, turtle, validation=True) -> None:
+    def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False, expanded_jsonld=True) -> None:
         """
         Read the ontology from a string containing RDF in turtle format.
 
@@ -262,118 +270,97 @@ class Ontology(object):
         Args:
             turtle: str or Iterable[str]
         """
+        import io, sys
+
         self.entities = dict()
         self.classes = set()
         self.object_properties = set()
         self.data_properties = set()
-        self.roots = set()
+        self.log_stream = io.StringIO()
+        self.expanded_jsonld = expanded_jsonld
 
-        g = Graph()
-        if isinstance(turtle, str):
-            g.parse(data=turtle, format='ttl')
-        else:
-            for t in turtle:
-                g.parse(data=t, format='ttl')
+        logging.getLogger().addHandler(logging.StreamHandler(self.log_stream))
+        if not quiet:
+            logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
-        for ns in ('rdfs', 'rdf', 'owl', 'schema'):
-            if ns not in g.namespaces():
-                g.namespace_manager.bind(ns, eval(ns.upper()))
+        self.g = self.__init_graph_parse(turtle)
 
         # Class
-        for uri in g.subjects(RDF.type, OWL.Class):
-            if not isinstance(uri, URIRef): continue
-            uri = uri.toPython()
-            entity = OntologyClass(uri)
-            self.entities[uri] = entity
-            self.classes.add(entity)
+        for uri in self.g.subjects(RDF.type, OWL.Class):
+            self.__init_ontology_class(uri)
+        # Datatype Property
+        for uri in self.g.subjects(RDF.type, OWL.DatatypeProperty):
+            self.__init_ontology_datatype_property(uri)
 
-        # Data P
-        for uri in g.subjects(RDF.type, OWL.DatatypeProperty):
-            uri = uri.toPython()
-            entity = OntologyDatatypeProperty(uri)
-            self.entities[uri] = entity
-            self.data_properties.add(entity)
-
-        # Obj P
-        for uri, inv in g.query("""SELECT ?uri ?inv
+        # Object Property
+        for uri, inv in self.g.query("""SELECT ?uri ?inv
                                    WHERE { ?uri a owl:ObjectProperty .
-                                           OPTIONAL {?uri :inverse ?inv }}"""):
-            uri = uri.toPython()
-            if inv:
-                inv = inv.toPython()
-            entity = OntologyObjectProperty(uri, inv)
-            self.entities[uri] = entity
-            self.object_properties.add(entity)
-            if inv:
-                self.entities[inv] = entity.inverse()
-                self.object_properties.add(entity.inverse())
+                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
+            self.__init_ontology_object_property(uri, inv)
+        for uri, inv in self.g.query("""SELECT ?uri ?inv
+                                   WHERE { ?uri a rdf:Property .
+                                           OPTIONAL {?uri dig:inverse ?inv }}"""):
+            self.__init_ontology_object_property(uri, inv)
 
-        for entity in self.classes:
-            for sub, in g.query("""SELECT ?sub
-                                   WHERE  {{ ?uri rdfs:subClassOf ?sub }
-                                           UNION { ?uri owl:subClassOf ?sub }}""",
-                                initBindings={'uri': URIRef(entity.uri())}):
-                try:
-                    sub_entity = self.entities[sub.toPython()]
-                    # Validation 3: Cycle detection
-                    if entity in sub_entity.super_classes_closure():
-                        raise ValidationError("Cycle detected")
-                    entity._super_classes.add(sub_entity)
-                except KeyError:
-                    logging.warning("Missing a super class of :%s with uri %s.", entity.name(), sub)
-            if not entity._super_classes:
-                self.roots.add(entity)
+        #Datatype property as range is a schema:DataType
+        # for uri, range in self.g.query("""
+        #                         SELECT ?uri ?range
+        #                         WHERE {?uri schema:rangeIncludes ?range .
+        #                                ?range a schema:DataType
+        #                         }
+        #                         """):
+        #     self.__init_ontology_datatype_property(uri)
 
-        for p in self.object_properties | self.data_properties:
-            for sub, in g.query("""SELECT ?sub
+        # subClassOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
+                                    WHERE  {{ ?uri rdfs:subClassOf ?sub }
+                                              UNION { ?uri owl:subClassOf ?sub }}"""):
+            self.__init_ontology_subClassOf(uri, sub, include_undefined_class)
+
+        # subPropertyOf
+        for uri, sub in self.g.query("""SELECT ?uri ?sub
                                    WHERE  {{ ?uri rdfs:subPropertyOf ?sub }
-                                           UNION { ?uri owl:subPropertyOf ?sub }}""",
-                                initBindings={'uri': URIRef(p.uri())}):
-                try:
-                    sub_property = self.entities[sub.toPython()]
-                    # Validation 3: Cycle detection
-                    if p in sub_property.super_properties_closure():
-                        raise ValidationError("Cycle detected")
-                    # Validation 2: Class consistency
-                    if isinstance(p, OntologyDatatypeProperty) != \
-                       isinstance(sub_property, OntologyDatatypeProperty):
-                        raise ValidationError("Sub-property {} should share the same class with {}"
-                                              .format(sub_property.name(), p.name()))
-                    p._super_properties.add(sub_property)
-                except KeyError:
-                    logging.warning("Missing a super property of :%s with uri %s.", p.name(), sub)
+                                           UNION { ?uri owl:subPropertyOf ?sub }}"""):
+            self.__init_ontology_subPropertyOf(uri, sub)
 
-            for d, in g.query("""SELECT ?domain
-                                 WHERE {{ ?uri rdfs:domain ?domain }
-                                        UNION { ?uri schema:domainIncludes ?domain }
-                                        UNION { ?domain :common_properties ?uri}}""",
-                             initBindings={'uri': URIRef(p.uri())}):
-                try:
-                    domain = self.entities[d.toPython()]
-                    p.domains.add(domain)
-                except KeyError:
-                    logging.warning("Missing a domain class of :%s with uri %s.", p.name(), d)
-            for r, in g.query("""SELECT ?range
-                                 WHERE {{ ?uri rdfs:range ?range }
-                                        UNION { ?uri schema:rangeIncludes ?range }}""",
-                             initBindings={'uri': URIRef(p.uri())}):
-                if isinstance(p, OntologyDatatypeProperty):
-                    p.ranges.add(r.toPython())
-                else:
-                    try:
-                        p.ranges.add(self.entities[r.toPython()])
-                    except KeyError:
-                        logging.warning("Missing a domain class of :%s with uri %s.", p.name(), r)
+        # domain
+        for uri, d in self.g.query("""SELECT ?uri ?domain
+                             WHERE {{ ?uri rdfs:domain ?domain }
+                                    UNION { ?uri schema:domainIncludes ?domain }
+                                    UNION { ?domain dig:common_properties ?uri}}"""):
+            self.__init_ontology_property_domain(uri, d, include_undefined_class)
+
+        for uri, r in self.g.query("""SELECT ?uri ?range
+                             WHERE {{ ?uri rdfs:range ?range }
+                                    UNION { ?uri schema:rangeIncludes ?range }}"""):
+            self.__init_ontology_property_range(uri, r, include_undefined_class)
+
+        for uri, range in self.g.query("""
+                                        SELECT ?uri ?range
+                                        WHERE {?uri schema:rangeIncludes ?range .
+                                               ?range a schema:DataType
+                                        }
+                                        """):
+            self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
+        for uri, range in self.g.query("""
+                                        SELECT ?uri ?range
+                                        WHERE {?uri schema:rangeIncludes ?range .
+                                               ?range rdfs:subClassOf ?x .
+                                               ?x a schema:DataType
+                                        }
+                                        """):
+            self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
+
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
-            for label in g.objects(uri, RDFS.label):
+            for label in self.g.objects(uri, RDFS.label):
                 entity._label.add(label.toPython())
-            for definition in g.objects(uri, SKOS.definition):
+            for definition in self.g.objects(uri, SKOS.definition):
                 entity._definition.add(definition.toPython())
-            for note in g.objects(uri, OWL.note):
+            for note in self.g.objects(uri, OWL.note):
                 entity._note.add(note.toPython())
-            for comment in g.objects(uri, RDFS.comment):
+            for comment in self.g.objects(uri, RDFS.comment):
                 entity._comment.add(comment.toPython())
 
         # After all hierarchies are built, perform the last validation
@@ -384,6 +371,125 @@ class Ontology(object):
                 self.__validation_property_range(p)
             for p in self.data_properties:
                 self.__validation_property_domain(p)
+
+    def __init_graph_parse(self, contents):
+        nm = OntologyNamespaceManager(Graph())
+        g = nm.graph
+        if isinstance(contents, str):
+            g.parse(data=contents, format='ttl')
+        else:
+            for content in contents:
+                g.parse(data=content, format='ttl')
+        return g
+
+    def __init_ontology_class(self, uri):
+        if isinstance(uri, URIRef):
+            uri = uri.toPython()
+        else:
+            return
+        entity = OntologyClass(uri)
+        self.entities[uri] = entity
+        self.classes.add(entity)
+        return entity
+
+    def __init_ontology_datatype_property(self, uri):
+        uri = uri.toPython()
+        entity = OntologyDatatypeProperty(uri)
+        self.entities[uri] = entity
+        self.data_properties.add(entity)
+        return entity
+
+    def __init_ontology_object_property(self, uri, inv):
+        uri = uri.toPython()
+        entity = OntologyObjectProperty(uri, inv)
+        self.entities[uri] = entity
+        self.object_properties.add(entity)
+        if inv:
+            inv = inv.toPython()
+            self.entities[inv] = entity.inverse()
+            self.object_properties.add(entity.inverse())
+        return entity
+
+    def __init_ontology_subClassOf(self, uri, sub, include_undefined_class):
+        entity = self.get_entity(uri.toPython())
+        if not entity:
+            if include_undefined_class:
+                entity = self.__init_ontology_class(uri)
+            else:
+                logging.warning("Missing a class with uri %s.", uri)
+                return
+        if not isinstance(entity, OntologyClass):
+            logging.warning("Subclass %s is not a class.", uri)
+            return
+        sub_entity = self.get_entity(sub.toPython())
+        if not sub_entity:
+            if include_undefined_class:
+                sub_entity = self.__init_ontology_class(sub)
+            else:
+                logging.warning("Missing a super class of %s with uri %s.", uri, sub)
+                return
+        if not isinstance(sub_entity, OntologyClass):
+            logging.warning("Superclass %s is not a class.", sub)
+            return
+        # Validation 3: Cycle detection
+        if entity in sub_entity.super_classes_closure():
+            raise ValidationError("Cycle detected")
+        entity._super_classes.add(sub_entity)
+
+    def __init_ontology_subPropertyOf(self, uri, sub):
+        property_ = self.get_entity(uri.toPython())
+        sub_property = self.get_entity(sub.toPython())
+        if not property_:
+            logging.warning("Missing a property with URI: %s", uri)
+            return
+        if not isinstance(property_, OntologyProperty):
+            logging.warning("Subproperty %s is not a property.", uri)
+            return
+        if not sub_property:
+            logging.warning("Misssing a subproperty of %s with URI %s", uri, sub)
+            return
+        if not isinstance(sub_property, OntologyProperty):
+            logging.warning("Superproperty %s is not a property.", sub)
+        # Validation 3: Cycle detection
+        if property_ in sub_property.super_properties_closure():
+            raise ValidationError("Cycle detected")
+        # Validation 2: Class consistency
+        if isinstance(property_, OntologyDatatypeProperty) != \
+                isinstance(sub_property, OntologyDatatypeProperty):
+            raise ValidationError("Subproperty {} should share the same class with {}"
+                                  .format(sub_property.name(), property_.name()))
+        property_._super_properties.add(sub_property)
+
+    def __init_ontology_property_domain(self, uri, d, include_undefined_class):
+        property_ = self.get_entity(uri.toPython())
+        domain = self.get_entity(d.toPython())
+        if not (property_ and isinstance(property_, OntologyProperty)):
+            return
+        if not domain:
+            if include_undefined_class:
+                domain = self.__init_ontology_class(d)
+            else:
+                logging.warning("Missing a domain class for :%s with uri %s.", property_.name(), d)
+                return
+        property_.domains.add(domain)
+
+    def __init_ontology_property_range(self, uri, r, include_undefined_class):
+        property_ = self.get_entity(uri.toPython())
+        if not (property_ and isinstance(property_, OntologyProperty)):
+            return
+        if isinstance(property_, OntologyDatatypeProperty):
+            property_.ranges.add(r.toPython())
+            return
+        range_ = self.get_entity(r.toPython())
+        if not range_:
+            if include_undefined_class:
+                range_ = self.__init_ontology_class(r)
+            else:
+                logging.warning("Missing a range class for :%s with uri %s.", property_.name(), r)
+                return
+        if not isinstance(range_, OntologyClass):
+            return
+        property_.ranges.add(range_)
 
     def __validation_property_domain(self, p):
         for x in p.included_domains():
@@ -401,7 +507,7 @@ class Ontology(object):
             for q in p.super_properties():
                 if not any(r in y.super_classes() for r in q.included_ranges()):
                     raise ValidationError("Range {} of property {} isn't a subclass of any range of"
-                                          " superproperty {}" .format(y.name(), p.name(), q.name()))
+                                          " superproperty {}".format(y.name(), p.name(), q.name()))
 
     def all_properties(self) -> Set[OntologyProperty]:
         return self.data_properties | self.object_properties
@@ -413,150 +519,243 @@ class Ontology(object):
         """
         Find an ontology entity based on URI
 
-        Args:
-            uri:
-
-        Returns: the OntologyEntity having the specified uri, or None
-
+        :param uri: URIRef or str
+        :return: the OntologyEntity having the specified uri, or None
         """
         return self.entities.get(str(uri), None)
 
     def root_classes(self) -> Set[OntologyClass]:
         """
-
         Returns: All classes that don't have a super class.
-
         """
-        return self.roots
+        return set(filter(lambda e: not e.super_classes(), self.classes))
 
-    def html_documentation(self) -> str:
+    def html_documentation(self, include_turtle=False, exclude_warning=False) -> str:
+        from etk.ontology_report_generator import OntologyReportGenerator
+        return OntologyReportGenerator(self).generate_html_report(include_turtle, exclude_warning)
+
+    def merge_with_master_config(self, config, defaults={}, delete_orphan_fields=False) -> dict:
         """
-        Example: http://www.cidoc-crm.org/sites/default/files/Documents/cidoc_crm_version_5.0.4.html
-        Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
-        description of all the classes with all the properties that apply to it.
-        Returns:
+        Merge current ontology with input master config.
 
+        :param config: master config, should be str or dict
+        :param defaults: a dict that sets default color and icon
+        :param delete_orphan_fields: if a property doesn't exist in the ontology then delete it
+        :return: merged master config in dict
         """
-        import os
-        sorted_by_name = lambda arr: sorted(arr, key=lambda x: x.name())
-        template = os.path.dirname(os.path.abspath(__file__)) + '/../ontologies/template.html'
-        with open(template) as f:
-            sorted_classes = sorted_by_name(self.classes)
-            sorted_properties = sorted_by_name(self.all_properties())
-            ### Lists
-            content = f.read().replace('{{{title}}}', 'Ontology Entities') \
-                              .replace('{{{class_list}}}',
-                                       self.__html_entities_hierarchy(self.classes)) \
-                              .replace('{{{dataproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.data_properties)) \
-                              .replace('{{{objectproperty_list}}}',
-                                       self.__html_entities_hierarchy(self.object_properties))
+        if isinstance(config, str):
+            import json
+            config = json.loads(config)
+        properties = self.all_properties()
+        config['fields'] = config.get('fields', dict())
+        fields = config['fields']
 
-            ### Classes
-            item = '<h4 id="{}">{}</h4>\n<div class="entity">\n<table>\n{}\n</table>\n</div>'
-            row = '<tr>\n<th align="right" valign="top">{}</th>\n<td>{}</td>\n</tr>'
-            classes = []
-            for c in sorted_classes:
-                attr = []
-                subclass_of = sorted_by_name(c.super_classes())
-                superclass_of = list(filter(lambda x: c in x.super_classes(), sorted_classes))
-                if subclass_of:
-                    attr.append(row.format('Subclass of', '<br />\n'.join(map(self.__html_entity_href, subclass_of))))
-                if superclass_of:
-                    attr.append(row.format('Superclass of', '<br />\n'.join(map(self.__html_entity_href, superclass_of))))
-                attr.extend(self.__html_entity_basic_info(c, row))
-                properties = list(filter(lambda x: c.super_classes_closure() & x.included_domains(), sorted_properties))
-                if properties:
-                    attr.append(row.format('Properties', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                properties = list(filter(lambda x: c.super_classes_closure() & x.included_ranges(), sorted_properties))
-                if properties:
-                    attr.append(row.format('Referenced by', '<br />\n'.join(map(self.__html_entity_href, properties))))
-                classes.append(item.format('C-'+c.uri(), c.name(), '\n'.join(attr)))
+        d_color = defaults.get('color', 'white')
+        d_icon = defaults.get('icon', 'icons:default')
 
-            ### Properties
-            dataproperties = []
-            objectproperties = []
-            for p in sorted_properties:
-                attr = []
-                domains = p.included_domains()
-                ranges = p.included_ranges()
-                if domains:
-                    attr.append(row.format('Domain', '<br />\n'.join(map(self.__html_entity_href,
-                                                                         sorted_by_name(domains)))))
-                if ranges:
-                    if isinstance(p, OntologyObjectProperty):
-                        attr.append(row.format('Range', '<br />\n'.join(map(self.__html_entity_href,
-                                                                            sorted_by_name(ranges)))))
-                    else:
-                        attr.append(row.format('Range', '<br />\n'.join(sorted(ranges))))
-                subproperty_of = sorted_by_name(p.super_properties())
-                superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
-                if subproperty_of:
-                    attr.append(row.format('Subproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, subproperty_of))))
-                if superproperty_of:
-                    attr.append(row.format('Superproperty of', '<br />\n'
-                                           .join(map(self.__html_entity_href, superproperty_of))))
-                attr.extend(self.__html_entity_basic_info(p, row))
-                if isinstance(p, OntologyObjectProperty):
-                    if p.inverse():
-                        attr.insert(0, row.format('Inverse', self.__html_entity_href(p.inverse())))
-                    objectproperties.append(item.format('O-'+p.uri(), p.name(), '\n'.join(attr)))
+        if delete_orphan_fields:
+            exist = {p.name() for p in properties}
+            unexist = set(fields.keys()) - exist
+            for name in unexist:
+                del fields[name]
+
+        for p in properties:
+            field = fields.get(p.name(), {'show_in_search': False,
+                                          'combine_fields': False,
+                                          'number_of_rules': 0,
+                                          'glossaries': [],
+                                          'use_in_network_search': False,
+                                          'case_sensitive': False,
+                                          'show_as_link': 'text',
+                                          'blacklists': [],
+                                          'show_in_result': 'no',
+                                          'rule_extractor_enabled': False,
+                                          'search_importance': 1,
+                                          'group_name': '',
+                                          'show_in_facets': False,
+                                          'predefined_extractor': 'none',
+                                          'rule_extraction_target': ''})
+            config['fields'][p.name()] = field
+            field['screen_label'] = ' '.join(p.label())
+            field['description'] = '\n'.join(p.definition())
+            field['name'] = p.name()
+
+            # color
+            if 'color' not in field:
+                color = self.__merge_close_ancestor_color(p, fields, attr='color')
+                field['color'] = color if color else d_color
+            # icon
+            if 'icon' not in field:
+                icon = self.__merge_close_ancestor_color(p, fields, attr='icon')
+                field['icon'] = icon if icon else d_icon
+            # type
+            if isinstance(p, OntologyObjectProperty):
+                field['type'] = 'kg_id'
+            else:
+                try:
+                    field['type'] = self.__merge_xsd_to_type(next(iter(p.included_ranges())))
+                except StopIteration:
+                    field['type'] = None
+        return config
+
+    def __merge_close_ancestor_color(self, property_, fields, attr):
+        from collections import deque
+        added = property_.super_properties()
+        ancestors = deque(added)
+        while ancestors:
+            super_property = ancestors.popleft()
+            name = super_property.name()
+            if name in fields and attr in fields[name]:
+                return fields[name][attr]
+            ancestors.extend(list(super_property.super_properties() - added))
+
+    def __merge_xsd_to_type(self, uri):
+        return self.xsd_ref.get(URIRef(uri), None)
+
+    xsd_ref = {
+        XSD.string: 'string',
+        XSD.boolean: 'number',
+        XSD.decimal: 'number',
+        XSD.float: 'number',
+        XSD.double: 'number',
+        XSD.duration: 'number',
+        XSD.dateTime: 'date',
+        XSD.time: 'date',
+        XSD.date: 'date',
+        XSD.gYearMonth: 'date',
+        XSD.gYear: 'date',
+        XSD.gMonthDay: 'date',
+        XSD.gMonth: 'date',
+        XSD.gDay: 'date',
+        XSD.hexBinary: 'string',
+        XSD.base64Binary: 'string',
+        XSD.anyURI: 'string',
+        XSD.QName: 'string',
+        XSD.NOTATION: 'string'
+    }
+
+    def is_valid(self, field_name: str, value, kg: dict) -> Optional[dict]:
+        """
+        Check if this value is valid for the given name property according to input knowledge graph and ontology.
+        If is valid, then return a dict with key @id or @value for ObjectProperty or DatatypeProperty.
+        No schema checked by this function.
+
+        :param field_name: name of the property, if prefix is omitted, then use default namespace
+        :param value: the value that try to add
+        :param kg: the knowledge graph that perform adding action
+        :return: None if the value isn't valid for the property, otherwise return {key: value}, key is @id for
+            ObjectProperty and @value for DatatypeProperty.
+        """
+        # property
+        uri = self.__is_valid_uri_resolve(field_name, kg.get("@context"))
+        property_ = self.get_entity(uri)
+        if not isinstance(property_, OntologyProperty):
+            logging.warning("Property is not OntologyProperty, ignoring it:  %s", uri)
+            return None
+        if not self.__is_valid_domain(property_, kg):
+            logging.warning("Property does not have valid domain, ignoring it:  %s", uri)
+            return None
+        # check if is valid range
+        # first determine the input value type
+        if isinstance(property_, OntologyDatatypeProperty):
+            types = self.__is_valid_determine_value_type(value)
+        else:
+            if isinstance(value, dict):
+                try:
+                    types = map(self.get_entity, value['@type'])
+                except KeyError:
+                    return None  # input entity without type
+            elif self.__is_schema_org_datatype(property_):
+                if self.expanded_jsonld:
+                    return {'@value': self.__serialize_type(value)}
                 else:
-                    dataproperties.append(item.format('D-'+p.uri(), p.name(), '\n'.join(attr)))
+                    return value
+            else:
+                return {'@id': self.__serialize_type(value)}
+        # check if is a valid range
+        if any(property_.is_legal_object(type_) for type_ in types):
+            if isinstance(property_, OntologyObjectProperty):
+                return value
+            elif self.expanded_jsonld:
+                return {'@value': self.__serialize_type(value)}
+            else:
+                return self.__serialize_type(value)
+        return None
 
-            content = content.replace('{{{classes}}}', '\n'.join(classes)) \
-                             .replace('{{{dataproperties}}}', '\n'.join(dataproperties)) \
-                             .replace('{{{objectproperties}}}', '\n'.join(objectproperties))
-        return content
+    @staticmethod
+    def __is_schema_org_datatype(property_):
+        ranges = property_.ranges
+        for range_ in ranges:
+            if range_._uri == "http://schema.org/DataType" or range_._uri == "schema:DataType":
+                return True
+            for super_class in range_.super_classes_closure():
+                if super_class._uri == "http://schema.org/DataType" or range_._uri == "schema:DataType":
+                    return True
+        return False
 
-    def __html_entity_basic_info(self, e, tpl):
-        attr = list()
-        basic = ['label', 'definition', 'note', 'comment']
-        for info in basic:
-            attr.extend([tpl.format(info, item) for item in getattr(e, info)()])
-        return attr
+    @staticmethod
+    def __serialize_type(value):
+        if isinstance(value, datetime):
+            return value.isoformat()
+        return value
 
-    def __html_entities_hierarchy(self, entities):
-        tree = {node: list() for node in entities}
-        roots = []
-        super = 'super_properties' if entities and \
-            isinstance(next(iter(entities)), OntologyProperty) else 'super_classes'
-        for child in entities:
-            parents = getattr(child, super)()
-            if not parents:
-                roots.append(child)
-            for parent in parents:
-                tree[parent].append(child)
-        def hierarchy_builder(children):
-            if not children: return ''
-            s = '<ul>\n'
-            for child in sorted(children, key=lambda x:x.name()):
-                s += '<li>{}</li>\n'.format(self.__html_entity_href(child))
-                s += hierarchy_builder(tree[child])
-            s += '</ul>\n'
-            return s
-        return hierarchy_builder(roots)
+    @staticmethod
+    def __is_valid_determine_value_type(value):
+        type_infer = {
+            int: {XSD.int, XSD.duration, XSD.boolean, XSD.gYear, XSD.gMonth, XSD.gDay},
+            float: {XSD.float, XSD.decimal, XSD.double, XSD.duration},
+            bool: {XSD.boolean},
+            str: {XSD.string, XSD.hexBinary, XSD.base64Binary, XSD.anyURI, XSD.QName, XSD.NOTATION},
+            datetime: {XSD.datetime},
+            time: {XSD.time},
+            date: {XSD.date}
+        }
+        for class_ in type_infer:
+            if isinstance(value, class_):
+                return [x.toPython() for x in type_infer[class_]]
+        return None
 
-    def __html_entity_href(self, e):
-        template = '<a href="#{}-{}">{}</a>'
-        kind = {OntologyClass: 'C', OntologyObjectProperty: 'O', OntologyDatatypeProperty: 'D'}
-        return template.format(kind[type(e)], e.uri(), e.name())
+    def __is_valid_domain(self, property_, kg):
+        import json
+        # extract id a.k.a uri from kg
+        empty_kg = True
+        kg_ = Graph().parse(data=json.dumps(kg), format='json-ld')
+        for type_ in kg_.objects(None, RDF.type):
+            empty_kg = False
+            entity = self.get_entity(type_)
+            if entity and property_.is_legal_subject(entity):
+                return True
+        return empty_kg
 
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser(description='Generate HTML report for the input ontology files')
-    parser.add_argument('files', nargs='+', help='Input turtle files.')
-    parser.add_argument('--no-validation', action='store_false', dest='validation', default=True,
-                        help='Don\'t perform domain and range validation.')
-    parser.add_argument('-o', '--output', dest='out', default='ontology-doc.html',
-                        help='Location of generated HTML report.')
-    args = parser.parse_args()
+    def __is_valid_uri_resolve(self, field_name: str, context: Optional[dict]) -> URIRef:
+        uri = OntologyNamespaceManager.check_uriref(field_name)
+        if not uri and context:
+            if field_name in context:
+                uri = context[field_name]
+            else:
+                try_split = field_name.split(':')
+                if len(try_split) == 2:
+                    prefix, name = try_split
+                    if prefix in context:
+                        uri = context[prefix] + name
+                elif '@vocab' in context:
+                    uri = context['@vocab'] + field_name
+        if not uri:
+            uri = self.g.namespace_manager.parse_uri(field_name)
+        return uri
 
-    contents = [open(f).read() for f in args.files]
-    ontology = Ontology(contents, validation=args.validation)
-    doc_content = ontology.html_documentation()
 
-    with open(args.out, "w") as f:
-        f.write(doc_content)
+def rdf_generation(kg_object) -> str:
+    """
+    Convert input knowledge graph object into n-triples RDF
 
+    :param kg_object: str, dict, or json object
+    :return: n-triples RDF in str
+    """
+    import json
+
+    if isinstance(kg_object, dict):
+        kg_object = json.dumps(kg_object)
+    g = Graph()
+    g.parse(data=kg_object, format='json-ld')
+    return g.serialize(format='nt').decode('utf-8')
