@@ -667,11 +667,11 @@ class Ontology(object):
                     return None  # input entity without type
             elif self.__is_schema_org_datatype(property_):
                 if self.expanded_jsonld:
-                    return {'@value': value}
+                    return {'@value': self.__serialize_type(value)}
                 else:
                     return value
             else:
-                return {'@id': value}
+                return {'@id': self.__serialize_type(value)}
         # check if is a valid range
         if any(property_.is_legal_object(type_) for type_ in types):
             if isinstance(property_, OntologyObjectProperty):
