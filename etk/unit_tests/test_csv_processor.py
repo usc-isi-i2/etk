@@ -2,17 +2,16 @@ import unittest, json
 from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
 from etk.knowledge_graph_schema import KGSchema
+import codecs
+import os
 
 csv_str = """text,with,Polish,non-Latin,lettes
 1,2,3,4,5,6
 a,b,c,d,e,f
-
 gęś,zółty,wąż,idzie,wąską,dróżką,
 ,b,c,s,w,f
 """
-
 kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
-
 etk = ETK(kg_schema=kg_schema)
 
 
@@ -221,47 +220,6 @@ class TestCsvProcessor(unittest.TestCase):
 
         self.assertEqual(test_docs, expected_docs)
 
-    def test_tab_file(self):
-        csv_processor = CsvProcessor(etk=etk,
-                                     heading_row=1)
-        test_str = 'Event ID\tEvent Date\tSource Name\tSource Sectors\tSource Country\tEvent Text\tCAMEO Code\tIntensity\tTarget Name\tTarget Sectors\tTarget Country\tStory ID\tSentence Number\tPublisher\tCity\tDistrict\tProvince\tCountry\tLatitude\tLongitude\n926685\t1995-01-01\tExtremist (Russia)\tRadicals / Extremists / Fundamentalists,Dissident\tRussian Federation\tPraise or endorse\t051\t3.4\tBoris Yeltsin\tElite,Executive,Executive Office,Government\tRussian Federation\t28235806\t5\tThe Toronto Star\tMoscow\t\tMoskva\tRussian Federation\t55.7522\t37.6156\n926687\t1995-01-01\tGovernment (Bosnia and Herzegovina)\tGovernment\tBosnia and Herzegovina\tExpress intent to cooperate\t030\t4\tCitizen (Serbia)\tGeneral Population / Civilian / Social,Social\tSerbia\t28235807\t1\tThe Toronto Star\t\t\tBosnia\tBosnia and Herzegovina\t44\t18\n926686\t1995-01-01\tCitizen (Serbia)\tGeneral Population / Civilian / Social,Social\tSerbia\tExpress intent to cooperate\t030\t4\tGovernment (Bosnia and Herzegovina)\tGovernment\tBosnia and Herzegovina\t28235807\t1\tThe Toronto Star\t\t\tBosnia\tBosnia and Herzegovina\t44\t18\n926688\t1995-01-01\tCanada\t\tCanada\tPraise or endorse\t051\t3.4\tCity Mayor (Canada)\tGovernment,Local,Municipal\tCanada\t28235809\t3\tThe Toronto Star\t\t\tOntario\tCanada\t49.2501\t-84.4998\n'
-        test_docs = [doc.cdr_document for doc in
-                     csv_processor.tabular_extractor(filename='testfile.tab', file_type='tsv', file_content=test_str,
-                                                     dataset='test_set')]
-        expected_docs = [{'Event ID': 926685, 'Event Date': '1995-01-01', 'Source Name': 'Extremist (Russia)',
-                          'Source Sectors': 'Radicals / Extremists / Fundamentalists,Dissident',
-                          'Source Country': 'Russian Federation', 'Event Text': 'Praise or endorse',
-                          'CAMEO Code': '051', 'Intensity': '3.4', 'Target Name': 'Boris Yeltsin',
-                          'Target Sectors': 'Elite,Executive,Executive Office,Government',
-                          'Target Country': 'Russian Federation', 'Story ID': 28235806, 'Sentence Number': 5,
-                          'Publisher': 'The Toronto Star', 'City': 'Moscow', 'District': '', 'Province': 'Moskva',
-                          'Country': 'Russian Federation', 'Latitude': '55.7522', 'Longitude': '37.6156',
-                          'file_name': 'testfile.tab', 'dataset': 'test_set'},
-                         {'Event ID': 926687, 'Event Date': '1995-01-01',
-                          'Source Name': 'Government (Bosnia and Herzegovina)', 'Source Sectors': 'Government',
-                          'Source Country': 'Bosnia and Herzegovina', 'Event Text': 'Express intent to cooperate',
-                          'CAMEO Code': '030', 'Intensity': 4, 'Target Name': 'Citizen (Serbia)',
-                          'Target Sectors': 'General Population / Civilian / Social,Social', 'Target Country': 'Serbia',
-                          'Story ID': 28235807, 'Sentence Number': 1, 'Publisher': 'The Toronto Star', 'City': '',
-                          'District': '', 'Province': 'Bosnia', 'Country': 'Bosnia and Herzegovina', 'Latitude': 44,
-                          'Longitude': 18, 'file_name': 'testfile.tab', 'dataset': 'test_set'},
-                         {'Event ID': 926686, 'Event Date': '1995-01-01', 'Source Name': 'Citizen (Serbia)',
-                          'Source Sectors': 'General Population / Civilian / Social,Social', 'Source Country': 'Serbia',
-                          'Event Text': 'Express intent to cooperate', 'CAMEO Code': '030', 'Intensity': 4,
-                          'Target Name': 'Government (Bosnia and Herzegovina)', 'Target Sectors': 'Government',
-                          'Target Country': 'Bosnia and Herzegovina', 'Story ID': 28235807, 'Sentence Number': 1,
-                          'Publisher': 'The Toronto Star', 'City': '', 'District': '', 'Province': 'Bosnia',
-                          'Country': 'Bosnia and Herzegovina', 'Latitude': 44, 'Longitude': 18,
-                          'file_name': 'testfile.tab', 'dataset': 'test_set'},
-                         {'Event ID': 926688, 'Event Date': '1995-01-01', 'Source Name': 'Canada', 'Source Sectors': '',
-                          'Source Country': 'Canada', 'Event Text': 'Praise or endorse', 'CAMEO Code': '051',
-                          'Intensity': '3.4', 'Target Name': 'City Mayor (Canada)',
-                          'Target Sectors': 'Government,Local,Municipal', 'Target Country': 'Canada',
-                          'Story ID': 28235809, 'Sentence Number': 3, 'Publisher': 'The Toronto Star', 'City': '',
-                          'District': '', 'Province': 'Ontario', 'Country': 'Canada', 'Latitude': '49.2501',
-                          'Longitude': '-84.4998', 'file_name': 'testfile.tab', 'dataset': 'test_set'}]
-        self.assertEqual(test_docs, expected_docs)
-
     def test_real_excel_with_sheetname(self) -> None:
         csv_processor = CsvProcessor(etk=etk,
                                      heading_row=1,
@@ -360,6 +318,20 @@ class TestCsvProcessor(unittest.TestCase):
 
         self.assertEqual(test_docs, expected_docs)
 
+    def test_csv_encoding(self) -> None:
+        original_text = """Country,Category,DateTime,Close,Frequency,HistoricalDataSymbol,LastUpdate\nAlgeria,Crude Oil Production,2/28/2018 12:00:00 AM,1036.0000,Monthly,ALGERIACRUOILPRO,3/14/2018 2:17:00 PM"""
+        csv_processor = CsvProcessor(etk=etk,
+                                     heading_row=1)
+        with codecs.open('test.csv', mode='w', encoding='utf-16') as fp:
+            fp.write(original_text)
+        test_docs = [doc.cdr_document for doc in
+                     csv_processor.tabular_extractor(filename='test.csv', dataset='test_set', encoding='utf-16')]
+
+        expected_docs = [{'Country': 'Algeria', 'Category': 'Crude Oil Production', 'DateTime': '2/28/2018 12:00:00 AM',
+                          'Close': '1036.0000', 'Frequency': 'Monthly', 'HistoricalDataSymbol': 'ALGERIACRUOILPRO',
+                          'LastUpdate': '3/14/2018 2:17:00 PM', 'file_name': 'test.csv', 'dataset': 'test_set'}]
+        os.remove("test.csv")
+        self.assertEqual(test_docs, expected_docs)
 
 if __name__ == '__main__':
     unittest.main()

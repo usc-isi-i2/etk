@@ -29,7 +29,7 @@ class CsvProcessor(object):
             self.heading_row = self.heading_row - 1
 
         if self.heading_row is not None:
-            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row + 2) - 1
+            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row+2) - 1
 
         if self.heading_row is None:
             self.content_start_row = mapping_spec.get("content_start_row", 1) - 1
@@ -62,7 +62,6 @@ class CsvProcessor(object):
             self.column_name_prefix = "C"
 
         self._get_data_function = {
-            ".tab": pyexcel_io.get_data,
             ".csv": pyexcel_io.get_data,
             ".tsv": pyexcel_io.get_data,
             ".xls": pyexcel_xlsx.get_data,
@@ -70,12 +69,11 @@ class CsvProcessor(object):
         }
 
     def tabular_extractor(self, table_str: str = None, filename: str = None,
-                          file_content=None,
-                          file_type=None,
-                          sheet_name: str = None,
+                          sheet_name:str = None,
                           dataset: str = None,
                           nested_key: str = None,
-                          doc_id_field: str = None) -> List[Document]:
+                          doc_id_field: str = None,
+                          encoding:str=None) -> List[Document]:
         data = list()
 
         if table_str is not None and filename is not None:
@@ -96,33 +94,28 @@ class CsvProcessor(object):
                 get_data = self._get_data_function[extension]
             else:
                 raise InvalidFilePathError("file extension can not read")
-
-            try:
-                if file_content and file_type:
-                    data = get_data(file_content, file_type=file_type, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="utf-8")
-                else:
-                    data = get_data(filename, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="utf-8")
-            except:
+            if not encoding:
                 try:
                     data = get_data(filename, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="latin_1")
+                                    auto_detect_float=False, encoding="utf-8")
                 except:
-                    data = get_data(filename, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="utf-8-sig")
-
+                    try:
+                        data = get_data(filename, auto_detect_datetime=False,
+                                        auto_detect_float=False, encoding="latin_1")
+                    except:
+                        data = get_data(filename, auto_detect_datetime=False,
+                                        auto_detect_float=False, encoding="utf-8-sig")
+            else:
+                data = get_data(filename, auto_detect_datetime=False,
+                                auto_detect_float=False, encoding=encoding)
             if extension == '.xls' or extension == '.xlsx':
                 if sheet_name is None:
                     sheet_name = list(data.keys())[0]
 
                 data = data[sheet_name]
             else:
-                if extension == '.tab':
-                    data = data['tsv']
-                else:
-                    file_name = fn.split('/')[-1] + extension
-                    data = data[file_name]
+                file_name = fn.split('/')[-1] + extension
+                data = data[file_name]
 
         table_content, heading = self.content_recognizer(data)
 
@@ -175,7 +168,7 @@ class CsvProcessor(object):
             else:
                 processed_heading.append(heading[i])
 
-        return processed_heading, col_start - 1, col_end
+        return processed_heading, col_start-1, col_end
 
     # slicing table by start and end col
     def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:
