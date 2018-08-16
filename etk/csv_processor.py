@@ -74,7 +74,8 @@ class CsvProcessor(object):
                           sheet_name: str = None,
                           dataset: str = None,
                           nested_key: str = None,
-                          doc_id_field: str = None) -> List[Document]:
+                          doc_id_field: str = None,
+                          encoding=None) -> List[Document]:
         """
         Read the input file/content and return a list of Document(s)
         Args:
@@ -116,10 +117,10 @@ class CsvProcessor(object):
             try:
                 if file_content and file_type:
                     data = get_data(file_content, file_type=file_type, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="utf-8")
+                                    auto_detect_float=False, encoding=encoding if encoding else "utf-8")
                 else:
                     data = get_data(filename, auto_detect_datetime=False,
-                                    auto_detect_float=False, encoding="utf-8")
+                                    auto_detect_float=False, encoding=encoding if encoding else "utf-8")
             except:
                 try:
                     data = get_data(filename, auto_detect_datetime=False,

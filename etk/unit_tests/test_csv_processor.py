@@ -360,6 +360,19 @@ class TestCsvProcessor(unittest.TestCase):
 
         self.assertEqual(test_docs, expected_docs)
 
+    def test_csv_encoding(self) -> None:
+        csv_processor = CsvProcessor(etk=etk,
+                                     heading_row=1)
+        test_docs = [doc.cdr_document for doc in
+                     csv_processor.tabular_extractor(filename='etk/unit_tests/ground_truth/test_encoding.csv',
+                                                     dataset='test_set', encoding='utf-16')]
+        expected_docs = [{'Country': 'Algeria', 'Category': 'Crude Oil Production', 'DateTime': '2/28/2018 12:00:00 AM',
+                          'Close': '1036.0000', 'Frequency': 'Monthly', 'HistoricalDataSymbol': 'ALGERIACRUOILPRO',
+                          'LastUpdate': '3/14/2018 2:17:00 PM',
+                          'file_name': 'etk/unit_tests/ground_truth/test_encoding.csv', 'dataset': 'test_set'}]
+
+        self.assertEqual(test_docs, expected_docs)
+
 
 if __name__ == '__main__':
     unittest.main()
