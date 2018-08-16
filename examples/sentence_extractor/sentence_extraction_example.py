@@ -24,9 +24,10 @@ class SentenceSplittingETKModule(ETKModule):
         Add your code for processing the document
         """
 
-        text_to_be_split = doc.select_segments("lexisnexis.doc_description")
-        split_sentences = doc.extract(self.sentence_extractor, text_to_be_split)
-        doc.store(split_sentences, 'split_sentences')
+        text_segments = doc.select_segments("lexisnexis.doc_description")
+        for text_segment in text_segments:
+            split_sentences = doc.extract(self.sentence_extractor, text_segment)
+            doc.store(split_sentences, 'split_sentences')
         # for t, u in zip(text_to_be_split, units_of_text):
         #     split_sentences = doc.extract(self.sentence_extractor, t)
         #     u.store(split_sentences, "split_sentences")
@@ -92,16 +93,25 @@ if __name__ == "__main__":
     parser = OptionParser(conflict_handler="resolve")
     parser.add_option("-i", "--input_file", action="store",
                       type="string", dest="input_file")
-    parser.add_option("-o", "--output_file", action="store_true",
+    parser.add_option("-o", "--output_file", action="store",
                       type="string", dest="output_file")
     (c_options, args) = parser.parse_args()
 
     input_file = c_options.input_file
     output_file = c_options.output_file
 
-    f = open(input_file, 'r', 'utf-8')
-    o = open(output_file, 'w', 'utf-8')
+    f = open(input_file, mode='r', encoding='utf-8')
+    o = open(output_file, mode='w', encoding='utf-8')
+    l = open('{}.log'.format(output_file), mode='w', encoding='utf-8')
+    print('Starting to process file: {}'.format(input_file))
+    count = 0
+    sum = 0
     for line in f:
+        if count == 10000:
+            sum += count
+            l.write('Processed {} lines'.format(str(sum)))
+            l.write('\n')
+            count = 0
         json_x = json.loads(line)
         doc = etk.create_document(json_x)
         doc.doc_id = json_x['doc_id']
@@ -109,3 +119,4 @@ if __name__ == "__main__":
         for s in sentences:
             o.write(json.dumps(s.value))
             o.write('\n')
+        count +=1
