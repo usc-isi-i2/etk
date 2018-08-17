@@ -724,7 +724,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :has_time_span a owl:ObjectProperty ;
     rdfs:label "has time-span" ;
     skos:definition """The time interval when the :E2_Temporal_Entity happened.""" ;
-    skos:note """The related E52 Time-Span is understood as the real Time-Span during which the phenomena were active, which make up the temporal entity instance. It does not convey any other meaning than a positioning on the “time-line” of chronology. The Time-Span in turn is approximated by a set of dates (E61 Time Primitive). A temporal entity can have in reality only one Time-Span, but there may exist alternative opinions about it, which we would express by assigning multiple Time-Spans. Related temporal entities may share a Time-Span. Time-Spans may have completely unknown dates but other descriptions by which we can infer knowledge."""
+    skos:note """The related E52 Time-Span is understood as the real Time-Span during which the phenomena were active, which make up the temporal entity instance. It does not convey any other meaning than a positioning on the “time-line” of chronology. The Time-Span in turn is approximated by a set of dates (E61 Time Primitive). A temporal entity can have in reality only one Time-Span, but there may exist alternative opinions about it, which we would express by assigning multiple Time-Spans. Related temporal entities may share a Time-Span. Time-Spans may have completely unknown dates but other descriptions by which we can infer knowledge.""";
     schema:domainIncludes :Temporal_Entity ;
     schema:rangeIncludes :Time_Span ;
     diga:crm_equivalent crm:P4_has_time-span ;
@@ -1240,6 +1240,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """""" ;
     schema:domainIncludes :Time_Span ;
     schema:rangeIncludes xsd:date ;
+    .
 
 # P82 at some time within: E61 Time Primitive
 :at_some_time_within_date a owl:DatatypeProperty ;
@@ -1247,6 +1248,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """""" ;
     schema:domainIncludes :Time_Span ;
     schema:rangeIncludes xsd:date ;
+    .
 
 ###
 ### Other properties of Events or participants
