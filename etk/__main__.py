@@ -14,7 +14,7 @@ def help_info():
     print('Usage:')
     print('\t', 'python -m etk <command> [options]')
     print('Available commands:')
-    print('\t', ','.join(handlers))
+    print('\t', ', '.join(handlers))
     print('For the help information of a particular command:')
     print('\t', 'python -m etk <command> -h')
     exit()
