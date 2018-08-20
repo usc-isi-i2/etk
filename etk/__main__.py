@@ -45,7 +45,7 @@ if __name__ == '__main__':
     mod = importlib.import_module(cmd)
 
     # parse arguments
-    parser = ArgumentParser(prog='python -m etk {}'.formt(cmd))
+    parser = ArgumentParser(prog='python -m etk {}'.format(cmd))
     mod.add_arguments(parser)
     args = parser.parse_args(args=sub_cmd)
 
