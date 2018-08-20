@@ -36,16 +36,22 @@ ETK is open-source software, released under the MIT license.
   <tr><td><b>Python version:</td><td>Python 3.6+</td></tr>
 <table>
 
-1. Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands:
+1. Create virtual environment (highly recommended)
 ```
 python3 -m venv etk2_env
 source etk2_env/bin/activate
-pip install -r requirements.txt
 ```
 
 2. Install using pip
+
 ```
 pip install etk
+```
+
+You can also install ETK Manually. Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands
+
+```
+pip install -r requirements.txt
 ```
 
 Load the spacy modules
