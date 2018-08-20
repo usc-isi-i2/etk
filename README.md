@@ -62,6 +62,16 @@ deactivate
 
 `python -m unittest discover`
 
+## Run ETK CLI
+
+> ETK needs to be installed as python package.
+
+`python -m etk [command] [parameters]`
+
+For example:
+
+`python -m etk dummy --test "this is a test"`
+
 ## Docker
 
 Build image
