@@ -12,17 +12,17 @@ handlers = list(filter(lambda x: not x.startswith('__'),
 
 def help_info():
     print('Usage:')
-    print('\t', 'python -m etk [command] [parameters]')
+    print('\t', 'python -m etk <command> [options]')
     print('Available commands:')
     print('\t', ','.join(handlers))
     print('For the help information of a particular command:')
-    print('\t', 'python -m etk [command] -h')
+    print('\t', 'python -m etk <command> -h')
     exit()
 
 if __name__ == '__main__':
     """
     Usage:
-        python -m etk [command] [parameters]
+        python -m etk <command> [options]
     Example:
         python -m etk dummy --test "this is a test"
     """
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     mod = importlib.import_module(cmd)
 
     # parse arguments
-    parser = ArgumentParser(prog=cmd)
+    parser = ArgumentParser(prog='python -m etk {}'.formt(cmd))
     mod.add_arguments(parser)
     args = parser.parse_args(args=sub_cmd)
 

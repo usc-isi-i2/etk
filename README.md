@@ -66,7 +66,7 @@ deactivate
 
 > ETK needs to be installed as python package.
 
-`python -m etk [command] [parameters]`
+`python -m etk <command> [options]`
 
 For example:
 
