@@ -51,7 +51,7 @@ pip install etk
 You can also install ETK Manually. Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands
 
 ```
-pip install -r requirements.txt
+pip install -e .
 ```
 
 Load the spacy modules
