@@ -1,7 +1,7 @@
 import sys
 import os
 import importlib
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 # module name should NOT starts with '__' (double underscore)
 # module name can not be in 'help', '--help', 'h', '-h'.
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     mod = importlib.import_module(cmd)
 
     # parse arguments
-    parser = ArgumentParser(prog='python -m etk {}'.format(cmd))
+    parser = ArgumentParser(prog='python -m etk {}'.format(cmd), formatter_class=RawDescriptionHelpFormatter)
     mod.add_arguments(parser)
     args = parser.parse_args(args=sub_cmd)
 
