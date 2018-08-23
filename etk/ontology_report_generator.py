@@ -60,6 +60,8 @@ class OntologyReportGenerator:
         sorted_classes = self.sorted_name(self.classes)
         classes = []
         properties_map, referenced_map = self.__html_build_properties()
+        inherit_properties, inherit_referenced = self.__html_build_inheritance_properties(properties_map,
+                                                                                          referenced_map)
         for c in sorted_classes:
             attr = []
             subclass_of = self.sorted_name(c.super_classes())
@@ -73,10 +75,17 @@ class OntologyReportGenerator:
             properties = self.sorted_name(properties_map[c])
             if properties:
                 attr.append(self.row.format('Properties', '<br />\n'.join(map(self.__html_class_property, properties))))
+            properties = self.sorted_name(inherit_properties[c])
+            if properties:
+                attr.append(self.row.format('Properties (I)', '<br />\n'.join(map(self.__html_class_property, properties))))
             properties = self.sorted_name(referenced_map[c])
             if properties:
                 attr.append(self.row.format('Referenced by', '<br />\n'.join(map(self.__html_class_referenced,
                                                                             properties))))
+            properties = self.sorted_name(inherit_referenced[c])
+            if properties:
+                attr.append(self.row.format('Referenced (I)', '<br />\n'.join(map(self.__html_class_property, properties))))
+
             if include_turtle:
                 code = self.__html_extract_other_info(c.uri())
                 if code:
@@ -150,15 +159,22 @@ class OntologyReportGenerator:
             if isinstance(property_, OntologyObjectProperty):
                 for range_ in property_.included_ranges():
                     referenced_map[range_].add(property_)
+        return properties_map, referenced_map
 
+    def __html_build_inheritance_properties(self, properties_map, referenced_map):
+        properties = {k: set(v) for k, v in properties_map.items()}
+        references = {k: set(v) for k, v in referenced_map.items()}
         tree, roots = self.__entity_tree(self.classes)
         while roots:
             for super_class in roots:
                 for class_ in tree[super_class]:
-                    properties_map[class_] |= properties_map[super_class]
-                    referenced_map[class_] |= referenced_map[super_class]
+                    properties[class_] |= properties[super_class]
+                    references[class_] |= references[super_class]
             roots = reduce(set.union, (set(tree[super_class]) for super_class in roots))
-        return properties_map, referenced_map
+        properties = {k: v-properties_map[k] for k, v in properties.items()}
+        references = {k: v-referenced_map[k] for k, v in references.items()}
+        return properties, references
+
 
     def __html_extract_other_info(self, uri):
         g = Graph()
