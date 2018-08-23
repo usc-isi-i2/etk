@@ -150,13 +150,14 @@ class OntologyReportGenerator:
             if isinstance(property_, OntologyObjectProperty):
                 for range_ in property_.included_ranges():
                     referenced_map[range_].add(property_)
-        leaves = {c for c in self.classes} - reduce(set.union, [c.super_classes() for c in self.classes])
-        while leaves:
-            for class_ in leaves:
-                for super_class in class_.super_classes():
-                    properties_map[super_class] |= properties_map[class_]
-                    referenced_map[super_class] |= referenced_map[class_]
-            leaves = reduce(set.union, [c.super_classes() for c in leaves])
+
+        tree, roots = self.__entity_tree(self.classes)
+        while roots:
+            for super_class in roots:
+                for class_ in tree[super_class]:
+                    properties_map[class_] |= properties_map[super_class]
+                    referenced_map[class_] |= referenced_map[super_class]
+            roots = reduce(set.union, (set(tree[super_class]) for super_class in roots))
         return properties_map, referenced_map
 
     def __html_extract_other_info(self, uri):
@@ -195,17 +196,22 @@ class OntologyReportGenerator:
             attr.extend([tpl.format(info, item) for item in getattr(e, info)()])
         return attr
 
-    def __html_entities_hierarchy(self, entities):
+    @staticmethod
+    def __entity_tree(entities):
         tree = {node: list() for node in entities}
         roots = []
-        super = 'super_properties' if entities and \
-            isinstance(next(iter(entities)), OntologyProperty) else 'super_classes'
+        super = 'super_properties' if entities and isinstance(next(iter(entities)),
+                                                              OntologyProperty) else 'super_classes'
         for child in entities:
             parents = getattr(child, super)()
             if not parents:
                 roots.append(child)
             for parent in parents:
                 tree[parent].append(child)
+        return tree, roots
+
+    def __html_entities_hierarchy(self, entities):
+        tree, roots = self.__entity_tree(entities)
 
         def hierarchy_builder(children):
             if not children: return ''
