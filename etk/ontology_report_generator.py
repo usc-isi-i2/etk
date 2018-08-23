@@ -1,6 +1,6 @@
 from functools import reduce
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDFS, OWL, SKOS
+from rdflib.namespace import RDFS, OWL, SKOS, split_uri
 from etk.ontology_api import Ontology, OntologyClass, OntologyProperty, OntologyObjectProperty
 from etk.ontology_api import OntologyDatatypeProperty
 from etk.ontology_namespacemanager import DIG, SCHEMA
@@ -81,6 +81,8 @@ class OntologyReportGenerator:
         sorted_classes = self.sorted_name(self.classes)
         classes = []
         properties_map, referenced_map = self.__html_build_properties()
+        inherit_properties, inherit_referenced = self.__html_build_inheritance_properties(properties_map,
+                                                                                          referenced_map)
         for c in sorted_classes:
             attr = []
             subclass_of = self.sorted_name(c.super_classes())
@@ -94,10 +96,17 @@ class OntologyReportGenerator:
             properties = self.sorted_name(properties_map[c])
             if properties:
                 attr.append(self.row.format('Properties', '<br />\n'.join(map(self.__html_class_property, properties))))
+            properties = self.sorted_name(inherit_properties[c])
+            if properties:
+                attr.append(self.row.format('Properties (I)', '<br />\n'.join(map(self.__html_class_property, properties))))
             properties = self.sorted_name(referenced_map[c])
             if properties:
                 attr.append(self.row.format('Referenced by', '<br />\n'.join(map(self.__html_class_referenced,
                                                                             properties))))
+            properties = self.sorted_name(inherit_referenced[c])
+            if properties:
+                attr.append(self.row.format('Referenced (I)', '<br />\n'.join(map(self.__html_class_property, properties))))
+
             if include_turtle:
                 code = self.__html_extract_other_info(c.uri())
                 if code:
@@ -120,6 +129,7 @@ class OntologyReportGenerator:
                     attr.append(self.row.format('Range', '<br />\n'.join(
                         map(self.__html_entity_href, self.sorted_name(ranges)))))
                 else:
+                    ranges = map(self.qname, ranges)
                     attr.append(self.row.format('Range', '<br />\n'.join(sorted(ranges))))
             subproperty_of = self.sorted_name(p.super_properties())
             superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
@@ -151,8 +161,15 @@ class OntologyReportGenerator:
                 range_ = self.sorted_name(range_)
                 item += tpl.format(', '.join(map(self.__html_entity_href, range_)))
             else:
-                item += tpl.format(', '.join(range_))
+                item += tpl.format(', '.join(map(self.qname, range_)))
         return item
+
+    def qname(self, uri):
+        namespace, _ = split_uri(uri)
+        prefix = self.ontology.g.namespace_manager.store.prefix(URIRef(namespace))
+        if prefix is None:
+            return uri
+        return self.ontology.g.qname(uri)
 
     def __html_class_referenced(self, property_):
         domains = self.sorted_name(property_.included_domains())
@@ -171,14 +188,22 @@ class OntologyReportGenerator:
             if isinstance(property_, OntologyObjectProperty):
                 for range_ in property_.included_ranges():
                     referenced_map[range_].add(property_)
-        leaves = {c for c in self.classes} - reduce(set.union, [c.super_classes() for c in self.classes])
-        while leaves:
-            for class_ in leaves:
-                for super_class in class_.super_classes():
-                    properties_map[super_class] |= properties_map[class_]
-                    referenced_map[super_class] |= referenced_map[class_]
-            leaves = reduce(set.union, [c.super_classes() for c in leaves])
         return properties_map, referenced_map
+
+    def __html_build_inheritance_properties(self, properties_map, referenced_map):
+        properties = {k: set(v) for k, v in properties_map.items()}
+        references = {k: set(v) for k, v in referenced_map.items()}
+        tree, roots = self.__entity_tree(self.classes)
+        while roots:
+            for super_class in roots:
+                for class_ in tree[super_class]:
+                    properties[class_] |= properties[super_class]
+                    references[class_] |= references[super_class]
+            roots = reduce(set.union, (set(tree[super_class]) for super_class in roots))
+        properties = {k: v-properties_map[k] for k, v in properties.items()}
+        references = {k: v-referenced_map[k] for k, v in references.items()}
+        return properties, references
+
 
     def __html_extract_other_info(self, uri):
         g = Graph()
@@ -216,17 +241,22 @@ class OntologyReportGenerator:
             attr.extend([tpl.format(info, item) for item in getattr(e, info)()])
         return attr
 
-    def __html_entities_hierarchy(self, entities):
+    @staticmethod
+    def __entity_tree(entities):
         tree = {node: list() for node in entities}
         roots = []
-        super = 'super_properties' if entities and \
-            isinstance(next(iter(entities)), OntologyProperty) else 'super_classes'
+        super = 'super_properties' if entities and isinstance(next(iter(entities)),
+                                                              OntologyProperty) else 'super_classes'
         for child in entities:
             parents = getattr(child, super)()
             if not parents:
                 roots.append(child)
             for parent in parents:
                 tree[parent].append(child)
+        return tree, roots
+
+    def __html_entities_hierarchy(self, entities):
+        tree, roots = self.__entity_tree(entities)
 
         def hierarchy_builder(children):
             if not children: return ''
