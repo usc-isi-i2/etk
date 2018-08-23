@@ -68,7 +68,7 @@ class OntologyReportGenerator:
             }
             
             ul > ul {
-                border-left: 0.1em dashed #ddd;
+                border-left: 0.1em dotted #ddd;
             }
             
             ul > li {
