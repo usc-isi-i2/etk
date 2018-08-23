@@ -17,7 +17,7 @@
 ###   an ontology to annotate other ontologies with information useful to dig
 ### - : <http://dig.isi.edu/ontologies/dig/>
 ###   a default generic ontology, useful for multiple applications. Users may use other ontologies.
-
+###
 
 diga:icon_name a owl:DatatypeProperty ;
     rdfs:label "icon name" ;
@@ -82,6 +82,14 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """Comprises concepts denoted by terms from thesauri and controlled vocabularies used to characterize and classify instances of CRM classes. Instances of E55 Type represent concepts.""" ;
     skos:note """In addition to the properties defined in this ontology with domain :Type, the expectation is that they have a rdfs:label; ideally skos properties such as skos:prefLabel/altLabel and documentary properties such as skos:note/definition/example.""" ;
     diga:crm_equivalent crm:E55_Type ;
+    .
+
+
+
+:Collection a owl:Class ;
+    rdfs:label "Collection" ;
+    skos:definition """A collection of something. This class can only have properties which belong to the collection itself not the properties of the elements in it.""" ;
+    skos:note """""" ;
     .
 
  # S9 Property Type
@@ -512,7 +520,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     rdfs:label "Man-Made Thing" ;
     skos:definition """Comprises discrete, identifiable man-made items that are documented as single units. These items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.""" ;
     skos:note """Beethoven’s 5th Symphony, Michelangelo’s David, Einstein’s Theory of General Relativity, the Linux operating system, the Empire State building, a chair.""" ;
-    rdfs:subClassOf :Entity ;
+    rdfs:subClassOf :Entity, :Thing;
     diga:crm_equivalent crm:E71_Man-Made_Thing ;
     .
 
@@ -575,7 +583,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
     skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ; 
-    rdfs:subClassOf :Group ;
+    rdfs:subClassOf :Entity, :Persistent_Item ;
     diga:crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
     .
@@ -583,7 +591,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :Group a owl:Class ;
     rdfs:label "Group" ;
     skos:definition """A """ ;
-    rdfs:subClassOf :Entity ;
+    rdfs:subClassOf :Actor, :Collection ;
     diga:crm_equivalent crm:E74_Group ;
     :common_properties :label, :title ;
     .
@@ -591,7 +599,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :Organization a owl:Class ;
     rdfs:label "Group" ;
     skos:definition """Any type of organizationm, a company, a terrorist group, a government, etc.""" ;
-    rdfs:subClassOf :Actor ;
+    rdfs:subClassOf :Group ;
     diga:crm_equivalent crm:E40_Legal_Body ;
     :common_properties :label, :title, :religion ;
     .
@@ -745,7 +753,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     rdfs:label "took place at" ;
     skos:definition """Records a :Place associated with a :Temporal_Entity.""" ;
     skos:example """the period “Révolution française” (E4) took place at France (E53)""" ;
-    schema:domainIncludes :Temporal_Entity ;
+    schema:domainIncludes :Event ;
     schema:rangeIncludes :Place ;
     diga:crm_equivalent crm:P7_took_place_at ;
     .
@@ -944,7 +952,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """Identifies the items involved in an acquisition :Event.""" ;
     skos:note """CRM defines the domain to be Physical_Object, we have expanded it to include non physical things such as organizations, software, etc.""" ;
     schema:domainIncludes :Event ;
-    schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
+    schema:rangeIncludes :Physical_Object, :Physical_Man_Made_Thing ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
     diga:crm_equivalent crm:P24_transferred_title_of ;
     .
@@ -974,7 +982,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     rdfs:label "transferred custody of" ;
     skos:definition """Identifies an item or items whose custody is transferred as a result of an :Event.""" ;
     schema:domainIncludes :Event ;
-    schema:rangeIncludes :Physical_Object, :Man_Made_Thing ;
+    schema:rangeIncludes :Physical_Object, :Physical_Man_Made_Thing ;
     owl:subPropertyOf :had_participant ;
     diga:crm_equivalent crm:P30_transferred_custody_of ;
     .
@@ -993,7 +1001,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """Identifies the :Place where an :Event took place.""" ;
     schema:domainIncludes :Event ;
     schema:rangeIncludes :Place ;
-    owl:subPropertyOf :occurred_in_the_presence_of ;
+    # owl:subPropertyOf :occurred_in_the_presence_of ; # this would cause a hierarchical error
     diga:crm_equivalent crm:P7_took_place_at ;
     .
 
@@ -1020,7 +1028,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     skos:definition """Identifies a :Man_Made_Thing modified in an :Event.""" ;
     skos:note """If a modification is applied to a non-man-made object, it is regarded as :Man_Made_Thing from that time onwards.""" ;
     schema:domainIncludes :Event ;
-    schema:rangeIncludes :Man_Made_Thing ;
+    schema:rangeIncludes :Physical_Man_Made_Thing ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
     diga:crm_equivalent crm:P31_has_modified ;
     .
@@ -1029,7 +1037,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
     rdfs:label "measured" ;
     skos:definition """Specifies the item that was measured in a :Measurement event. Material and immaterial things and processes may be measured.""" ;
     schema:domainIncludes :Measurement ;
-    schema:rangeIncludes :Entity ;
+    schema:rangeIncludes :Persistent_Item ;
     owl:subPropertyOf :occurred_in_the_presence_of ;
     diga:crm_equivalent crm:P39_measured ;
     .
