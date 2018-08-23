@@ -26,7 +26,7 @@ class OntologyReportGenerator:
         """
         return sorted(arr, key=lambda x: x.name())
 
-    def generate_html_report(self, include_turtle=False, exclude_warning=False) -> str:
+    def generate_html_report(self, include_turtle=False, exclude_warning=False, list_auxiliary_line=False) -> str:
         """
         Shows links to all classes and properties, a nice hierarchy of the classes, and then a nice
         description of all the classes with all the properties that apply to it.
@@ -53,7 +53,28 @@ class OntologyReportGenerator:
 
             logs = '' if exclude_warning else self.ontology.log_stream.getvalue()
             content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
+
+            content = content.replace('{{{list_auxiliary_line}}}', self.__show_list_auxiliary_line(list_auxiliary_line))
         return content
+
+    def __show_list_auxiliary_line(self, enable):
+        return '''
+            ul {
+                /*list-style-type: none;*/
+                margin-left: 3em;
+                padding-left: 0em;
+                list-style-position: inside;
+                
+            }
+            
+            ul > ul {
+                border-left: 0.1em dashed #ddd;
+            }
+            
+            ul > li {
+                margin-left: -0.2em;
+            }
+        ''' if enable else ''
 
     def __html_classes(self, include_turtle):
         if not self.classes: return ''
