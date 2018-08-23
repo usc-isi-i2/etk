@@ -1,6 +1,6 @@
 from functools import reduce
 from rdflib import Graph, URIRef
-from rdflib.namespace import RDFS, OWL, SKOS
+from rdflib.namespace import RDFS, OWL, SKOS, split_uri
 from etk.ontology_api import Ontology, OntologyClass, OntologyProperty, OntologyObjectProperty
 from etk.ontology_api import OntologyDatatypeProperty
 from etk.ontology_namespacemanager import DIG, SCHEMA
@@ -108,6 +108,7 @@ class OntologyReportGenerator:
                     attr.append(self.row.format('Range', '<br />\n'.join(
                         map(self.__html_entity_href, self.sorted_name(ranges)))))
                 else:
+                    ranges = map(self.qname, ranges)
                     attr.append(self.row.format('Range', '<br />\n'.join(sorted(ranges))))
             subproperty_of = self.sorted_name(p.super_properties())
             superproperty_of = list(filter(lambda x: p in x.super_properties(), sorted_properties))
@@ -139,8 +140,15 @@ class OntologyReportGenerator:
                 range_ = self.sorted_name(range_)
                 item += tpl.format(', '.join(map(self.__html_entity_href, range_)))
             else:
-                item += tpl.format(', '.join(range_))
+                item += tpl.format(', '.join(map(self.qname, range_)))
         return item
+
+    def qname(self, uri):
+        namespace, _ = split_uri(uri)
+        prefix = self.ontology.g.namespace_manager.store.prefix(URIRef(namespace))
+        if prefix is None:
+            return uri
+        return self.ontology.g.qname(uri)
 
     def __html_class_referenced(self, property_):
         domains = self.sorted_name(property_.included_domains())
