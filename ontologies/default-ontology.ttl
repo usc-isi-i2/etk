@@ -1120,7 +1120,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 ### Allen's temporal relationships
 ###
 
-:occurs_before: a owl:ObjectProperty ;
+:occurs_before a owl:ObjectProperty ;
     rdfs:label "occurs before" ;
     skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
