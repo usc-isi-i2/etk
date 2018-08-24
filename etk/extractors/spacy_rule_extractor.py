@@ -8,7 +8,7 @@ from spacy.tokens import span, doc
 import copy
 import itertools
 import sys
-
+import re
 
 FLAG_DICT = {
     20: attrs.FLAG20,
@@ -364,34 +364,25 @@ class SpacyRuleExtractor(Extractor):
         if not output_format:
             return " ".join(format_value)
 
-        result_str = ""
-        s = list(output_format)
-        t1 = s.pop(0)
-        t2 = s.pop(0)
-        while 1:
-            t3 = s.pop(0)
-            if t1 == '{' and t2.isdigit() and t3 == '}':
-                if int(t2) > len(format_value):
-                    return result_str + t1 + t2 + t3 + "".join(s)
-                result_str += format_value[int(t2) - 1]
-                if not s:
-                    break
-                t1 = s.pop(0)
-                if not s:
-                    result_str += t1
-                    break
-                t2 = s.pop(0)
-                if not s:
-                    result_str += t2
-                    break
-            else:
-                result_str += t1
-                t1 = t2
-                t2 = t3
-                if not s:
-                    result_str += t1
-                    result_str += t2
-                    break
+        result_str = re.sub("{}", " ".join(format_value), output_format)
+
+        positions = re.findall("{[0-9]+}", result_str)
+
+        if not positions:
+            return result_str
+
+        position_indices = [int(x[1:-1]) for x in positions]
+        if max(position_indices) < len(format_value):
+            result_str = result_str.format(*format_value)
+        else:
+            try:
+                result_str = result_str.format("", *format_value)
+            except:
+                positions = [x for x in positions if int(x[1:-1]) > len(format_value)-1 or int(x[1:-1]) < 0]
+                for pos in positions:
+                    result_str = result_str.replace(pos, "")
+                result_str = result_str.format(*format_value)
+
         return result_str
 
     def construct_key(self, rule_id: str, spacy_rule_id:int) -> int:
@@ -710,8 +701,12 @@ class Pattern(object):
         result = []
         for a_token in token_lst:
             for length in lengths:
-                a_token[attrs.LENGTH] = int(length)
-                result.append(copy.deepcopy(a_token))
+                if type(length) == str and length and length.isdigit():
+                    a_token[attrs.LENGTH] = int(length)
+                    result.append(copy.deepcopy(a_token))
+                elif type(length) == int:
+                    a_token[attrs.LENGTH] = int(length)
+                    result.append(copy.deepcopy(a_token))
         return result
 
     @staticmethod

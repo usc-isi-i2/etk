@@ -15,13 +15,12 @@ class GlossaryExtractor(Extractor):
                  glossary: List[str],
                  extractor_name: str,
                  tokenizer: Tokenizer,
-                 ngrams: int=2,
+                 ngrams: int = 2,
                  case_sensitive=False) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
-
 
         self.case_sensitive = case_sensitive
         self.default_tokenizer = tokenizer
@@ -50,7 +49,8 @@ class GlossaryExtractor(Extractor):
             results.extend(map(lambda term: self.wrap_value_with_context(tokens, term[1], term[2]),
                                filter(lambda term: isinstance(term[0], str),
                                       map(lambda term: (self.glossary.get(term[0]), term[1], term[2]),
-                                          map(lambda term: (self.combine_ngrams(term[0], self.joiner), term[1],term[2]), ngrams_iter)))))
+                                          map(lambda term: (
+                                          self.combine_ngrams(term[0], self.joiner), term[1], term[2]), ngrams_iter)))))
         except Exception as e:
             raise ExtractorError('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
         return results
@@ -87,7 +87,7 @@ class GlossaryExtractor(Extractor):
                           start_token=start,
                           end_token=end,
                           start_char=tokens[start].idx,
-                          end_char=tokens[end-1].idx+len(tokens[end-1].orth_)
+                          end_char=tokens[end - 1].idx + len(tokens[end - 1].orth_)
                           )
 
     @staticmethod

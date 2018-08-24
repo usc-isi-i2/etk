@@ -8,15 +8,18 @@ from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
 from etk.etk_exceptions import ErrorPolicy, NotGetETKModuleError
 from etk.utilities import Utility
+import gzip
 
 TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False,
+                 output_kg_only=False):
 
         self.generate_json_ld = generate_json_ld
+        self.output_kg_only = output_kg_only
 
         if logger:
             self.logger = logger
@@ -166,7 +169,10 @@ class ETK(object):
             if "knowledge_graph" in doc.cdr_document:
                 doc.cdr_document["knowledge_graph"].pop("@context", None)
         Utility.make_json_serializable(doc.cdr_document)
-        if not doc.doc_id:
+
+        if self.output_kg_only:
+            doc = doc.kg.value
+        elif not doc.doc_id:
             doc.doc_id = Utility.create_doc_id_from_json(doc.cdr_document)
 
         results = [doc]
@@ -185,10 +191,12 @@ class ETK(object):
             read_json (bool): set True if the glossary is in json format
         Returns: List of the strings in the glossary.
         """
-        with open(file_path) as fp:
-            if read_json:
-                return json.load(fp)
-            return fp.read().splitlines()
+        if read_json:
+            if file_path.endswith(".gz"):
+                return json.load(gzip.open(file_path))
+            return json.load(open(file_path))
+
+        return open(file_path).read().splitlines()
 
     @staticmethod
     def load_spacy_rule(file_path: str) -> Dict:
@@ -289,3 +297,4 @@ class ETK(object):
             self.logger.critical(message)
         elif level == "exception":
             self.logger.exception(message)
+    
