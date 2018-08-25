@@ -23,4 +23,22 @@ It proivdes a flexible framework of **composable extractors** that enables you t
 It supports extraction from HTML pages, text documents, CSV and Excel files and JSON documents.
 ETK is open-source software, released under the MIT license.
 
+**Features**
+
+* Extraction from HTML, text, CSV, Excel, JSON
+* High-precision predefined extractors for common entities (dates, phones, email, cities, ...)
+* Extraction of microdata, schema.org and RDFa markup
+* Integration with [spaCy](https://github.com/explosion/spaCy) for text processing
+* Automatic identification and extraction of HTML tables containing data
+* Automatic identification and extraction of time series
+* Semi-automatic generation of Web wrappers
+* Scalable execution and management of extraction pipelines
+* Automatic provenance recording
+
+**Releases**
+
+- [Source code](https://github.com/usc-isi-i2/etk/releases)
+- [Docker images](https://hub.docker.com/r/uscisii2/etk/tags/)
+
+
 .. end-intro

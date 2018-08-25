@@ -23,6 +23,15 @@ Example::
    >>> import etk
    >>>
 
+Run ETK CLI::
+
+   pip install -U etk
+   python -m etk <command> [options]
+
+For example::
+
+   python -m etk dummy --test "this is a test"
+
 
 Tutorial
 -------------
@@ -31,6 +40,7 @@ Tutorial
    :maxdepth: 2
 
    installation.rst
+   overview.rst
 
 Indices and tables
 ==================

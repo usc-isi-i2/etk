@@ -23,6 +23,7 @@ Generally, it's recommended to install packages in a virtual environment::
     pip install etk
 
 Load the spacy modules::
+
     python -m spacy download en_core_web_sm
     python -m spacy download en_core_web_lg
 
@@ -32,8 +33,12 @@ Install from source
 The other way to install ETK is to clone from GitHub repository and build it from source::
 
     git clone https://github.com/usc-isi-i2/etk.git
-    cd etk
+    pip install -e .
 
+Install ETK from source and install packages in a virtual environment::
+
+    git clone https://github.com/usc-isi-i2/etk.git
+    cd etk
     python3 -m venv etk2_env
     source activate etk2_env
     pip install -e .
