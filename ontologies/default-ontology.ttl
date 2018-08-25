@@ -583,7 +583,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :Actor a owl:Class ;
     rdfs:label "Actor" ;
     skos:definition """A group, organization, person who have the potential to do actions, e.g., rob a bank, make a public statement.""" ; 
-    rdfs:subClassOf :Entity, :Persistent_Item ;
+    rdfs:subClassOf :Persistent_Item ;
     diga:crm_equivalent crm:E39_Actor ;
     :common_properties :label, :title, :religion ;
     .
@@ -1120,7 +1120,7 @@ diga:crm_equivalent a owl:ObjectProperty ;
 ### Allen's temporal relationships
 ###
 
-:occurs_before: a owl:ObjectProperty ;
+:occurs_before a owl:ObjectProperty ;
     rdfs:label "occurs before" ;
     skos:definition """This property is the same as the "before / after" relationships of Allen’s temporal logic (Allen, 1983, pp. 832-843).""" ;
     schema:domainIncludes :Event ;
@@ -1332,21 +1332,21 @@ diga:crm_equivalent a owl:ObjectProperty ;
 :label a owl:DatatypeProperty ;
     rdfs:label "label" ;
     skos:definition """A short label for an entity.""" ;
-    schema:domainIncludes :Entity ;
+    schema:domainIncludes :Entity, :Collection;
     schema:rangeIncludes xsd:string ;
     .
 
 :title a owl:DatatypeProperty ;
     rdfs:label "title" ;
     skos:definition """A title for an entity, typically one line of text to describe it.""" ;
-    schema:domainIncludes :Entity ;
+    schema:domainIncludes :Entity, :Collection;
     schema:rangeIncludes xsd:string ;
     .
 
 :description a owl:DatatypeProperty ;
     rdfs:label "description" ;
     skos:definition """A long description of an entity, typically multiple lines of text.""" ;
-    schema:domainIncludes :Entity ;
+    schema:domainIncludes :Entity, :Collection;
     schema:rangeIncludes xsd:string ;
     .
 
@@ -1448,5 +1448,16 @@ diga:crm_equivalent a owl:ObjectProperty ;
     schema:rangeIncludes xsd:decimal ;
     .
 
+:has_element a owl:ObjectProperty ;
+    rdfs:label "has element" ;
+    skos:definition """""" ;
+    schema:domainIncludes :Collection ;
+    schema:rangeIncludes :Entity ;
+    .
 
-
+:has_member a owl:ObjectProperty ;
+    rdfs:label "has member" ;
+    skos:definition """""" ;
+    schema:domainIncludes :Group ;
+    schema:rangeIncludes :Actor ;
+    .
