@@ -42,9 +42,10 @@ Tutorial
    installation.rst
    overview.rst
 
-Indices and tables
-==================
+API Reference
+-------------
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+   :maxdepth: 3
+
+   modules.rst

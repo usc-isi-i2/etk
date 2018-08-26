@@ -129,26 +129,27 @@ class DateExtractor(Extractor):
         """
 
         Args:
-            text: str - extract dates from this 'text'
-            extract_first_date_only: bool - extract the first valid date only or extract all
-            additional_formats: List[str] - user defined formats for extraction
-            use_default_formats: bool - if use default formats together with addtional_formats
-            ignore_dates_before: datetime.datetime - ignore dates before 'ignore_dates_before'
-            ignore_dates_after: datetime.datetime - ignore dates after 'ignore_dates_after'
-            detect_relative_dates: bool - if detect relative dates like '9 days before'
-            relative_base: datetime.datetime - offset relative dates detected based on 'relative_base'
-            preferred_date_order: enum['MDY', 'DMY', 'YMD'] - preferred date order when ambiguous
-            prefer_language_date_order: bool - if use the text language's preferred order
-            timezone: str - add 'timezone' if there is no timezone information in the extracted date
-            to_timezone: str - convert all dates extracted to this timezone
-            return_as_timezone_aware: bool - returned datetime timezone awareness
-            prefer_day_of_month: enum['first', 'current', 'last'] - use which day of the month when there is no 'day'
-            prefer_dates_from: enum['past', 'current', 'future'] - use which date when there is few info(e.g. only month)
-            date_value_resolution: enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR,
-                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR] - specify resolution
+            text (str):  extract dates from this 'text'
+            extract_first_date_only (bool): extract the first valid date only or extract all
+            additional_formats (List[str]):  user defined formats for extraction
+            use_default_formats (bool): if use default formats together with addtional_formats
+            ignore_dates_before (datetime.datetime): ignore dates before 'ignore_dates_before'
+            ignore_dates_after (datetime.datetime): ignore dates after 'ignore_dates_after'
+            detect_relative_dates (bool): if detect relative dates like '9 days before'
+            relative_base (datetime.datetime): offset relative dates detected based on 'relative_base'
+            preferred_date_order (enum['MDY', 'DMY', 'YMD']): preferred date order when ambiguous
+            prefer_language_date_order (bool): if use the text language's preferred order
+            timezone (str): add 'timezone' if there is no timezone information in the extracted date
+            to_timezone (str): convert all dates extracted to this timezone
+            return_as_timezone_aware (bool): returned datetime timezone awareness
+            prefer_day_of_month (enum['first', 'current', 'last']): use which day of the month when there is no 'day'
+            prefer_dates_from (enum['past', 'current', 'future']): use which date when there is few info(e.g. only month)
+            date_value_resolution (enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR,
+                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR]): specify resolution
                 when convert to iso format string
 
-        Returns: List[Extraction] - Extraction.value: iso format string
+        Returns:
+            List[Extraction]: Extraction.value: iso format string
                                     extra attributes in Extraction._provenance:
                                         'date_object': datetime.datetime - the datetime object
                                         'original_text': str - the original str extracted from text
@@ -247,7 +248,7 @@ class DateExtractor(Extractor):
 
         return ans
 
-    def wrap_extraction(self, date_object: datetime.datetime,
+    def __wrap_extraction(self, date_object: datetime.datetime,
                         original_text: str,
                         start_char: int,
                         end_char: int
@@ -272,7 +273,7 @@ class DateExtractor(Extractor):
                                                                                 'Catch ' + str(e))
             return None
 
-    def remove_overlapped_date_str(self, results: List[List[dict]]) -> List[Extraction]:
+    def __remove_overlapped_date_str(self, results: List[List[dict]]) -> List[Extraction]:
         """
         some string may be matched by multiple date templates,
         deduplicate the results and return a single list
@@ -320,7 +321,7 @@ class DateExtractor(Extractor):
             res.append(parsed_date)
         return res
 
-    def parse_date(self, date_info: dict) -> Extraction or None:
+    def __parse_date(self, date_info: dict) -> Extraction or None:
         """
         parse a date string extracted to a datetime.datetime object
         apply the customizations like date range, date completion etc.
@@ -440,7 +441,7 @@ class DateExtractor(Extractor):
                 return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
         return None
 
-    def post_process_date(self, date: datetime.datetime) -> datetime.datetime or None:
+    def __post_process_date(self, date: datetime.datetime) -> datetime.datetime or None:
         """
 
         apply date range and timezone conversion
@@ -471,7 +472,7 @@ class DateExtractor(Extractor):
 
         return date
 
-    def extract_relative_dates(self, text: str) -> List[Extraction]:
+    def __extract_relative_dates(self, text: str) -> List[Extraction]:
         """
 
         Extract relative dates using spaCy rules
@@ -526,7 +527,7 @@ class DateExtractor(Extractor):
         return ans
 
     @staticmethod
-    def convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
+    def __convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
         """
 
         Args:
@@ -562,7 +563,7 @@ class DateExtractor(Extractor):
         return None
 
     @staticmethod
-    def wrap_date_match(order: str, match: re.match, pattern: str=None) -> dict or None:
+    def __wrap_date_match(order: str, match: re.match, pattern: str=None) -> dict or None:
         """
 
         Args:

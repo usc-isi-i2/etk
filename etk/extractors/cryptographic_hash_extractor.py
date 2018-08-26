@@ -22,6 +22,16 @@ class CryptographicHashExtractor(Extractor):
         return self._regex_extractors
 
     def extract(self, text: str) -> List[Extraction]:
+        """
+
+        Args:
+            text (str): The input source to be processed
+
+        Returns:
+            List[Extraction]: The list of extractions returned by CryptographicHashExtractor
+
+        """
+
         res = list()
         for e in self.regex_extractors:
             res = res+e.extract(text)
