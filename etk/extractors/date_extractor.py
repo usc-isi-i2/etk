@@ -222,7 +222,7 @@ class DateExtractor(Extractor):
                 })
             for r in additional_regex:
                 try:
-                    matches = [self.wrap_date_match(r['order'], match, pattern=r['pattern']) for
+                    matches = [self.__wrap_date_match(r['order'], match, pattern=r['pattern']) for
                            match in re.finditer(r['reg'], text, re.I) if match]
                     if matches:
                         results.append(matches)
@@ -230,21 +230,21 @@ class DateExtractor(Extractor):
                     warn('DateExtractor: Failed to extract with additional format ' + str(r) + '.')
             if use_default_formats:
                 for order in self.final_regex.keys():
-                    matches = [self.wrap_date_match(order, match) for match
+                    matches = [self.__wrap_date_match(order, match) for match
                                in re.finditer(self.final_regex[order], text, re.I) if match]
                     if matches:
                         results.append(matches)
         else:
             for order in self.final_regex.keys():
-                matches = [self.wrap_date_match(order, match) for match
+                matches = [self.__wrap_date_match(order, match) for match
                            in re.finditer(self.final_regex[order], text, re.I) if match]
                 results.append(matches)
 
         # for absolute dates:
-        ans = self.remove_overlapped_date_str(results)
+        ans = self.__remove_overlapped_date_str(results)
         # for relative dates:
         if detect_relative_dates:
-            ans += self.extract_relative_dates(text)
+            ans += self.__extract_relative_dates(text)
 
         return ans
 
@@ -261,7 +261,7 @@ class DateExtractor(Extractor):
             resolution = self.settings[MIN_RESOLUTION] \
                     if self.settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL \
                     else self.settings[DATE_VALUE_RESOLUTION]
-            e = Extraction(self.convert_to_iso_format(date_object, resolution=resolution),
+            e = Extraction(self.__convert_to_iso_format(date_object, resolution=resolution),
                            start_char=start_char,
                            end_char=end_char,
                            extractor_name=self.name,
@@ -289,7 +289,7 @@ class DateExtractor(Extractor):
         cur_max = all_results[0]
         for x in all_results[1:]:
             if cur_max['end'] <= x['start']:
-                parsed_date = self.parse_date(cur_max)
+                parsed_date = self.__parse_date(cur_max)
                 if parsed_date:
                     if self.settings[EXTRACT_FIRST_DATE_ONLY]:
                         return res
@@ -314,7 +314,7 @@ class DateExtractor(Extractor):
                                     cur_max = x
                             elif x['order'] == self.settings[PREFERRED_DATE_ORDER]:
                                 cur_max = x
-        parsed_date = self.parse_date(cur_max)
+        parsed_date = self.__parse_date(cur_max)
         if parsed_date:
             if self.settings[EXTRACT_FIRST_DATE_ONLY]:
                 return res
@@ -435,10 +435,10 @@ class DateExtractor(Extractor):
                         elif date < today and (today-date > next_year-today):
                             date = next_year
 
-            date = self.post_process_date(date)
+            date = self.__post_process_date(date)
 
             if date:
-                return self.wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
+                return self.__wrap_extraction(date, date_info['value'], date_info['start'], date_info['end'])
         return None
 
     def __post_process_date(self, date: datetime.datetime) -> datetime.datetime or None:
@@ -516,9 +516,9 @@ class DateExtractor(Extractor):
             direction = directions[direction.lower()] if direction.lower() in directions else '+'
             delta_args = {unit: int(direction+measure)}
             relative_delta = relativedelta(**delta_args)
-            date = self.post_process_date(base+relative_delta)
+            date = self.__post_process_date(base+relative_delta)
             if date:
-                extraction_date = self.wrap_extraction(date,
+                extraction_date = self.__wrap_extraction(date,
                                                        relative_date.value,
                                                        relative_date.provenance['start_char'],
                                                        relative_date.provenance['end_char'])
