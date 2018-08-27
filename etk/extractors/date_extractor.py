@@ -93,6 +93,30 @@ class DateResolutionHelper():
 
 
 class DateExtractor(Extractor):
+    """
+
+    Examples:
+        ::
+
+            date_extractor = (etk=self.etk)
+            date_extractor.extract(text=input_doc,
+                                extract_first_date_only=False,  # first valid
+                                additional_formats=['%Y@%m@%d', '%a %Y, %b %d'],
+                                use_default_formats=True,
+                                ignore_dates_before=ignore_before,
+                                ignore_dates_after=ignore_after,
+                                relative_base=relative_base,
+                                preferred_date_order="DMY",
+                                prefer_language_date_order=True,
+                                timezone='GMT',
+                                to_timezone='UTC',
+                                return_as_timezone_aware=False,
+                                prefer_day_of_month='first',
+                                prefer_dates_from='future',
+                                )
+
+    """
+
     def __init__(self, etk: ETK=None, extractor_name: str='date extractor') -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
@@ -127,34 +151,41 @@ class DateExtractor(Extractor):
                 date_value_resolution: DateResolution = DateResolution.DAY,
                 ) -> List[Extraction]:
         """
-
         Args:
-            text (str):  extract dates from this 'text'
-            extract_first_date_only (bool): extract the first valid date only or extract all
-            additional_formats (List[str]):  user defined formats for extraction
-            use_default_formats (bool): if use default formats together with addtional_formats
-            ignore_dates_before (datetime.datetime): ignore dates before 'ignore_dates_before'
-            ignore_dates_after (datetime.datetime): ignore dates after 'ignore_dates_after'
-            detect_relative_dates (bool): if detect relative dates like '9 days before'
-            relative_base (datetime.datetime): offset relative dates detected based on 'relative_base'
-            preferred_date_order (enum['MDY', 'DMY', 'YMD']): preferred date order when ambiguous
-            prefer_language_date_order (bool): if use the text language's preferred order
-            timezone (str): add 'timezone' if there is no timezone information in the extracted date
-            to_timezone (str): convert all dates extracted to this timezone
-            return_as_timezone_aware (bool): returned datetime timezone awareness
-            prefer_day_of_month (enum['first', 'current', 'last']): use which day of the month when there is no 'day'
-            prefer_dates_from (enum['past', 'current', 'future']): use which date when there is few info(e.g. only month)
-            date_value_resolution (enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR,
-                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR]): specify resolution
-                when convert to iso format string
+            text (str):  extract dates from this 'text', default to None
+            extract_first_date_only (bool): extract the first valid date only or extract all, default to False
+            additional_formats (List[str]):  user defined formats for extraction, default to empty list
+            use_default_formats (bool): if use default formats together with addtional_formats, default to False
+            ignore_dates_before (datetime.datetime): ignore dates before 'ignore_dates_before', default to None
+            ignore_dates_after (datetime.datetime): ignore dates after 'ignore_dates_after', default to None
+            detect_relative_dates (bool): if detect relative dates like '9 days before', default to False
+            relative_base (datetime.datetime): offset relative dates detected based on 'relative_base', default to None
+            preferred_date_order (enum['MDY', 'DMY', 'YMD']): preferred date order when ambiguous, default to 'MDY'
+            prefer_language_date_order (bool): if use the text language's preferred order, default to True
+            timezone (str): add 'timezone' if there is no timezone information in the extracted date, default to None
+            to_timezone (str): convert all dates extracted to this timezone, default to None
+            return_as_timezone_aware (bool): returned datetime timezone awareness, default to None
+            prefer_day_of_month (enum['first', 'current', 'last']): use which day of the month when there is no 'day', default to 'first'
+            prefer_dates_from (enum['past', 'current', 'future']): use which date when there is few info(e.g. only month), default to 'current'
+            date_value_resolution (enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR, \
+                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR]): specify resolution \
+                when convert to iso format string, default to DateResolution.DAY
 
         Returns:
-            List[Extraction]: Extraction.value: iso format string
-                                    extra attributes in Extraction._provenance:
-                                        'date_object': datetime.datetime - the datetime object
-                                        'original_text': str - the original str extracted from text
-                                        'language': enum['en', 'es'] - language of the date
+            List[Extraction]: List of extractions, the information including::
 
+                Extraction._value: iso format string,
+                Extraction._provenance: provenance information including:
+                {
+                    'start_char': int - start_char,
+                    'end_char': int - end_char
+                },
+                Extraction._addition_inf: additional information including:
+                {
+                    'date_object': datetime.datetime - the datetime object,
+                    'original_text': str - the original str extracted from text,
+                    'language': enum['en', 'es'] - language of the date
+                }
         """
 
         if return_as_timezone_aware:
