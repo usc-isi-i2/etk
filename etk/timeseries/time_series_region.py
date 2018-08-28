@@ -171,10 +171,10 @@ class TimeSeriesRegion(object):
         month_kw = {"jan":1, "feb":2, "mar":3, "apr":4, "may":5, "jun":6, "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12,
             "january":1, "february":2, "march":3, "april":4, "june":6, "july":7, "august":8, "september":9, "october":10, "november":11, "december":12}
         try:
-            year = re.search('(\d{4})')[0]
-            month = re.search('[^\d](\d{2}[^\d]')
+            year = re.search('(\d{4})', time_label).group(1)
+            month = re.search('[^\d](\d{2})[^\d]', time_label)
             if month != None:
-                return year + '-' + month[0]
+                return year + '-' + month.group(1)
             for k in month_kw:
                 if k in time_label.lower:
                     return year + '-' + str(month_kw[k])
