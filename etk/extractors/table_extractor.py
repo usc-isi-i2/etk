@@ -9,9 +9,6 @@ import re
 
 
 class Toolkit:
-    # def __init__(self):
-    #     pass
-
     @staticmethod
     def create_table_array(t, put_extractions=False):
         rows = t['rows']
@@ -59,13 +56,11 @@ class Toolkit:
 
 
 class EntityTableDataExtraction(Extractor):
-    extractor_name = "DigEntityTableDataExtractor"
-
     def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.OBJECT,
                            category="data",
-                           name=EntityTableDataExtraction.extractor_name)
+                           name="DigEntityTableDataExtractor")
         self.glossaries = dict()
 
     def add_glossary(self, glossary: List[str], attr_name: str) -> None:
@@ -419,16 +414,26 @@ class TableExtraction:
 
 
 class TableExtractor(Extractor):
-    extractor_name = "DigTableExtractor"
+    """
+        Adding explanation here
+
+    Examples:
+        ::
+
+            table_extractor = TableExtractor()
+            table_extractor.extract()
+
+    """
+
     tableExtractorInstance = TableExtraction()
 
     def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="content",
-                           name=TableExtractor.extractor_name)
+                           name="DigTableExtractor")
 
-    def wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
+    def __wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
@@ -442,6 +447,6 @@ class TableExtractor(Extractor):
         results = list()
         temp_res = TableExtractor.tableExtractorInstance.extract(html)
         if return_text:
-            results.append(self.wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
-        results.extend(map(lambda t: self.wrap_value_with_context(t, "tables"), temp_res['tables']))
+            results.append(self.__wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
+        results.extend(map(lambda t: self.__wrap_value_with_context(t, "tables"), temp_res['tables']))
         return results

@@ -2,6 +2,16 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 
 class HostnameExtractor(RegexExtractor):
+    """
+        This class
+
+    Examples:
+        ::
+
+            hostname_extractor = HostnameExtractor(...)
+            hostname_extractor.extract(text=input_doc,...)
+
+    """
     def __init__(self):
         hostname_pattern = r"\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{,61}[a-zA-Z0-9])?\.)+" \
                            r"(?!html|php|jsp|xml|pdf|asp|css|aspx|phtml)[a-zA-Z]{2,6}\b"

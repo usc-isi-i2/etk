@@ -9,15 +9,21 @@ from langdetect import detect
 
 class LanguageIdentificationExtractor(Extractor):
     """
-    Identify the language used in text, returning the identifier language using ISO 639-1 codes
+        Identify the language used in text, returning the identifier language using ISO 639-1 codes
 
-    Uses two libraries:
-    - https://github.com/davidjurgens/equilid
-    - https://github.com/saffsd/langid.py
+        Uses two libraries:
+        - https://github.com/davidjurgens/equilid
+        - https://github.com/saffsd/langid.py
 
-    TODO: define Enum to select which method to use.
-    TODO: define dictionary to translate ISO 639-3 to ISO 639-1 codes
-    https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, perhaps there is an online source that has this
+        TODO: define Enum to select which method to use.
+        TODO: define dictionary to translate ISO 639-3 to ISO 639-1 codes
+        https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, perhaps there is an online source that has this
+
+    Examples:
+        ::
+            language_identification_extractor = LanguageIdentificationExtractor(...)
+            language_identification_extractor.extract()
+
     """
 
     def __init__(self):

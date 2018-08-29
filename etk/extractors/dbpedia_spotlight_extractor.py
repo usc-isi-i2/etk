@@ -7,24 +7,37 @@ import requests
 
 
 class DBpediaSpotlightExtractor(Extractor):
+    """
+        This class
 
+    Examples:
+        ::
+
+            dbpedia_spotlight_extractor = DBpediaSpotlightExtractor(search_url="",
+                                                                     get_attr=True)
+            dbpedia_spotlight_extractor.extract(text=input_doc,
+                                                filter=[])
+
+    """
     def __init__(self, extractor_name: str, search_url: str, get_attr=False,
                  get_attr_url="http://dbpedia.org/sparql"):
         Extractor.__init__(self, input_type=InputType.TEXT,
                            category="built_in_extractor",
                            name=extractor_name)
-        self.search_url = search_url
-        self.get_attr = get_attr
-        self.get_attr_url = get_attr_url
+        self.__search_url = search_url
+        self.__get_attr = get_attr
+        self.__get_attr_url = get_attr_url
 
     def extract(self, text: str, confidence=0.5, filter=['Person', 'Place', 'Organisation']) -> List[Extraction]:
         """
             Extract with the input text, confidence and fields filter to be used.
             Args:
-                text: str, text input to be annotated
-                confidence: float, the confidence of the annotation
-                filter: list, the fields that to be extracted
-            Returns: List[Extraction]
+                text (str): text input to be annotated
+                confidence (float): the confidence of the annotation
+                filter (List[str]): the fields that to be extracted
+
+            Returns:
+                List[Extraction]
         """
 
         filter = ','.join(filter)
@@ -39,7 +52,7 @@ class DBpediaSpotlightExtractor(Extractor):
         last_results = self.combiner(results)
         return last_results
 
-    def combiner(self, results: dict) -> List[Extraction]:
+    def __combiner(self, results: dict) -> List[Extraction]:
         return_result = list()
         if "Resources" in results:
             resources_results = results["Resources"]
@@ -49,8 +62,8 @@ class DBpediaSpotlightExtractor(Extractor):
                           'uri': one_result['@URI'],
                           'types': types,
                           'similarity_scores': float(one_result['@similarityScore'])}
-                if self.get_attr:
-                    attr = self.attr_finder(one_result['@URI'])
+                if self.__get_attr:
+                    attr = self.__attr_finder(one_result['@URI'])
                     values['attributes'] = attr
                 return_result.append(Extraction(confidence=float(results['@confidence']),
                                                 extractor_name=self.name,
@@ -62,8 +75,8 @@ class DBpediaSpotlightExtractor(Extractor):
             return return_result
         return list()
 
-    def attr_finder(self, uri) -> dict:
-        sparql = SPARQLWrapper(self.get_attr_url)
+    def __attr_finder(self, uri) -> dict:
+        sparql = SPARQLWrapper(self.__get_attr_url)
         sparql.setQuery("SELECT distinct * WHERE {<" + uri + "> ?link ?resource}")
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()

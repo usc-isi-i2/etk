@@ -5,6 +5,7 @@ from etk.tokenizer import Tokenizer
 from spacy.matcher import Matcher
 from spacy import attrs
 from spacy.tokens import span, doc
+from etk.extractors.util.util import tf_transfer
 import copy
 import itertools
 import sys
@@ -85,6 +86,15 @@ FLAG_ID = 20
 
 
 class SpacyRuleExtractor(Extractor):
+    """
+        Adding explanation here
+
+    Examples:
+        ::
+            spacy_rule_extractor = SpacyRuleExtractor()
+            spacy_rule_extractor.extract()
+
+    """
     def __init__(self,
                  nlp,
                  rules: Dict,
@@ -103,40 +113,42 @@ class SpacyRuleExtractor(Extractor):
                            input_type=InputType.TEXT,
                            category="spacy_rule_extractor",
                            name=extractor_name)
-        self.rules = rules["rules"]
-        self.nlp = copy.deepcopy(nlp)
-        self.tokenizer = Tokenizer(self.nlp)
-        self.matcher = Matcher(self.nlp.vocab)
-        self.field_name = rules["field_name"] if "field_name" in rules else extractor_name
-        self.rule_lst = {}
-        self.hash_map = {}
-        for idx, a_rule in enumerate(self.rules):
-            this_rule = Rule(a_rule, self.nlp)
-            self.rule_lst[this_rule.identifier + "rule_id##" + str(idx)] = this_rule
+        self.__rules = rules["rules"]
+        self.__nlp = copy.deepcopy(nlp)
+        self.__tokenizer = Tokenizer(self.__nlp)
+        self.__matcher = Matcher(self.__nlp.vocab)
+        self.__field_name = rules["field_name"] if "field_name" in rules else extractor_name
+        self.__rule_lst = {}
+        self.__hash_map = {}
+        for idx, a_rule in enumerate(self.__rules):
+            this_rule = Rule(a_rule, self.__nlp)
+            self.__rule_lst[this_rule.identifier + "rule_id##" + str(idx)] = this_rule
 
     def extract(self, text: str) -> List[Extraction]:
         """
         Extract from text
+
         Args:
             text: str
 
-        Returns: List[Extraction]
+        Returns:
+            List[Extraction]
         """
 
-        doc = self.tokenizer.tokenize_to_spacy_doc(text)
-        self.load_matcher()
+        doc = self.__tokenizer.tokenize_to_spacy_doc(text)
+        self.__load_matcher()
 
-        matches = [x for x in self.matcher(doc) if x[1] != x[2]]
+        matches = [x for x in self.__matcher(doc) if x[1] != x[2]]
         pos_filtered_matches = []
         neg_filtered_matches = []
         for idx, start, end in matches:
-            span_doc = self.tokenizer.tokenize_to_spacy_doc(doc[start:end].text)
-            this_spacy_rule = self.matcher.get(idx)
-            relations = self.find_relation(span_doc, this_spacy_rule)
-            rule_id, _ = self.hash_map[idx]
-            this_rule = self.rule_lst[rule_id]
-            if self.filter_match(doc[start:end], relations, this_rule.patterns):
-                value = self.form_output(doc[start:end], this_rule.output_format, relations, this_rule.patterns)
+            span_doc = self.__tokenizer.tokenize_to_spacy_doc(doc[start:end].text)
+            this_spacy_rule = self.__matcher.get(idx)
+            relations = self.__find_relation(span_doc, this_spacy_rule)
+            rule_id, _ = self.__hash_map[idx]
+            this_rule = self.__rule_lst[rule_id]
+            if self.__filter_match(doc[start:end], relations, this_rule.patterns):
+                value = self.__form_output(doc[start:end], this_rule.output_format, relations, this_rule.patterns)
                 if this_rule.polarity:
                     pos_filtered_matches.append((start, end, value, rule_id, relations))
                 else:
@@ -144,10 +156,10 @@ class SpacyRuleExtractor(Extractor):
 
         return_lst = []
         if pos_filtered_matches:
-            longest_lst_pos = self.get_longest(pos_filtered_matches)
+            longest_lst_pos = self.__get_longest(pos_filtered_matches)
             if neg_filtered_matches:
-                longest_lst_neg = self.get_longest(neg_filtered_matches)
-                return_lst = self.reject_neg(longest_lst_pos, longest_lst_neg)
+                longest_lst_neg = self.__get_longest(neg_filtered_matches)
+                return_lst = self.__reject_neg(longest_lst_pos, longest_lst_neg)
             else:
                 return_lst = longest_lst_pos
 
@@ -165,18 +177,18 @@ class SpacyRuleExtractor(Extractor):
 
         return extractions
 
-    def load_matcher(self) -> None:
+    def __load_matcher(self) -> None:
         """
         Add constructed spacy rule to Matcher
         """
-        for id_key in self.rule_lst:
-            if self.rule_lst[id_key].active:
-                pattern_lst = [a_pattern.spacy_token_lst for a_pattern in self.rule_lst[id_key].patterns]
+        for id_key in self.__rule_lst:
+            if self.__rule_lst[id_key].active:
+                pattern_lst = [a_pattern.spacy_token_lst for a_pattern in self.__rule_lst[id_key].patterns]
 
                 for spacy_rule_id, spacy_rule in enumerate(itertools.product(*pattern_lst)):
-                    self.matcher.add(self.construct_key(id_key, spacy_rule_id), None, list(spacy_rule))
+                    self.__matcher.add(self.__construct_key(id_key, spacy_rule_id), None, list(spacy_rule))
 
-    def filter_match(self, span: span, relations: Dict, patterns: List) -> bool:
+    def __filter_match(self, span: span, relations: Dict, patterns: List) -> bool:
         """
         Filter the match result according to prefix, suffix, min, max ...
         Args:
@@ -192,19 +204,19 @@ class SpacyRuleExtractor(Extractor):
             if token_range:
                 tokens = [x for x in span[token_range[0]:token_range[1]]]
                 if a_pattern.type == "word":
-                    if not self.pre_suf_fix_filter(tokens, a_pattern.prefix, a_pattern.suffix):
+                    if not self.__pre_suf_fix_filter(tokens, a_pattern.prefix, a_pattern.suffix):
                         return False
                 if a_pattern.type == "shape":
-                    if not (self.full_shape_filter(tokens, a_pattern.full_shape)
-                            and self.pre_suf_fix_filter(tokens, a_pattern.prefix,a_pattern.suffix)):
+                    if not (self.__full_shape_filter(tokens, a_pattern.full_shape)
+                            and self.__pre_suf_fix_filter(tokens, a_pattern.prefix,a_pattern.suffix)):
                         return False
                 if a_pattern.type == "number":
-                    if not self.min_max_filter(tokens, a_pattern.min, a_pattern.max):
+                    if not self.__min_max_filter(tokens, a_pattern.min, a_pattern.max):
                         return False
         return True
 
     @staticmethod
-    def get_longest(value_lst: List) -> List:
+    def __get_longest(value_lst: List) -> List:
         """
         Get the longest match for overlap
         Args:
@@ -232,7 +244,7 @@ class SpacyRuleExtractor(Extractor):
         return result
 
     @staticmethod
-    def reject_neg(pos_lst: List, neg_lst: List) -> List:
+    def __reject_neg(pos_lst: List, neg_lst: List) -> List:
         """
         Reject some positive matches according to negative matches
         Args:
@@ -267,7 +279,7 @@ class SpacyRuleExtractor(Extractor):
         return result
 
     @staticmethod
-    def pre_suf_fix_filter(t: List, prefix: str, suffix: str) -> bool:
+    def __pre_suf_fix_filter(t: List, prefix: str, suffix: str) -> bool:
         """
         Prefix and Suffix filter
         Args:
@@ -290,7 +302,7 @@ class SpacyRuleExtractor(Extractor):
         return True
 
     @staticmethod
-    def min_max_filter(t: List, min_v: str, max_v: str) -> bool:
+    def __min_max_filter(t: List, min_v: str, max_v: str) -> bool:
         """
         Min and Max filter
         Args:
@@ -324,7 +336,7 @@ class SpacyRuleExtractor(Extractor):
         return True
 
     @staticmethod
-    def full_shape_filter(t: List, shapes: List) -> bool:
+    def __full_shape_filter(t: List, shapes: List) -> bool:
         """
         Shape filter
         Args:
@@ -342,7 +354,7 @@ class SpacyRuleExtractor(Extractor):
         return True
 
     @staticmethod
-    def form_output(span_doc: span, output_format: str, relations: Dict, patterns: List) -> str:
+    def __form_output(span_doc: span, output_format: str, relations: Dict, patterns: List) -> str:
         """
         Form an output value according to user input of output_format
         Args:
@@ -385,7 +397,7 @@ class SpacyRuleExtractor(Extractor):
 
         return result_str
 
-    def construct_key(self, rule_id: str, spacy_rule_id:int) -> int:
+    def __construct_key(self, rule_id: str, spacy_rule_id:int) -> int:
         """
         Use a mapping to store the information about rule_id for each matches, create the mapping key here
         Args:
@@ -397,10 +409,10 @@ class SpacyRuleExtractor(Extractor):
 
         hash_key = (rule_id, spacy_rule_id)
         hash_v = hash(hash_key) + sys.maxsize + 1
-        self.hash_map[hash_v] = hash_key
+        self.__hash_map[hash_v] = hash_key
         return hash_v
 
-    def find_relation(self, span_doc: doc, r: List) -> Dict:
+    def __find_relation(self, span_doc: doc, r: List) -> Dict:
         """
         Get the relations between the each pattern in the spacy rule and the matches
         Args:
@@ -418,7 +430,7 @@ class SpacyRuleExtractor(Extractor):
                 for extra_id, _, in enumerate(rule[e_id:]):
                     relation[e_id+extra_id] = None
                 break
-            new_doc = self.tokenizer.tokenize_to_spacy_doc(span_doc[span_pivot:].text)
+            new_doc = self.__tokenizer.tokenize_to_spacy_doc(span_doc[span_pivot:].text)
             if "OP" not in element:
                 relation[e_id] = (span_pivot, span_pivot+1)
                 span_pivot += 1
@@ -426,7 +438,7 @@ class SpacyRuleExtractor(Extractor):
                 if e_id < len(rule)-1:
                     tmp_rule_1 = [rule[e_id]]
                     tmp_rule_2 = [rule[e_id+1]]
-                    tmp_matcher = Matcher(self.nlp.vocab)
+                    tmp_matcher = Matcher(self.__nlp.vocab)
                     tmp_matcher.add(0, None, tmp_rule_1)
                     tmp_matcher.add(1, None, tmp_rule_2)
                     tmp_matches = sorted([x for x in tmp_matcher(new_doc) if x[1] != x[2]], key=lambda a: a[1])
@@ -485,17 +497,17 @@ class Pattern(object):
         self.full_shape = d.get("shapes")
 
         if self.type == "word":
-            self.spacy_token_lst = self.construct_word_token(d, nlp)
+            self.spacy_token_lst = self.__construct_word_token(d, nlp)
         elif self.type == "shape":
-            self.spacy_token_lst = self.construct_shape_token(d)
+            self.spacy_token_lst = self.__construct_shape_token(d)
         elif self.type == "number":
-            self.spacy_token_lst = self.construct_number_token(d, nlp)
+            self.spacy_token_lst = self.__construct_number_token(d, nlp)
         elif self.type == "punctuation":
-            self.spacy_token_lst = self.construct_punctuation_token(d, nlp)
+            self.spacy_token_lst = self.__construct_punctuation_token(d, nlp)
         elif self.type == "linebreak":
-            self.spacy_token_lst = self.construct_linebreak_token(d)
+            self.spacy_token_lst = self.__construct_linebreak_token(d)
 
-    def construct_word_token(self, d: Dict, nlp) -> List[Dict]:
+    def __construct_word_token(self, d: Dict, nlp) -> List[Dict]:
         """
         Construct a word token
         Args:
@@ -513,7 +525,7 @@ class Pattern(object):
                 this_token = {attrs.LOWER: d["token"][0].lower()}
             result.append(this_token)
             if d["capitalization"]:
-                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+                result = self.__add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         elif not d["token"]:
             if tf_transfer(d["contain_digit"]):
@@ -526,9 +538,9 @@ class Pattern(object):
                 this_token[attrs.IS_OOV] = False
             result.append(this_token)
             if d["length"]:
-                result = self.add_length_constrain(result, d["length"])
+                result = self.__add_length_constrain(result, d["length"])
             if d["capitalization"]:
-                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+                result = self.__add_capitalization_constrain(result, d["capitalization"], d["token"])
 
         else:
             if "match_all_forms" in d and not tf_transfer(d["match_all_forms"]):
@@ -550,15 +562,15 @@ class Pattern(object):
                     result.append(this_token)
 
             if d["capitalization"]:
-                result = self.add_capitalization_constrain(result, d["capitalization"], d["token"])
+                result = self.__add_capitalization_constrain(result, d["capitalization"], d["token"])
 
-        result = self.add_common_constrain(result, d)
+        result = self.__add_common_constrain(result, d)
         if d["part_of_speech"]:
-            result = self.add_pos_constrain(result, d["part_of_speech"])
+            result = self.__add_pos_constrain(result, d["part_of_speech"])
 
         return result
 
-    def construct_shape_token(self, d: Dict) -> List[Dict]:
+    def __construct_shape_token(self, d: Dict) -> List[Dict]:
         """
         Construct a shape token
         Args:
@@ -573,17 +585,17 @@ class Pattern(object):
             result.append(this_token)
         else:
             for shape in d["shapes"]:
-                this_shape = self.generate_shape(shape)
+                this_shape = self.__generate_shape(shape)
                 this_token = {attrs.SHAPE: this_shape}
                 result.append(copy.deepcopy(this_token))
 
-        result = self.add_common_constrain(result, d)
+        result = self.__add_common_constrain(result, d)
         if d["part_of_speech"]:
-            result = self.add_pos_constrain(result, d["part_of_speech"])
+            result = self.__add_pos_constrain(result, d["part_of_speech"])
 
         return result
 
-    def construct_number_token(self, d: Dict, nlp) -> List[Dict]:
+    def __construct_number_token(self, d: Dict, nlp) -> List[Dict]:
         """
         Construct a shape token
         Args:
@@ -598,7 +610,7 @@ class Pattern(object):
             this_token = {attrs.LIKE_NUM: True}
             result.append(this_token)
             if d["length"]:
-                result = self.add_length_constrain(result, d["length"])
+                result = self.__add_length_constrain(result, d["length"])
         elif len(d["numbers"]) == 1:
             this_token = {attrs.ORTH: str(d["numbers"][0])}
             result.append(this_token)
@@ -613,10 +625,10 @@ class Pattern(object):
             this_token = {FLAG_DICT[FLAG_ID]: True}
             FLAG_ID += 1
             result.append(this_token)
-        result = self.add_common_constrain(result, d)
+        result = self.__add_common_constrain(result, d)
         return result
 
-    def construct_punctuation_token(self, d: Dict, nlp) -> List[Dict]:
+    def __construct_punctuation_token(self, d: Dict, nlp) -> List[Dict]:
         """
         Construct a shape token
         Args:
@@ -642,10 +654,10 @@ class Pattern(object):
             this_token = {FLAG_DICT[FLAG_ID]: True}
             FLAG_ID += 1
         result.append(this_token)
-        result = self.add_common_constrain(result, d)
+        result = self.__add_common_constrain(result, d)
         return result
 
-    def construct_linebreak_token(self, d: Dict) -> List[Dict]:
+    def __construct_linebreak_token(self, d: Dict) -> List[Dict]:
         """
         Construct a shape token
         Args:
@@ -665,12 +677,12 @@ class Pattern(object):
             s += ' '
             this_token = {attrs.LOWER: s}
             result.append(this_token)
-        result = self.add_common_constrain(result, d)
+        result = self.__add_common_constrain(result, d)
 
         return result
 
     @staticmethod
-    def add_common_constrain(token_lst: List[Dict], d: Dict) -> List[Dict]:
+    def __add_common_constrain(token_lst: List[Dict], d: Dict) -> List[Dict]:
         """
         Add common constrain for every token type, like "is_required"
         Args:
@@ -688,7 +700,7 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def add_length_constrain(token_lst: List[Dict], lengths: List) -> List[Dict]:
+    def __add_length_constrain(token_lst: List[Dict], lengths: List) -> List[Dict]:
         """
         Add length constrain for some token type, create cross production
         Args:
@@ -710,7 +722,7 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def add_pos_constrain(token_lst: List[Dict], pos_tags: List) -> List[Dict]:
+    def __add_pos_constrain(token_lst: List[Dict], pos_tags: List) -> List[Dict]:
         """
         Add pos tag constrain for some token type, create cross production
         Args:
@@ -728,7 +740,7 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def add_capitalization_constrain(token_lst: List[Dict], capi_lst: List, word_lst: List) -> List[Dict]:
+    def __add_capitalization_constrain(token_lst: List[Dict], capi_lst: List, word_lst: List) -> List[Dict]:
         """
         Add capitalization constrain for some token type, create cross production
         Args:
@@ -767,7 +779,7 @@ class Pattern(object):
         return result
 
     @staticmethod
-    def generate_shape(word: str) -> str:
+    def __generate_shape(word: str) -> str:
         """
         Recreate shape from a token input by user
         Args:
@@ -824,13 +836,3 @@ class Rule(object):
             this_pattern = Pattern(a_pattern, nlp)
             self.patterns.append(this_pattern)
 
-
-def tf_transfer(x):
-    if isinstance(x, str):
-        if x.lower() == "true":
-            return True
-        if x.lower() == "false":
-            return False
-        return True
-    else:
-        return x

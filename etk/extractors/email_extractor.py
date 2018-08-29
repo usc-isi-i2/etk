@@ -10,6 +10,16 @@ FILTER_PROVIDER = ["noon", "no"]
 
 
 class EmailExtractor(Extractor):
+    """
+        This class
+
+    Examples:
+        ::
+
+            email_extractor = EmailExtractor(...)
+            email_extractor.extract(text=input_doc,...)
+
+    """
     def __init__(self,
                  nlp,
                  tokenizer,
@@ -28,35 +38,37 @@ class EmailExtractor(Extractor):
                            category="build_in_extractor",
                            name=extractor_name)
 
-        self.nlp = copy.deepcopy(nlp)
-        self.like_email_matcher = Matcher(self.nlp.vocab)
-        self.tokenizer = tokenizer
+        self.__nlp = copy.deepcopy(nlp)
+        self.__like_email_matcher = Matcher(self.__nlp.vocab)
+        self.__tokenizer = tokenizer
 
-    def load_email_matcher(self):
-        self.like_email_matcher.add("Email", None, [{LIKE_EMAIL: True}])
+    def __load_email_matcher(self):
+        self.__like_email_matcher.add("Email", None, [{LIKE_EMAIL: True}])
 
     def extract(self, text: str) -> List[Extraction]:
-
         """
-        Extract with the input text
-        Args:
-            text: str
 
-        Returns: List[Extraction]
+            Extract with the input text
+        Args:
+            text (str):
+
+        Returns:
+            List[Extraction]:
+
         """
 
         result = []
-        first_phase_doc = self.nlp(text)
-        self.load_email_matcher()
-        like_email_matches = self.like_email_matcher(first_phase_doc)
+        first_phase_doc = self.__nlp(text)
+        self.__load_email_matcher()
+        like_email_matches = self.__like_email_matcher(first_phase_doc)
 
         like_emails_filtered = []
         for match_id, start, end in like_email_matches:
             span = first_phase_doc[start:end]
-            if self.check_domain(self.tokenizer.tokenize(span.text)):
+            if self.__check_domain(self.__tokenizer.tokenize(span.text)):
                 like_emails_filtered.append((span.text, span[0].idx, span[-1].idx + len(span[-1])))
 
-        non_space_emails = self.get_non_space_email(first_phase_doc)
+        non_space_emails = self.__get_non_space_email(first_phase_doc)
 
         emails = set(like_emails_filtered).union(non_space_emails)
 
@@ -71,7 +83,7 @@ class EmailExtractor(Extractor):
         return result
 
     @staticmethod
-    def check_domain(tokens) -> bool:
+    def __check_domain(tokens) -> bool:
         """
         Check if the email provider should be filtered
         Args:
@@ -90,7 +102,7 @@ class EmailExtractor(Extractor):
         else:
             return True
 
-    def get_non_space_email(self, doc) -> List:
+    def __get_non_space_email(self, doc) -> List:
         """
         Deal with corner case that there is "email" string in text and no space around it
         Args:
@@ -103,11 +115,11 @@ class EmailExtractor(Extractor):
             if "mail:" in e.text.lower():
                 idx = e.text.lower().index("mail:") + 5
                 value = e.text[idx:]
-                tmp_doc = self.nlp(value)
-                tmp_email_matches = self.like_email_matcher(tmp_doc)
+                tmp_doc = self.__nlp(value)
+                tmp_email_matches = self.__like_email_matcher(tmp_doc)
                 for match_id, start, end in tmp_email_matches:
                     span = tmp_doc[start:end]
-                    if self.check_domain(self.tokenizer.tokenize(span.text)):
+                    if self.__check_domain(self.__tokenizer.tokenize(span.text)):
                         result_lst.append((span.text, idx+e.idx, idx+e.idx+len(value)))
 
         return result_lst

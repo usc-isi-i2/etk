@@ -2,6 +2,14 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 
 class URLExtractor(RegexExtractor):
+    """
+        Adding explanation here.
+
+    Example:
+        ::
+            url_extractor = URLExtractor()
+            url_extractor.extractor()
+    """
     def __init__(self, allow_missing_http: bool=False):
         if allow_missing_http:
             # reference: https://gist.github.com/dperini/729294, slightly modified to match _ and allow missing "http"

@@ -62,7 +62,13 @@ class InferlinkRuleSet(object):
 
 class InferlinkExtractor(Extractor):
     """
-    Extracts segments from an HTML page using rules created by the Inferlink web wrapper.
+        This class extracts segments from an HTML page using rules created by the Inferlink web wrapper.
+
+    Examples:
+        ::
+
+            inferlink_extractor = InferlinkExtractor(...)
+            inferlink_extractor.extract(text=input_doc,...)
     """
 
     def __init__(self, rule_set: InferlinkRuleSet):
@@ -76,11 +82,12 @@ class InferlinkExtractor(Extractor):
         """
 
         Args:
-            html_text (): str of the html page to be extracted
-            threshold (): if the ratio of rules that successfully extracted something over all rules \
+            html_text (str): str of the html page to be extracted
+            threshold (float): if the ratio of rules that successfully extracted something over all rules \
                     is higher than or equal to the threshold, return the results, else return an empty list
 
-        Returns: a list of Extractions, each extraction includes the extracted value, the rule name, the provenance etc.
+        Returns:
+            List[Extraction]: a list of Extractions, each extraction includes the extracted value, the rule name, the provenance etc.
 
         """
 
