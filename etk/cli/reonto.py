@@ -84,8 +84,9 @@ def run(args):
                         continue
                     dedup_res_graph.add(r)
 
-                ret = dedup_res_graph.serialize(format=args.output_type, encoding='utf-8')
-                args.output_file.write(ret)
+                if len(dedup_res_graph) > 0:
+                    ret = dedup_res_graph.serialize(format=args.output_type, encoding='utf-8')
+                    args.output_file.write(ret)
 
             ds.remove_graph(g)
             res_indices_prev = res_indices
