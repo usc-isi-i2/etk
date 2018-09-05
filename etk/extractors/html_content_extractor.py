@@ -52,7 +52,7 @@ class HTMLContentExtractor(Extractor):
             if strategy == Strategy.ALL_TEXT:
                 soup = BeautifulSoup(html_text, 'html.parser')
                 texts = soup.findAll(text=True)
-                visible_texts = filter(self.__tag_visible, texts)
+                visible_texts = filter(self._tag_visible, texts)
                 all_text = u" ".join(t.strip() for t in visible_texts)
                 return [Extraction(all_text, self.name)]
             else:
@@ -65,7 +65,7 @@ class HTMLContentExtractor(Extractor):
             return []
 
     @staticmethod
-    def __tag_visible(element):
+    def _tag_visible(element):
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
         if isinstance(element, Comment):

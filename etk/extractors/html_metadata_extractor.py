@@ -55,37 +55,37 @@ class HTMLMetadataExtractor(Extractor):
         soup = BeautifulSoup(html_text, 'html.parser')
 
         if soup.title and extract_title:
-            title = self.wrap_data("title", soup.title.string.encode('utf-8').decode('utf-8'))
+            title = self._wrap_data("title", soup.title.string.encode('utf-8').decode('utf-8'))
             res.append(title)
 
         if soup.title and extract_meta:
-            meta_content = self.wrap_meta_content(soup.find_all("meta"))
-            meta_data = self.wrap_data("meta", meta_content)
+            meta_content = self._wrap_meta_content(soup.find_all("meta"))
+            meta_data = self._wrap_data("meta", meta_content)
             res.append(meta_data)
 
         if extract_microdata:
             mde = MicrodataExtractor()
-            mde_data = self.wrap_data("microdata", mde.extract(html_text))
+            mde_data = self._wrap_data("microdata", mde.extract(html_text))
             res.append(mde_data)
 
         if extract_json_ld:
             jslde = JsonLdExtractor()
-            jslde_data = self.wrap_data("json-ld", jslde.extract(html_text))
+            jslde_data = self._wrap_data("json-ld", jslde.extract(html_text))
             res.append(jslde_data)
 
         if extract_rdfa:
             rdfae = RDFaExtractor()
-            rdfae_data = self.wrap_data("rdfa", rdfae.extract(html_text))
+            rdfae_data = self._wrap_data("rdfa", rdfae.extract(html_text))
             res.append(rdfae_data)
 
         return res
 
-    def wrap_data(self, key: str, value) -> Extraction:
+    def _wrap_data(self, key: str, value) -> Extraction:
         e = Extraction(value=value, extractor_name=self.name, tag=key)
         return e
 
     @staticmethod
-    def wrap_meta_content(meta_tags) -> dict:
+    def _wrap_meta_content(meta_tags) -> dict:
         meta = {}
         for tag in meta_tags:
             meta[tag.get("name")] = tag.get("content")

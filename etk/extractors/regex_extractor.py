@@ -80,19 +80,19 @@ class RegexExtractor(Extractor):
 
         match_func = self._match_functions[mode]
         matches = match_func(text, flags)
-        return self.__wrap_result(matches)
+        return self._wrap_result(matches)
 
     # wrap the re return object to list of extraction
-    def __wrap_result(self, matches: object) -> List[Extraction]:
+    def _wrap_result(self, matches: object) -> List[Extraction]:
         res = list()
         # matches are result of split()
         if isinstance(matches, list):
-            return self.__wrap_split_extraction(matches)
+            return self._wrap_split_extraction(matches)
 
         # matches are result of finditer()
         elif isinstance(matches, collections.Iterable):
             for match in matches:
-                es = self.__wrap_result(match)
+                es = self._wrap_result(match)
                 res.extend(es)
 
         # single match
@@ -101,12 +101,12 @@ class RegexExtractor(Extractor):
             groups = matches.groups()
             if groups:
                 for i in range(1, len(groups) + 1):
-                    res.append(self.__wrap_extraction(i, matches))
+                    res.append(self._wrap_extraction(i, matches))
             else:
-                res.append(self.__wrap_extraction(0, matches))
+                res.append(self._wrap_extraction(0, matches))
         return res
 
-    def __wrap_split_extraction(self, items: List[str]) -> List[Extraction]:
+    def _wrap_split_extraction(self, items: List[str]) -> List[Extraction]:
         res = list()
         start = 0
         for item in items:
@@ -116,7 +116,7 @@ class RegexExtractor(Extractor):
             start = end
         return res
 
-    def __wrap_extraction(self, group_idx: int, matches: object) -> Extraction:
+    def _wrap_extraction(self, group_idx: int, matches: object) -> Extraction:
         start, end = matches.start(group_idx), matches.end(group_idx)
         text = matches.group(group_idx)
         e = Extraction(value=text, extractor_name=self.name, \

@@ -38,7 +38,7 @@ class DecodingValueExtractor(Extractor):
                            category="dictionary",
                            name=extractor_name)
         if case_sensitive and not strip_key:
-            self.__decoding_dict = decoding_dict
+            self._decoding_dict = decoding_dict
         else:
             new_dict = {}
             if not strip_key:   # not case_sensitive, ignore cases
@@ -50,14 +50,14 @@ class DecodingValueExtractor(Extractor):
             else:   # ignore case AND strip key
                 for k in decoding_dict:
                     new_dict[k.lower().strip()] = decoding_dict[k]
-            self.__decoding_dict = new_dict
+            self._decoding_dict = new_dict
 
-        self.__case_sensitive = case_sensitive
-        self.__default_action = default_action
-        self.__strip_key = strip_key
-        self.__strip_value = strip_value
+        self._case_sensitive = case_sensitive
+        self._default_action = default_action
+        self._strip_key = strip_key
+        self._strip_value = strip_value
 
-        self.__joiner = " "
+        self._joiner = " "
 
     def extract(self, value: str) -> List[Extraction]:
         """
@@ -70,19 +70,19 @@ class DecodingValueExtractor(Extractor):
 
         """
 
-        to_match = value.lower() if not self.__case_sensitive else value
-        to_match = to_match.strip() if self.__strip_key else to_match
+        to_match = value.lower() if not self._case_sensitive else value
+        to_match = to_match.strip() if self._strip_key else to_match
 
-        if to_match in self.__decoding_dict:
-            extraction = self.__wrap_result(self.__decoding_dict[to_match], value)
+        if to_match in self._decoding_dict:
+            extraction = self._wrap_result(self._decoding_dict[to_match], value)
             return [extraction] if extraction else list()
         else:
-            if self.__default_action == 'delete':
+            if self._default_action == 'delete':
                 return list()
 
         return list()
 
-    def __wrap_result(self, value: str, original_key: str) -> Extraction or None:
+    def _wrap_result(self, value: str, original_key: str) -> Extraction or None:
         """
 
         Args:
@@ -93,7 +93,7 @@ class DecodingValueExtractor(Extractor):
 
         """
         try:
-            value = value.strip() if self.__strip_value else value
+            value = value.strip() if self._strip_value else value
             e = Extraction(value, self.name, start_char=0, end_char=len(str(value)))
             return e
         except Exception as e:

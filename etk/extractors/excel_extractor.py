@@ -21,15 +21,15 @@ class ExcelExtractor(Extractor):
 
     """
 
-    __re_row_identifier = re.compile(r'(\$[0-9]+)')
-    __re_col_identifier = re.compile(r'(\$[A-Za-z]+)')
+    _re_row_identifier = re.compile(r'(\$[0-9]+)')
+    _re_col_identifier = re.compile(r'(\$[A-Za-z]+)')
 
     def __init__(self, etk: ETK = None, extractor_name: str = 'excel extractor') -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="data extractor",
                            name=extractor_name)
-        self.__etk = etk
+        self._etk = etk
 
     def extract(self, file_name: str, sheet_name: str, region: List, variables: Dict) -> List[Extraction]:
         """
@@ -50,8 +50,7 @@ class ExcelExtractor(Extractor):
 
         book = pyexcel.get_book(file_name=file_name)
         sheet = book[sheet_name]
-
-        region = [ExcelExtractor.__excel_coord_to_location(coord) for coord in region]
+        region = [ExcelExtractor._excel_coord_to_location(coord) for coord in region]
         r = region[0][0]
         # per row
         for row in sheet.region(region[0], region[1]):
@@ -61,7 +60,7 @@ class ExcelExtractor(Extractor):
                 var = copy.deepcopy(variables)
                 # per variable
                 for k, v in var.items():
-                    parsed_v = ExcelExtractor.__parse_variable(v, r, c)
+                    parsed_v = ExcelExtractor._parse_variable(v, r, c)
                     if len(parsed_v) == 1:  # normal variable
                         var[k] = parsed_v[0]
                     else:  # location
@@ -75,7 +74,7 @@ class ExcelExtractor(Extractor):
         return extractions
 
     @staticmethod
-    def __col_name_to_num(name: str) -> int:
+    def _col_name_to_num(name: str) -> int:
         name = name.upper()
         pow = 1
         col_num = 0
@@ -85,7 +84,7 @@ class ExcelExtractor(Extractor):
         return col_num - 1
 
     @staticmethod
-    def __row_name_to_num(name: str) -> int:
+    def _row_name_to_num(name: str) -> int:
         try:
             num = int(name) - 1
             if num >= 0:
@@ -95,12 +94,12 @@ class ExcelExtractor(Extractor):
             raise ValueError('Invalid row name')
 
     @staticmethod
-    def __excel_coord_to_location(s: str) -> Tuple:
+    def _excel_coord_to_location(s: str) -> Tuple:
         ss = s.split(',')
-        return ExcelExtractor.__row_name_to_num(ss[1]), ExcelExtractor.__col_name_to_num(ss[0])
+        return ExcelExtractor._row_name_to_num(ss[1]), ExcelExtractor._col_name_to_num(ss[0])
 
     @staticmethod
-    def __parse_variable(s: str, curr_row: int, curr_col: int) -> Tuple:
+    def _parse_variable(s: str, curr_row: int, curr_col: int) -> Tuple:
         '''
         $A,$2 <- constant col and row
         $row,$2 <- current col, row 2
@@ -112,10 +111,10 @@ class ExcelExtractor(Extractor):
         def parse_expression(ss, curr_row, curr_col):
             ss = ss.replace('$row', str(curr_row))
             ss = ss.replace('$col', str(curr_col))
-            ss = ExcelExtractor.__re_row_identifier.sub(
-                lambda x: str(ExcelExtractor.__row_name_to_num(x.group()[1:])) if len(x.group()) > 0 else '', ss)
-            ss = ExcelExtractor.__re_col_identifier.sub(
-                lambda x: str(ExcelExtractor.__col_name_to_num(x.group()[1:])) if len(x.group()) > 0 else '', ss)
+            ss = ExcelExtractor._re_row_identifier.sub(
+                lambda x: str(ExcelExtractor._row_name_to_num(x.group()[1:])) if len(x.group()) > 0 else '', ss)
+            ss = ExcelExtractor._re_col_identifier.sub(
+                lambda x: str(ExcelExtractor._col_name_to_num(x.group()[1:])) if len(x.group()) > 0 else '', ss)
             return eval(ss)
 
         ss = s.split(',')

@@ -33,7 +33,7 @@ class SentenceExtractor(Extractor):
 
                 try:
                     assert "parser" in custom_pipeline.pipe_names
-                    self.parser = custom_pipeline
+                    self._parser = custom_pipeline
                 except AssertionError:
                     print("Note: custom_pipeline does not have a parser. \n"
                           "Loading parser from en_core_web_sm... ")
@@ -49,7 +49,7 @@ class SentenceExtractor(Extractor):
             load_parser = True
 
         if load_parser:
-            self.parser = spacy.load("en_core_web_sm",
+            self._parser = spacy.load("en_core_web_sm",
                                      disable=["tagger", "ner"])
 
     def extract(self, text: str) -> List[Extraction]:
@@ -63,7 +63,7 @@ class SentenceExtractor(Extractor):
             List[Extraction]
         """
 
-        doc = self.parser(text)
+        doc = self._parser(text)
 
         extractions = list()
         for sent in doc.sents:

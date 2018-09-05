@@ -76,7 +76,7 @@ class InferlinkExtractor(Extractor):
                            input_type=InputType.HTML,
                            category="HTML extractor",
                            name="Inferlink extractor")
-        self.rule_set = rule_set
+        self._rule_set = rule_set
 
     def extract(self, html_text: str, threshold=0.5) -> List[Extraction]:
         """
@@ -93,7 +93,7 @@ class InferlinkExtractor(Extractor):
 
         result = list()
         try:
-            for rule in self.rule_set.rules:
+            for rule in self._rule_set.rules:
                 rule.apply(html_text)
                 value = rule.value
                 if value is not None:
@@ -103,7 +103,7 @@ class InferlinkExtractor(Extractor):
                     result.append(Extraction(value, self.name, start_char=start_char, end_char=end_char, tag=rule.name))
 
             # Test whether the fraction of extractions meets the desired threshold
-            if len(self.rule_set.rules) > 0 and float(len(result)) / len(self.rule_set.rules) >= threshold:
+            if len(self._rule_set.rules) > 0 and float(len(result)) / len(self._rule_set.rules) >= threshold:
                 return result
             else:
                 return list()

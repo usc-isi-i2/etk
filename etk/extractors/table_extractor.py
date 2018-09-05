@@ -433,7 +433,7 @@ class TableExtractor(Extractor):
                            category="content",
                            name="DigTableExtractor")
 
-    def __wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
+    def _wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
@@ -447,6 +447,6 @@ class TableExtractor(Extractor):
         results = list()
         temp_res = TableExtractor.tableExtractorInstance.extract(html)
         if return_text:
-            results.append(self.__wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
-        results.extend(map(lambda t: self.__wrap_value_with_context(t, "tables"), temp_res['tables']))
+            results.append(self._wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
+        results.extend(map(lambda t: self._wrap_value_with_context(t, "tables"), temp_res['tables']))
         return results
