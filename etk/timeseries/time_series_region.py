@@ -174,7 +174,7 @@ class TimeSeriesRegion(object):
             "january":1, "february":2, "march":3, "april":4, "june":6, "july":7, "august":8, "september":9, "october":10, "november":11, "december":12}
         try:
             year = re.search('(\d{4})', time_label).group(1)
-            month = re.search('(^|[^\d])(\d{2})([^\d]?|$)', time_label)
+            month = re.search('(^|[^\d])(\d{2})([^\d]|$)', time_label)
             if month != None:
                 return year + '-' + month.group(2)
             for k in month_kw:
