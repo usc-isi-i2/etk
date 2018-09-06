@@ -117,6 +117,7 @@ class ExtractSpreadsheet(object):
             ssa = SpreadsheetAnnotation(annotation, self.normalized_source_file)
             parsed = []
             for anidx in ssa.sheet_indices:
+                logging.debug("Parsing sheet %d", anidx)
                 sheet = self.book.sheet_by_index(anidx)
                 data = sheet.to_array()
                 for rgn in ssa.timeseries_regions:
