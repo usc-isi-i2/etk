@@ -29,7 +29,7 @@ class CsvProcessor(object):
             self.heading_row = self.heading_row - 1
 
         if self.heading_row is not None:
-            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row+2) - 1
+            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row + 2) - 1
 
         if self.heading_row is None:
             self.content_start_row = mapping_spec.get("content_start_row", 1) - 1
@@ -69,10 +69,28 @@ class CsvProcessor(object):
         }
 
     def tabular_extractor(self, table_str: str = None, filename: str = None,
-                          sheet_name:str = None,
+                          file_content=None,
+                          file_type=None,
+                          sheet_name: str = None,
                           dataset: str = None,
                           nested_key: str = None,
-                          doc_id_field: str = None) -> List[Document]:
+                          doc_id_field: str = None,
+                          encoding=None) -> List[Document]:
+        """
+        Read the input file/content and return a list of Document(s)
+        Args:
+            table_str: use this parameter, if you are 100% sure that the content is a csv
+            filename: use this parameter if the file extension is one of tab, csv, tsv, xls, xlsx
+            file_content: if the input has some arbitrary extension, read it yourself and pass the contents along
+            file_type: use this parameter with file_content, can be tsv, csv, etc
+            sheet_name: sheet name as in xls or xlsx files
+            dataset: user provided string to be added to output Document(s)
+            nested_key: user provided string to be added to output Document(s)
+            doc_id_field: specify this field(should be present in the input file), its value will be used as doc_id
+
+        Returns: List[Document]
+
+        """
         data = list()
 
         if table_str is not None and filename is not None:
@@ -92,11 +110,17 @@ class CsvProcessor(object):
             if extension in self._get_data_function:
                 get_data = self._get_data_function[extension]
             else:
-                raise InvalidFilePathError("file extension can not read")
+                # in pyexcel we trust
+                # if there is an extension we have not mapped, just let pyexcel figure it out
+                get_data = pyexcel_io.get_data
 
             try:
-                data = get_data(filename, auto_detect_datetime=False,
-                                auto_detect_float=False, encoding="utf-8")
+                if file_content and file_type:
+                    data = get_data(file_content, file_type=file_type, auto_detect_datetime=False,
+                                    auto_detect_float=False, encoding=encoding if encoding else "utf-8")
+                else:
+                    data = get_data(filename, auto_detect_datetime=False,
+                                    auto_detect_float=False, encoding=encoding if encoding else "utf-8")
             except:
                 try:
                     data = get_data(filename, auto_detect_datetime=False,
@@ -111,8 +135,7 @@ class CsvProcessor(object):
 
                 data = data[sheet_name]
             else:
-                file_name = fn.split('/')[-1] + extension
-                data = data[file_name]
+                data = data[file_type] if file_type else data[fn.split('/')[-1] + extension]
 
         table_content, heading = self.content_recognizer(data)
 
@@ -165,7 +188,7 @@ class CsvProcessor(object):
             else:
                 processed_heading.append(heading[i])
 
-        return processed_heading, col_start-1, col_end
+        return processed_heading, col_start - 1, col_end
 
     # slicing table by start and end col
     def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:

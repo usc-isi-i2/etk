@@ -1,13 +1,9 @@
-#!/usr/bin/env python
-import argparse
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from etk.ontology_api import Ontology
 from etk.ontology_report_generator import OntologyReportGenerator
 
-if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Generate HTML report for the input ontology files')
+def add_arguments(parser):
+    parser.description = 'Generate HTML report for the input ontology files'
     parser.add_argument('files', nargs='+', help='Input turtle files.')
     parser.add_argument('--no-validation', action='store_false', dest='validation', default=True,
                         help='Don\'t perform domain and range validation.')
@@ -23,13 +19,18 @@ if __name__ == '__main__':
                         help='Suppress warning.')
     parser.add_argument('--exclude-warning', action='store_true', dest='exclude_warning',
                         default=False, help='Exclude warning messages in HTML report')
-    args = parser.parse_args()
+    parser.add_argument('--list-auxiliary', action='store_true', dest='list_auxiliary',
+                        default=False, help='Show auxiliary line for list')
 
+
+def run(args):
     contents = [open(f).read() for f in args.files]
     ontology = Ontology(contents, validation=args.validation, include_undefined_class=args.include_class,
                         quiet=args.quiet)
     doc_content = OntologyReportGenerator(ontology).generate_html_report(include_turtle=args.include_turtle,
-                                                                         exclude_warning=args.exclude_warning)
+                                                                         exclude_warning=args.exclude_warning,
+                                                                         list_auxiliary_line=args.list_auxiliary)
 
     with open(args.out, "w") as f:
         f.write(doc_content)
+
