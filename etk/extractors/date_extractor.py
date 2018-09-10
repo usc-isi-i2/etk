@@ -94,6 +94,11 @@ class DateResolutionHelper():
 
 class DateExtractor(Extractor):
     """
+    **Description**
+        This extractor pre-defines a rich set of datetime regexp to detect any format of
+        timestamp from the input text. In addition, it employees the spaCy rule to infer
+        the specific datetime from a relative datetime and relative datetime base,
+        for instance, two days ago with relative datetime base 02/02/2018.
 
     Examples:
         ::

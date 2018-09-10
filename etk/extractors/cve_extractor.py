@@ -3,7 +3,8 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 class CVEExtractor(RegexExtractor):
     """
-    This class inherits RegexExtractor by predefine the CVE regex pattern
+    **Description**
+        This class inherits RegexExtractor by predefine the CVE regex pattern
 
     Examples:
         ::

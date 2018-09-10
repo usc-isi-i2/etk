@@ -415,6 +415,7 @@ class TableExtraction:
 
 class TableExtractor(Extractor):
     """
+    **Description**
         Adding explanation here
 
     Examples:

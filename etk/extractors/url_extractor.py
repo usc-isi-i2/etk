@@ -3,12 +3,14 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 class URLExtractor(RegexExtractor):
     """
-        Adding explanation here.
+    **Description**
+        This class inherits the RegexExtractor and pre-defines the url pattern as the regex pattern.
 
     Example:
         ::
-            url_extractor = URLExtractor()
-            url_extractor.extractor()
+
+            url_extractor = URLExtractor(allow_missing_http=True)
+            url_extractor.extractor(text=text)
     """
     def __init__(self, allow_missing_http: bool=False):
         if allow_missing_http:

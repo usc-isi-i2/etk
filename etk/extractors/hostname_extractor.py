@@ -3,7 +3,8 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 class HostnameExtractor(RegexExtractor):
     """
-        This class
+    **Description**
+        This class inherits RegexExtractor by predefining the regex pattern for hostname
 
     Examples:
         ::

@@ -6,13 +6,25 @@ from etk.etk_exceptions import ExtractorError
 
 class DecodingValueExtractor(Extractor):
     """
-        This class
+    **Description**
+        This class takes a 'decoding_dict' as reference, decoding the input text based on the 'decoding_dict'
 
     Examples:
         ::
 
-            decoding_value_extractor = DecodingValueExtractor(...)
-            decoding_value_extractor.extract(text=input_doc,...)
+            decoding_dict = {
+            'CA': 'California',
+            'ny': 'New York',
+            'AZ': ' Arizona',
+            ' TX ': 'Texas',
+            ' fl': 'Florida',
+            }
+            decoding_value_extractor = DecodingValueExtractor(decoding_dict=decoding_dict,
+                                                            extractor_name='default_decoding',
+                                                            case_sensitive=True,
+                                                            strip_key=False,
+                                                            strip_value=True)
+            decoding_value_extractor.extract(value=value_to_be_decoded)
 
     """
     def __init__(self,

@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 
 class HTMLMetadataExtractor(Extractor):
     """
+    **Description**
         Extracts META, microdata, JSON-LD and RDFa from HTML pages.
 
         Uses https://stackoverflow.com/questions/36768068/get-meta-tag-content-property-with-beautifulsoup-and-python to

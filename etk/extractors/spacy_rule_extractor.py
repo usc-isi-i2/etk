@@ -87,14 +87,21 @@ FLAG_ID = 20
 
 class SpacyRuleExtractor(Extractor):
     """
-        Adding explanation here
+    **Description**
+        This extractor takes a spaCy rule as reference and extracts the substring
+        which matches the given spaCy rule.
 
     Examples:
         ::
-            spacy_rule_extractor = SpacyRuleExtractor()
-            spacy_rule_extractor.extract()
+
+            rules = json.load(open('path_to_spacy_rules.json', "r"))
+            sample_rules = rules["test_SpacyRuleExtractor_word_1"]
+            spacy_rule_extractor = SpacyRuleExtractor(nlp=nlp,
+                                                     rules=sample_rules)
+            spacy_rule_extractor.extract(text=text)
 
     """
+
     def __init__(self,
                  nlp,
                  rules: Dict,

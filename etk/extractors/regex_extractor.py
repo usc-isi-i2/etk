@@ -15,6 +15,7 @@ class MatchMode(Enum):
 
 class RegexExtractor(Extractor):
     """
+    **Description**
         A wrapper for Python regular expressions.
 
     Examples:

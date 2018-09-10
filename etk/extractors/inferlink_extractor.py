@@ -62,6 +62,7 @@ class InferlinkRuleSet(object):
 
 class InferlinkExtractor(Extractor):
     """
+    **Description**
         This class extracts segments from an HTML page using rules created by the Inferlink web wrapper.
 
     Examples:

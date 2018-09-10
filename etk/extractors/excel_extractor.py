@@ -11,13 +11,24 @@ from etk.extraction import Extraction
 
 class ExcelExtractor(Extractor):
     """
-        This class
+    **Description**
+        This class is a wrapper of pyexcel. By defining 'variables' argument,
+        this extractor is able to extract multiple information and store them
+        into different field at once.
 
     Examples:
         ::
 
-            excel_extractor = ExcelExtractor(...)
-            excel_extractor.extract(text=input_doc,...)
+            excel_extractor = ExcelExtractor()
+            excel_extractor.extract(file_name:path_to_excel,
+                                    sheet_name:sheet_name,
+                                    region:['A,1', 'Z,10'],
+                                    variables={
+                                        # get current col & row for field1
+                                        'field1': '$col,$row',
+                                        # get fixed cell of $A,$5 for field2
+                                        'field2': '$A,$5'
+                                        })
 
     """
 

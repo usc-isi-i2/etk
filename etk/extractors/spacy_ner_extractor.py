@@ -6,12 +6,16 @@ from typing import List
 
 class SpacyNerExtractor(Extractor):
     """
-        Adding explanation here.
+    **Description**
+        This extractor takes a list of spaCy NER tag as reference, and extract
+        the tag matched substring from the input text
 
     Examples:
         ::
-            spacy_ner_extractor = SpacyNerExtractor(...)
-            spacy_ner_extractor.extract(...)
+
+            get_attr = ['PERSON', 'ORG', 'GPE']
+            spacy_ner_extractor = SpacyNerExtractor()
+            spacy_ner_extractor.extract(text=text, get_attr=get_attr)
 
     """
     def __init__(self, extractor_name: str, nlp=spacy.load('en_core_web_sm')):

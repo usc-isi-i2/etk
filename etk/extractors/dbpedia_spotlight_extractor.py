@@ -8,15 +8,17 @@ import requests
 
 class DBpediaSpotlightExtractor(Extractor):
     """
-        This class
+    **Description**
+        This extractor takes a string of text as input, uses DBPedia API to annotate words and phrases in the text input.
 
     Examples:
         ::
 
-            dbpedia_spotlight_extractor = DBpediaSpotlightExtractor(search_url="",
-                                                                     get_attr=True)
+            dbpedia_spotlight_extractor = DBpediaSpotlightExtractor(search_url='http://model.dbpedia-spotlight.org/en/annotate',
+                                                                    get_attr=False,
+                                                                    get_attr_url="http://dbpedia.org/sparql")
             dbpedia_spotlight_extractor.extract(text=input_doc,
-                                                filter=[])
+                                                filter=['Person', 'Place', 'Organisation'])
 
     """
     def __init__(self, extractor_name: str, search_url: str, get_attr=False,

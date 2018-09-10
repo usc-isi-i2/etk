@@ -6,6 +6,7 @@ from etk.extraction import Extraction
 
 class CryptographicHashExtractor(Extractor):
     """
+    **Description**
         This class inherits RegexExtractor by predefine the regex patterns for md5, sha1 and sha256
 
     Examples:

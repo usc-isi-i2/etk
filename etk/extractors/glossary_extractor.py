@@ -12,13 +12,18 @@ from functools import reduce
 
 class GlossaryExtractor(Extractor):
     """
-        This class
+    **Description**
+        This class takes a list of glossary as reference, extract the matched ngrams string
+        from the tokenized input string.
 
     Examples:
         ::
 
-            glossary_extractor = GlossaryExtractor(...)
-            glossary_extractor.extract(text=input_doc,...)
+            glossary = ['Beijing', 'Los Angeles', 'New York', 'Shanghai']
+            glossary_extractor = GlossaryExtractor(glossary=glossary,
+                                                  ngrams=3,
+                                                  case_sensitive=True)
+            glossary_extractor.extract(tokens=Tokenizer(input_text))
 
     """
     def __init__(self,

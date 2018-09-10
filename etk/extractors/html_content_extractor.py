@@ -20,6 +20,7 @@ class Strategy(Enum):
 
 class HTMLContentExtractor(Extractor):
     """
+    **Description**
         This class extracts text from HTML pages. Uses readability and BeautifulSoup.
 
     Examples:

@@ -3,6 +3,7 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 class IPAddressExtractor(RegexExtractor):
     """
+    **Description**
            This class inherits RegexExtractor and predefines the ip address pattern
 
     Examples:

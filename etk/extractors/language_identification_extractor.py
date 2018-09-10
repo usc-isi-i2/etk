@@ -9,6 +9,7 @@ from langdetect import detect
 
 class LanguageIdentificationExtractor(Extractor):
     """
+    **Description**
         Identify the language used in text, returning the identifier language using ISO 639-1 codes
 
         Uses two libraries:
@@ -21,6 +22,7 @@ class LanguageIdentificationExtractor(Extractor):
 
     Examples:
         ::
+
             language_identification_extractor = LanguageIdentificationExtractor(...)
             language_identification_extractor.extract()
 

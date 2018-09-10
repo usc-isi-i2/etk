@@ -3,7 +3,8 @@ from etk.extractors.regex_extractor import RegexExtractor
 
 class BitcoinAddressExtractor(RegexExtractor):
     """
-        This class inherits RegexExtractor by predefine the regex pattern based on conditions
+    **Description**
+        This class inherits RegexExtractor by predefining the regex pattern based on conditions
 
     Examples:
         ::

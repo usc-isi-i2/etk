@@ -11,7 +11,9 @@ FILTER_PROVIDER = ["noon", "no"]
 
 class EmailExtractor(Extractor):
     """
-        This class
+    **Description**
+        This class uses spaCy Matcher and takes spaCy predefined 'LIKE_EMAIL' pattern to extract email address.
+        More information: https://spacy.io/api/matcher#add
 
     Examples:
         ::
@@ -48,12 +50,11 @@ class EmailExtractor(Extractor):
     def extract(self, text: str) -> List[Extraction]:
         """
 
-            Extract with the input text
         Args:
-            text (str):
+            text (str): The input source to be processed
 
         Returns:
-            List[Extraction]:
+            List[Extraction]: The list of extractions returned by EmailExtractor
 
         """
 

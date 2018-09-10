@@ -8,12 +8,14 @@ import spacy
 
 class SentenceExtractor(Extractor):
     """
+    **Description**
         Extract individual sentences using lightweight spaCy module.
 
     Example:
         ::
-            sentence_extractor = SentenceExtractor(...)
-            sentence_extractor.extract(...)
+
+            sentence_extractor = SentenceExtractor(custom_nlp=nlp)
+            sentence_extractor.extract(text=text)
     """
 
     def __init__(self, name: str = None, custom_nlp: type = None) -> None:
