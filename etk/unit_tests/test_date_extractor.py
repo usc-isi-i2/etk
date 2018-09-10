@@ -76,6 +76,16 @@ class TestDateExtractor(unittest.TestCase):
                                    if format and len(format) > 1 and format[1] in ['H', 'I'] else DateResolution.DAY
                                    )
                     expected = expected.replace('@today', self.convert_to_iso_format(datetime.datetime.now()))
+                    if expected.startswith('@recentYear'):
+                        today = datetime.datetime.now()
+                        expected = expected.replace('@recentYear', str(today.year))
+                        date = datetime.datetime.strptime(expected, '%Y-%m-%d')
+                        next_year = date.replace(year=today.year+1)
+                        last_year = date.replace(year=today.year-1)
+                        if date > today and (date-today > today-last_year):
+                            expected = str(last_year.year) + expected[4:]
+                        elif date < today and (today-date > next_year-today):
+                            expected = str(next_year.year) + expected[4:]
                     if expected and expected[0] != '@':
                         self.assertEqual(e[0].value if e else '', expected)
 
