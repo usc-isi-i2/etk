@@ -6,7 +6,7 @@ class LocationParser(object):
     def __init__(self):
         self.patterns = {
             'range': re.compile('\[(.+?)\]'),
-            'cell_coord': re.compile('\(([A-Z]+),(\d+)\)'),
+            'cell_coord': re.compile('\(([A-Z]+),\s*(\d+)\)'),
             'row_label': re.compile('\d+'),
             'col_label': re.compile('[A-Z]+'),
         }
