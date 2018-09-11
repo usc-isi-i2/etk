@@ -7,24 +7,39 @@ import requests
 
 
 class DBpediaSpotlightExtractor(Extractor):
+    """
+    **Description**
+        This extractor takes a string of text as input, uses DBPedia API to annotate words and phrases in the text input.
 
+    Examples:
+        ::
+
+            dbpedia_spotlight_extractor = DBpediaSpotlightExtractor(search_url='http://model.dbpedia-spotlight.org/en/annotate',
+                                                                    get_attr=False,
+                                                                    get_attr_url="http://dbpedia.org/sparql")
+            dbpedia_spotlight_extractor.extract(text=input_doc,
+                                                filter=['Person', 'Place', 'Organisation'])
+
+    """
     def __init__(self, extractor_name: str, search_url: str, get_attr=False,
                  get_attr_url="http://dbpedia.org/sparql"):
         Extractor.__init__(self, input_type=InputType.TEXT,
                            category="built_in_extractor",
                            name=extractor_name)
-        self.search_url = search_url
-        self.get_attr = get_attr
-        self.get_attr_url = get_attr_url
+        self._search_url = search_url
+        self._get_attr = get_attr
+        self._get_attr_url = get_attr_url
 
     def extract(self, text: str, confidence=0.5, filter=['Person', 'Place', 'Organisation']) -> List[Extraction]:
         """
             Extract with the input text, confidence and fields filter to be used.
             Args:
-                text: str, text input to be annotated
-                confidence: float, the confidence of the annotation
-                filter: list, the fields that to be extracted
-            Returns: List[Extraction]
+                text (str): text input to be annotated
+                confidence (float): the confidence of the annotation
+                filter (List[str]): the fields that to be extracted
+
+            Returns:
+                List[Extraction]
         """
 
         filter = ','.join(filter)
@@ -32,14 +47,14 @@ class DBpediaSpotlightExtractor(Extractor):
                        ('text', text),
                        ('types', filter)]
         search_headers = {'Accept': 'application/json'}
-        r = requests.post(self.search_url,
+        r = requests.post(self._search_url,
                           data=search_data,
                           headers=search_headers)
         results = r.json()
-        last_results = self.combiner(results)
+        last_results = self._combiner(results)
         return last_results
 
-    def combiner(self, results: dict) -> List[Extraction]:
+    def _combiner(self, results: dict) -> List[Extraction]:
         return_result = list()
         if "Resources" in results:
             resources_results = results["Resources"]
@@ -49,8 +64,8 @@ class DBpediaSpotlightExtractor(Extractor):
                           'uri': one_result['@URI'],
                           'types': types,
                           'similarity_scores': float(one_result['@similarityScore'])}
-                if self.get_attr:
-                    attr = self.attr_finder(one_result['@URI'])
+                if self._get_attr:
+                    attr = self._attr_finder(one_result['@URI'])
                     values['attributes'] = attr
                 return_result.append(Extraction(confidence=float(results['@confidence']),
                                                 extractor_name=self.name,
@@ -62,8 +77,8 @@ class DBpediaSpotlightExtractor(Extractor):
             return return_result
         return list()
 
-    def attr_finder(self, uri) -> dict:
-        sparql = SPARQLWrapper(self.get_attr_url)
+    def _attr_finder(self, uri) -> dict:
+        sparql = SPARQLWrapper(self._get_attr_url)
         sparql.setQuery("SELECT distinct * WHERE {<" + uri + "> ?link ?resource}")
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()

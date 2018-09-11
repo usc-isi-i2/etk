@@ -7,7 +7,6 @@ from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
 from etk.ontology_namespacemanager import OntologyNamespaceManager
 
 
-
 class OntologyEntity(object):
     """
     Superclass of all ontology objects, including classes and properties.
@@ -101,7 +100,7 @@ class OntologyClass(OntologyEntity):
         """
         if not self._super_classes:
             return set()
-        return self._super_classes | reduce(set.union, [x.super_classes() for x in self._super_classes])
+        return self._super_classes | reduce(set.union, [x.super_classes_closure() for x in self._super_classes])
 
 
 class OntologyProperty(OntologyEntity):
@@ -492,20 +491,35 @@ class Ontology(object):
         property_.ranges.add(range_)
 
     def __validation_property_domain(self, p):
+        """
+        if p.sub_property_of(q) then
+        for every x in included_domains(p) we have x is subclass of some d in
+        included_domains(q)
+        """
         for x in p.included_domains():
+            superclasses = x.super_classes_closure()
             for q in p.super_properties_closure():
                 if x in q.included_domains():
                     logging.warning("Redundant domain :%s for :%s.", x.name(), p.name())
-                for d in q.included_domains():
-                    if x in d.super_classes():
-                        raise ValidationError("Domain :{} of :{} is a superclass of its subproperty "
-                                              " :{}'s domain {}.".format(x.name(), p.name(),
-                                                                         q.name(), d.name()))
+                    continue
+                if not any(d == x or d in superclasses for d in q.included_domains()) and not any(
+                        d == x or d in superclasses for s in q.super_properties_closure() for d in
+                        s.included_domains()):
+                    raise ValidationError("Domain {} of property {} isn't a subclass of any domain of "
+                                          "superproperty {}".format(x.name(), p.name(), q.name()))
 
     def __validation_property_range(self, p):
+        """
+        if p.sub_property_of(q) then
+        for every y in included_ranges(p) we have y is subclass of some r in
+        included_ranges(q) -- for object properties
+        """
         for y in p.included_ranges():
+            superclasses = y.super_classes_closure()
             for q in p.super_properties():
-                if not any(r in y.super_classes() for r in q.included_ranges()):
+                if not any(r == y or r in superclasses for r in q.included_ranges()) and not any(
+                        r == y or r in superclasses for s in q.super_properties_closure() for r in
+                        s.included_ranges()):
                     raise ValidationError("Range {} of property {} isn't a subclass of any range of"
                                           " superproperty {}".format(y.name(), p.name(), q.name()))
 
