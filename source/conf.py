@@ -12,16 +12,17 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
+import datetime
+sys.path.insert(0, os.path.abspath('../etk'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'ETK'
-copyright = '2018, Sylvia_Lin'
-author = 'Sylvia_Lin'
+copyright = '{}, USC/ISI'.format(datetime.datetime.now().year)
+author = 'USC/ISI'
 
 # The short X.Y version
 version = ''
@@ -38,17 +39,24 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-]
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.napoleon',
+              'sphinx.ext.viewcode',]
+
+# display base class
+autodoc_default_flags = ['show-inheritance']
+
+# extensions = [
+#     'sphinx.ext.autodoc',
+#     'sphinx.ext.doctest',
+#     'sphinx.ext.intersphinx',
+#     'sphinx.ext.todo',
+#     'sphinx.ext.coverage',
+#     'sphinx.ext.mathjax',
+#     'sphinx.ext.ifconfig',
+#     'sphinx.ext.viewcode',
+#     'sphinx.ext.githubpages',
+# ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['docstemplates']
