@@ -8,14 +8,7 @@ import spacy
 
 class SentenceExtractor(Extractor):
     """
-    **Description**
-        Extract individual sentences using lightweight spaCy module.
-
-    Example:
-        ::
-
-            sentence_extractor = SentenceExtractor(custom_nlp=nlp)
-            sentence_extractor.extract(text=text)
+    Extract individual sentences using lightweight spaCy module.
     """
 
     def __init__(self, name: str = None, custom_nlp: type = None) -> None:
@@ -35,7 +28,7 @@ class SentenceExtractor(Extractor):
 
                 try:
                     assert "parser" in custom_pipeline.pipe_names
-                    self._parser = custom_pipeline
+                    self.parser = custom_pipeline
                 except AssertionError:
                     print("Note: custom_pipeline does not have a parser. \n"
                           "Loading parser from en_core_web_sm... ")
@@ -51,30 +44,38 @@ class SentenceExtractor(Extractor):
             load_parser = True
 
         if load_parser:
-            self._parser = spacy.load("en_core_web_sm",
+            self.parser = spacy.load("en_core_web_sm",
                                      disable=["tagger", "ner"])
 
-    def extract(self, text: str) -> List[Extraction]:
+    def extract(self, text: str, docId=None) -> List[Extraction]:
         """
         Splits text by sentences.
 
         Args:
-            text (str):
+            text: str
 
-        Returns:
-            List[Extraction]
+        Returns: List[Extraction]
         """
 
-        doc = self._parser(text)
+        doc = self.parser(text)
 
         extractions = list()
+        sentence_count = 1
         for sent in doc.sents:
-            this_extraction = Extraction(value=sent.text,
+            if docId:
+                faiss_id = docId + '{:>04d}'.format(sentence_count)
+                assert len(faiss_id) ==19, "Faiss ID length is not correct"
+                val = (faiss_id, sent.text)
+            else:
+                val = sent.text
+            this_extraction = Extraction(value=val,
                                          extractor_name=self.name,
                                          start_token=sent[0],
                                          end_token=sent[-1],
                                          start_char=sent.text[0],
                                          end_char=sent.text[-1])
+            sentence_count += 1
+            print(this_extraction)
             extractions.append(this_extraction)
-
+        print("Done with " + docId)
         return extractions
