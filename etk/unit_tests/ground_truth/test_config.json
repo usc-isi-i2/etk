@@ -23,6 +23,9 @@
     },
     "test_empty": {
       "type": "string"
+    },
+    "test_zero": {
+      "type": "number"
     }
   }
 }
