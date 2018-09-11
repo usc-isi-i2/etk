@@ -5,6 +5,17 @@ from etk.extraction import Extraction
 
 
 class CryptographicHashExtractor(Extractor):
+    """
+    **Description**
+        This class inherits RegexExtractor by predefine the regex patterns for md5, sha1 and sha256
+
+    Examples:
+        ::
+
+            cryptographic_hash_extractor = CryptographicHashExtractor()
+            cryptographic_hash_extractor.extract(text=input_doc)
+
+    """
     def __init__(self):
         e_name = 'cryptographic hash extractor'
         self._regex_extractors = [
@@ -22,6 +33,16 @@ class CryptographicHashExtractor(Extractor):
         return self._regex_extractors
 
     def extract(self, text: str) -> List[Extraction]:
+        """
+
+        Args:
+            text (str): The input source to be processed
+
+        Returns:
+            List[Extraction]: The list of extractions returned by CryptographicHashExtractor
+
+        """
+
         res = list()
         for e in self.regex_extractors:
             res = res+e.extract(text)

@@ -20,9 +20,15 @@ class Strategy(Enum):
 
 class HTMLContentExtractor(Extractor):
     """
-    Extracts text from HTML pages.
+    **Description**
+        This class extracts text from HTML pages. Uses readability and BeautifulSoup.
 
-    Uses readability and BeautifulSoup
+    Examples:
+        ::
+
+            html_content_extractor = HTMLContentExtractor(...)
+            html_content_extractor.extract(text=input_doc,...)
+
     """
 
     def __init__(self):
@@ -47,7 +53,7 @@ class HTMLContentExtractor(Extractor):
             if strategy == Strategy.ALL_TEXT:
                 soup = BeautifulSoup(html_text, 'html.parser')
                 texts = soup.findAll(text=True)
-                visible_texts = filter(self.tag_visible, texts)
+                visible_texts = filter(self._tag_visible, texts)
                 all_text = u" ".join(t.strip() for t in visible_texts)
                 return [Extraction(all_text, self.name)]
             else:
@@ -60,7 +66,7 @@ class HTMLContentExtractor(Extractor):
             return []
 
     @staticmethod
-    def tag_visible(element):
+    def _tag_visible(element):
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
         if isinstance(element, Comment):

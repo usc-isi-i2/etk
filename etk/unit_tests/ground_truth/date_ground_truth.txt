@@ -31,7 +31,7 @@ Saturday, Mar 10, 2018|2018-03-10|%A, %b %d, %Y
 
 Saturday, March 10, 2018|2018-03-10|%A, %B %d, %Y
 
-Sat, Mar 10|2018-03-10|%a, %b %d
+Sat, Mar 10|@recentYear-03-10|%a, %b %d
 
 2018-03-10 02:08:57.0|2018-03-10|%Y-%m-%d %H:%M:%S.0
 
