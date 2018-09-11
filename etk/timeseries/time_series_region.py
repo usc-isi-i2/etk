@@ -59,7 +59,7 @@ class TimeSeriesRegion(object):
         md_modes = {}
         all_blank = True
         for md_name in mds:
-            if mds[md_name]['mode'] == 'normal':
+            if mds[md_name]['mode'] == 'normal' or mds[md_name]['mode'] == 'backfill':
                 if mds[md_name]['source'] == 'cell':
                     metadata[md_name] = data[mds[md_name]['loc'][0]][mds[md_name]['loc'][1]]
                     if not self.is_blank(metadata[md_name]):
@@ -75,10 +75,13 @@ class TimeSeriesRegion(object):
                         if not self.is_blank(val):
                             all_blank = False
                     metadata[md_name] = " ".join(md_vals)
+                if not metadata[md_name] and mds[md_name]['mode']=='backfill':
+                    metadata[md_name] = self.time_series[-1]['metadata'][md_name]
             else:
                 md_modes[mds[md_name]['mode']] = True
-        if all_blank and not md_modes["inline"]:
-            raise IndexError("All metadata values blank")
+        if all_blank and ("inline" not in md_modes or not md_modes["inline"]):
+            logging.debug("%s",metadata)
+            raise IndexError("All metadata values blank for %d"%(tsidx))
         return md_modes
 
     def parse_inline_tsr_metadata(self, metadata, data, dataidx):
@@ -167,14 +170,13 @@ class TimeSeriesRegion(object):
 
 
     def parse_monthly_date(self, time_label):
-
         month_kw = {"jan":1, "feb":2, "mar":3, "apr":4, "may":5, "jun":6, "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12,
             "january":1, "february":2, "march":3, "april":4, "june":6, "july":7, "august":8, "september":9, "october":10, "november":11, "december":12}
         try:
             year = re.search('(\d{4})', time_label).group(1)
-            month = re.search('[^\d](\d{2})[^\d]', time_label)
+            month = re.search('(^|[^\d])(\d{2})([^\d]|$)', time_label)
             if month != None:
-                return year + '-' + month.group(1)
+                return year + '-' + month.group(2)
             for k in month_kw:
                 if k in time_label.lower:
                     return year + '-' + str(month_kw[k])
@@ -196,6 +198,7 @@ class TimeSeriesRegion(object):
     def parse_ts(self, data, metadata):
         self.time_series = []
         for ts_idx in self.series_range:
+            logging.debug("Parsing TS at %d", ts_idx)
             timeseries = []
             ts_metadata = copy.deepcopy(metadata)
             ts_metadata['provenance'][self.orientation] = ts_idx
@@ -268,10 +271,9 @@ class TimeSeriesRegion(object):
                 measurement['provenance']['col'] = coords[1]
                 measurement['uid'] = self.get_uid(measurement)
                 timeseries.append(measurement)
-
             ts_metadata['uid'] = self.get_uid(ts_metadata)
             self.time_series.append(dict(metadata=ts_metadata, ts=timeseries))
 
     def is_blank(self, data):
-        return len(data.strip()) == 0
+        return len(str(data).strip()) == 0
 
