@@ -48,7 +48,16 @@ class GlossaryExtractor(Extractor):
         self._glossary = self._populate_trie(glossary)
 
     def extract(self, tokens: List[Token]) -> List[Extraction]:
-        """Extracts information from a string(TEXT) with the GlossaryExtractor instance"""
+        """
+        Extracts information from a string(TEXT) with the GlossaryExtractor instance
+
+        Args:
+            token (List[Token]): list of spaCy token to be processed.
+
+        Returns:
+            List[Extraction]: the list of extraction or the empty list if there are no matches.
+
+        """
         results = list()
 
         if len(tokens) > 0:

@@ -9,8 +9,8 @@ class IPAddressExtractor(RegexExtractor):
     Examples:
         ::
 
-            ip_address_extractor = IPAddressExtractor(...)
-            ip_address_extractor.extract(text=input_doc,...)
+            ip_address_extractor = IPAddressExtractor()
+            ip_address_extractor.extract(text=input_doc)
     """
     def __init__(self):
         ip_address_pattern = r"(?:(?:[01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])" \

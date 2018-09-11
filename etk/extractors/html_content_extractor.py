@@ -26,8 +26,9 @@ class HTMLContentExtractor(Extractor):
     Examples:
         ::
 
-            html_content_extractor = HTMLContentExtractor(...)
-            html_content_extractor.extract(text=input_doc,...)
+            html_content_extractor = HTMLContentExtractor()
+            html_content_extractor.extract(text=input_doc,
+                                        strategy=Strategy.ALL_TEXT)
 
     """
 
@@ -43,10 +44,12 @@ class HTMLContentExtractor(Extractor):
         Extracts text from an HTML page using a variety of strategies
 
         Args:
-            html_text (): html page in string
-            strategy (): one of Strategy.ALL_TEXT, Strategy.MAIN_CONTENT_STRICT and Strategy.MAIN_CONTENT_RELAXED
+            html_text (str): html page in string
+            strategy (enum[Strategy.ALL_TEXT, Strategy.MAIN_CONTENT_RELAXED, Strategy.MAIN_CONTENT_STRICT]): one of
+            Strategy.ALL_TEXT, Strategy.MAIN_CONTENT_STRICT and Strategy.MAIN_CONTENT_RELAXED
 
-        Returns: a list of Extraction(s) of a str, typically a singleton list with the extracted text
+        Returns:
+             List[Extraction]: typically a singleton list with the extracted text
         """
 
         if html_text:

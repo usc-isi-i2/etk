@@ -422,7 +422,8 @@ class TableExtractor(Extractor):
         ::
 
             table_extractor = TableExtractor()
-            table_extractor.extract()
+            table_extractor.extract(html=html_str,
+                                    return_text=True)
 
     """
 
@@ -440,10 +441,14 @@ class TableExtractor(Extractor):
 
     def extract(self, html: str, return_text: bool=False) -> List[Extraction]:
         """
-            :param html: raw html of the page
-            :param return_text: if True, return the visible text in the page
+        Args:
+            html (str): raw html of the page
+            return_text (bool): if True, return the visible text in the page
                                 removing all the data tables
-            :return: a list of Extractions
+
+        Returns:
+            List[Extraction]: a list of Extractions
+
         """
         results = list()
         temp_res = TableExtractor.tableExtractorInstance.extract(html)
