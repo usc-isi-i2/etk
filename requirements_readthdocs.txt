@@ -1,8 +1,2 @@
 sphinx
 sphinx-autobuild>=0.6.0
-spacy==2.0.11
-pyexcel==0.5.7
-pyexcel-io==0.5.6
-pyexcel-xls==0.5.6
-pyexcel-xlsx==0.5.6
-SPARQLWrapper==1.8.2 
