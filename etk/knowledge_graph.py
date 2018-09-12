@@ -44,14 +44,14 @@ class KnowledgeGraph(object):
     def _add_single_value(self, field_name: str, value, provenance_path=None,
                           reference_type="location", keep_empty: bool = False) -> bool:
 
-        def validate(v):
-            if v is not None:
-                if isinstance(v, str):
+        def need_to_parse(v):
+            if v is not None:  # can not be none
+                if isinstance(v, str):  # type is string, only keep it if it's not "" or keep_empty is True
                     if v.strip() != "" or keep_empty:
                         return True
                     else:
                         return False
-                else:
+                else:  # type is not string, keep it
                     return True
             return False
 
@@ -64,8 +64,10 @@ class KnowledgeGraph(object):
                 self._kg["@type"].append(value)
             return True
 
-        if not validate(value):
-            return False
+        if not need_to_parse(value):
+            # here, if the value is "empty", then it doesn't need to do further parsing anymore
+            # but it's still valid, then True can be returned
+            return True
 
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if self.ontology and self.origin_doc.etk.generate_json_ld:
