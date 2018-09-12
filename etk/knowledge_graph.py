@@ -86,7 +86,7 @@ class KnowledgeGraph(object):
         else:
             return False
 
-    def _add_value(self, field_name: str, value, provenance_path=None) -> bool:
+    def _add_value(self, field_name: str, value, provenance_path=None, keep_empty: bool = False) -> bool:
         """
         Helper function to add values to a knowledge graph
         Args:
@@ -101,11 +101,11 @@ class KnowledgeGraph(object):
 
         all_valid = True
         for x in value:
-            valid = self._add_single_value(field_name, x, provenance_path=provenance_path)
+            valid = self._add_single_value(field_name, x, provenance_path=provenance_path, keep_empty=keep_empty)
             all_valid = all_valid and valid
         return all_valid
 
-    def _add_doc_value(self, field_name: str, jsonpath: str) -> None:
+    def _add_doc_value(self, field_name: str, jsonpath: str, keep_empty: bool = False) -> None:
         """
         Add a value to knowledge graph by giving a jsonpath
 
@@ -120,12 +120,11 @@ class KnowledgeGraph(object):
         all_valid = True
         invalid = []
         for a_match in matches:
-            # If the value is the empty string, we treat is a None.
-            if a_match.value:
-                valid = self._add_value(field_name, a_match.value, provenance_path=str(a_match.full_path))
-                if not valid:
-                    invalid.append(field_name + ":" + str(a_match.value))
-                all_valid = all_valid and valid
+            valid = self._add_value(field_name, a_match.value,
+                                    provenance_path=str(a_match.full_path), keep_empty=keep_empty)
+            if not valid:
+                invalid.append(field_name + ":" + str(a_match.value))
+            all_valid = all_valid and valid
 
         if not all_valid:
             raise KgValueError("Some kg value type invalid according to schema: " + json.dumps(invalid))
@@ -143,42 +142,32 @@ class KnowledgeGraph(object):
             value: the value to be added to the knowledge graph
             json_path: str, if json_path is provided, then get the value at this path in the doc
             json_path_extraction: str,
-            discard_empty: bool,
+            keep_empty: bool,
         Returns:
         """
-        def validate(v):
-            if v is not None:
-                if isinstance(v, str):
-                    if v.strip() != "" or keep_empty:
-                        return True
-                    else:
-                        return False
-                else:
-                    return True
-            return False
-
         self.validate_field(field_name)
         if field_name not in self._kg:
             self._kg[field_name] = []
 
         if json_path:
-            self._add_doc_value(field_name, json_path)
+            self._add_doc_value(field_name, json_path, keep_empty=keep_empty)
 
-
-        if validate(value):
+        if value is not None:
             if not isinstance(value, list):
                 value = [value]
 
             all_valid = True
-            invalid= []
+            invalid = []
             for a_value in value:
                 if isinstance(a_value, Extraction):
-                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction),
+                                                   keep_empty=keep_empty)
                 elif isinstance(a_value, Segment):
-                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path,
+                                                   keep_empty=keep_empty)
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                   reference_type="constant")
+                                                   reference_type="constant", keep_empty=keep_empty)
 
                 all_valid = all_valid and valid
                 if not valid:
