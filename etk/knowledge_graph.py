@@ -9,6 +9,7 @@ from etk.segment import Segment
 from etk.ontology_api import Ontology
 import json
 
+
 class KnowledgeGraph(object):
     """
     This class is a knowledge graph object, provides API for user to construct their kg.
@@ -63,7 +64,7 @@ class KnowledgeGraph(object):
             if value not in self._kg["@type"]:
                 self._kg["@type"].append(value)
             return True
-          
+
         if not need_to_parse(value):
             # here, if the value is "empty", then it doesn't need to do further parsing anymore
             # but it's still valid, then True can be returned
@@ -71,8 +72,8 @@ class KnowledgeGraph(object):
 
         (valid, this_value) = self.schema.is_valid(field_name, value)
         if self.ontology and self.origin_doc.etk.generate_json_ld:
-            #Check and generate the valid value again from 'value'. this_value contains serialized results
-            #and since we need toc heck the datatype again, we shouldnt use that.
+            # Check and generate the valid value again from 'value'. this_value contains serialized results
+            # and since we need toc heck the datatype again, we shouldnt use that.
             valid_value = valid and self.ontology.is_valid(field_name, value, self._kg)
             this_value = valid_value
         else:
@@ -146,6 +147,7 @@ class KnowledgeGraph(object):
             discard_empty: bool,
         Returns:
         """
+
         def validate(v):
             if v is not None:
                 if isinstance(v, str):
@@ -164,21 +166,22 @@ class KnowledgeGraph(object):
         if json_path:
             self._add_doc_value(field_name, json_path)
 
-
         if validate(value):
             if not isinstance(value, list):
                 value = [value]
 
             all_valid = True
-            invalid= []
+            invalid = []
             for a_value in value:
                 if isinstance(a_value, Extraction):
-                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction))
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=str(json_path_extraction),
+                                                   keep_empty=keep_empty)
                 elif isinstance(a_value, Segment):
-                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path)
+                    valid = self._add_single_value(field_name, a_value.value, provenance_path=a_value.json_path,
+                                                   keep_empty=keep_empty)
                 else:
                     valid = self._add_single_value(field_name, a_value, provenance_path=json_path_extraction,
-                                                   reference_type="constant")
+                                                   reference_type="constant", keep_empty=keep_empty)
 
                 all_valid = all_valid and valid
                 if not valid:
