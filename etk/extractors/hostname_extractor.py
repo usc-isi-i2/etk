@@ -9,8 +9,8 @@ class HostnameExtractor(RegexExtractor):
     Examples:
         ::
 
-            hostname_extractor = HostnameExtractor(...)
-            hostname_extractor.extract(text=input_doc,...)
+            hostname_extractor = HostnameExtractor()
+            hostname_extractor.extract(text=input_doc)
 
     """
     def __init__(self):

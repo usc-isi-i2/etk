@@ -68,8 +68,9 @@ class InferlinkExtractor(Extractor):
     Examples:
         ::
 
-            inferlink_extractor = InferlinkExtractor(...)
-            inferlink_extractor.extract(text=input_doc,...)
+            inferlink_extractor = InferlinkExtractor()
+            inferlink_extractor.extract(text=input_doc,
+                                        threshold=0.8)
     """
 
     def __init__(self, rule_set: InferlinkRuleSet):

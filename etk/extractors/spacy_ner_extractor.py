@@ -27,6 +27,14 @@ class SpacyNerExtractor(Extractor):
     # all_attrs = ['PERSON', 'NORP', 'FAC', 'ORG', 'GPE', 'LOC', 'PRODUCT', 'EVENT', 'WORK_OF_ART', 'LAW', 'LANGUAGE',
     #              'DATE', 'TIME', 'PERCENT', 'MONEY', 'QUANTITY', 'ORDINAL', 'CARDINAL']
     def extract(self, text: str, get_attr=['PERSON', 'ORG', 'GPE']) -> List[Extraction]:
+        """
+        Args:
+            text (str): the text to extract from.
+            get_attr (List[str]): The spaCy NER attributes we're interested in.
+
+        Returns:
+            List(Extraction): the list of extraction or the empty list if there are no matches.
+        """
         doc = self.__nlp(text)
         attr_list = list()
         for ent in doc.ents:

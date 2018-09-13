@@ -23,8 +23,9 @@ class LanguageIdentificationExtractor(Extractor):
     Examples:
         ::
 
-            language_identification_extractor = LanguageIdentificationExtractor(...)
-            language_identification_extractor.extract()
+            language_identification_extractor = LanguageIdentificationExtractor()
+            language_identification_extractor.extract(text=input_stri,
+                                                    method=IdentificationTool.LANGDETECT.name)
 
     """
 
@@ -38,11 +39,13 @@ class LanguageIdentificationExtractor(Extractor):
         """
 
         Args:
-            text: any text, can contain HTML
-            method: specifies which of the two algorithms to use
+            text (str): any text, can contain HTML
+            method (Enum[IdentificationTool.LANGID, IdentificationTool.LANGDETECT]): specifies which of the two
+            algorithms to use
 
-        Returns: an extraction containing the language code used in the text.
-        Returns the empty list of the extractor fails to identify the language in the text.
+        Returns:
+            List(Extraction): an extraction containing the language code used in the text. Returns the empty list of
+            the extractor fails to identify the language in the text.
 
         """
         if method == IdentificationTool.LANGID.name:

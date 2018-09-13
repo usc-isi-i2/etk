@@ -1,0 +1,5 @@
+build:
+    image: uscisii2/readthedocs:2.0.0
+
+python:
+    version: 3.6
