@@ -1,0 +1,236 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.email_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.email_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">spacy.matcher</span> <span class="k">import</span> <span class="n">Matcher</span>
+<span class="kn">from</span> <span class="nn">spacy.attrs</span> <span class="k">import</span> <span class="n">LIKE_EMAIL</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+
+
+<span class="n">FILTER_PROVIDER</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;noon&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="EmailExtractor"><a class="viewcode-back" href="../../../extractors/email_ext.html#etk.extractors.email_extractor.EmailExtractor">[docs]</a><span class="k">class</span> <span class="nc">EmailExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        This class uses spaCy Matcher and takes spaCy predefined &#39;LIKE_EMAIL&#39; pattern to extract email address.</span>
+<span class="sd">        More information: https://spacy.io/api/matcher#add</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            email_extractor = EmailExtractor(...)</span>
+<span class="sd">            email_extractor.extract(text=input_doc,...)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">nlp</span><span class="p">,</span>
+                 <span class="n">tokenizer</span><span class="p">,</span>
+                 <span class="n">extractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the extractor, storing the rule information and construct spacy rules</span>
+<span class="sd">        Args:</span>
+<span class="sd">            nlp:</span>
+<span class="sd">            tokenizer: Tokenizer</span>
+<span class="sd">            extractor_name: str</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;build_in_extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">extractor_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_like_email_matcher</span> <span class="o">=</span> <span class="n">Matcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
+
+    <span class="k">def</span> <span class="nf">_load_email_matcher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_like_email_matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;Email&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[{</span><span class="n">LIKE_EMAIL</span><span class="p">:</span> <span class="kc">True</span><span class="p">}])</span>
+
+<div class="viewcode-block" id="EmailExtractor.extract"><a class="viewcode-back" href="../../../extractors/email_ext.html#etk.extractors.email_extractor.EmailExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): The input source to be processed</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Extraction]: The list of extractions returned by EmailExtractor</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">first_phase_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_email_matcher</span><span class="p">()</span>
+        <span class="n">like_email_matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like_email_matcher</span><span class="p">(</span><span class="n">first_phase_doc</span><span class="p">)</span>
+
+        <span class="n">like_emails_filtered</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">match_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">like_email_matches</span><span class="p">:</span>
+            <span class="n">span</span> <span class="o">=</span> <span class="n">first_phase_doc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)):</span>
+                <span class="n">like_emails_filtered</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">span</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span> <span class="n">span</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">span</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])))</span>
+
+        <span class="n">non_space_emails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_non_space_email</span><span class="p">(</span><span class="n">first_phase_doc</span><span class="p">)</span>
+
+        <span class="n">emails</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">like_emails_filtered</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">non_space_emails</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">email</span> <span class="ow">in</span> <span class="n">emails</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Extraction</span><span class="p">(</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">email</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">start_char</span><span class="o">=</span><span class="n">email</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">end_char</span><span class="o">=</span><span class="n">email</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_domain</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the email provider should be filtered</span>
+<span class="sd">        Args:</span>
+<span class="sd">            tokens:</span>
+
+<span class="sd">        Returns: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s2">&quot;@&quot;</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">i</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">idx</span> <span class="ow">or</span> <span class="n">tokens</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span> <span class="ow">in</span> <span class="n">FILTER_PROVIDER</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_get_non_space_email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deal with corner case that there is &quot;email&quot; string in text and no space around it</span>
+<span class="sd">        Args:</span>
+<span class="sd">            doc: List[Token]</span>
+
+<span class="sd">        Returns: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_lst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;mail:&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;mail:&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">5</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="n">idx</span><span class="p">:]</span>
+                <span class="n">tmp_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">tmp_email_matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_like_email_matcher</span><span class="p">(</span><span class="n">tmp_doc</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">match_id</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">tmp_email_matches</span><span class="p">:</span>
+                    <span class="n">span</span> <span class="o">=</span> <span class="n">tmp_doc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_domain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">)):</span>
+                        <span class="n">result_lst</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">span</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">idx</span><span class="o">+</span><span class="n">e</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx</span><span class="o">+</span><span class="n">e</span><span class="o">.</span><span class="n">idx</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">result_lst</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

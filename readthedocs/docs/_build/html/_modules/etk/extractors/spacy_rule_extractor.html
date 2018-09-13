@@ -1,0 +1,955 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.spacy_rule_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.spacy_rule_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">etk.tokenizer</span> <span class="k">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">spacy.matcher</span> <span class="k">import</span> <span class="n">Matcher</span>
+<span class="kn">from</span> <span class="nn">spacy</span> <span class="k">import</span> <span class="n">attrs</span>
+<span class="kn">from</span> <span class="nn">spacy.tokens</span> <span class="k">import</span> <span class="n">span</span><span class="p">,</span> <span class="n">doc</span>
+<span class="kn">from</span> <span class="nn">etk.extractors.util.util</span> <span class="k">import</span> <span class="n">tf_transfer</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">FLAG_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">20</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG20</span><span class="p">,</span>
+    <span class="mi">21</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG21</span><span class="p">,</span>
+    <span class="mi">22</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG22</span><span class="p">,</span>
+    <span class="mi">23</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG23</span><span class="p">,</span>
+    <span class="mi">24</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG24</span><span class="p">,</span>
+    <span class="mi">25</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG25</span><span class="p">,</span>
+    <span class="mi">26</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG26</span><span class="p">,</span>
+    <span class="mi">27</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG27</span><span class="p">,</span>
+    <span class="mi">28</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG28</span><span class="p">,</span>
+    <span class="mi">29</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG29</span><span class="p">,</span>
+    <span class="mi">30</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG30</span><span class="p">,</span>
+    <span class="mi">31</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG31</span><span class="p">,</span>
+    <span class="mi">32</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG32</span><span class="p">,</span>
+    <span class="mi">33</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG33</span><span class="p">,</span>
+    <span class="mi">34</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG34</span><span class="p">,</span>
+    <span class="mi">35</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG35</span><span class="p">,</span>
+    <span class="mi">36</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG36</span><span class="p">,</span>
+    <span class="mi">37</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG37</span><span class="p">,</span>
+    <span class="mi">38</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG38</span><span class="p">,</span>
+    <span class="mi">39</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG39</span><span class="p">,</span>
+    <span class="mi">40</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG40</span><span class="p">,</span>
+    <span class="mi">41</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG41</span><span class="p">,</span>
+    <span class="mi">42</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG42</span><span class="p">,</span>
+    <span class="mi">43</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG43</span><span class="p">,</span>
+    <span class="mi">44</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG44</span><span class="p">,</span>
+    <span class="mi">45</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG45</span><span class="p">,</span>
+    <span class="mi">46</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG46</span><span class="p">,</span>
+    <span class="mi">47</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG47</span><span class="p">,</span>
+    <span class="mi">48</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG48</span><span class="p">,</span>
+    <span class="mi">49</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG49</span><span class="p">,</span>
+    <span class="mi">50</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG50</span><span class="p">,</span>
+    <span class="mi">51</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG51</span><span class="p">,</span>
+    <span class="mi">52</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG52</span><span class="p">,</span>
+    <span class="mi">53</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG53</span><span class="p">,</span>
+    <span class="mi">54</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG54</span><span class="p">,</span>
+    <span class="mi">55</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG55</span><span class="p">,</span>
+    <span class="mi">56</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG56</span><span class="p">,</span>
+    <span class="mi">57</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG57</span><span class="p">,</span>
+    <span class="mi">58</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG58</span><span class="p">,</span>
+    <span class="mi">59</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG59</span><span class="p">,</span>
+    <span class="mi">60</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG60</span><span class="p">,</span>
+    <span class="mi">61</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG61</span><span class="p">,</span>
+    <span class="mi">62</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG62</span><span class="p">,</span>
+    <span class="mi">63</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">FLAG63</span>
+<span class="p">}</span>
+
+<span class="n">POS_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;AUX&quot;</span><span class="p">:</span> <span class="s2">&quot;AUX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EOL&quot;</span><span class="p">:</span> <span class="s2">&quot;EOL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CCONJ&quot;</span><span class="p">:</span> <span class="s2">&quot;CCONJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SCONJ&quot;</span><span class="p">:</span> <span class="s2">&quot;SCONJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;noun&quot;</span><span class="p">:</span> <span class="s2">&quot;NOUN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pronoun&quot;</span><span class="p">:</span> <span class="s2">&quot;PROPN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;proper noun&quot;</span><span class="p">:</span> <span class="s2">&quot;PROPN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;determiner&quot;</span><span class="p">:</span> <span class="s2">&quot;DET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;SYM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;adjective&quot;</span><span class="p">:</span> <span class="s2">&quot;ADJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conjunction&quot;</span><span class="p">:</span> <span class="s2">&quot;CONJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;verb&quot;</span><span class="p">:</span> <span class="s2">&quot;VERB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pre/post-position&quot;</span><span class="p">:</span> <span class="s2">&quot;ADP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;adverb&quot;</span><span class="p">:</span> <span class="s2">&quot;ADV&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;particle&quot;</span><span class="p">:</span> <span class="s2">&quot;PART&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;interjection&quot;</span><span class="p">:</span> <span class="s2">&quot;INTJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;X&quot;</span><span class="p">:</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NUM&quot;</span><span class="p">:</span> <span class="s2">&quot;NUM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SPACE&quot;</span><span class="p">:</span> <span class="s2">&quot;SPACE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PRON&quot;</span><span class="p">:</span> <span class="s2">&quot;PRON&quot;</span>
+<span class="p">}</span>
+
+
+<span class="n">FLAG_ID</span> <span class="o">=</span> <span class="mi">20</span>
+
+
+<div class="viewcode-block" id="SpacyRuleExtractor"><a class="viewcode-back" href="../../../extractors/spacy_rule_ext.html#etk.extractors.spacy_rule_extractor.SpacyRuleExtractor">[docs]</a><span class="k">class</span> <span class="nc">SpacyRuleExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        This extractor takes a spaCy rule as reference and extracts the substring</span>
+<span class="sd">        which matches the given spaCy rule.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            rules = json.load(open(&#39;path_to_spacy_rules.json&#39;, &quot;r&quot;))</span>
+<span class="sd">            sample_rules = rules[&quot;test_SpacyRuleExtractor_word_1&quot;]</span>
+<span class="sd">            spacy_rule_extractor = SpacyRuleExtractor(nlp=nlp,</span>
+<span class="sd">                                                     rules=sample_rules)</span>
+<span class="sd">            spacy_rule_extractor.extract(text=text)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">nlp</span><span class="p">,</span>
+                 <span class="n">rules</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+                 <span class="n">extractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the extractor, storing the rule information and construct spacy rules</span>
+<span class="sd">        Args:</span>
+<span class="sd">            nlp</span>
+<span class="sd">            rules (Dict): spacy rules</span>
+<span class="sd">            extractor_name: str</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;spacy_rule_extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">extractor_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rules</span> <span class="o">=</span> <span class="n">rules</span><span class="p">[</span><span class="s2">&quot;rules&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">nlp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span> <span class="o">=</span> <span class="n">Tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matcher</span> <span class="o">=</span> <span class="n">Matcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_field_name</span> <span class="o">=</span> <span class="n">rules</span><span class="p">[</span><span class="s2">&quot;field_name&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;field_name&quot;</span> <span class="ow">in</span> <span class="n">rules</span> <span class="k">else</span> <span class="n">extractor_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">a_rule</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rules</span><span class="p">):</span>
+            <span class="n">this_rule</span> <span class="o">=</span> <span class="n">Rule</span><span class="p">(</span><span class="n">a_rule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span><span class="p">[</span><span class="n">this_rule</span><span class="o">.</span><span class="n">identifier</span> <span class="o">+</span> <span class="s2">&quot;rule_id##&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">this_rule</span>
+
+<div class="viewcode-block" id="SpacyRuleExtractor.extract"><a class="viewcode-back" href="../../../extractors/spacy_rule_ext.html#etk.extractors.spacy_rule_extractor.SpacyRuleExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract from text</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): input str to be extracted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Extraction]: the list of extraction or the empty list if there are no matches.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize_to_spacy_doc</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_matcher</span><span class="p">()</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matcher</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">pos_filtered_matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">neg_filtered_matches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">span_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize_to_spacy_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">this_spacy_rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matcher</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">relations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_relation</span><span class="p">(</span><span class="n">span_doc</span><span class="p">,</span> <span class="n">this_spacy_rule</span><span class="p">)</span>
+            <span class="n">rule_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_map</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">this_rule</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span><span class="p">[</span><span class="n">rule_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_match</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">relations</span><span class="p">,</span> <span class="n">this_rule</span><span class="o">.</span><span class="n">patterns</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_form_output</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">],</span> <span class="n">this_rule</span><span class="o">.</span><span class="n">output_format</span><span class="p">,</span> <span class="n">relations</span><span class="p">,</span> <span class="n">this_rule</span><span class="o">.</span><span class="n">patterns</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">this_rule</span><span class="o">.</span><span class="n">polarity</span><span class="p">:</span>
+                    <span class="n">pos_filtered_matches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">,</span> <span class="n">relations</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">neg_filtered_matches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">,</span> <span class="n">relations</span><span class="p">))</span>
+
+        <span class="n">return_lst</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">pos_filtered_matches</span><span class="p">:</span>
+            <span class="n">longest_lst_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_longest</span><span class="p">(</span><span class="n">pos_filtered_matches</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">neg_filtered_matches</span><span class="p">:</span>
+                <span class="n">longest_lst_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_longest</span><span class="p">(</span><span class="n">neg_filtered_matches</span><span class="p">)</span>
+                <span class="n">return_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reject_neg</span><span class="p">(</span><span class="n">longest_lst_pos</span><span class="p">,</span> <span class="n">longest_lst_neg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">return_lst</span> <span class="o">=</span> <span class="n">longest_lst_pos</span>
+
+        <span class="n">extractions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">,</span> <span class="n">relation</span><span class="p">)</span> <span class="ow">in</span> <span class="n">return_lst</span><span class="p">:</span>
+            <span class="n">this_extraction</span> <span class="o">=</span> <span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
+                                         <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                         <span class="n">start_token</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+                                         <span class="n">end_token</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+                                         <span class="n">start_char</span><span class="o">=</span><span class="n">doc</span><span class="p">[</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span><span class="p">,</span>
+                                         <span class="n">end_char</span><span class="o">=</span><span class="n">doc</span><span class="p">[</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idx</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="p">[</span><span class="n">end</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                                         <span class="n">rule_id</span><span class="o">=</span><span class="n">rule_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;rule_id##&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                                         <span class="n">match_mapping</span><span class="o">=</span><span class="n">relation</span><span class="p">)</span>
+            <span class="n">extractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_extraction</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extractions</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_matcher</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add constructed spacy rule to Matcher</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">id_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+                <span class="n">pattern_lst</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_pattern</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="k">for</span> <span class="n">a_pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rule_lst</span><span class="p">[</span><span class="n">id_key</span><span class="p">]</span><span class="o">.</span><span class="n">patterns</span><span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">spacy_rule_id</span><span class="p">,</span> <span class="n">spacy_rule</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">pattern_lst</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_construct_key</span><span class="p">(</span><span class="n">id_key</span><span class="p">,</span> <span class="n">spacy_rule_id</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">spacy_rule</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_filter_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span</span><span class="p">:</span> <span class="n">span</span><span class="p">,</span> <span class="n">relations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">patterns</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter the match result according to prefix, suffix, min, max ...</span>
+<span class="sd">        Args:</span>
+<span class="sd">            span: span</span>
+<span class="sd">            relations: Dict</span>
+<span class="sd">            patterns: List of pattern</span>
+
+<span class="sd">        Returns: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">pattern_id</span><span class="p">,</span> <span class="n">a_pattern</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">patterns</span><span class="p">):</span>
+            <span class="n">token_range</span> <span class="o">=</span> <span class="n">relations</span><span class="p">[</span><span class="n">pattern_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">token_range</span><span class="p">:</span>
+                <span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">span</span><span class="p">[</span><span class="n">token_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">token_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span>
+                <span class="k">if</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;word&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_suf_fix_filter</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">suffix</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;shape&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_shape_filter</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">full_shape</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_suf_fix_filter</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span><span class="n">a_pattern</span><span class="o">.</span><span class="n">suffix</span><span class="p">)):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min_max_filter</span><span class="p">(</span><span class="n">tokens</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="n">a_pattern</span><span class="o">.</span><span class="n">max</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_longest</span><span class="p">(</span><span class="n">value_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the longest match for overlap</span>
+<span class="sd">        Args:</span>
+<span class="sd">            value_lst: List</span>
+
+<span class="sd">        Returns: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">value_lst</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pivot</span> <span class="o">=</span> <span class="n">value_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">pivot</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pivot</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">pivot_e</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="n">pivot_s</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value_lst</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="n">pivot_s</span> <span class="ow">and</span> <span class="n">pivot_e</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">pivot_e</span> <span class="o">=</span> <span class="n">e</span>
+                <span class="n">pivot</span> <span class="o">=</span> <span class="n">value_lst</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">s</span> <span class="o">!=</span> <span class="n">pivot_s</span> <span class="ow">and</span> <span class="n">pivot_e</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pivot</span><span class="p">)</span>
+                <span class="n">pivot</span> <span class="o">=</span> <span class="n">value_lst</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                <span class="n">pivot_e</span> <span class="o">=</span> <span class="n">e</span>
+                <span class="n">pivot_s</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pivot</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_reject_neg</span><span class="p">(</span><span class="n">pos_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">neg_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reject some positive matches according to negative matches</span>
+<span class="sd">        Args:</span>
+<span class="sd">            pos_lst: List</span>
+<span class="sd">            neg_lst: List</span>
+
+<span class="sd">        Returns: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pos_lst</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">neg_lst</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pivot_pos</span> <span class="o">=</span> <span class="n">pos_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pivot_neg</span> <span class="o">=</span> <span class="n">neg_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">pos_lst</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pivot_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">pivot_neg</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pivot_pos</span><span class="p">)</span>
+                <span class="n">pos_lst</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pos_lst</span><span class="p">:</span>
+                    <span class="n">pivot_pos</span> <span class="o">=</span> <span class="n">pos_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">pivot_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pivot_neg</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">neg_lst</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">neg_lst</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="n">pos_lst</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pivot_neg</span> <span class="o">=</span> <span class="n">neg_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pos_lst</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pos_lst</span><span class="p">:</span>
+                    <span class="n">pivot_pos</span> <span class="o">=</span> <span class="n">pos_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_pre_suf_fix_filter</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prefix and Suffix filter</span>
+<span class="sd">        Args:</span>
+<span class="sd">            t: List, list of tokens</span>
+<span class="sd">            prefix: str</span>
+<span class="sd">            suffix: str</span>
+
+<span class="sd">        Returns: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">a_token</span><span class="o">.</span><span class="n">_</span><span class="o">.</span><span class="n">n_prefix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span> <span class="o">!=</span> <span class="n">prefix</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">suffix</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">a_token</span><span class="o">.</span><span class="n">_</span><span class="o">.</span><span class="n">n_suffix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">))</span> <span class="o">!=</span> <span class="n">suffix</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_min_max_filter</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">min_v</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Min and Max filter</span>
+<span class="sd">        Args:</span>
+<span class="sd">            t: List, list of tokens</span>
+<span class="sd">            min_v: str</span>
+<span class="sd">            max_v: str</span>
+
+<span class="sd">        Returns: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">tofloat</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">a_token</span><span class="o">.</span><span class="n">text</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">min_v</span> <span class="ow">and</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">min_v</span><span class="p">):</span>
+                    <span class="n">this_v</span> <span class="o">=</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">a_token</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">this_v</span> <span class="o">&lt;</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">min_v</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">max_v</span> <span class="ow">and</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">max_v</span><span class="p">):</span>
+                    <span class="n">this_v</span> <span class="o">=</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">a_token</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">this_v</span> <span class="o">&gt;</span> <span class="n">tofloat</span><span class="p">(</span><span class="n">max_v</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_full_shape_filter</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">shapes</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shape filter</span>
+<span class="sd">        Args:</span>
+<span class="sd">            t: List, list of tokens</span>
+<span class="sd">            shapes: List</span>
+
+<span class="sd">        Returns: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">shapes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">a_token</span><span class="o">.</span><span class="n">_</span><span class="o">.</span><span class="n">full_shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shapes</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_form_output</span><span class="p">(</span><span class="n">span_doc</span><span class="p">:</span> <span class="n">span</span><span class="p">,</span> <span class="n">output_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">relations</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">patterns</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Form an output value according to user input of output_format</span>
+<span class="sd">        Args:</span>
+<span class="sd">            span_doc: span</span>
+<span class="sd">            format: str</span>
+<span class="sd">            relations: Dict</span>
+<span class="sd">            patterns: List</span>
+
+<span class="sd">        Returns: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">format_value</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">output_inf</span> <span class="o">=</span> <span class="p">[</span><span class="n">a_pattern</span><span class="o">.</span><span class="n">in_output</span> <span class="k">for</span> <span class="n">a_pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">output_inf</span><span class="p">)):</span>
+            <span class="n">token_range</span> <span class="o">=</span> <span class="n">relations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">token_range</span> <span class="ow">and</span> <span class="n">output_inf</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">format_value</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">span_doc</span><span class="p">[</span><span class="n">token_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">token_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_format</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_value</span><span class="p">)</span>
+
+        <span class="n">result_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_value</span><span class="p">),</span> <span class="n">output_format</span><span class="p">)</span>
+
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;{[0-9]+}&quot;</span><span class="p">,</span> <span class="n">result_str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result_str</span>
+
+        <span class="n">position_indices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">position_indices</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_value</span><span class="p">):</span>
+            <span class="n">result_str</span> <span class="o">=</span> <span class="n">result_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">format_value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result_str</span> <span class="o">=</span> <span class="n">result_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">format_value</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">positions</span> <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_value</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+                    <span class="n">result_str</span> <span class="o">=</span> <span class="n">result_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">result_str</span> <span class="o">=</span> <span class="n">result_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">format_value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result_str</span>
+
+    <span class="k">def</span> <span class="nf">_construct_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">spacy_rule_id</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use a mapping to store the information about rule_id for each matches, create the mapping key here</span>
+<span class="sd">        Args:</span>
+<span class="sd">            rule_id: str</span>
+<span class="sd">            spacy_rule_id:int</span>
+
+<span class="sd">        Returns: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">hash_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">rule_id</span><span class="p">,</span> <span class="n">spacy_rule_id</span><span class="p">)</span>
+        <span class="n">hash_v</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">hash_key</span><span class="p">)</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hash_map</span><span class="p">[</span><span class="n">hash_v</span><span class="p">]</span> <span class="o">=</span> <span class="n">hash_key</span>
+        <span class="k">return</span> <span class="n">hash_v</span>
+
+    <span class="k">def</span> <span class="nf">_find_relation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span_doc</span><span class="p">:</span> <span class="n">doc</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the relations between the each pattern in the spacy rule and the matches</span>
+<span class="sd">        Args:</span>
+<span class="sd">            span_doc: doc</span>
+<span class="sd">            r: List</span>
+
+<span class="sd">        Returns: Dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rule</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">span_pivot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">relation</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">e_id</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">span_doc</span><span class="p">[</span><span class="n">span_pivot</span><span class="p">:]:</span>
+                <span class="k">for</span> <span class="n">extra_id</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="n">e_id</span><span class="p">:]):</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="o">+</span><span class="n">extra_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">break</span>
+            <span class="n">new_doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tokenizer</span><span class="o">.</span><span class="n">tokenize_to_spacy_doc</span><span class="p">(</span><span class="n">span_doc</span><span class="p">[</span><span class="n">span_pivot</span><span class="p">:]</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;OP&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">element</span><span class="p">:</span>
+                <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">span_pivot</span><span class="p">,</span> <span class="n">span_pivot</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">span_pivot</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">e_id</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="n">tmp_rule_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">rule</span><span class="p">[</span><span class="n">e_id</span><span class="p">]]</span>
+                    <span class="n">tmp_rule_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">rule</span><span class="p">[</span><span class="n">e_id</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="n">tmp_matcher</span> <span class="o">=</span> <span class="n">Matcher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nlp</span><span class="o">.</span><span class="n">vocab</span><span class="p">)</span>
+                    <span class="n">tmp_matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tmp_rule_1</span><span class="p">)</span>
+                    <span class="n">tmp_matcher</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">tmp_rule_2</span><span class="p">)</span>
+                    <span class="n">tmp_matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tmp_matcher</span><span class="p">(</span><span class="n">new_doc</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">]],</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">tmp_matches</span><span class="p">:</span>
+                        <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">matches_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tmp_matches</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches_1</span><span class="p">:</span>
+                            <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">_</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">e1</span> <span class="o">=</span> <span class="n">matches_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                            <span class="n">matches_2</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tmp_matches</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">matches_2</span><span class="p">:</span>
+                                <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">span_pivot</span><span class="p">,</span> <span class="n">span_pivot</span> <span class="o">+</span> <span class="n">e1</span><span class="p">)</span>
+                                <span class="n">span_pivot</span> <span class="o">+=</span> <span class="n">e1</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">_</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">e2</span> <span class="o">=</span> <span class="n">matches_2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">e1</span> <span class="o">&lt;=</span> <span class="n">s2</span><span class="p">:</span>
+                                    <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">span_pivot</span><span class="p">,</span> <span class="n">span_pivot</span> <span class="o">+</span> <span class="n">e1</span><span class="p">)</span>
+                                    <span class="n">span_pivot</span> <span class="o">+=</span> <span class="n">e1</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">span_pivot</span><span class="p">,</span> <span class="n">span_pivot</span> <span class="o">+</span> <span class="n">s2</span><span class="p">)</span>
+                                    <span class="n">span_pivot</span> <span class="o">+=</span> <span class="n">s2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">relation</span><span class="p">[</span><span class="n">e_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">span_pivot</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">span_doc</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">relation</span></div>
+
+
+<div class="viewcode-block" id="Pattern"><a class="viewcode-back" href="../../../extractors/spacy_rule_ext.html#etk.extractors.spacy_rule_extractor.Pattern">[docs]</a><span class="k">class</span> <span class="nc">Pattern</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class pattern represent each token</span>
+
+<span class="sd">    For each token, we let user specify constrains for tokens. Some attributes are spacy build-in attributes,</span>
+<span class="sd">    which can be used with rule-based matching: https://spacy.io/usage/linguistic-features#section-rule-based-matching</span>
+<span class="sd">    Some are custom attributes, need to apply further filtering after we get matches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a pattern, construct spacy token for matching according to type</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+<span class="sd">            nlp</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_output</span> <span class="o">=</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_in_output&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;maximum&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;minimum&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">suffix</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;suffix&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_shape</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shapes&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;word&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_word_token</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;shape&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_shape_token</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_number_token</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;punctuation&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_punctuation_token</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;linebreak&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacy_token_lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_linebreak_token</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_construct_word_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a word token</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+<span class="sd">            nlp</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;match_all_forms&quot;</span><span class="p">]):</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LEMMA</span><span class="p">:</span> <span class="n">nlp</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lemma_</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LOWER</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_capitalization_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
+
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;contain_digit&quot;</span><span class="p">]):</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_ASCII</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">attrs</span><span class="o">.</span><span class="n">IS_PUNCT</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_ALPHA</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_out_of_vocabulary&quot;</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_in_vocabulary&quot;</span><span class="p">]):</span>
+                <span class="n">this_token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_OOV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_out_of_vocabulary&quot;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_in_vocabulary&quot;</span><span class="p">]):</span>
+                <span class="n">this_token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_OOV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_length_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_capitalization_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;match_all_forms&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;match_all_forms&quot;</span><span class="p">]):</span>
+                <span class="k">global</span> <span class="n">FLAG_ID</span>
+                <span class="n">token_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
+
+                <span class="k">def</span> <span class="nf">is_selected_token</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">token_set</span>
+
+                <span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">add_flag</span><span class="p">(</span><span class="n">is_selected_token</span><span class="p">)</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]:</span> <span class="kc">True</span><span class="p">}</span>
+                <span class="n">FLAG_ID</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">token_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">nlp</span><span class="p">(</span><span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lemma_</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])]</span>
+                <span class="k">for</span> <span class="n">a_lemma</span> <span class="ow">in</span> <span class="n">token_set</span><span class="p">:</span>
+                    <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LEMMA</span><span class="p">:</span> <span class="n">a_lemma</span><span class="p">}</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_capitalization_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;capitalization&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_common_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;part_of_speech&quot;</span><span class="p">]:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_pos_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;part_of_speech&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_construct_shape_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a shape token</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;shapes&quot;</span><span class="p">]:</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_ASCII</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;shapes&quot;</span><span class="p">]:</span>
+                <span class="n">this_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">SHAPE</span><span class="p">:</span> <span class="n">this_shape</span><span class="p">}</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">this_token</span><span class="p">))</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_common_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;part_of_speech&quot;</span><span class="p">]:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_pos_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;part_of_speech&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_construct_number_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a shape token</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+<span class="sd">            nlp</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;numbers&quot;</span><span class="p">]:</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LIKE_NUM</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_length_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;numbers&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">ORTH</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;numbers&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">FLAG_ID</span>
+            <span class="n">number_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;numbers&quot;</span><span class="p">])</span>
+
+            <span class="k">def</span> <span class="nf">is_selected_number</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">number_set</span>
+
+            <span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">add_flag</span><span class="p">(</span><span class="n">is_selected_number</span><span class="p">)</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">FLAG_ID</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_common_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_construct_punctuation_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a shape token</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+<span class="sd">            nlp</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">]:</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_PUNCT</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">ORTH</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">global</span> <span class="n">FLAG_ID</span>
+            <span class="n">punct_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
+
+            <span class="k">def</span> <span class="nf">is_selected_punct</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">punct_set</span>
+
+            <span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">nlp</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">add_flag</span><span class="p">(</span><span class="n">is_selected_punct</span><span class="p">)</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">FLAG_DICT</span><span class="p">[</span><span class="n">FLAG_ID</span><span class="p">]:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">FLAG_ID</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_common_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_construct_linebreak_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a shape token</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num_break</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">num_break</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_break</span><span class="p">):</span>
+                <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LOWER</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span>
+            <span class="n">this_token</span> <span class="o">=</span> <span class="p">{</span><span class="n">attrs</span><span class="o">.</span><span class="n">LOWER</span><span class="p">:</span> <span class="n">s</span><span class="p">}</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_token</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_common_constrain</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_common_constrain</span><span class="p">(</span><span class="n">token_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add common constrain for every token type, like &quot;is_required&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            token_lst: List[Dict]</span>
+<span class="sd">            d: Dict</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">token_lst</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_required&quot;</span><span class="p">]):</span>
+                <span class="n">a_token</span><span class="p">[</span><span class="s2">&quot;OP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;?&quot;</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_length_constrain</span><span class="p">(</span><span class="n">token_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">lengths</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add length constrain for some token type, create cross production</span>
+<span class="sd">        Args:</span>
+<span class="sd">            token_lst: List[Dict]</span>
+<span class="sd">            lengths: List</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">token_lst</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">lengths</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span> <span class="ow">and</span> <span class="n">length</span> <span class="ow">and</span> <span class="n">length</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+                    <span class="n">a_token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">length</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">:</span>
+                    <span class="n">a_token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_pos_constrain</span><span class="p">(</span><span class="n">token_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">pos_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add pos tag constrain for some token type, create cross production</span>
+<span class="sd">        Args:</span>
+<span class="sd">            token_lst: List[Dict]</span>
+<span class="sd">            pos_tags: List</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">token_lst</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">pos_tags</span><span class="p">:</span>
+                <span class="n">a_token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">POS</span><span class="p">]</span> <span class="o">=</span> <span class="n">POS_MAP</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_add_capitalization_constrain</span><span class="p">(</span><span class="n">token_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">capi_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">word_lst</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add capitalization constrain for some token type, create cross production</span>
+<span class="sd">        Args:</span>
+<span class="sd">            token_lst: List[Dict]</span>
+<span class="sd">            capi_lst: List</span>
+<span class="sd">            word_lst: List</span>
+
+<span class="sd">        Returns: List[Dict]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">a_token</span> <span class="ow">in</span> <span class="n">token_lst</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;exact&quot;</span> <span class="ow">in</span> <span class="n">capi_lst</span> <span class="ow">and</span> <span class="n">word_lst</span> <span class="o">!=</span> <span class="p">[]:</span>
+                <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_lst</span><span class="p">:</span>
+                    <span class="n">token</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+                    <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">ORTH</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;lower&quot;</span> <span class="ow">in</span> <span class="n">capi_lst</span><span class="p">:</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_LOWER</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;upper&quot;</span> <span class="ow">in</span> <span class="n">capi_lst</span><span class="p">:</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_UPPER</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;title&quot;</span> <span class="ow">in</span> <span class="n">capi_lst</span><span class="p">:</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_TITLE</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;mixed&quot;</span> <span class="ow">in</span> <span class="n">capi_lst</span><span class="p">:</span>
+                <span class="n">token</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a_token</span><span class="p">)</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_UPPER</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_LOWER</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">token</span><span class="p">[</span><span class="n">attrs</span><span class="o">.</span><span class="n">IS_TITLE</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_generate_shape</span><span class="p">(</span><span class="n">word</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recreate shape from a token input by user</span>
+<span class="sd">        Args:</span>
+<span class="sd">            word: str</span>
+
+<span class="sd">        Returns: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">counting_stars</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">w</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">count</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">count</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">count</span>
+
+        <span class="n">shape</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">counting_stars</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">+=</span> <span class="n">word</span><span class="p">[</span><span class="n">p</span><span class="p">:</span><span class="n">p</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shape</span> <span class="o">+=</span> <span class="n">word</span><span class="p">[</span><span class="n">p</span><span class="p">:</span><span class="n">p</span> <span class="o">+</span> <span class="n">c</span><span class="p">]</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="n">c</span>
+
+        <span class="k">return</span> <span class="n">shape</span></div>
+
+
+<div class="viewcode-block" id="Rule"><a class="viewcode-back" href="../../../extractors/spacy_rule_ext.html#etk.extractors.spacy_rule_extractor.Rule">[docs]</a><span class="k">class</span> <span class="nc">Rule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class Rule represent each matching rule, each rule contains many pattern</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Storing information for each Rule, create list of Pattern for a rule</span>
+<span class="sd">        Args:</span>
+<span class="sd">            d: Dict</span>
+<span class="sd">            nlp</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dependencies&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;dependencies&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;description&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;is_active&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;identifier&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_format</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;output_format&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polarity</span> <span class="o">=</span> <span class="n">tf_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;polarity&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pattern_idx</span><span class="p">,</span> <span class="n">a_pattern</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;pattern&quot;</span><span class="p">]):</span>
+            <span class="n">this_pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">(</span><span class="n">a_pattern</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_pattern</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
