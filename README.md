@@ -10,7 +10,7 @@ ETK is open-source software, released under the MIT license.
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg) ![travis ci](https://travis-ci.org/usc-isi-i2/etk.svg?branch=etk2)
 
 ## Documentation
-
+Read the documentation [here](https://usc-isi-i2.github.io/etk/)
 
 ## Features
 
