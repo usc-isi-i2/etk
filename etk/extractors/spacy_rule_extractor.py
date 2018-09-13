@@ -136,10 +136,10 @@ class SpacyRuleExtractor(Extractor):
         Extract from text
 
         Args:
-            text: str
+            text (str): input str to be extracted.
 
         Returns:
-            List[Extraction]
+            List[Extraction]: the list of extraction or the empty list if there are no matches.
         """
 
         doc = self._tokenizer.tokenize_to_spacy_doc(text)
