@@ -1,7 +1,7 @@
 import platform
 import tempfile
 from typing import List, Dict
-import spacy, copy, json, os, jsonpath_ng, importlib, logging, sys
+import spacy, copy, json, os, jsonpath_ng.ext, importlib, logging, sys
 from etk.tokenizer import Tokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
@@ -33,7 +33,7 @@ class ETK(object):
             )
             self.logger = logging.getLogger('ETK')
 
-        self.parser = jsonpath_ng.parse
+        self.parser = jsonpath_ng.ext.parse
         self.default_nlp = spacy.load('en_core_web_sm')
         self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         self.parsed = dict()
@@ -297,4 +297,3 @@ class ETK(object):
             self.logger.critical(message)
         elif level == "exception":
             self.logger.exception(message)
-    
