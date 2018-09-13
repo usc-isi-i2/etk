@@ -33,9 +33,9 @@ class RegexExtractor(Extractor):
 
     def __init__(self,
                  pattern: str,
-                 extractor_name: str,
+                 extractor_name: str='regex extractor',
                  flags=0,
-                 general_tag: str = None
+                 general_tag: str=None
                  ) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
