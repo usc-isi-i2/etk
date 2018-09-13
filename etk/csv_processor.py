@@ -87,7 +87,9 @@ class CsvProcessor(object):
             dataset: user provided string to be added to output Document(s)
             nested_key: user provided string to be added to output Document(s)
             doc_id_field: specify this field(should be present in the input file), its value will be used as doc_id
+
         Returns: List[Document]
+
         """
         data = list()
 
