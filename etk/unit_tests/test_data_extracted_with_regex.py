@@ -44,12 +44,13 @@ class TestMultiDataExtractor(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_cve_extractor(self) -> None:
-        text = "Sample cves are CVE-1993-1344,  CVE-2006-1232 and CVE-1993-1344"
+        text = "Sample cves are CVE-1993-1344,  CVE-2016-7654321, CVE-2006-1232 and CVE-1993-1344."
         e = CVEExtractor()
 
         results = [x.value for x in e.extract(text)]
         expected = [
             "CVE-1993-1344",
+            "CVE-2016-7654321",
             "CVE-2006-1232",
             "CVE-1993-1344"
         ]
