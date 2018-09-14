@@ -86,7 +86,7 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_inverse_object_property(self):
         rdf_content = rdf_prefix + '''
-:moved_to a owl:ObjectProperty ;
+:moved_to a owl:ObjectProperty, rdf:Property ;
     :inverse :was_destination_of .
         '''
         ontology = Ontology(rdf_content)
