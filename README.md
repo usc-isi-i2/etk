@@ -36,28 +36,26 @@ Read the documentation [here](https://usc-isi-i2.github.io/etk/)
   <tr><td><b>Python version:</td><td>Python 3.6+</td></tr>
 <table>
 
-1. Create virtual environment (highly recommended)
-```
-python3 -m venv etk2_env
-source etk2_env/bin/activate
-```
-
-2. Install using pip
+Install using pip
 
 ```
 pip install etk
 ```
 
+### OR
+
 You can also install ETK Manually. Clone or fork this repository, open a terminal window and in the directory where you downloaded ETK type the following commands
 
 ```
+python3 -m venv etk2_env
+source etk2_env/bin/activate
 pip install -e .
 ```
 
 Load the spacy modules
 ```
 python -m spacy download en_core_web_sm
-python -m spacy download en_core_web_lg
+python -m spacy download en_core_web_lg (optional)
 ```
 To deactivate this virtual environment
 ```
