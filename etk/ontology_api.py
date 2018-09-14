@@ -337,7 +337,7 @@ class Ontology(object):
                              WHERE {{ ?uri rdfs:range ?range }
                                     UNION { ?uri schema:rangeIncludes ?range }}"""):
             if isinstance(r, BNode):
-                for r_ in self.__read_owl_union_of(d):
+                for r_ in self.__read_owl_union_of(r):
                     self.__init_ontology_property_range(uri, r_, include_undefined_class)
             else:
                 self.__init_ontology_property_range(uri, r, include_undefined_class)
