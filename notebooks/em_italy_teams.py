@@ -1,14 +1,12 @@
-import os
-import sys
 import json
 import requests
 import jsonpath_ng.ext as jex
 import re
+
 from etk.etk import ETK
 from etk.document import Document
 from etk.etk_module import ETKModule
 from etk.knowledge_graph_schema import KGSchema
-from etk.utilities import Utility
 from etk.extractors.table_extractor import TableExtractor
 from etk.extractors.glossary_extractor import GlossaryExtractor
 
@@ -60,7 +58,7 @@ class ItalyTeamsModule(ETKModule):
                         self.my_glossary_extractor, row_values[0])
                     if extractions:
                         path = '$."' + \
-                            extractions[0].value + '"[?(@.country == "Italy")]'
+                               extractions[0].value + '"[?(@.country == "Italy")]'
                         jsonpath_expr = jex.parse(path)
                         city_match = jsonpath_expr.find(self.city_dataset)
                         if city_match:
@@ -76,18 +74,14 @@ class ItalyTeamsModule(ETKModule):
 
 
 if __name__ == "__main__":
-    url = 'https://en.wikipedia.org/wiki/List_of_football_clubs_in_Italy'
-    response = requests.get(url)
-    html_page = response.text
-    cdr = {
-        "raw_content": html_page,
-        "url": url,
-        "dataset": "italy_team"
-    }
+    # url = 'https://en.wikipedia.org/wiki/List_of_football_clubs_in_Italy'
+
+    cdr = json.load(open('./resources/italy_teams.json', mode='r', encoding='utf-8'))
     kg_schema = KGSchema(json.load(open('./resources/master_config.json')))
     etk = ETK(modules=ItalyTeamsModule, kg_schema=kg_schema)
     etk.parser = jex.parse
-    cdr_doc = Document(etk, cdr_document=cdr, mime_type='json', url=url)
+    cdr_doc = Document(etk, cdr_document=cdr, mime_type='json', url=cdr['url'])
     results = etk.process_ems(cdr_doc)[1:]
+    print('Total docs:', len(results))
     print("Sample result:\n")
     print(json.dumps(results[0].value, indent=2))
