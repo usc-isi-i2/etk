@@ -15,8 +15,8 @@ class ItalyTeamsModule(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.my_table_extractor = TableExtractor()
-
-        file_name = './resources/cities_ppl>25000.json'
+        self.etk.parser = jex.parse
+        file_name = '${GLOSSARY_PATH}/cities_ppl_25000.json'
         file = open(file_name, 'r')
         self.city_dataset = json.loads(file.read())
         file.close()
@@ -37,7 +37,7 @@ class ItalyTeamsModule(ETKModule):
 
                 # skipping the first row, the heading
                 for row in table.value['rows'][1:]:
-                    doc = etk.create_document(row)
+                    doc = self.etk.create_document(row)
                     all_json_path = '$.cells[0:4].text'
                     row_values = doc.select_segments(all_json_path)
                     # add the information we extracted in the knowledge graph of the doc.
