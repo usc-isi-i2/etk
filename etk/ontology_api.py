@@ -13,7 +13,7 @@ class OntologyEntity(object):
     """
 
     def __init__(self, uri):
-        self._uri = uri
+        self._uri = str(uri)
         self._label = set()
         self._definition = set()
         self._note = set()
@@ -76,6 +76,12 @@ class OntologyEntity(object):
         for n in self._note:
             s += '\n\tskos:note "{}"'.format(n)
         return s
+
+    def __hash__(self):
+        return hash(str(self._uri))
+
+    def __eq__(self, other):
+        return self._uri == other.uri()
 
 
 class OntologyClass(OntologyEntity):
@@ -407,27 +413,27 @@ class Ontology(object):
             uri = uri.toPython()
         else:
             return
-        entity = OntologyClass(uri)
+        entity = self.entities.get(uri, OntologyClass(uri))
         self.entities[uri] = entity
         self.classes.add(entity)
         return entity
 
     def __init_ontology_datatype_property(self, uri):
         uri = uri.toPython()
-        entity = OntologyDatatypeProperty(uri)
+        entity = self.entities.get(uri, OntologyDatatypeProperty(uri))
         self.entities[uri] = entity
         self.data_properties.add(entity)
         return entity
 
     def __init_ontology_object_property(self, uri, inv):
         uri = uri.toPython()
-        entity = OntologyObjectProperty(uri, inv)
+        entity = self.entities.get(uri, OntologyObjectProperty(uri, inv))
         self.entities[uri] = entity
         self.object_properties.add(entity)
         if inv:
             inv = inv.toPython()
-            self.entities[inv] = entity.inverse()
-            self.object_properties.add(entity.inverse())
+            self.entities[inv] = self.entities.get(inv, entity.inverse())
+            self.object_properties.add(self.entities[inv])
         return entity
 
     def __init_ontology_subClassOf(self, uri, sub, include_undefined_class):
