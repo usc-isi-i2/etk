@@ -4,7 +4,8 @@ from functools import reduce
 from datetime import datetime, time, date
 from rdflib import Graph, URIRef, BNode
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
-from etk.ontology_namespacemanager import OntologyNamespaceManager
+from etk.ontology_namespacemanager import OntologyNamespaceManager, SCHEMA
+from itertools import chain
 
 
 class OntologyEntity(object):
@@ -305,7 +306,11 @@ class Ontology(object):
         for uri, inv in self.g.query("""SELECT ?uri ?inv
                                    WHERE { ?uri a rdf:Property .
                                            OPTIONAL {?uri dig:inverse ?inv }}"""):
-            self.__init_ontology_object_property(uri, inv)
+            has_literal, all_literal = self.__check_range_is_literal(uri)
+            if has_literal or all_literal:
+                self.__init_ontology_datatype_property(uri)
+            if not all_literal or (not has_literal and all_literal):
+                self.__init_ontology_object_property(uri, inv)
 
         #Datatype property as range is a schema:DataType
         # for uri, range in self.g.query("""
@@ -339,6 +344,7 @@ class Ontology(object):
             else:
                 self.__init_ontology_property_domain(uri, d, include_undefined_class)
 
+        # range
         for uri, r in self.g.query("""SELECT ?uri ?range
                              WHERE {{ ?uri rdfs:range ?range }
                                     UNION { ?uri schema:rangeIncludes ?range }}"""):
@@ -363,7 +369,6 @@ class Ontology(object):
                                         }
                                         """):
             self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
-
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
@@ -397,6 +402,15 @@ class Ontology(object):
             for rest in self.g.objects(head, RDF.rest):
                 head = rest
         return list_
+
+    def __check_range_is_literal(self, uri):
+        has_literal, all_literal = False, True
+        for range_ in chain(self.g.objects(uri, RDFS.range), self.g.objects(uri, SCHEMA.rangeIncludes)):
+            if range_ == RDFS.Literal or range_ in self.xsd_ref:
+                has_literal = True
+            else:
+                all_literal = False
+        return has_literal, all_literal
 
     def __init_graph_parse(self, contents):
         nm = OntologyNamespaceManager(Graph())
