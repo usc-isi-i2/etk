@@ -2,7 +2,7 @@ import logging
 from typing import Set, Union, Optional
 from functools import reduce
 from datetime import datetime, time, date
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, BNode
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
 from etk.ontology_namespacemanager import OntologyNamespaceManager
 
@@ -327,12 +327,20 @@ class Ontology(object):
                              WHERE {{ ?uri rdfs:domain ?domain }
                                     UNION { ?uri schema:domainIncludes ?domain }
                                     UNION { ?domain dig:common_properties ?uri}}"""):
-            self.__init_ontology_property_domain(uri, d, include_undefined_class)
+            if isinstance(d, BNode):
+                for d_ in self.__read_owl_union_of(d):
+                    self.__init_ontology_property_domain(uri, d_, include_undefined_class)
+            else:
+                self.__init_ontology_property_domain(uri, d, include_undefined_class)
 
         for uri, r in self.g.query("""SELECT ?uri ?range
                              WHERE {{ ?uri rdfs:range ?range }
                                     UNION { ?uri schema:rangeIncludes ?range }}"""):
-            self.__init_ontology_property_range(uri, r, include_undefined_class)
+            if isinstance(r, BNode):
+                for r_ in self.__read_owl_union_of(d):
+                    self.__init_ontology_property_range(uri, r_, include_undefined_class)
+            else:
+                self.__init_ontology_property_range(uri, r, include_undefined_class)
 
         for uri, range in self.g.query("""
                                         SELECT ?uri ?range
@@ -370,6 +378,19 @@ class Ontology(object):
                 self.__validation_property_range(p)
             for p in self.data_properties:
                 self.__validation_property_domain(p)
+
+    def __read_owl_union_of(self, class_):
+        for head in self.g.objects(class_, OWL.unionOf):
+            return self.g.items(head)
+
+    def __convert_cons_to_list(self, head):
+        list_ = []
+        while head is not RDF.nil:
+            for first in self.g.objects(head, RDF.first):
+                list_.append(first)
+            for rest in self.g.objects(head, RDF.rest):
+                head = rest
+        return list_
 
     def __init_graph_parse(self, contents):
         nm = OntologyNamespaceManager(Graph())
