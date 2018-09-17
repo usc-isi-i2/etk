@@ -57,6 +57,10 @@ Load the spacy modules
 python -m spacy download en_core_web_sm
 python -m spacy download en_core_web_lg (optional)
 ```
+Note: If the above commands fail with s SSL error, run this:
+```
+python -m spacy download en_core_web_sm-2.0.0 --direct
+```
 To deactivate this virtual environment
 ```
 deactivate
