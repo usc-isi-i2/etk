@@ -31,7 +31,7 @@ class GlossaryExtractor(Extractor):
     def __init__(self,
                  glossary: List[str],
                  extractor_name: str,
-                 tokenizer: Tokenizer,
+                 tokenizer: None,
                  ngrams: int = 2,
                  case_sensitive=False) -> None:
         # if we set tokenizer as None, extractor will use regex to extract tokens to expedite the extraction
