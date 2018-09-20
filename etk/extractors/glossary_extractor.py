@@ -8,6 +8,7 @@ from spacy.tokens import Token
 from pygtrie import CharTrie
 from itertools import *
 from functools import reduce
+import re
 
 
 class GlossaryExtractor(Extractor):
@@ -26,17 +27,18 @@ class GlossaryExtractor(Extractor):
             glossary_extractor.extract(tokens=Tokenizer(input_text))
 
     """
+
     def __init__(self,
                  glossary: List[str],
                  extractor_name: str,
                  tokenizer: Tokenizer,
                  ngrams: int = 2,
                  case_sensitive=False) -> None:
+        # if we set tokenizer as None, extractor will use regex to extract tokens to expedite the extraction
         Extractor.__init__(self,
                            input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
-
         self._case_sensitive = case_sensitive
         self._default_tokenizer = tokenizer
         if not ngrams:
@@ -74,7 +76,8 @@ class GlossaryExtractor(Extractor):
                                filter(lambda term: isinstance(term[0], str),
                                       map(lambda term: (self._glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (
-                                          self._combine_ngrams(term[0], self._joiner), term[1], term[2]), ngrams_iter)))))
+                                              self._combine_ngrams(term[0], self._joiner), term[1], term[2]),
+                                              ngrams_iter)))))
         except Exception as e:
             raise ExtractorError('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
         return results
@@ -93,7 +96,9 @@ class GlossaryExtractor(Extractor):
 
     def _populate_trie(self, values: List[str]) -> CharTrie:
         """Takes a list and inserts its elements into a new trie and returns it"""
-        return reduce(self._populate_trie_reducer, iter(values), CharTrie())
+        if self._default_tokenizer:
+            return reduce(self._populate_trie_reducer, iter(values), CharTrie())
+        return reduce(self._populate_trie_reducer_regex, iter(values), CharTrie())
 
     def _populate_trie_reducer(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
         """Adds value to trie accumulator"""
@@ -101,6 +106,16 @@ class GlossaryExtractor(Extractor):
             key = self._joiner.join([x.orth_ for x in self._default_tokenizer.tokenize(value)])
         else:
             key = self._joiner.join([x.lower_ for x in self._default_tokenizer.tokenize(value)])
+        trie_accumulator[key] = value
+        return trie_accumulator
+
+    def _populate_trie_reducer_regex(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
+        """Adds value to trie accumulator"""
+        regex = re.compile(r"[A-Za-z0-9]+|[^\w\s]|_")
+        if self._case_sensitive:
+            key = self._joiner.join([x for x in re.findall(regex, value)])
+        else:
+            key = self._joiner.join([x.lower() for x in re.findall(regex, value)])
         trie_accumulator[key] = value
         return trie_accumulator
 
