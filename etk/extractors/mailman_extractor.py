@@ -3,7 +3,9 @@ from etk.extraction import Extraction
 from typing import List
 from email.utils import parsedate_to_datetime
 from bs4 import BeautifulSoup
+import re
 import json
+import datetime
 
 class MailmanExtractor(Extractor):
     def __init__(self, email_url: str, mailing_list_name: str, extractor_name: str) -> None:
@@ -46,11 +48,12 @@ class MailmanExtractor(Extractor):
             elif 'Date' in field:
                 date_str = s.next_sibling.strip().replace("-","").replace("  "," ").strip()
                 try:
-                    date = parsedate_to_datetime(date_str).isoformat()
+                    date = parsedate_to_datetime(date_str).isoformat()[:19]
                 except:
                     date = None
         sender = b.find('b').text if sender == None else sender
-        date = b.find('i').text if date == None else date
+        sender = b.find('a').text if len(sender) == 0 else sender
+        date = b.find('i').text[:19] if date == None else date
 
         try:
             nav = content.find('ul').findAll('li')
@@ -65,8 +68,8 @@ class MailmanExtractor(Extractor):
                 elif 'reply to' in s:
                     rep_to = '/'.join(self.email_url.split('/')[:-1]) + '/' + l.find('a')['href']
                     rep_to = rep_to[1:] if rep_to[0] == '/' else rep_to
-            body = content.find('pre')
-            body = body.text.strip() if body != None else None
+        body = content.find('pre')
+        body = body.text.strip() if body != None else None
         return [str(i) for i in [sender, date, body, nxt, rep_to]]
 
     def new_format(self, navbar: BeautifulSoup, content: BeautifulSoup) -> List[str]:
@@ -81,7 +84,7 @@ class MailmanExtractor(Extractor):
         
         sender = content.find(id='from').text.split('via')[0][6:].strip()
         date_str = content.find(id='date').text.split(': ')[1].strip()
-        date = parsedate_to_datetime(date_str).isoformat()
+        date = parsedate_to_datetime(date_str).isoformat()[:19]
         body = content.find(id='body').text.strip()
         nxt, rep_to = None, None
         
@@ -94,7 +97,7 @@ class MailmanExtractor(Extractor):
                 rep_to = '/'.join(self.email_url.split('/')[:-1]) + '/' + l['href']
                 rep_to = rep_to[1:] if rep_to[0] == '/' else rep_to
         return [str(i) for i in [sender, date, body, nxt, rep_to]]
-        
+    
     def extract(self, text: str) -> List[Extraction]:
 
         """
@@ -114,58 +117,32 @@ class MailmanExtractor(Extractor):
             info = self.old_format(content)
         else:
             info = self.new_format(navbar, content)
+        for i in info[0:3]:
+            if i == 'None':
+                print('missed something important')
         sender = info[0]
         date   = info[1]
         body   = info[2]
         nxt    = info[3]
         rep_to = info[4]
+        pub = 'SeeSat_Obs'
+        dRec = datetime.datetime.now().isoformat()
         
         msg_obj = { 
-            '@id' : self.email_url,
-            '@type' : ['EmailMessage'],
+            'url' : self.email_url,
             '@context' : {
                 '@vocab' : 'schema.org'
             },
-            'about' : {
-                '@id' : subject,
-                '@type' : ['Thing'],
-                '@context' : {
-                    '@vocab' : 'schema.org'
-                }
-            },
-            'recipient' : {
-                '@id' : recip,
-                '@type' : ['Organization'],
-                '@context' : {
-                    '@vocab' : 'schema.org'
-                }
-            },
-            'sender' : {
-                '@id' : sender,
-                '@type' : ['Person'],
-                '@context' : {
-                    '@vocab' : 'schema.org'
-                }
-            }
+            'subject' : subject,
+            'recip' : recip,
+            'sender' : sender
         }
         if date != 'None':
             msg_obj['dateReceived'] = date
         if body != 'None':
-            msg_obj['text'] = body
+            msg_obj['body'] = body
         if nxt != 'None':
-            msg_obj['nextInThread'] = {
-                '@id' : nxt,
-                '@type' : ['URL'],
-                '@context' : {
-                    '@vocab' : 'schema.org'
-                }
-            }
+            msg_obj['nxt'] = nxt
         if rep_to != 'None':
-            msg_obj['replyToMessage'] = {
-                '@id' : rep_to,
-                '@type' : ['URL'],
-                '@context' : {
-                    '@vocab' : 'schema.org'
-                }
-            }
+            msg_obj['replyToMessage'] = rep_to
         return Extraction(value=msg_obj, extractor_name=self.name)
