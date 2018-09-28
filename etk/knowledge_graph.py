@@ -289,6 +289,11 @@ class KnowledgeGraph(object):
             return name
         if self.schema.has_field(name):
             if name not in context:
+                prefix = [x for x in list(self.ontology.g.namespace_manager.namespaces())]
+                for x, y in prefix:
+                    if space[:-1] == x:
+                        context[name] = str(y) + name
+                        return name
                 context[name] = field_uri
             return name
         prefix = nm.store.prefix(space)
