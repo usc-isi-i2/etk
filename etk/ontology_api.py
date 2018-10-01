@@ -259,6 +259,15 @@ class ValidationError(Exception):
     pass
 
 
+class UnsupportOntologyExpression(Exception):
+    """ Base class for all unsupport Ontology expressions """
+    def __init__(self, msg):
+        self.message = msg
+
+    def __str__(self):
+        return "Doesn't support expression %s" % self.message
+
+
 class Ontology(object):
     def __init__(self, turtle, validation=True, include_undefined_class=False, quiet=False, expanded_jsonld=True) -> None:
         """
@@ -392,7 +401,23 @@ class Ontology(object):
 
     def __read_owl_union_of(self, class_):
         for head in self.g.objects(class_, OWL.unionOf):
+            # data range union
             return self.g.items(head)
+        for head in self.g.objects(class_, OWL.onDatatype):
+            # datatype restriction
+            # [ a rdfs:Datatype ; owl:onDatatype DN ; owl:withRestrictions ()]
+            return [head]
+        for head in self.g.objects(class_, OWL.oneOf):
+            # literal enumeration
+            # [ a rdfs:Datatype ; owl:oneOf ()]
+            return self.g.items(head)
+        for _ in self.g.objects(class_, OWL.intersectionOf):
+            # data range intersection
+            raise UnsupportOntologyExpression("[ a rdfs:Datatype ; owl:intersectionOf ()]")
+        for _ in self.g.objects(class_, OWL.datatypeComplementOf):
+            # data range complement
+            raise UnsupportOntologyExpression("[ a rdfs:Datatype ; owl:datatypeComplementOf ()]")
+        return []
 
     def __convert_cons_to_list(self, head):
         list_ = []
