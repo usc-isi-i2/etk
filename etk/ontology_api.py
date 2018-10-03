@@ -180,7 +180,7 @@ class OntologyProperty(OntologyEntity):
 
         """
         domains = self.included_domains()
-        return c and (c in domains or c.super_classes_closure() & domains)
+        return c and (not domains or c in domains or c.super_classes_closure() & domains)
 
     def is_legal_object(self, object) -> bool:
         raise NotImplementedError('Subclass should implement this.')
@@ -209,7 +209,7 @@ class OntologyObjectProperty(OntologyProperty):
 
         """
         ranges = self.included_ranges()
-        return c in ranges or c.super_classes_closure() & ranges
+        return not ranges or c in ranges or c.super_classes_closure() & ranges
 
     def inverse(self) -> 'OntologyObjectProperty':
         """
@@ -250,7 +250,8 @@ class OntologyDatatypeProperty(OntologyProperty):
 
         """
         data_type = str(data_type)
-        return data_type in self.included_ranges() or self.super_properties() and \
+        ranges = self.included_ranges()
+        return not ranges or data_type in ranges or self.super_properties() and \
                any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
