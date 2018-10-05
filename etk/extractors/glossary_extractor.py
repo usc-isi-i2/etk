@@ -11,6 +11,7 @@ from functools import reduce
 import re
 
 
+# TODO have an elegant way of handling spacy tokens vs str tokens
 class GlossaryExtractor(Extractor):
     """
     **Description**
