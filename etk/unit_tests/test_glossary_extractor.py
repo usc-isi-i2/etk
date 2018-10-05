@@ -14,7 +14,6 @@ class TestGlossaryExtractor(unittest.TestCase):
         tokens = t.tokenize(text)
 
         ge = GlossaryExtractor(self.glossary_1, 'test_glossary', t, 3, False)
-
         results = [i.value for i in ge.extract(tokens)]
         expected = ['Beijing', 'los angeles', 'New York']
 
