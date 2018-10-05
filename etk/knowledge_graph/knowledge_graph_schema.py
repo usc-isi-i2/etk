@@ -11,30 +11,39 @@ class KGSchema(object):
     Create a knowledge graph schema according to the master config the user defined in myDIG UI
     """
 
-    def __init__(self, config: Dict) -> None:
-        """
-        Record a mapping about each fields and its type from config file
+    def __init__(self) -> None:
+        self.ontology = Ontology()
 
-        Args:
-            config: Dict
-        """
+    def add_schema(self, content, format):
+        if format == 'master_config':
+            pass
+            # self.fields_dict = dict()
+            # try:
+            #     for field in config["fields"]:
+            #         if config["fields"][field]["type"] == "kg_id":
+            #             self.fields_dict[field] = FieldType.KG_ID
+            #         elif config["fields"][field]["type"] == "number":
+            #             self.fields_dict[field] = FieldType.NUMBER
+            #         elif config["fields"][field]["type"] == "date":
+            #             self.fields_dict[field] = FieldType.DATE
+            #         elif config["fields"][field]["type"] == "location":
+            #             self.fields_dict[field] = FieldType.LOCATION
+            #         else:
+            #             self.fields_dict[field] = FieldType.STRING
+            #
+            # except KeyError as key:
+            #     print(str(key) + " not in config")
+            # TODO:
+            # class1 a owl:Class
+            # field1 a owl:property
+            #        domain: _name
+            #        range: objectproperty / dataproperty
+            #
+        else:
+            pass
 
-        self.fields_dict = dict()
-        try:
-            for field in config["fields"]:
-                if config["fields"][field]["type"] == "kg_id":
-                    self.fields_dict[field] = FieldType.KG_ID
-                elif config["fields"][field]["type"] == "number":
-                    self.fields_dict[field] = FieldType.NUMBER
-                elif config["fields"][field]["type"] == "date":
-                    self.fields_dict[field] = FieldType.DATE
-                elif config["fields"][field]["type"] == "location":
-                    self.fields_dict[field] = FieldType.LOCATION
-                else:
-                    self.fields_dict[field] = FieldType.STRING
-
-        except KeyError as key:
-            print(str(key) + " not in config")
+    def is_valid(self, s_type, p, o_type):
+        return True
 
     @property
     def fields(self) -> List[str]:
@@ -120,52 +129,52 @@ class KGSchema(object):
                 pass
         return None
 
-    def is_valid(self, field_name, value) -> (bool, object):
-        """
-        Return true if the value type matches or can be coerced to the defined type in schema, otherwise false.
-        If field not defined, return none
-
-        Args:
-            field_name: str
-            value:
-
-        Returns: bool, value, where the value may have been coerced to the required type.
-        """
-
-        if self.has_field(field_name):
-            if self.fields_dict[field_name] == FieldType.KG_ID:
-                return True, value
-
-            if self.fields_dict[field_name] == FieldType.NUMBER:
-                if isinstance(value, numbers.Number):
-                    return True, value
-                else:
-                    converted_number = self.parse_number(value)
-                    return (False, value) if not converted_number else (True, value)
-            if self.fields_dict[field_name] == FieldType.STRING:
-                if isinstance(value, str):
-                    return True, value.strip()
-                else:
-                    return True, str(value).strip()
-
-            if self.fields_dict[field_name] == FieldType.DATE:
-                valid, d = self.is_date(value)
-                if valid:
-                    return True, d.isoformat()
-                else:
-                    return False, value
-
-            if self.fields_dict[field_name] == FieldType.LOCATION:
-                valid, l = self.is_location(value)
-                if valid:
-                    return True, l
-                else:
-                    return False, value
-        else:
-            print('{} not found in KG Schema'.format(field_name))
-            return False, value
-            # Amandeep: returning False instead of printing a message
-            # print(field_name + " field not defined")
+    # def is_valid(self, field_name, value) -> (bool, object):
+    #     """
+    #     Return true if the value type matches or can be coerced to the defined type in schema, otherwise false.
+    #     If field not defined, return none
+    #
+    #     Args:
+    #         field_name: str
+    #         value:
+    #
+    #     Returns: bool, value, where the value may have been coerced to the required type.
+    #     """
+    #
+    #     if self.has_field(field_name):
+    #         if self.fields_dict[field_name] == FieldType.KG_ID:
+    #             return True, value
+    #
+    #         if self.fields_dict[field_name] == FieldType.NUMBER:
+    #             if isinstance(value, numbers.Number):
+    #                 return True, value
+    #             else:
+    #                 converted_number = self.parse_number(value)
+    #                 return (False, value) if not converted_number else (True, value)
+    #         if self.fields_dict[field_name] == FieldType.STRING:
+    #             if isinstance(value, str):
+    #                 return True, value.strip()
+    #             else:
+    #                 return True, str(value).strip()
+    #
+    #         if self.fields_dict[field_name] == FieldType.DATE:
+    #             valid, d = self.is_date(value)
+    #             if valid:
+    #                 return True, d.isoformat()
+    #             else:
+    #                 return False, value
+    #
+    #         if self.fields_dict[field_name] == FieldType.LOCATION:
+    #             valid, l = self.is_location(value)
+    #             if valid:
+    #                 return True, l
+    #             else:
+    #                 return False, value
+    #     else:
+    #         print('{} not found in KG Schema'.format(field_name))
+    #         return False, value
+    #         # Amandeep: returning False instead of printing a message
+    #         # print(field_name + " field not defined")
 
     @staticmethod
     def is_date(v) -> (bool, date):
