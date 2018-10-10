@@ -1,15 +1,29 @@
 from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.node import URI, BNode, Literal
+from etk.knowledge_graph.namespacemanager import NamespaceManager
+from functools import lru_cache
+import rdflib
 
 
 class Graph(object):
     def __init__(self):
-        self._g = object()
-        self._ns = object()
+        self._g = rdflib.Graph()
+        self._ns = NamespaceManager()
 
-    def add_triples(self, triples: Triples):
-        # TODO: expend namespace
+    def add_triples(self, triples, context=None):
+        if not context:
+            context = set()
 
-        self._g.add(triples)
+        for t in triples:
+            s, p, o = t
+            if isinstance(o, Triples) and o not in context:
+                context.add(o)
+                self.add_triples(o, context)
+                o = o.subject
+
+            # convert triple to RDFLib recognizable format
+            triple = self._convert_triple_rdflib((s, p, o))
+            self._g.add(triple)
 
     def add_triple(self, s, p, o):
         t = Triples(s)
@@ -17,7 +31,38 @@ class Graph(object):
         self.add_triples(t)
 
     def parse(self, content, format='turtle'):
-        pass
+        self._g.parse(content, format=format)
 
-    def serialize(self, format='legacy', namespace_manager=None):
-        pass
+    def serialize(self, format='ttl', namespace_manager=None):
+        # may need some way to serialize ttl, json-ld
+        if format.lower() in ('ttl', 'turtle'):
+            # self._ns.bind()
+            return self._g.serialize(format=format, namespace_manager=namespace_manager)
+        if format.lower() == 'json-ld':
+            return self._g.serialize(format=format, contexts=namespace_manager)
+        return self._g.serialize(format=format)
+
+    def _resolve_URI(self, uri: URI) -> rdflib.URIRef:
+        """
+        Convert a URI object into a RDFLib URIRef, including resolve its context
+
+        :param uri: URI
+        :return: rdflib.URIRef
+        """
+        self._ns.parse_uri(uri.value)
+
+    def _convert_triple_rdflib(self, triple):
+        """
+        Convert a Node triple into RDFLib triple
+        """
+        s, p, o = triple
+        sub = self._resolve_URI(s) if isinstance(s, URI) else BNode(s.value)
+        pred = self._resolve_URI(p)
+        if isinstance(o, URI):
+            obj = self._resolve_URI(o)
+        elif isinstance(o, BNode):
+            obj = rdflib.BNode(o.value)
+        else:
+            obj = rdflib.Literal(o.value, o.lang, o.type)
+        return sub, pred, obj
+

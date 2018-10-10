@@ -3,6 +3,7 @@ import numbers, re
 from datetime import date, datetime
 from etk.field_types import FieldType
 from etk.etk_exceptions import ISODateError
+from etk.knowledge_graph.ontology import Ontology
 
 
 class KGSchema(object):

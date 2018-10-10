@@ -1,12 +1,13 @@
 from typing import Dict, List
 import numbers
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph.knowledge_graph_schema import KGSchema
 from etk.field_types import FieldType
 from etk.etk_exceptions import KgValueError, UndefinedFieldError
-from etk.knowledge_graph_provenance_record import KnowledgeGraphProvenanceRecord
 from etk.extraction import Extraction
 from etk.segment import Segment
-from etk.ontology_api import Ontology
+from etk.knowledge_graph.graph import Graph
+from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.node import URI, Literal
 import json
 
 
@@ -40,11 +41,7 @@ class KnowledgeGraph(Graph):
             discard_empty: bool,
         Returns:
         """
-        self.add_triples(URI(self.doc.doc_id), URI(field_name), URI / Literal)
-
-    def add_triple(self, s, p, o):
-        t = Triples()
-        self.add_triples(t)
+        self.add_triples(URI(self.origin_doc.doc_id), URI(field_name), URI / Literal)
 
     def _find_types(self, triples):
         """
@@ -105,14 +102,6 @@ class KnowledgeGraph(Graph):
         return result
 
     def create_key_from_value(self, value, field_name: str):
-        """
-
-        Args:
-            value:
-            field_name: str
-        Returns: key
-
-        """
         key = value
         if self.schema.field_type(field_name) == FieldType.KG_ID:
             pass
@@ -126,34 +115,11 @@ class KnowledgeGraph(Graph):
 
         return key
 
-    def create_kg_provenance(self, reference_type, value, json_path: str = None) -> None:
-        new_id = self.origin_doc.provenance_id_index
-        kg_provenance_record: KnowledgeGraphProvenanceRecord = KnowledgeGraphProvenanceRecord(new_id,
-                                                                                              "kg_provenance_record",
-                                                                                              reference_type, value,
-                                                                                              json_path,
-                                                                                              self.origin_doc)
-        self.origin_doc.provenance_id_index_incrementer()
-        if value in self.origin_doc.kg_provenances:
-            self.origin_doc.kg_provenances[value].append(new_id)
-        else:
-            self.origin_doc.kg_provenances[value] = [new_id]
-        self.origin_doc.provenances[new_id] = kg_provenance_record
-        if "provenances" not in self.origin_doc.cdr_document:
-            self.origin_doc.cdr_document["provenances"] = []
-        _dict = self.get_dict_kg_provenance(kg_provenance_record)
-        self.origin_doc.cdr_document["provenances"].append(_dict)
-
-    @staticmethod
-    def get_dict_kg_provenance(kg_provenance_record: KnowledgeGraphProvenanceRecord):
-        _dict = dict()
-        _dict["@id"] = kg_provenance_record.id
-        _dict["@type"] = kg_provenance_record._type
-        _dict["reference_type"] = kg_provenance_record.reference_type
-        _dict["value"] = kg_provenance_record._value
-        if kg_provenance_record.json_path is not None:
-            _dict["json_path"] = kg_provenance_record.json_path
-        return _dict
+    def serialize(self, format='legacy', namespace_manager=None):
+        if format == 'legacy':
+            # TODO: output DIG format
+            return '{}'
+        return super().serialize(format, namespace_manager)
 
     def context_resolve(self, field_uri: str) -> str:
         """

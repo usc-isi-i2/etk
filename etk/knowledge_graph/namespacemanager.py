@@ -1,6 +1,7 @@
 import re
 from typing import Optional
-from rdflib.namespace import OWL, Namespace, NamespaceManager
+import rdflib.namespace
+from rdflib.namespace import OWL, Namespace
 from rdflib import URIRef
 
 
@@ -23,9 +24,9 @@ class PrefixAlreadyUsedException(Exception):
     pass
 
 
-class OntologyNamespaceManager(NamespaceManager):
+class NamespaceManager(rdflib.namespace.NamespaceManager):
     def __init__(self, *args, **kwargs):
-        super(OntologyNamespaceManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.graph.namespace_manager = self
         self.bind('owl', OWL)
         self.bind('schema', SCHEMA)
