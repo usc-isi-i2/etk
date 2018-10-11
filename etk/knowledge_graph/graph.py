@@ -8,7 +8,10 @@ import rdflib
 class Graph(object):
     def __init__(self):
         self._g = rdflib.Graph()
-        self._ns = NamespaceManager()
+        self._ns = NamespaceManager(self._g)
+
+    def bind(self, prefix, namespace, override=True, replace=False):
+        self._ns.bind(prefix, namespace, override, replace)
 
     def add_triples(self, triples, context=None):
         if not context:
@@ -37,10 +40,12 @@ class Graph(object):
         # may need some way to serialize ttl, json-ld
         if format.lower() in ('ttl', 'turtle'):
             # self._ns.bind()
-            return self._g.serialize(format=format, namespace_manager=namespace_manager)
-        if format.lower() == 'json-ld':
-            return self._g.serialize(format=format, contexts=namespace_manager)
-        return self._g.serialize(format=format)
+            b_string = self._g.serialize(format=format, namespace_manager=namespace_manager)
+        elif format.lower() == 'json-ld':
+            b_string = self._g.serialize(format=format, contexts=namespace_manager)
+        else:
+            b_string = self._g.serialize(format=format)
+        return b_string.decode('UTF-8')
 
     def _resolve_URI(self, uri: URI) -> rdflib.URIRef:
         """
@@ -49,14 +54,14 @@ class Graph(object):
         :param uri: URI
         :return: rdflib.URIRef
         """
-        self._ns.parse_uri(uri.value)
+        return self._ns.parse_uri(uri.value)
 
     def _convert_triple_rdflib(self, triple):
         """
         Convert a Node triple into RDFLib triple
         """
         s, p, o = triple
-        sub = self._resolve_URI(s) if isinstance(s, URI) else BNode(s.value)
+        sub = self._resolve_URI(s) if isinstance(s, URI) else rdflib.BNode(s.value)
         pred = self._resolve_URI(p)
         if isinstance(o, URI):
             obj = self._resolve_URI(o)

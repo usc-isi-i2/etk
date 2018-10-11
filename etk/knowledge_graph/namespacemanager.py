@@ -28,9 +28,9 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph.namespace_manager = self
-        self.bind('owl', OWL)
-        self.bind('schema', SCHEMA)
-        self.bind('dig', DIG)
+        # self.bind('owl', OWL)
+        # self.bind('schema', SCHEMA)
+        # self.bind('dig', DIG)
 
     def parse_uri(self, text: str) -> URIRef:
         """

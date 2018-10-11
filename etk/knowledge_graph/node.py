@@ -71,10 +71,21 @@ class Literal(Node):
 
     @property
     def type(self):
+        if self._type:
+            return self._type.value
         return self._type
 
 
-class LiteralType(URI):
+class Type(type):
+    def __getattr__(self, item):
+        return LiteralType(item)
+
+
+class UnknownLiteralType(Exception):
+    pass
+
+
+class LiteralType(URI, metaclass=Type):
     def __init__(self, s):
         super().__init__(self._resolve(s))
 
@@ -95,20 +106,10 @@ class LiteralType(URI):
                 return self.xsd + s
             elif s in self.rdf_tokens:
                 return self.rdf + s
-        raise Exception()
+        raise UnknownLiteralType()
 
     def _is_valid_field(self, s):
         return s in self.xsd_tokens or s in self.rdf_tokens
-
-    def __getitem__(self, item):
-        if not self._is_valid_field(item):
-            raise Exception()
-        return Literal(item)
-
-    def __getattr__(self, item):
-        if not self._is_valid_field(item):
-            raise Exception()
-        return Literal(item)
 
     xsd = 'http://www.w3.org/2001/XMLSchema#'
     rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
