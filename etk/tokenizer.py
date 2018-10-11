@@ -38,7 +38,7 @@ class Tokenizer(object):
         """
         self._keep_multi_space = new_keep_multi_space
 
-    def tokenize(self, text: str) -> List[Token]:
+    def tokenize(self, text: str, customize=False) -> List[Token]:
         """
         Tokenize the given text, returning a list of tokens. Type token: class spacy.tokens.Token
 
@@ -51,8 +51,9 @@ class Tokenizer(object):
         """Tokenize text"""
         if not self.keep_multi_space:
             text = re.sub(' +', ' ', text)
-        spacy_tokens = self.nlp(text)
-        tokens = [self.custom_token(a_token) for a_token in spacy_tokens]
+        tokens = self.nlp(text)
+        if customize:
+            tokens = [self.custom_token(a_token) for a_token in tokens]
 
         return tokens
 
