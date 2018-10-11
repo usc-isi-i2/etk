@@ -43,5 +43,7 @@ class SpacyNerExtractor(Extractor):
                                             start_char=int(ent.start_char),
                                             end_char=int(ent.end_char),
                                             value=ent.text,
-                                            tag=ent.label_))
+                                            tag=ent.label_,
+                                            start_token=ent.start,
+                                            end_token=ent.end))
         return attr_list
