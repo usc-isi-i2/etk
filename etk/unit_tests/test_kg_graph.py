@@ -29,4 +29,3 @@ class TestKGGraph(unittest.TestCase):
         print(g.serialize('nt'))
         print('========================================================================')
         print(g.serialize('json-ld'))
-

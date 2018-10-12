@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 import rdflib.namespace
-from rdflib.namespace import OWL, Namespace
+from rdflib.namespace import Namespace
 from rdflib import URIRef
 
 
@@ -21,6 +21,10 @@ class PrefixNotFoundException(Exception):
 
 
 class PrefixAlreadyUsedException(Exception):
+    pass
+
+
+class SplitURIWithUnknownPrefix(Exception):
     pass
 
 
@@ -99,3 +103,9 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
             text = text.strip()
             if URI_PATTERN.match(text.strip()):
                 return URIRef(text)
+
+    def split_uri(self, uri: str):
+        for prefix, namespace in self.store.namespaces():
+            if uri.startswith(namespace):
+                return prefix, uri[len(namespace):]
+        raise SplitURIWithUnknownPrefix()

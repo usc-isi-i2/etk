@@ -1,9 +1,13 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 import numbers, re
 from datetime import date, datetime
 from etk.field_types import FieldType
 from etk.etk_exceptions import ISODateError
 from etk.knowledge_graph.ontology import Ontology
+from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
+from etk.utilities import deprecated
+import json
 
 
 class KGSchema(object):
@@ -17,74 +21,64 @@ class KGSchema(object):
 
     def add_schema(self, content, format):
         if format == 'master_config':
-            pass
-            # self.fields_dict = dict()
-            # try:
-            #     for field in config["fields"]:
-            #         if config["fields"][field]["type"] == "kg_id":
-            #             self.fields_dict[field] = FieldType.KG_ID
-            #         elif config["fields"][field]["type"] == "number":
-            #             self.fields_dict[field] = FieldType.NUMBER
-            #         elif config["fields"][field]["type"] == "date":
-            #             self.fields_dict[field] = FieldType.DATE
-            #         elif config["fields"][field]["type"] == "location":
-            #             self.fields_dict[field] = FieldType.LOCATION
-            #         else:
-            #             self.fields_dict[field] = FieldType.STRING
-            #
-            # except KeyError as key:
-            #     print(str(key) + " not in config")
-            # TODO:
-            # class1 a owl:Class
-            # field1 a owl:property
-            #        domain: _name
-            #        range: objectproperty / dataproperty
-            #
+            config = json.loads(content)
+            try:
+                for field in config["fields"]:
+                    t = Triples(URI(field))
+                    if config["fields"][field]["type"] == "kg_id":
+                        t.add_property(URI('rdf:type'), URI('owl:ObjectProperty'))
+                    elif config["fields"][field]["type"] == "number":
+                        t.add_property(URI('rdf:type'), URI('owl:DatatypeProperty'))
+                        # t.add_property(URI('rdf:range'), URI('xsd:int'))
+                    elif config["fields"][field]["type"] == "date":
+                        t.add_property(URI('rdf:type'), URI('owl:DatatypeProperty'))
+                    elif config["fields"][field]["type"] == "location":
+                        t.add_property(URI('rdf:type'), URI('owl:DatatypeProperty'))
+                        t.add_property(URI('rdf:range'), URI('xsd:string'))
+                    else:
+                        t.add_property(URI('rdf:type'), URI('owl:DatatypeProperty'))
+                        t.add_property(URI('rdf:range'), URI('xsd:string'))
+                    self.ontology.add_triples(t)
+            except KeyError as key:
+                print(str(key) + " not in config")
         else:
-            pass
+            self.ontology.parse(content, format)
 
-    def is_valid(self, s_type, p, o_type):
-        return True
+    def is_valid(self, s_types, p, o_types):
+        return self.ontology.is_valid(s_types, p, o_types)
 
     @property
     def fields(self) -> List[str]:
         """
         Return a list of all fields that are defined in master config
-
-        Args:
-
-
-        Returns: List of fields
         """
-        return list(self.fields_dict.keys())
 
+        return list({"{}:{}".format(prefix, property_) for prefix, property_ in map(
+            self.ontology._ns.split_uri,
+            self.ontology.object_properties | self.ontology.datatype_properties
+        )})
+
+    @deprecated
     def has_field(self, field_name: str) -> bool:
         """
         Return true if the schema has the field, otherwise false
-
-        Args:
-            field_name: str
-
-        Returns: bool
         """
-        return field_name in self.fields_dict
+        property_ = self.ontology._resolve_URI(URI(field_name))
+        return property_ in self.ontology.object_properties or property_ in self.ontology.datatype_properties
 
-    def field_type(self, field_name: str) -> FieldType:
+    @deprecated
+    def field_type(self, field_name: str, value: object) -> Union[Triples, URI, Literal, None]:
         """
         Return the type of a field defined in schema, if field not defined, return None
-
-        Args:
-            field_name: str
-
-        Returns: FieldType
         """
-        return self.fields_dict.get(field_name, None)
-
-        # Amandeep: The code below does not do what the description of the function says, replaced with line above
-        # if self.has_field(field_name):
-        #     return self.fields_dict[field_name]
-        # else:
-        #     print(field_name + " field not defined")
+        property_ = self.ontology._resolve_URI(URI(field_name))
+        if property_ in self.ontology.object_property:
+            return value if isinstance(value, Triples) else URI(value)
+        elif property_ in self.ontology.datatype_property:
+            # TODO: check Literal type
+            return Literal(value)
+        else:
+            return None
 
     @staticmethod
     def iso_date(d) -> str:
@@ -129,53 +123,6 @@ class KGSchema(object):
             except:
                 pass
         return None
-
-    # def is_valid(self, field_name, value) -> (bool, object):
-    #     """
-    #     Return true if the value type matches or can be coerced to the defined type in schema, otherwise false.
-    #     If field not defined, return none
-    #
-    #     Args:
-    #         field_name: str
-    #         value:
-    #
-    #     Returns: bool, value, where the value may have been coerced to the required type.
-    #     """
-    #
-    #     if self.has_field(field_name):
-    #         if self.fields_dict[field_name] == FieldType.KG_ID:
-    #             return True, value
-    #
-    #         if self.fields_dict[field_name] == FieldType.NUMBER:
-    #             if isinstance(value, numbers.Number):
-    #                 return True, value
-    #             else:
-    #                 converted_number = self.parse_number(value)
-    #                 return (False, value) if not converted_number else (True, value)
-    #         if self.fields_dict[field_name] == FieldType.STRING:
-    #             if isinstance(value, str):
-    #                 return True, value.strip()
-    #             else:
-    #                 return True, str(value).strip()
-    #
-    #         if self.fields_dict[field_name] == FieldType.DATE:
-    #             valid, d = self.is_date(value)
-    #             if valid:
-    #                 return True, d.isoformat()
-    #             else:
-    #                 return False, value
-    #
-    #         if self.fields_dict[field_name] == FieldType.LOCATION:
-    #             valid, l = self.is_location(value)
-    #             if valid:
-    #                 return True, l
-    #             else:
-    #                 return False, value
-    #     else:
-    #         print('{} not found in KG Schema'.format(field_name))
-    #         return False, value
-    #         # Amandeep: returning False instead of printing a message
-    #         # print(field_name + " field not defined")
 
     @staticmethod
     def is_date(v) -> (bool, date):

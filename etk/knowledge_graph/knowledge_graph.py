@@ -1,6 +1,6 @@
 from typing import Dict, List
 import numbers
-from etk.knowledge_graph.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph.schema import KGSchema
 from etk.field_types import FieldType
 from etk.etk_exceptions import KgValueError, UndefinedFieldError
 from etk.extraction import Extraction
@@ -9,6 +9,7 @@ from etk.knowledge_graph.graph import Graph
 from etk.knowledge_graph.triples import Triples
 from etk.knowledge_graph.node import URI, Literal
 import json
+from etk.utilities import deprecated
 
 
 class KnowledgeGraph(Graph):
@@ -18,15 +19,15 @@ class KnowledgeGraph(Graph):
     """
 
     def __init__(self, schema: KGSchema, doc) -> None:
+        super().__init__()
         self.origin_doc = doc
         self.schema = schema
         if self.origin_doc.etk.generate_json_ld:
             if "doc_id" in doc.cdr_document:
                 self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
-
-    def add_value(self, field_name: str, value: object = None, json_path: str = None,
-                  json_path_extraction: str = None, keep_empty: bool = False) -> None:
+    @deprecated
+    def add_value(self, field_name: str, value: object=None) -> None:
         """
         Add a value to knowledge graph.
         Input can either be a value or a json_path. If the input is json_path, the helper function _add_doc_value is
@@ -36,12 +37,11 @@ class KnowledgeGraph(Graph):
         Args:
             field_name: str, the field name in the knowledge graph
             value: the value to be added to the knowledge graph
-            json_path: str, if json_path is provided, then get the value at this path in the doc
-            json_path_extraction: str,
-            discard_empty: bool,
-        Returns:
         """
-        self.add_triples(URI(self.origin_doc.doc_id), URI(field_name), URI / Literal)
+        obj = self.schema.field_type(field_name, value)
+        if not obj:
+            raise Exception()
+        self.add_triple(URI(self.origin_doc.doc_id), URI(field_name), obj)
 
     def _find_types(self, triples):
         """
@@ -117,8 +117,17 @@ class KnowledgeGraph(Graph):
 
     def serialize(self, format='legacy', namespace_manager=None):
         if format == 'legacy':
-            # TODO: output DIG format
-            return '{}'
+            # Output DIG format
+            g = {}
+            for p, o in self._g.predicate_objects():
+                _, property_ = self._ns.split_uri(p)
+                if property_ not in g:
+                    g[property_] = list()
+                g[property_].append({
+                    'key': self.create_key_from_value(o, property_),
+                    'value': o
+                })
+            return json.dumps(g)
         return super().serialize(format, namespace_manager)
 
     def context_resolve(self, field_uri: str) -> str:
