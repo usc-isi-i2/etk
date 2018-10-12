@@ -40,7 +40,6 @@ class ETK(object):
             self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
         else:
             self.default_tokenizer = CrfTokenizer()
-        self.default_tokenizer = Tokenizer()
         self.parsed = dict()
         self.kg_schema = kg_schema
         self.ontology = ontology
