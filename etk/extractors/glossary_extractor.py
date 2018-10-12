@@ -104,11 +104,11 @@ class GlossaryExtractor(Extractor):
     def _populate_trie_reducer(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
         """Adds value to trie accumulator"""
         if self._case_sensitive:
-            key = self._joiner.join(
-                [x.orth_ if isinstance(x, Token) else x for x in self._default_tokenizer.tokenize(value)])
+            key = self._joiner.join([x.orth_ if isinstance(x, Token) else x for x in
+                                     self._default_tokenizer.tokenize(value)])
         else:
-            key = self._joiner.join(
-                [x.lower_ if isinstance(x, Token) else x.lower() for x in self._default_tokenizer.tokenize(value)])
+            key = self._joiner.join([x.lower_ if isinstance(x, Token) else x.lower() for x in
+                                     self._default_tokenizer.tokenize(value)])
         trie_accumulator[key] = value
         return trie_accumulator
 
