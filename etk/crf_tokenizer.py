@@ -158,7 +158,7 @@ result = t.tokenize(value).join(" ")
         """
         self.recognize_linebreaks = recognize_linebreaks
 
-    def tokenize(self, value):
+    def tokenize(self, value, disable=None):
         """Take a string and break it into tokens. Return the tokens as a list of
         strings.
 

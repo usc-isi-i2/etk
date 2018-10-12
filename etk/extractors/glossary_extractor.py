@@ -10,7 +10,7 @@ from itertools import *
 from functools import reduce
 import re
 
-
+disable_spacy = ['tagger', 'parser', 'ner']
 # TODO have an elegant way of handling spacy tokens vs str tokens
 class GlossaryExtractor(Extractor):
     """
@@ -105,10 +105,10 @@ class GlossaryExtractor(Extractor):
         """Adds value to trie accumulator"""
         if self._case_sensitive:
             key = self._joiner.join([x.orth_ if isinstance(x, Token) else x for x in
-                                     self._default_tokenizer.tokenize(value)])
+                                     self._default_tokenizer.tokenize(value, disable=disable_spacy)])
         else:
             key = self._joiner.join([x.lower_ if isinstance(x, Token) else x.lower() for x in
-                                     self._default_tokenizer.tokenize(value)])
+                                     self._default_tokenizer.tokenize(value, disable=disable_spacy)])
         trie_accumulator[key] = value
         return trie_accumulator
 
