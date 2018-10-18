@@ -584,7 +584,7 @@ spacy_rules = {
           "shapes": [
           ],
           "suffix": "",
-          "token": ["yesterday", "tomorrow"],
+          "token": ["yesterday", "today", "tomorrow"],
           "type": "word"
         },
       ],

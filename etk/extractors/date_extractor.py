@@ -508,8 +508,13 @@ class DateExtractor(Extractor):
                 measure = '1'
             elif relative_date.rule_id == 'the_day':
                 unit = 'days'
-                direction = 'ago' if relative_date.value.split()[-1].lower() == 'yesterday' else 'later'
-                measure = '1' if len(relative_date.value.split()) == 1 else '2'
+                key_ = relative_date.value.split()[-1].lower()
+                if key_ == 'today':
+                    direction = 'ago'
+                    measure = '0'
+                else:
+                    direction = 'ago' if key_ == 'yesterday' else 'later'
+                    measure = '1' if len(relative_date.value.split()) == 1 else '2'
             else:
                 continue
             unit = unit if unit[-1] == 's' else unit+'s'
