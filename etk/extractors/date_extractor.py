@@ -543,9 +543,20 @@ class DateExtractor(Extractor):
 
     @staticmethod
     def __post_check(date_info: dict) -> bool:
+        """
+
+        Post check the extracted date string to filter out some false positives
+
+        Args:
+            date_info: dict - includes the extracted string, matching groups, patterns etc.
+
+        Returns: bool - if the date extracted is valid
+
+        """
         if date_info['pattern']:
             return True
-        if re.match(illegal, date_info['value'])\
+        # TODO: consider more context when extract dates?? (e.g. for 'may')
+        if date_info['value'] == 'may' or re.match(illegal, date_info['value'])\
             or (re.match(possible_illegal, date_info['value']) and len([g for g in date_info['groups'] if g]) != 2) \
             or (re.match(possible_illegal_3, date_info['value']) and len([g for g in date_info['groups'] if g]) != 3) \
             or (re.match('^\b?[0-9]{4}\b?$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1):

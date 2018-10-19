@@ -40,6 +40,7 @@ singleton_regex = {
     'w_prefix': r'(?:on )',
 }
 
+# TODO: reconstruct the regex generater to filter out the false positives on first time matching, to speed up
 illegal = '^\b?(?:[a-zA-Z]?[0-9]{1,3}[a-zA-Z]?|[0-9]{5}|[0-9]{7})\b?$'
 possible_illegal = '^\b?(?:[0-9]{1,6}[-/ ,\.] ?[0-9]{1,6})\b?$'
 possible_illegal_3 = '^\b?(?:[0-9]{1,2}[-/ ,\.] ?[0-9]{1,2}[-/ ,\.] ?[0-9]{1,2})\b?$'
