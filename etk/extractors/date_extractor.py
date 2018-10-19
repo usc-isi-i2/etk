@@ -357,20 +357,23 @@ class DateExtractor(Extractor):
                 p = self.symbol_list[date_info['order']][i] if not user_defined_pattern else user_defined_pattern[i]
                 if p in units['D']:
                     miss_day = False
-                if p in units['M']:
+                elif p in units['M']:
                     miss_month = False
-                if p in units['Y']:
+                elif p in units['Y']:
                     miss_year = False
-                if p in units['W']:
+                elif p in units['W']:
                     miss_week = False
-                pattern.append(p)
                 formatted_str = s.strip('.').strip().lower()
                 if p in ['%B', '%b', '%A', '%a']:
                     if formatted_str in foreign_to_english:
+                        # TODO: rearrange language detection in a better way
+                        if self.lan == 'en':
+                            continue
                         formatted_str = foreign_to_english[formatted_str]
                 if p in ['%b', '%a']:
                     formatted_str = formatted_str[:3]
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
+                pattern.append(p)
             i += 1
 
         # TODO: deduplicate in the regex extraction part would be better
