@@ -13,7 +13,7 @@ from etk.extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
     spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, \
-    day_of_week_to_number, possible_illegal
+    day_of_week_to_number, illegal, possible_illegal, possible_illegal_3
 
 # to avoid typo:
 EXTRACT_FIRST_DATE_ONLY = 'extract_first_date_only'
@@ -286,8 +286,21 @@ class DateExtractor(Extractor):
         if not all_results or len(all_results) == 0:
             return list()
         all_results.sort(key=lambda k: k['start'])
-        cur_max = all_results[0]
-        for x in all_results[1:]:
+        cur_max = None
+        i = 0
+        while i < len(all_results) and not cur_max:
+            if self.__post_check(all_results[i]):
+                cur_max = all_results[i]
+            i += 1
+
+        if not cur_max:
+            return res
+
+        while i < len(all_results):
+            x = all_results[i]
+            i += 1
+            if not self.__post_check(x):
+                continue
             if cur_max['end'] <= x['start']:
                 parsed_date = self.__parse_date(cur_max)
                 if parsed_date:
@@ -327,16 +340,13 @@ class DateExtractor(Extractor):
         apply the customizations like date range, date completion etc.
 
         """
-        miss_day = miss_month = miss_year = miss_week = True
+
         user_defined_pattern = None
 
         if date_info['pattern']:
             user_defined_pattern = re.findall(r'%[a-zA-Z]', date_info['pattern'])
-        else:
-            if re.match(possible_illegal, date_info['value']):
-                return None
-            elif re.match(r'^[0-9]{4}$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1:
-                return None
+
+        miss_day = miss_month = miss_year = miss_week = True
 
         i = 0
         pattern = list()
@@ -530,6 +540,17 @@ class DateExtractor(Extractor):
                 if extraction_date:
                     ans.append(extraction_date)
         return ans
+
+    @staticmethod
+    def __post_check(date_info: dict) -> bool:
+        if date_info['pattern']:
+            return True
+        if re.match(illegal, date_info['value'])\
+            or (re.match(possible_illegal, date_info['value']) and len([g for g in date_info['groups'] if g]) != 2) \
+            or (re.match(possible_illegal_3, date_info['value']) and len([g for g in date_info['groups'] if g]) != 3) \
+            or (re.match('^\b?[0-9]{4}\b?$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1):
+            return False
+        return True
 
     @staticmethod
     def __convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
