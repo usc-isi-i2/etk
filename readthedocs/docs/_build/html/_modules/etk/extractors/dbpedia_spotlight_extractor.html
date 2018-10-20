@@ -1,0 +1,210 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.dbpedia_spotlight_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.dbpedia_spotlight_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">SPARQLWrapper</span> <span class="k">import</span> <span class="n">SPARQLWrapper</span><span class="p">,</span> <span class="n">JSON</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+
+<div class="viewcode-block" id="DBpediaSpotlightExtractor"><a class="viewcode-back" href="../../../extractors/dbpedia_spotlight_ext.html#etk.extractors.dbpedia_spotlight_extractor.DBpediaSpotlightExtractor">[docs]</a><span class="k">class</span> <span class="nc">DBpediaSpotlightExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        This extractor takes a string of text as input, uses DBPedia API to annotate words and phrases in the text input.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            dbpedia_spotlight_extractor = DBpediaSpotlightExtractor(search_url=&#39;http://model.dbpedia-spotlight.org/en/annotate&#39;,</span>
+<span class="sd">                                                                    get_attr=False,</span>
+<span class="sd">                                                                    get_attr_url=&quot;http://dbpedia.org/sparql&quot;)</span>
+<span class="sd">            dbpedia_spotlight_extractor.extract(text=input_doc,</span>
+<span class="sd">                                                filter=[&#39;Person&#39;, &#39;Place&#39;, &#39;Organisation&#39;])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">get_attr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">get_attr_url</span><span class="o">=</span><span class="s2">&quot;http://dbpedia.org/sparql&quot;</span><span class="p">):</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;built_in_extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">extractor_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_search_url</span> <span class="o">=</span> <span class="n">search_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_attr</span> <span class="o">=</span> <span class="n">get_attr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_attr_url</span> <span class="o">=</span> <span class="n">get_attr_url</span>
+
+<div class="viewcode-block" id="DBpediaSpotlightExtractor.extract"><a class="viewcode-back" href="../../../extractors/dbpedia_spotlight_ext.html#etk.extractors.dbpedia_spotlight_extractor.DBpediaSpotlightExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;Place&#39;</span><span class="p">,</span> <span class="s1">&#39;Organisation&#39;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Extract with the input text, confidence and fields filter to be used.</span>
+<span class="sd">            Args:</span>
+<span class="sd">                text (str): text input to be annotated</span>
+<span class="sd">                confidence (float): the confidence of the annotation</span>
+<span class="sd">                filter (List[str]): the fields that to be extracted</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                List[Extraction]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">filter</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+        <span class="n">search_data</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;confidence&#39;</span><span class="p">,</span> <span class="n">confidence</span><span class="p">),</span>
+                       <span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">),</span>
+                       <span class="p">(</span><span class="s1">&#39;types&#39;</span><span class="p">,</span> <span class="nb">filter</span><span class="p">)]</span>
+        <span class="n">search_headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Accept&#39;</span><span class="p">:</span> <span class="s1">&#39;application/json&#39;</span><span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_search_url</span><span class="p">,</span>
+                          <span class="n">data</span><span class="o">=</span><span class="n">search_data</span><span class="p">,</span>
+                          <span class="n">headers</span><span class="o">=</span><span class="n">search_headers</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">last_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_combiner</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">last_results</span></div>
+
+    <span class="k">def</span> <span class="nf">_combiner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="n">return_result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;Resources&quot;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">resources_results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s2">&quot;Resources&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">one_result</span> <span class="ow">in</span> <span class="n">resources_results</span><span class="p">:</span>
+                <span class="n">types</span> <span class="o">=</span> <span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@types&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;surface_form&#39;</span><span class="p">:</span> <span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@surfaceForm&#39;</span><span class="p">],</span>
+                          <span class="s1">&#39;uri&#39;</span><span class="p">:</span> <span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@URI&#39;</span><span class="p">],</span>
+                          <span class="s1">&#39;types&#39;</span><span class="p">:</span> <span class="n">types</span><span class="p">,</span>
+                          <span class="s1">&#39;similarity_scores&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@similarityScore&#39;</span><span class="p">])}</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_attr</span><span class="p">:</span>
+                    <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_finder</span><span class="p">(</span><span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@URI&#39;</span><span class="p">])</span>
+                    <span class="n">values</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span>
+                <span class="n">return_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Extraction</span><span class="p">(</span><span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;@confidence&#39;</span><span class="p">]),</span>
+                                                <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                <span class="n">start_char</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@offset&#39;</span><span class="p">]),</span>
+                                                <span class="n">end_char</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@offset&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span>
+                                                    <span class="n">one_result</span><span class="p">[</span><span class="s1">&#39;@surfaceForm&#39;</span><span class="p">]),</span>
+                                                <span class="n">value</span><span class="o">=</span><span class="n">values</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">return_result</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_attr_finder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">sparql</span> <span class="o">=</span> <span class="n">SPARQLWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_attr_url</span><span class="p">)</span>
+        <span class="n">sparql</span><span class="o">.</span><span class="n">setQuery</span><span class="p">(</span><span class="s2">&quot;SELECT distinct * WHERE {&lt;&quot;</span> <span class="o">+</span> <span class="n">uri</span> <span class="o">+</span> <span class="s2">&quot;&gt; ?link ?resource}&quot;</span><span class="p">)</span>
+        <span class="n">sparql</span><span class="o">.</span><span class="n">setReturnFormat</span><span class="p">(</span><span class="n">JSON</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">sparql</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span>
+
+        <span class="n">attr</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="n">cnt_attr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">one_item</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;results&#39;</span><span class="p">][</span><span class="s1">&#39;bindings&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;xml:lang&#39;</span> <span class="ow">in</span> <span class="n">one_item</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">one_item</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">][</span><span class="s1">&#39;xml:lang&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;en&#39;</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attr_key</span> <span class="o">=</span> <span class="n">one_item</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">attr_val</span> <span class="o">=</span> <span class="n">one_item</span><span class="p">[</span><span class="s1">&#39;resource&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">attr_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">attr</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cnt_attr</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+                        <span class="n">attr</span><span class="p">[</span><span class="n">attr_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr_val</span><span class="p">]</span>
+                        <span class="n">cnt_attr</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">attr</span><span class="p">[</span><span class="n">attr_key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr_val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">attr</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

@@ -202,6 +202,7 @@ class TimeSeriesRegion(object):
             timeseries = []
             ts_metadata = copy.deepcopy(metadata)
             ts_metadata['provenance'][self.orientation] = ts_idx
+            ts_metadata['granularity']=self.time_coordinates['granularity']
 
             try:
                 md_modes = self.parse_tsr_metadata(ts_metadata, data, ts_idx)

@@ -44,24 +44,27 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_property_domain(self):
         rdf_content = rdf_prefix + '''
-:Entity a owl:Class
-    .
-:Type a owl:Class
-    .
+:Entity a owl:Class .
+:Type a owl:Class .
+:Place a owl:Class .
 :Other a owl:Class ;
-    :common_properties :code
-    .
+    :common_properties :code .
 :code a owl:DatatypeProperty ;
-    rdfs:domain :Type ;
-    schema:domainIncludes :Entity
-    .
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf (
+            :Type
+            :Place
+        )
+    ] ;
+    schema:domainIncludes :Entity .
         '''
         ontology = Ontology(rdf_content)
         property_code = ontology.get_entity(DIG.code.toPython())
         self.assertIsInstance(property_code, OntologyDatatypeProperty)
-        self.assertEqual(len(property_code.included_domains()), 3)
+        self.assertEqual(len(property_code.included_domains()), 4)
         self.assertSetEqual(property_code.included_domains(),
-                            set(map(ontology.get_entity, map(str, (DIG.Entity, DIG.Type, DIG.Other)))))
+                            set(map(ontology.get_entity, map(str, (DIG.Entity, DIG.Type, DIG.Other, DIG.Place)))))
 
     def test_datatype_property_range(self):
         rdf_content = rdf_prefix + '''
@@ -83,7 +86,7 @@ class TestOntologyAPI(unittest.TestCase):
 
     def test_inverse_object_property(self):
         rdf_content = rdf_prefix + '''
-:moved_to a owl:ObjectProperty ;
+:moved_to a owl:ObjectProperty, rdf:Property ;
     :inverse :was_destination_of .
         '''
         ontology = Ontology(rdf_content)

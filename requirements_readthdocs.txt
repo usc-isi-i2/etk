@@ -1,0 +1,2 @@
+sphinx
+sphinx-autobuild>=0.6.0

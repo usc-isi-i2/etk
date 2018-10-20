@@ -62,7 +62,15 @@ class InferlinkRuleSet(object):
 
 class InferlinkExtractor(Extractor):
     """
-    Extracts segments from an HTML page using rules created by the Inferlink web wrapper.
+    **Description**
+        This class extracts segments from an HTML page using rules created by the Inferlink web wrapper.
+
+    Examples:
+        ::
+
+            inferlink_extractor = InferlinkExtractor()
+            inferlink_extractor.extract(text=input_doc,
+                                        threshold=0.8)
     """
 
     def __init__(self, rule_set: InferlinkRuleSet):
@@ -70,23 +78,24 @@ class InferlinkExtractor(Extractor):
                            input_type=InputType.HTML,
                            category="HTML extractor",
                            name="Inferlink extractor")
-        self.rule_set = rule_set
+        self._rule_set = rule_set
 
     def extract(self, html_text: str, threshold=0.5) -> List[Extraction]:
         """
 
         Args:
-            html_text (): str of the html page to be extracted
-            threshold (): if the ratio of rules that successfully extracted something over all rules \
+            html_text (str): str of the html page to be extracted
+            threshold (float): if the ratio of rules that successfully extracted something over all rules \
                     is higher than or equal to the threshold, return the results, else return an empty list
 
-        Returns: a list of Extractions, each extraction includes the extracted value, the rule name, the provenance etc.
+        Returns:
+            List[Extraction]: a list of Extractions, each extraction includes the extracted value, the rule name, the provenance etc.
 
         """
 
         result = list()
         try:
-            for rule in self.rule_set.rules:
+            for rule in self._rule_set.rules:
                 rule.apply(html_text)
                 value = rule.value
                 if value is not None:
@@ -96,7 +105,7 @@ class InferlinkExtractor(Extractor):
                     result.append(Extraction(value, self.name, start_char=start_char, end_char=end_char, tag=rule.name))
 
             # Test whether the fraction of extractions meets the desired threshold
-            if len(self.rule_set.rules) > 0 and float(len(result)) / len(self.rule_set.rules) >= threshold:
+            if len(self._rule_set.rules) > 0 and float(len(result)) / len(self._rule_set.rules) >= threshold:
                 return result
             else:
                 return list()

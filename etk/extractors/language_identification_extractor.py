@@ -9,15 +9,24 @@ from langdetect import detect
 
 class LanguageIdentificationExtractor(Extractor):
     """
-    Identify the language used in text, returning the identifier language using ISO 639-1 codes
+    **Description**
+        Identify the language used in text, returning the identifier language using ISO 639-1 codes
 
-    Uses two libraries:
-    - https://github.com/davidjurgens/equilid
-    - https://github.com/saffsd/langid.py
+        Uses two libraries:
+        - https://github.com/davidjurgens/equilid
+        - https://github.com/saffsd/langid.py
 
-    TODO: define Enum to select which method to use.
-    TODO: define dictionary to translate ISO 639-3 to ISO 639-1 codes
-    https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, perhaps there is an online source that has this
+        TODO: define Enum to select which method to use.
+        TODO: define dictionary to translate ISO 639-3 to ISO 639-1 codes
+        https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, perhaps there is an online source that has this
+
+    Examples:
+        ::
+
+            language_identification_extractor = LanguageIdentificationExtractor()
+            language_identification_extractor.extract(text=input_stri,
+                                                    method=IdentificationTool.LANGDETECT.name)
+
     """
 
     def __init__(self):
@@ -30,11 +39,13 @@ class LanguageIdentificationExtractor(Extractor):
         """
 
         Args:
-            text: any text, can contain HTML
-            method: specifies which of the two algorithms to use
+            text (str): any text, can contain HTML
+            method (Enum[IdentificationTool.LANGID, IdentificationTool.LANGDETECT]): specifies which of the two
+            algorithms to use
 
-        Returns: an extraction containing the language code used in the text.
-        Returns the empty list of the extractor fails to identify the language in the text.
+        Returns:
+            List(Extraction): an extraction containing the language code used in the text. Returns the empty list of
+            the extractor fails to identify the language in the text.
 
         """
         if method == IdentificationTool.LANGID.name:

@@ -1,0 +1,182 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.language_identification_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.language_identification_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">langid</span> <span class="k">import</span> <span class="n">classify</span>
+<span class="kn">from</span> <span class="nn">langdetect</span> <span class="k">import</span> <span class="n">detect</span>
+
+
+<div class="viewcode-block" id="LanguageIdentificationExtractor"><a class="viewcode-back" href="../../../extractors/lang_id_ext.html#etk.extractors.language_identification_extractor.LanguageIdentificationExtractor">[docs]</a><span class="k">class</span> <span class="nc">LanguageIdentificationExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        Identify the language used in text, returning the identifier language using ISO 639-1 codes</span>
+
+<span class="sd">        Uses two libraries:</span>
+<span class="sd">        - https://github.com/davidjurgens/equilid</span>
+<span class="sd">        - https://github.com/saffsd/langid.py</span>
+
+<span class="sd">        TODO: define Enum to select which method to use.</span>
+<span class="sd">        TODO: define dictionary to translate ISO 639-3 to ISO 639-1 codes</span>
+<span class="sd">        https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, perhaps there is an online source that has this</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            language_identification_extractor = LanguageIdentificationExtractor()</span>
+<span class="sd">            language_identification_extractor.extract(text=input_stri,</span>
+<span class="sd">                                                    method=IdentificationTool.LANGDETECT.name)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Text extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Language Identification&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LanguageIdentificationExtractor.extract"><a class="viewcode-back" href="../../../extractors/lang_id_ext.html#etk.extractors.language_identification_extractor.LanguageIdentificationExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): any text, can contain HTML</span>
+<span class="sd">            method (Enum[IdentificationTool.LANGID, IdentificationTool.LANGDETECT]): specifies which of the two</span>
+<span class="sd">            algorithms to use</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List(Extraction): an extraction containing the language code used in the text. Returns the empty list of</span>
+<span class="sd">            the extractor fails to identify the language in the text.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">IdentificationTool</span><span class="o">.</span><span class="n">LANGID</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">language</span> <span class="o">=</span> <span class="n">classify</span><span class="p">(</span><span class="n">text</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="n">IdentificationTool</span><span class="o">.</span><span class="n">LANGDETECT</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">language</span> <span class="o">=</span> <span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">language</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
+
+            <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;unknown&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">language</span><span class="p">,</span> <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="IdentificationTool"><a class="viewcode-back" href="../../../extractors/lang_id_ext.html#etk.extractors.language_identification_extractor.IdentificationTool">[docs]</a><span class="k">class</span> <span class="nc">IdentificationTool</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LANGID</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">LANGDETECT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
