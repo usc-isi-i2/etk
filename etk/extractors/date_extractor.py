@@ -325,7 +325,7 @@ class DateExtractor(Extractor):
         cur_max = None
         i = 0
         while i < len(all_results) and not cur_max:
-            if self.__post_check(all_results[i]):
+            if self._post_check(all_results[i]):
                 cur_max = all_results[i]
             i += 1
 
@@ -335,7 +335,7 @@ class DateExtractor(Extractor):
         while i < len(all_results):
             x = all_results[i]
             i += 1
-            if not self.__post_check(x):
+            if not self._post_check(x):
                 continue
             if cur_max['end'] <= x['start']:
                 parsed_date = self._parse_date(cur_max)
@@ -403,7 +403,7 @@ class DateExtractor(Extractor):
                 if p in ['%B', '%b', '%A', '%a']:
                     if formatted_str in foreign_to_english:
                         # TODO: rearrange language detection in a better way
-                        if self.lan == 'en':
+                        if self._lan == 'en':
                             continue
                         formatted_str = foreign_to_english[formatted_str]
                 if p in ['%b', '%a']:
@@ -581,7 +581,7 @@ class DateExtractor(Extractor):
         return ans
 
     @staticmethod
-    def __post_check(date_info: dict) -> bool:
+    def _post_check(date_info: dict) -> bool:
         """
 
         Post check the extracted date string to filter out some false positives
@@ -603,7 +603,7 @@ class DateExtractor(Extractor):
         return True
 
     @staticmethod
-    def __convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
+    def _convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
         """
 
         Args:
