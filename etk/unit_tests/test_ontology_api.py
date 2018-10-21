@@ -19,6 +19,7 @@ rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .
 @prefix schema: <http://schema.org/> .
 '''
 
+
 class TestOntologyAPI(unittest.TestCase):
     def test_basic_entity_info(self):
         rdf_content = rdf_prefix + '''

@@ -17,14 +17,10 @@ class KnowledgeGraph(Graph):
     This class is a knowledge graph object, provides API for user to construct their kg.
     Add field and value to the kg object, analysis on provenance
     """
-
-    def __init__(self, schema: KGSchema, doc) -> None:
+    def __init__(self, schema: KGSchema, doc):
         super().__init__()
         self.origin_doc = doc
         self.schema = schema
-        if self.origin_doc.etk.generate_json_ld:
-            if "doc_id" in doc.cdr_document:
-                self.add_value("@id", self.origin_doc.cdr_document["doc_id"])
 
     @deprecated
     def add_value(self, field_name: str, value: object=None) -> None:
@@ -46,13 +42,15 @@ class KnowledgeGraph(Graph):
     def _find_types(self, triples):
         """
         find type in root level
-        :param triples: 
-        :return: 
+        :param triples:
+        :return:
         """
         types = []
         for t in triples:
             s, p, o = t
-            if p == 'rdf:type':
+            if p == 'rdf:type':  # TODO: not just rdf:type, also .../rdf-2011-x#type whole URI,
+                                 # or somehow resolve this URI before being inserted
+                                 # p == URI('rdf:type') or resolve(p) == URI('ht...#type')
                 if isinstance(o, Triples):
                     continue
                 types.append(o)
@@ -78,22 +76,13 @@ class KnowledgeGraph(Graph):
     def value(self) -> Dict:
         """
         Get knowledge graph object
-
-        Args:
-
-        Returns: Dict
         """
         return self._kg
 
+    @deprecated
     def get_values(self, field_name: str) -> List[object]:
         """
         Get a list of all the values of a field.
-
-        Args:
-            field_name:
-
-        Returns: the list of values (not the keys)
-
         """
         result = list()
         if self.validate_field(field_name):

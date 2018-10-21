@@ -34,7 +34,7 @@ class Graph(object):
         self.add_triples(t)
 
     def parse(self, content, format='turtle'):
-        self._g.parse(content, format=format)
+        self._g.parse(data=content, format=format)
 
     def serialize(self, format='ttl', namespace_manager=None):
         # may need some way to serialize ttl, json-ld
@@ -50,6 +50,7 @@ class Graph(object):
     def _resolve_URI(self, uri: URI) -> rdflib.URIRef:
         """
         Convert a URI object into a RDFLib URIRef, including resolve its context
+        # TODO: this method will be called multi-times, consider adding a LRU for it
 
         :param uri: URI
         :return: rdflib.URIRef
@@ -70,4 +71,3 @@ class Graph(object):
         else:
             obj = rdflib.Literal(o.value, o.lang, o.type)
         return sub, pred, obj
-

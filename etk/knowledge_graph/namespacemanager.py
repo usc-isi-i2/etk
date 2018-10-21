@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 import rdflib.namespace
-from rdflib.namespace import Namespace
+from rdflib.namespace import Namespace, OWL, RDF, XSD
 from rdflib import URIRef
 
 
@@ -109,3 +109,9 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
             if uri.startswith(namespace):
                 return prefix, uri[len(namespace):]
         raise SplitURIWithUnknownPrefix()
+
+    def bind_for_master_config(self):
+        self.bind('owl', OWL)
+        self.bind('rdf', RDF)
+        self.bind('xsd', XSD)
+        self.bind(None, 'http://isi.edu/')
