@@ -1,0 +1,31 @@
+[
+  {
+    "GlobalMetadata": [
+      {
+        "name": "title",
+        "source": "sheet_name"
+      }
+    ],
+    "Properties": {
+      "sheet_indices": "[1]"
+    },
+    "TimeSeriesRegions": [
+      {
+        "cols": "[B]",
+        "locs": "[2:13]",
+        "metadata": [
+          {
+            "loc": "[1]",
+            "name": "label",
+            "source": "row"
+          }
+        ],
+        "orientation": "col",
+        "times": {
+          "granularity": "monthly",
+          "locs": "[A]"
+        }
+      }
+    ]
+  }
+]
