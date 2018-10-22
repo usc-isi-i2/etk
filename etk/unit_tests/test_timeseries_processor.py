@@ -18,6 +18,7 @@ class TestTimeseriesProcessor(unittest.TestCase):
         selected_docs = docs[1]
         expected_metadata = {
             "name": "AVERAGE DIESEL (AUTOMATIVE GAS OIL) PRICES/ Litre NGN",
+            "granularity":"monthly",
             "provenance": {
                 "filename": "DIESEL_june_2017.xlsx",
                 "sheet": 0,
@@ -26,7 +27,7 @@ class TestTimeseriesProcessor(unittest.TestCase):
             "location": "Abuja",
             "yearly_change": "23.776223776223777",
             "monthly_change": "6.3701923076923075",
-            "uid": "4ecb3b5cc3f65edf53550ddc2966684203706d9d"
+            "uid": "5e8c87d3d291944f01f6084c5dee223ee31746e2"
         }
         expected_ts = [('2016-09-01', 189.5),
                        ('2016-10-01', 180),

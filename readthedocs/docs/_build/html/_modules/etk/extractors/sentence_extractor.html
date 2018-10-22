@@ -1,0 +1,190 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.sentence_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.sentence_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+
+
+<div class="viewcode-block" id="SentenceExtractor"><a class="viewcode-back" href="../../../extractors/sent_ext.html#etk.extractors.sentence_extractor.SentenceExtractor">[docs]</a><span class="k">class</span> <span class="nc">SentenceExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        Extract individual sentences using lightweight spaCy module.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            sentence_extractor = SentenceExtractor(custom_nlp=nlp)</span>
+<span class="sd">            sentence_extractor.extract(text=text)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">custom_nlp</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;Text extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;Sentence extractor&quot;</span><span class="p">)</span>
+
+        <span class="n">load_parser</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">custom_nlp</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">custom_pipeline</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">custom_nlp</span><span class="p">)</span>
+                <span class="n">pipe_names</span> <span class="o">=</span> <span class="n">custom_pipeline</span><span class="o">.</span><span class="n">pipe_names</span>
+                <span class="k">for</span> <span class="n">pipe</span> <span class="ow">in</span> <span class="n">pipe_names</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pipe</span> <span class="o">!=</span> <span class="s2">&quot;parser&quot;</span><span class="p">:</span>
+                        <span class="n">custom_pipeline</span><span class="o">.</span><span class="n">remove_pipe</span><span class="p">(</span><span class="n">pipe</span><span class="p">)</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="s2">&quot;parser&quot;</span> <span class="ow">in</span> <span class="n">custom_pipeline</span><span class="o">.</span><span class="n">pipe_names</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">custom_pipeline</span>
+                <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Note: custom_pipeline does not have a parser. </span><span class="se">\n</span><span class="s2">&quot;</span>
+                          <span class="s2">&quot;Loading parser from en_core_web_sm... &quot;</span><span class="p">)</span>
+                    <span class="n">load_parser</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Note: custom_pipeline does not have expected &quot;</span>
+                      <span class="s2">&quot;attributes.&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading parser from en_core_web_sm...&quot;</span><span class="p">)</span>
+                <span class="n">load_parser</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">load_parser</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">load_parser</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">,</span>
+                                     <span class="n">disable</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tagger&quot;</span><span class="p">,</span> <span class="s2">&quot;ner&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="SentenceExtractor.extract"><a class="viewcode-back" href="../../../extractors/sent_ext.html#etk.extractors.sentence_extractor.SentenceExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Splits text by sentences.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): Input text to be extracted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Extraction]: the list of extraction or the empty list if there are no matches.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="n">extractions</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">sents</span><span class="p">:</span>
+            <span class="n">this_extraction</span> <span class="o">=</span> <span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">sent</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+                                         <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                         <span class="n">start_token</span><span class="o">=</span><span class="n">sent</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                         <span class="n">end_token</span><span class="o">=</span><span class="n">sent</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                                         <span class="n">start_char</span><span class="o">=</span><span class="n">sent</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                         <span class="n">end_char</span><span class="o">=</span><span class="n">sent</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">extractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_extraction</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extractions</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

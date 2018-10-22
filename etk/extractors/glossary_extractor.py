@@ -8,8 +8,10 @@ from spacy.tokens import Token
 from pygtrie import CharTrie
 from itertools import *
 from functools import reduce
+import re
 
-
+disable_spacy = ['tagger', 'parser', 'ner']
+# TODO have an elegant way of handling spacy tokens vs str tokens
 class GlossaryExtractor(Extractor):
     """
     **Description**
@@ -26,17 +28,18 @@ class GlossaryExtractor(Extractor):
             glossary_extractor.extract(tokens=Tokenizer(input_text))
 
     """
+
     def __init__(self,
                  glossary: List[str],
                  extractor_name: str,
-                 tokenizer: Tokenizer,
+                 tokenizer: None,
                  ngrams: int = 2,
                  case_sensitive=False) -> None:
+        # if we set tokenizer as None, extractor will use regex to extract tokens to expedite the extraction
         Extractor.__init__(self,
                            input_type=InputType.TOKENS,
                            category="glossary",
                            name=extractor_name)
-
         self._case_sensitive = case_sensitive
         self._default_tokenizer = tokenizer
         if not ngrams:
@@ -62,9 +65,9 @@ class GlossaryExtractor(Extractor):
 
         if len(tokens) > 0:
             if self._case_sensitive:
-                new_tokens = [x.orth_ for x in tokens]
+                new_tokens = [x.orth_ if isinstance(x, Token) else x for x in tokens]
             else:
-                new_tokens = [x.lower_ for x in tokens]
+                new_tokens = [x.lower_ if isinstance(x, Token) else x.lower() for x in tokens]
         else:
             return results
 
@@ -74,7 +77,8 @@ class GlossaryExtractor(Extractor):
                                filter(lambda term: isinstance(term[0], str),
                                       map(lambda term: (self._glossary.get(term[0]), term[1], term[2]),
                                           map(lambda term: (
-                                          self._combine_ngrams(term[0], self._joiner), term[1], term[2]), ngrams_iter)))))
+                                              self._combine_ngrams(term[0], self._joiner), term[1], term[2]),
+                                              ngrams_iter)))))
         except Exception as e:
             raise ExtractorError('GlossaryExtractor: Failed to extract with ' + self.name + '. Catch ' + str(e) + '. ')
         return results
@@ -93,25 +97,40 @@ class GlossaryExtractor(Extractor):
 
     def _populate_trie(self, values: List[str]) -> CharTrie:
         """Takes a list and inserts its elements into a new trie and returns it"""
-        return reduce(self._populate_trie_reducer, iter(values), CharTrie())
+        if self._default_tokenizer:
+            return reduce(self._populate_trie_reducer, iter(values), CharTrie())
+        return reduce(self._populate_trie_reducer_regex, iter(values), CharTrie())
 
     def _populate_trie_reducer(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
         """Adds value to trie accumulator"""
         if self._case_sensitive:
-            key = self._joiner.join([x.orth_ for x in self._default_tokenizer.tokenize(value)])
+            key = self._joiner.join([x.orth_ if isinstance(x, Token) else x for x in
+                                     self._default_tokenizer.tokenize(value, disable=disable_spacy)])
         else:
-            key = self._joiner.join([x.lower_ for x in self._default_tokenizer.tokenize(value)])
+            key = self._joiner.join([x.lower_ if isinstance(x, Token) else x.lower() for x in
+                                     self._default_tokenizer.tokenize(value, disable=disable_spacy)])
+        trie_accumulator[key] = value
+        return trie_accumulator
+
+    def _populate_trie_reducer_regex(self, trie_accumulator=CharTrie(), value="") -> CharTrie:
+        """Adds value to trie accumulator"""
+        regex = re.compile(r"[A-Za-z0-9]+|[^\w\s]|_")
+        if self._case_sensitive:
+            key = self._joiner.join([x for x in re.findall(regex, value)])
+        else:
+            key = self._joiner.join([x.lower() for x in re.findall(regex, value)])
         trie_accumulator[key] = value
         return trie_accumulator
 
     def _wrap_value_with_context(self, tokens: List[Token], start: int, end: int) -> Extraction:
         """Wraps the final result"""
-        return Extraction(' '.join([x.orth_ for x in tokens[start:end]]),
+        return Extraction(' '.join([x.orth_ if isinstance(x, Token) else x for x in tokens[start:end]]),
                           self.name,
                           start_token=start,
                           end_token=end,
-                          start_char=tokens[start].idx,
-                          end_char=tokens[end - 1].idx + len(tokens[end - 1].orth_)
+                          start_char=tokens[start].idx if isinstance(tokens[start], Token) else -1,
+                          end_char=tokens[end - 1].idx + len(tokens[end - 1].orth_) if isinstance(tokens[end - 1],
+                                                                                                  Token) else -1
                           )
 
     @staticmethod

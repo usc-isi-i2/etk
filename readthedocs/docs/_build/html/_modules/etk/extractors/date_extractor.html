@@ -1,0 +1,730 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.date_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.date_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">warn</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">import</span> <span class="nn">datetime</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">calendar</span><span class="o">,</span> <span class="nn">pytz</span>
+<span class="kn">from</span> <span class="nn">tzlocal</span> <span class="k">import</span> <span class="n">get_localzone</span>
+<span class="kn">from</span> <span class="nn">dateutil.relativedelta</span> <span class="k">import</span> <span class="n">relativedelta</span>
+<span class="kn">from</span> <span class="nn">langdetect</span> <span class="k">import</span> <span class="n">detect</span>
+
+<span class="kn">from</span> <span class="nn">etk.etk</span> <span class="k">import</span> <span class="n">ETK</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">etk.extractors.spacy_rule_extractor</span> <span class="k">import</span> <span class="n">SpacyRuleExtractor</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">from</span> <span class="nn">etk.dependencies.date_extractor_resources.date_regex_generator</span> <span class="k">import</span> <span class="n">DateRegexGenerator</span>
+<span class="kn">from</span> <span class="nn">etk.dependencies.date_extractor_resources.constants</span> <span class="k">import</span> <span class="n">units</span><span class="p">,</span> <span class="n">singleton_regex</span><span class="p">,</span> \
+    <span class="n">spacy_rules</span><span class="p">,</span> <span class="n">directions</span><span class="p">,</span> <span class="n">num_to_digit</span><span class="p">,</span> <span class="n">foreign_to_english</span><span class="p">,</span> <span class="n">language_date_order</span><span class="p">,</span> \
+    <span class="n">day_of_week_to_number</span><span class="p">,</span> <span class="n">possible_illegal</span>
+
+<span class="c1"># to avoid typo:</span>
+<span class="n">EXTRACT_FIRST_DATE_ONLY</span> <span class="o">=</span> <span class="s1">&#39;extract_first_date_only&#39;</span>
+<span class="n">ADDITIONAL_FORMATS</span> <span class="o">=</span> <span class="s1">&#39;additional_formats&#39;</span>
+<span class="n">USE_DEFAULT_FORMATS</span> <span class="o">=</span> <span class="s1">&#39;use_default_formats&#39;</span>
+<span class="n">IGNORE_DATES_BEFORE</span> <span class="o">=</span> <span class="s1">&#39;ignore_dates_before&#39;</span>
+<span class="n">IGNORE_DATES_AFTER</span> <span class="o">=</span> <span class="s1">&#39;ignore_dates_after&#39;</span>
+<span class="n">DETECT_RELATIVE_DATES</span> <span class="o">=</span> <span class="s1">&#39;detect_relative_dates&#39;</span>
+<span class="n">RELATIVE_BASE</span> <span class="o">=</span> <span class="s1">&#39;relative_base&#39;</span>
+<span class="n">PREFERRED_DATE_ORDER</span> <span class="o">=</span> <span class="s1">&#39;preferred_date_order&#39;</span>
+<span class="n">PREFER_LANGUAGE_DATE_ORDER</span> <span class="o">=</span> <span class="s1">&#39;prefer_language_date_order&#39;</span>
+<span class="n">TIMEZONE</span> <span class="o">=</span> <span class="s1">&#39;timezone&#39;</span>
+<span class="n">TO_TIMEZONE</span> <span class="o">=</span> <span class="s1">&#39;to_timezone&#39;</span>
+<span class="n">RETURN_AS_TIMEZONE_AWARE</span> <span class="o">=</span> <span class="s1">&#39;return_as_timezone_aware&#39;</span>
+<span class="n">PREFER_DAY_OF_MONTH</span> <span class="o">=</span> <span class="s1">&#39;prefer_day_of_month&#39;</span>
+<span class="n">PREFER_DATES_FROM</span> <span class="o">=</span> <span class="s1">&#39;prefer_dates_from&#39;</span>
+<span class="n">DATE_VALUE_RESOLUTION</span> <span class="o">=</span> <span class="s1">&#39;date_value_resolution&#39;</span>
+<span class="n">MIN_RESOLUTION</span> <span class="o">=</span> <span class="s1">&#39;min_resolution&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">DateResolution</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    date resolution when convert a datetime object to iso format string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SECOND</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">MINUTE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">HOUR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">DAY</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">MONTH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">YEAR</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">ORIGINAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span> <span class="c1"># keep original resolution</span>
+
+
+<span class="k">class</span> <span class="nc">DateResolutionHelper</span><span class="p">():</span>
+
+    <span class="n">_sorted_resolution</span> <span class="o">=</span> <span class="p">[</span><span class="n">DateResolution</span><span class="o">.</span><span class="n">SECOND</span><span class="p">,</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MINUTE</span><span class="p">,</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">HOUR</span><span class="p">,</span>
+                          <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MONTH</span><span class="p">,</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">YEAR</span><span class="p">]</span>
+    <span class="n">_pattern_resolution_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;%a&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;%A&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;%w&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;%b&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MONTH</span><span class="p">,</span>
+        <span class="s1">&#39;%B&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MONTH</span><span class="p">,</span>
+        <span class="s1">&#39;%m&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MONTH</span><span class="p">,</span>
+        <span class="s1">&#39;%y&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">YEAR</span><span class="p">,</span>
+        <span class="s1">&#39;%Y&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">YEAR</span><span class="p">,</span>
+        <span class="s1">&#39;%H&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">HOUR</span><span class="p">,</span>
+        <span class="s1">&#39;%I&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">HOUR</span><span class="p">,</span>
+        <span class="s1">&#39;%p&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># am / pm</span>
+        <span class="s1">&#39;%M&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MINUTE</span><span class="p">,</span>
+        <span class="s1">&#39;%S&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">SECOND</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%f</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">SECOND</span><span class="p">,</span>
+        <span class="s1">&#39;%z&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># UTC offset</span>
+        <span class="s1">&#39;%Z&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># timezone name</span>
+        <span class="s1">&#39;%j&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;%U&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span> <span class="c1"># week</span>
+        <span class="s1">&#39;%W&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span> <span class="c1"># week</span>
+        <span class="s1">&#39;</span><span class="si">%c</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="c1"># locale representation</span>
+        <span class="s1">&#39;</span><span class="si">%x</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%X</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%%</span><span class="s1">&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%G</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">YEAR</span><span class="p">,</span>
+        <span class="s1">&#39;</span><span class="si">%u</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+        <span class="s1">&#39;%V&#39;</span><span class="p">:</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span>
+    <span class="p">}</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">min_resolution</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">min_index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">DateResolutionHelper</span><span class="o">.</span><span class="n">_sorted_resolution</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pattern</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">DateResolutionHelper</span><span class="o">.</span><span class="n">_pattern_resolution_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">min_index</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">DateResolutionHelper</span><span class="o">.</span><span class="n">_sorted_resolution</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">min_index</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DateResolutionHelper</span><span class="o">.</span><span class="n">_sorted_resolution</span><span class="p">[</span><span class="n">min_index</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="DateExtractor"><a class="viewcode-back" href="../../../extractors/date_ext.html#etk.extractors.date_extractor.DateExtractor">[docs]</a><span class="k">class</span> <span class="nc">DateExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        This extractor pre-defines a rich set of datetime regexp to detect any format of</span>
+<span class="sd">        timestamp from the input text. In addition, it employees the spaCy rule to infer</span>
+<span class="sd">        the specific datetime from a relative datetime and relative datetime base,</span>
+<span class="sd">        for instance, two days ago with relative datetime base 02/02/2018.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            date_extractor = (etk=self.etk)</span>
+<span class="sd">            date_extractor.extract(text=input_doc,</span>
+<span class="sd">                                extract_first_date_only=False,  # first valid</span>
+<span class="sd">                                additional_formats=[&#39;%Y@%m@%d&#39;, &#39;%a %Y, %b %d&#39;],</span>
+<span class="sd">                                use_default_formats=True,</span>
+<span class="sd">                                ignore_dates_before=ignore_before,</span>
+<span class="sd">                                ignore_dates_after=ignore_after,</span>
+<span class="sd">                                relative_base=relative_base,</span>
+<span class="sd">                                preferred_date_order=&quot;DMY&quot;,</span>
+<span class="sd">                                prefer_language_date_order=True,</span>
+<span class="sd">                                timezone=&#39;GMT&#39;,</span>
+<span class="sd">                                to_timezone=&#39;UTC&#39;,</span>
+<span class="sd">                                return_as_timezone_aware=False,</span>
+<span class="sd">                                prefer_day_of_month=&#39;first&#39;,</span>
+<span class="sd">                                prefer_dates_from=&#39;future&#39;,</span>
+<span class="sd">                                )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etk</span><span class="p">:</span> <span class="n">ETK</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;date extractor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;data extractor&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">extractor_name</span><span class="p">)</span>
+
+        <span class="c1"># The &#39;final_regex&#39; and &#39;symbol_list&#39; are generated by &#39;DateRegexGenerator&#39;</span>
+        <span class="c1"># If the single regexes are changed or more patterns are added,</span>
+        <span class="c1"># please re-generate &#39;final_regex&#39; and &#39;symbol_list&#39; and paste here.</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">DateRegexGenerator</span><span class="p">(</span><span class="n">singleton_regex</span><span class="p">,</span> <span class="n">units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final_regex</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">final_regex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_symbol_list</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">symbol_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_etk</span> <span class="o">=</span> <span class="n">etk</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lan</span> <span class="o">=</span> <span class="s1">&#39;en&#39;</span>
+
+<div class="viewcode-block" id="DateExtractor.extract"><a class="viewcode-back" href="../../../extractors/date_ext.html#etk.extractors.date_extractor.DateExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">extract_first_date_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">additional_formats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(),</span>
+                <span class="n">use_default_formats</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">ignore_dates_before</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">ignore_dates_after</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">detect_relative_dates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">relative_base</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">preferred_date_order</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MDY&quot;</span><span class="p">,</span>
+                <span class="n">prefer_language_date_order</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">timezone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">to_timezone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">return_as_timezone_aware</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="n">prefer_day_of_month</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span>
+                <span class="n">prefer_dates_from</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;current&quot;</span><span class="p">,</span>
+                <span class="n">date_value_resolution</span><span class="p">:</span> <span class="n">DateResolution</span> <span class="o">=</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            text (str):  extract dates from this &#39;text&#39;, default to None</span>
+<span class="sd">            extract_first_date_only (bool): extract the first valid date only or extract all, default to False</span>
+<span class="sd">            additional_formats (List[str]):  user defined formats for extraction, default to empty list</span>
+<span class="sd">            use_default_formats (bool): if use default formats together with addtional_formats, default to False</span>
+<span class="sd">            ignore_dates_before (datetime.datetime): ignore dates before &#39;ignore_dates_before&#39;, default to None</span>
+<span class="sd">            ignore_dates_after (datetime.datetime): ignore dates after &#39;ignore_dates_after&#39;, default to None</span>
+<span class="sd">            detect_relative_dates (bool): if detect relative dates like &#39;9 days before&#39;, default to False</span>
+<span class="sd">            relative_base (datetime.datetime): offset relative dates detected based on &#39;relative_base&#39;, default to None</span>
+<span class="sd">            preferred_date_order (enum[&#39;MDY&#39;, &#39;DMY&#39;, &#39;YMD&#39;]): preferred date order when ambiguous, default to &#39;MDY&#39;</span>
+<span class="sd">            prefer_language_date_order (bool): if use the text language&#39;s preferred order, default to True</span>
+<span class="sd">            timezone (str): add &#39;timezone&#39; if there is no timezone information in the extracted date, default to None</span>
+<span class="sd">            to_timezone (str): convert all dates extracted to this timezone, default to None</span>
+<span class="sd">            return_as_timezone_aware (bool): returned datetime timezone awareness, default to None</span>
+<span class="sd">            prefer_day_of_month (enum[&#39;first&#39;, &#39;current&#39;, &#39;last&#39;]): use which day of the month when there is no &#39;day&#39;, default to &#39;first&#39;</span>
+<span class="sd">            prefer_dates_from (enum[&#39;past&#39;, &#39;current&#39;, &#39;future&#39;]): use which date when there is few info(e.g. only month), default to &#39;current&#39;</span>
+<span class="sd">            date_value_resolution (enum[DateResolution.SECOND, DateResolution.MINUTE, DateResolution.HOUR, \</span>
+<span class="sd">                DateResolution.DAY, DateResolution.MONTH, DateResolution.YEAR]): specify resolution \</span>
+<span class="sd">                when convert to iso format string, default to DateResolution.DAY</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Extraction]: List of extractions, the information including::</span>
+
+<span class="sd">                Extraction._value: iso format string,</span>
+<span class="sd">                Extraction._provenance: provenance information including:</span>
+<span class="sd">                {</span>
+<span class="sd">                    &#39;start_char&#39;: int - start_char,</span>
+<span class="sd">                    &#39;end_char&#39;: int - end_char</span>
+<span class="sd">                },</span>
+<span class="sd">                Extraction._addition_inf: additional information including:</span>
+<span class="sd">                {</span>
+<span class="sd">                    &#39;date_object&#39;: datetime.datetime - the datetime object,</span>
+<span class="sd">                    &#39;original_text&#39;: str - the original str extracted from text,</span>
+<span class="sd">                    &#39;language&#39;: enum[&#39;en&#39;, &#39;es&#39;] - language of the date</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">return_as_timezone_aware</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">timezone</span><span class="p">)</span> <span class="k">if</span> <span class="n">timezone</span> <span class="k">else</span> <span class="n">get_localzone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ignore_dates_before</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_dates_before</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">ignore_dates_before</span> <span class="o">=</span> <span class="n">ignore_dates_before</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ignore_dates_after</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_dates_after</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">ignore_dates_after</span> <span class="o">=</span> <span class="n">ignore_dates_after</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relative_base</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">relative_base</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">relative_base</span> <span class="o">=</span> <span class="n">relative_base</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ignore_dates_before</span> <span class="ow">and</span> <span class="n">ignore_dates_before</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">ignore_dates_before</span> <span class="o">=</span> <span class="n">ignore_dates_before</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ignore_dates_after</span> <span class="ow">and</span> <span class="n">ignore_dates_after</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">ignore_dates_after</span> <span class="o">=</span> <span class="n">ignore_dates_after</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">relative_base</span> <span class="ow">and</span> <span class="n">relative_base</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+                <span class="n">relative_base</span> <span class="o">=</span> <span class="n">relative_base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">prefer_language_date_order</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lan</span> <span class="o">=</span> <span class="n">detect</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Catch LangDetectException &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="n">warn</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s1">&#39;DateExtractor: Catch LangDetectException </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">EXTRACT_FIRST_DATE_ONLY</span><span class="p">:</span> <span class="n">extract_first_date_only</span><span class="p">,</span>
+            <span class="n">ADDITIONAL_FORMATS</span><span class="p">:</span> <span class="n">additional_formats</span><span class="p">,</span>
+            <span class="n">USE_DEFAULT_FORMATS</span><span class="p">:</span> <span class="n">use_default_formats</span><span class="p">,</span>
+            <span class="n">IGNORE_DATES_BEFORE</span><span class="p">:</span> <span class="n">ignore_dates_before</span><span class="p">,</span>
+            <span class="n">IGNORE_DATES_AFTER</span><span class="p">:</span> <span class="n">ignore_dates_after</span><span class="p">,</span>
+            <span class="n">DETECT_RELATIVE_DATES</span><span class="p">:</span> <span class="n">detect_relative_dates</span><span class="p">,</span>
+            <span class="n">RELATIVE_BASE</span><span class="p">:</span> <span class="n">relative_base</span><span class="p">,</span>
+            <span class="n">PREFERRED_DATE_ORDER</span><span class="p">:</span> <span class="n">preferred_date_order</span><span class="p">,</span>
+            <span class="n">PREFER_LANGUAGE_DATE_ORDER</span><span class="p">:</span> <span class="n">prefer_language_date_order</span><span class="p">,</span>
+            <span class="n">TIMEZONE</span><span class="p">:</span> <span class="n">timezone</span><span class="p">,</span>
+            <span class="n">TO_TIMEZONE</span><span class="p">:</span> <span class="n">to_timezone</span><span class="p">,</span>
+            <span class="n">RETURN_AS_TIMEZONE_AWARE</span><span class="p">:</span> <span class="n">return_as_timezone_aware</span><span class="p">,</span>
+            <span class="n">PREFER_DAY_OF_MONTH</span><span class="p">:</span> <span class="n">prefer_day_of_month</span><span class="p">,</span>
+            <span class="n">PREFER_DATES_FROM</span><span class="p">:</span> <span class="n">prefer_dates_from</span><span class="p">,</span>
+            <span class="n">DATE_VALUE_RESOLUTION</span><span class="p">:</span> <span class="n">date_value_resolution</span>
+        <span class="p">}</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">additional_regex</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">additional_formats</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">date_format</span> <span class="ow">in</span> <span class="n">additional_formats</span><span class="p">:</span>
+                <span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">reg</span> <span class="o">=</span> <span class="n">date_format</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">singleton_regex</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;%&#39;</span><span class="p">:</span>
+                        <span class="n">reg2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">singleton_regex</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">reg</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">reg</span> <span class="o">!=</span> <span class="n">reg2</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]:</span>
+                                <span class="n">order</span> <span class="o">+=</span> <span class="s1">&#39;M&#39;</span>
+                            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]:</span>
+                                <span class="n">order</span> <span class="o">+=</span> <span class="s1">&#39;Y&#39;</span>
+                            <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]:</span>
+                                <span class="n">order</span> <span class="o">+=</span> <span class="s1">&#39;D&#39;</span>
+                            <span class="n">reg</span> <span class="o">=</span> <span class="n">reg2</span>
+                <span class="n">additional_regex</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;reg&#39;</span><span class="p">:</span> <span class="n">reg</span><span class="p">,</span>
+                    <span class="s1">&#39;pattern&#39;</span><span class="p">:</span> <span class="n">date_format</span><span class="p">,</span>
+                    <span class="s1">&#39;order&#39;</span><span class="p">:</span> <span class="n">order</span><span class="p">,</span>
+                <span class="p">})</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">additional_regex</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_date_match</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">],</span> <span class="n">match</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;pattern&#39;</span><span class="p">])</span> <span class="k">for</span>
+                           <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;reg&#39;</span><span class="p">],</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+                        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to extract with additional format &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">use_default_formats</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_regex</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_date_match</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span>
+                               <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_final_regex</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+                        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">order</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_regex</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_date_match</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span>
+                           <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_final_regex</span><span class="p">[</span><span class="n">order</span><span class="p">],</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span> <span class="k">if</span> <span class="n">match</span><span class="p">]</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+
+        <span class="c1"># for absolute dates:</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_overlapped_date_str</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="c1"># for relative dates:</span>
+        <span class="k">if</span> <span class="n">detect_relative_dates</span><span class="p">:</span>
+            <span class="n">ans</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_relative_dates</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+    <span class="k">def</span> <span class="nf">_wrap_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_object</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span>
+                        <span class="n">original_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                        <span class="n">start_char</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                        <span class="n">end_char</span><span class="p">:</span> <span class="nb">int</span>
+                        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Extraction</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        wrap the final result as an Extraction and return</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">MIN_RESOLUTION</span><span class="p">]</span> \
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">DATE_VALUE_RESOLUTION</span><span class="p">]</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">ORIGINAL</span> \
+                    <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">DATE_VALUE_RESOLUTION</span><span class="p">]</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">Extraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_convert_to_iso_format</span><span class="p">(</span><span class="n">date_object</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="n">resolution</span><span class="p">),</span>
+                           <span class="n">start_char</span><span class="o">=</span><span class="n">start_char</span><span class="p">,</span>
+                           <span class="n">end_char</span><span class="o">=</span><span class="n">end_char</span><span class="p">,</span>
+                           <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+                           <span class="n">date_object</span><span class="o">=</span><span class="n">date_object</span><span class="p">,</span>
+                           <span class="n">original_date</span><span class="o">=</span><span class="n">original_text</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">e</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to wrap result &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">original_text</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; with Extraction class.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                                                <span class="s1">&#39;Catch &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_remove_overlapped_date_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        some string may be matched by multiple date templates,</span>
+<span class="sd">        deduplicate the results and return a single list</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">all_results</span> <span class="o">=</span> <span class="n">all_results</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_results</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">all_results</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+        <span class="n">cur_max</span> <span class="o">=</span> <span class="n">all_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">all_results</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]:</span>
+                <span class="n">parsed_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_date</span><span class="p">(</span><span class="n">cur_max</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">parsed_date</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">EXTRACT_FIRST_DATE_ONLY</span><span class="p">]:</span>
+                        <span class="k">return</span> <span class="n">res</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_date</span><span class="p">)</span>
+                <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]):</span>
+                    <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;SINGLE_YEAR&#39;</span><span class="p">]:</span>
+                        <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]):</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]):</span>
+                            <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]):</span>
+                            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ele</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ele</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">cur_max</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]):</span>
+                                <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_LANGUAGE_DATE_ORDER</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lan</span> <span class="ow">in</span> <span class="n">language_date_order</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">language_date_order</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_lan</span><span class="p">]:</span>
+                                    <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                                <span class="k">elif</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFERRED_DATE_ORDER</span><span class="p">]:</span>
+                                    <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+                            <span class="k">elif</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFERRED_DATE_ORDER</span><span class="p">]:</span>
+                                <span class="n">cur_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">parsed_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_date</span><span class="p">(</span><span class="n">cur_max</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">parsed_date</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">EXTRACT_FIRST_DATE_ONLY</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">res</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parsed_date</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">_parse_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Extraction</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        parse a date string extracted to a datetime.datetime object</span>
+<span class="sd">        apply the customizations like date range, date completion etc.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">miss_day</span> <span class="o">=</span> <span class="n">miss_month</span> <span class="o">=</span> <span class="n">miss_year</span> <span class="o">=</span> <span class="n">miss_week</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">user_defined_pattern</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;pattern&#39;</span><span class="p">]:</span>
+            <span class="n">user_defined_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;%[a-zA-Z]&#39;</span><span class="p">,</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;pattern&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">possible_illegal</span><span class="p">,</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[0-9]</span><span class="si">{4}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">([</span><span class="n">g</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">g</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symbol_list</span><span class="p">[</span><span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;order&#39;</span><span class="p">]][</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">user_defined_pattern</span> <span class="k">else</span> <span class="n">user_defined_pattern</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]:</span>
+                    <span class="n">miss_day</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]:</span>
+                    <span class="n">miss_month</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]:</span>
+                    <span class="n">miss_year</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">units</span><span class="p">[</span><span class="s1">&#39;W&#39;</span><span class="p">]:</span>
+                    <span class="n">miss_week</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">pattern</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="n">formatted_str</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;%B&#39;</span><span class="p">,</span> <span class="s1">&#39;%b&#39;</span><span class="p">,</span> <span class="s1">&#39;%A&#39;</span><span class="p">,</span> <span class="s1">&#39;%a&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">formatted_str</span> <span class="ow">in</span> <span class="n">foreign_to_english</span><span class="p">:</span>
+                        <span class="n">formatted_str</span> <span class="o">=</span> <span class="n">foreign_to_english</span><span class="p">[</span><span class="n">formatted_str</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;%b&#39;</span><span class="p">,</span> <span class="s1">&#39;%a&#39;</span><span class="p">]:</span>
+                    <span class="n">formatted_str</span> <span class="o">=</span> <span class="n">formatted_str</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">formatted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^0-9+\-]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">formatted_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="s1">&#39;%z&#39;</span> <span class="k">else</span> <span class="n">formatted_str</span><span class="p">)</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># TODO: deduplicate in the regex extraction part would be better</span>
+        <span class="n">exist</span><span class="p">,</span> <span class="n">new_formatted</span><span class="p">,</span> <span class="n">new_pattern</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">pattern</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exist</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[a-zA-Z]&#39;</span><span class="p">,</span> <span class="n">formatted</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="ow">and</span> <span class="n">pattern</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;%a&#39;</span><span class="p">:</span>
+                    <span class="n">miss_week</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_pattern</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pattern</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">new_formatted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">formatted</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                    <span class="n">exist</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pattern</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">formatted</span><span class="p">,</span> <span class="n">pattern</span> <span class="o">=</span> <span class="n">new_formatted</span><span class="p">,</span> <span class="n">new_pattern</span>
+
+        <span class="k">if</span> <span class="n">formatted</span> <span class="ow">and</span> <span class="n">pattern</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">DATE_VALUE_RESOLUTION</span><span class="p">]</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">ORIGINAL</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">MIN_RESOLUTION</span><span class="p">]</span> <span class="o">=</span> <span class="n">DateResolutionHelper</span><span class="o">.</span><span class="n">min_resolution</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">),</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pattern</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to parse string to datetime object. </span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="s1">&#39;Patterns are not matched with string or the formats are not supported. &#39;</span> <span class="o">+</span>
+                         <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; with &#39;</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">miss_year</span> <span class="ow">and</span> <span class="n">miss_month</span> <span class="ow">and</span> <span class="n">miss_day</span><span class="p">:</span>
+                <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">miss_week</span><span class="p">:</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">today</span>
+                    <span class="n">week_of_day</span> <span class="o">=</span> <span class="n">formatted</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">week_of_day</span> <span class="ow">in</span> <span class="n">foreign_to_english</span><span class="p">:</span>
+                        <span class="n">week_of_day</span> <span class="o">=</span> <span class="n">foreign_to_english</span><span class="p">[</span><span class="n">week_of_day</span><span class="p">]</span>
+                    <span class="n">target</span> <span class="o">=</span> <span class="n">day_of_week_to_number</span><span class="p">[</span><span class="n">week_of_day</span><span class="p">]</span> <span class="k">if</span> <span class="n">week_of_day</span> <span class="ow">in</span> <span class="n">day_of_week_to_number</span> \
+                        <span class="k">else</span> <span class="n">today</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DATES_FROM</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;past&#39;</span><span class="p">:</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=-</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span><span class="o">+</span><span class="mi">7</span><span class="o">-</span><span class="n">target</span><span class="p">)</span><span class="o">%</span><span class="mi">7</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DATES_FROM</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;future&#39;</span><span class="p">:</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="p">(</span><span class="n">target</span><span class="o">+</span><span class="mi">7</span><span class="o">-</span><span class="n">date</span><span class="o">.</span><span class="n">weekday</span><span class="p">())</span><span class="o">%</span><span class="mi">7</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">delta</span> <span class="o">=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">date</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+                            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span> <span class="o">+</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">delta</span><span class="o">-</span><span class="mi">7</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">miss_day</span><span class="p">:</span>
+                    <span class="n">last</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">monthrange</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">date</span><span class="o">.</span><span class="n">month</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DAY_OF_MONTH</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;current&#39;</span><span class="p">:</span>
+                        <span class="n">cur</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">day</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="n">cur</span> <span class="k">if</span> <span class="n">cur</span> <span class="o">&lt;=</span> <span class="n">last</span> <span class="k">else</span> <span class="n">last</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DAY_OF_MONTH</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;last&#39;</span><span class="p">:</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">day</span><span class="o">=</span><span class="n">last</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">miss_year</span><span class="p">:</span>
+                    <span class="n">today</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+                    <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+                    <span class="n">next_year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">last_year</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">today</span><span class="o">.</span><span class="n">year</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DATES_FROM</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;past&#39;</span><span class="p">:</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">last_year</span> <span class="k">if</span> <span class="n">date</span> <span class="o">&gt;</span> <span class="n">today</span> <span class="k">else</span> <span class="n">date</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">PREFER_DATES_FROM</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;future&#39;</span><span class="p">:</span>
+                        <span class="n">date</span> <span class="o">=</span> <span class="n">next_year</span> <span class="k">if</span> <span class="n">date</span> <span class="o">&lt;</span> <span class="n">today</span> <span class="k">else</span> <span class="n">date</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">date</span> <span class="o">&gt;</span> <span class="n">today</span> <span class="ow">and</span> <span class="p">(</span><span class="n">date</span><span class="o">-</span><span class="n">today</span> <span class="o">&gt;</span> <span class="n">today</span><span class="o">-</span><span class="n">last_year</span><span class="p">):</span>
+                            <span class="n">date</span> <span class="o">=</span> <span class="n">last_year</span>
+                        <span class="k">elif</span> <span class="n">date</span> <span class="o">&lt;</span> <span class="n">today</span> <span class="ow">and</span> <span class="p">(</span><span class="n">today</span><span class="o">-</span><span class="n">date</span> <span class="o">&gt;</span> <span class="n">next_year</span><span class="o">-</span><span class="n">today</span><span class="p">):</span>
+                            <span class="n">date</span> <span class="o">=</span> <span class="n">next_year</span>
+
+            <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_process_date</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_extraction</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">],</span> <span class="n">date_info</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_post_process_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        apply date range and timezone conversion</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RETURN_AS_TIMEZONE_AWARE</span><span class="p">]:</span>
+            <span class="c1"># cannot set time zone for time before 1883-11-19</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to set timezone as &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;. Catch &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RETURN_AS_TIMEZONE_AWARE</span><span class="p">]:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">IGNORE_DATES_BEFORE</span><span class="p">]</span> <span class="ow">and</span> <span class="n">date</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">IGNORE_DATES_BEFORE</span><span class="p">])</span> <span class="ow">or</span> \
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">IGNORE_DATES_AFTER</span><span class="p">]</span> <span class="ow">and</span> <span class="n">date</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">IGNORE_DATES_AFTER</span><span class="p">]):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to compare dates. Catch &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="c1"># TODO: support more timezones abbr. (Only support what pytz supports currently)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">TO_TIMEZONE</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RETURN_AS_TIMEZONE_AWARE</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">TO_TIMEZONE</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to set timezone as &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">TIMEZONE</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;. Catch &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">date</span>
+
+    <span class="k">def</span> <span class="nf">_extract_relative_dates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Extract relative dates using spaCy rules</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text: str - the text to extract the relative date strings from</span>
+
+<span class="sd">        Returns: List of Extraction(s)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_etk</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RELATIVE_BASE</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RELATIVE_BASE</span><span class="p">]</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span><span class="p">[</span><span class="n">RETURN_AS_TIMEZONE_AWARE</span><span class="p">]:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">base</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_tz</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">SpacyRuleExtractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_etk</span><span class="o">.</span><span class="n">default_nlp</span><span class="p">,</span> <span class="n">spacy_rules</span><span class="p">,</span> <span class="s1">&#39;relative_date_extractor&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">relative_date</span> <span class="ow">in</span> <span class="n">res</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;direction_number_unit&#39;</span><span class="p">:</span>
+                <span class="n">direction</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">measure</span> <span class="o">=</span> <span class="n">num_to_digit</span><span class="p">[</span><span class="n">measure</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="k">elif</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;number_unit_direction&#39;</span><span class="p">:</span>
+                <span class="n">measure</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">measure</span> <span class="o">=</span> <span class="n">num_to_digit</span><span class="p">[</span><span class="n">measure</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="k">elif</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;direction_digit_unit&#39;</span><span class="p">:</span>
+                <span class="n">direction</span><span class="p">,</span> <span class="n">measure</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;digit_unit_direction&#39;</span><span class="p">:</span>
+                <span class="n">measure</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;direction_unit&#39;</span><span class="p">:</span>
+                <span class="n">direction</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">measure</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+            <span class="k">elif</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">rule_id</span> <span class="o">==</span> <span class="s1">&#39;the_day&#39;</span><span class="p">:</span>
+                <span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;days&#39;</span>
+                <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;ago&#39;</span> <span class="k">if</span> <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yesterday&#39;</span> <span class="k">else</span> <span class="s1">&#39;later&#39;</span>
+                <span class="n">measure</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;2&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span> <span class="k">if</span> <span class="n">unit</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span> <span class="k">else</span> <span class="n">unit</span><span class="o">+</span><span class="s1">&#39;s&#39;</span>
+            <span class="n">direction</span> <span class="o">=</span> <span class="n">directions</span><span class="p">[</span><span class="n">direction</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="k">if</span> <span class="n">direction</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">directions</span> <span class="k">else</span> <span class="s1">&#39;+&#39;</span>
+            <span class="n">delta_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">unit</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">direction</span><span class="o">+</span><span class="n">measure</span><span class="p">)}</span>
+            <span class="n">relative_delta</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="o">**</span><span class="n">delta_args</span><span class="p">)</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_process_date</span><span class="p">(</span><span class="n">base</span><span class="o">+</span><span class="n">relative_delta</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
+                <span class="n">extraction_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_extraction</span><span class="p">(</span><span class="n">date</span><span class="p">,</span>
+                                                       <span class="n">relative_date</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+                                                       <span class="n">relative_date</span><span class="o">.</span><span class="n">provenance</span><span class="p">[</span><span class="s1">&#39;start_char&#39;</span><span class="p">],</span>
+                                                       <span class="n">relative_date</span><span class="o">.</span><span class="n">provenance</span><span class="p">[</span><span class="s1">&#39;end_char&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">extraction_date</span><span class="p">:</span>
+                    <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extraction_date</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_to_iso_format</span><span class="p">(</span><span class="n">date</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="n">DateResolution</span> <span class="o">=</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            date: datetime.datetime - datetime object to convert</span>
+<span class="sd">            resolution: resolution of the iso format date to return</span>
+
+<span class="sd">        Returns: string of iso format date</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: currently the resolution is specified by the user, should it be decided what we have extracted,</span>
+        <span class="c1"># E.g.: like if only year exists, use DateResolution.YEAR as resolution</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
+                <span class="n">date_str</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">date_str</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">YEAR</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MONTH</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">7</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">DAY</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">HOUR</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">13</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">13</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">MINUTE</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">16</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">resolution</span> <span class="o">==</span> <span class="n">DateResolution</span><span class="o">.</span><span class="n">SECOND</span> <span class="ow">and</span> <span class="n">length</span> <span class="o">&gt;=</span> <span class="mi">19</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">date_str</span><span class="p">[:</span><span class="mi">19</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">date_str</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to convert </span><span class="si">{}</span><span class="s1"> to ISO format. Catch </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">warn</span><span class="p">(</span><span class="s1">&#39;DateExtractor: Failed to convert </span><span class="si">{}</span><span class="s1"> to ISO format.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">date</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_wrap_date_match</span><span class="p">(</span><span class="n">order</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            order: enums[&#39;MDY&#39;, &#39;DMY&#39;, &#39;YMD&#39;] - order of the date</span>
+<span class="sd">            match: re.match - a regex match object</span>
+<span class="sd">            pattern: str - if user defined the pattern, record it here</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span>
+            <span class="s1">&#39;groups&#39;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">(),</span>
+            <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span>
+            <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">end</span><span class="p">(),</span>
+            <span class="s1">&#39;order&#39;</span><span class="p">:</span> <span class="n">order</span><span class="p">,</span>
+            <span class="s1">&#39;pattern&#39;</span><span class="p">:</span> <span class="n">pattern</span>
+        <span class="p">}</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="kc">None</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
