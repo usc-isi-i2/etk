@@ -79,8 +79,8 @@ class TimeSeriesRegion(object):
                     metadata[md_name] = self.time_series[-1]['metadata'][md_name]
             else:
                 md_modes[mds[md_name]['mode']] = True
-        if all_blank and ("inline" not in md_modes or not md_modes["inline"]):
-            logging.debug("%s",metadata)
+        if all_blank and ("inline" not in md_modes or not md_modes["inline"]) and not len(mds) == 0:
+            logging.debug("%s", metadata)
             raise IndexError("All metadata values blank for %d"%(tsidx))
         return md_modes
 
@@ -121,7 +121,11 @@ class TimeSeriesRegion(object):
         if self.time_coordinates['post_process']:
             func = eval('lambda v: ' + self.time_coordinates['post_process'])
             time_label = func(time_label)
-        return self.process_time_span(time_label, self.time_coordinates['granularity'])
+
+        return {'instant': time_label}
+
+        # TODO: Process time span function needs to be fixed to handle all cases before being included
+        # return self.process_time_span(time_label, self.time_coordinates['granularity'])
 
     def process_time_span(self, time_instant, granularity):
         # TODO: other granularities added (weekly :-?)
