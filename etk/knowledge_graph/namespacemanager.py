@@ -57,7 +57,7 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
                 if not base:
                     raise PrefixNotFoundException("Prefix: %s", prefix)
                 return URIRef(base + name)
-        raise WrongFormatURIException()
+        raise WrongFormatURIException(text)
 
     def bind(self, prefix: str, namespace: str, override=True, replace=False):
         """

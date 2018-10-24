@@ -4,7 +4,7 @@ from etk.knowledge_graph.namespacemanager import RDF, OWL
 
 class Ontology(Graph):
     def is_valid(self, s_types, p, o_types):
-        return s_types and p and o_types
+        return True
 
     @property
     def object_properties(self):

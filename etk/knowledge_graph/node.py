@@ -65,6 +65,9 @@ class Literal(Node):
     def __hash__(self):
         return hash((self.value, self.lang, self.type))
 
+    def __str__(self):
+        return self.value
+
     @property
     def lang(self):
         return self._lang

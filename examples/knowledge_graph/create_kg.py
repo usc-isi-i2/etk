@@ -1,8 +1,5 @@
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from etk.etk import ETK
-from etk.knowledge_graph import KGSchema
+from etk.knowledge_graph.schema import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
 import json
@@ -30,8 +27,10 @@ class ExampleETKModule(ETKModule):
             names = doc.extract(self.name_extractor, d)
             p.store(names, "members")
 
-        doc.kg.add_value("developer", json_path="projects[*].members[*]")
+        for member in doc.select_segments("projects[*].members[*]"):
+            doc.kg.add_value("developer", member.value)
         return list()
+
 
 if __name__ == "__main__":
 
@@ -39,7 +38,8 @@ if __name__ == "__main__":
         "projects": [
             {
                 "name": "etk",
-                "description": "version 2 of etk, implemented by Runqi12 Shao, Dongyu Li, Sylvia lin, Amandeep and others."
+                "description": "version 2 of etk, implemented by Runqi Shao, Dongyu Li, Sylvia lin, Amandeep and "
+                               "others."
             },
             {
                 "name": "rltk",
@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     kg_schema = KGSchema(json.load(open("master_config.json", "r")))
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
-    doc = etk.create_document(sample_input)
+    doc = etk.create_document(sample_input, doc_id="http://isi.edu/default-ns/test")
 
     docs = etk.process_ems(doc)
 

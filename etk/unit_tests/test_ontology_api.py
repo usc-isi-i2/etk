@@ -1,9 +1,9 @@
 import unittest
 from rdflib.namespace import XSD
-from etk.ontology_api import Ontology, OntologyEntity, OntologyClass
-from etk.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
-from etk.ontology_api import ValidationError
-from etk.ontology_namespacemanager import DIG, SCHEMA
+from etk.knowledge_graph.ontology_api import Ontology, OntologyEntity, OntologyClass
+from etk.knowledge_graph.ontology_api import OntologyProperty, OntologyDatatypeProperty, OntologyObjectProperty
+from etk.knowledge_graph.ontology_api import ValidationError
+from etk.knowledge_graph.namespacemanager import DIG, SCHEMA
 
 
 rdf_prefix = '''@prefix : <http://dig.isi.edu/ontologies/dig/> .

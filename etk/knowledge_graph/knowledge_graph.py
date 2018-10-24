@@ -22,7 +22,7 @@ class KnowledgeGraph(Graph):
         self.origin_doc = doc
         self.schema = schema
 
-    @deprecated
+    @deprecated()
     def add_value(self, field_name: str, value: object=None) -> None:
         """
         Add a value to knowledge graph.
@@ -34,6 +34,8 @@ class KnowledgeGraph(Graph):
             field_name: str, the field name in the knowledge graph
             value: the value to be added to the knowledge graph
         """
+        if not self._ns.store.namespace(''):
+            self.bind(None, 'http://isi.edu/default-ns/')
         obj = self.schema.field_type(field_name, value)
         if not obj:
             raise Exception()
@@ -69,17 +71,27 @@ class KnowledgeGraph(Graph):
                 self.add_triples(o, context)
                 o_types = self._find_types(o)
 
-            self.schema.is_valid(s_types, p, o_types)
-            self._g.add(t)
+            if self.schema.is_valid(s_types, p, o_types):
+                triple = self._convert_triple_rdflib((s, p, o))
+                self._g.add(triple)
 
     @property
     def value(self) -> Dict:
         """
         Get knowledge graph object
         """
-        return self._kg
+        g = {}
+        for p, o in self._g.predicate_objects():
+            _, property_ = self._ns.split_uri(p)
+            if property_ not in g:
+                g[property_] = list()
+            g[property_].append({
+                'key': self.create_key_from_value(o, property_),
+                'value': o
+            })
+        return g
 
-    @deprecated
+    @deprecated()
     def get_values(self, field_name: str) -> List[object]:
         """
         Get a list of all the values of a field.
@@ -91,32 +103,17 @@ class KnowledgeGraph(Graph):
         return result
 
     def create_key_from_value(self, value, field_name: str):
-        key = value
-        if self.schema.field_type(field_name) == FieldType.KG_ID:
-            pass
-        elif (isinstance(key, str) or isinstance(key, numbers.Number)) and self.schema.field_type(
-                field_name) != FieldType.DATE:
-            # try except block because unicode characters will not be lowered
-            try:
-                key = str(key).strip().lower()
-            except:
-                pass
-
+        key = self.schema.field_type(field_name, value)
+        if isinstance(key, URI):
+            return key
+        if isinstance(key, str) or isinstance(key, Literal):
+            key = str(key).strip().lower()
         return key
 
     def serialize(self, format='legacy', namespace_manager=None):
         if format == 'legacy':
             # Output DIG format
-            g = {}
-            for p, o in self._g.predicate_objects():
-                _, property_ = self._ns.split_uri(p)
-                if property_ not in g:
-                    g[property_] = list()
-                g[property_].append({
-                    'key': self.create_key_from_value(o, property_),
-                    'value': o
-                })
-            return json.dumps(g)
+            return json.dumps(self.value)
         return super().serialize(format, namespace_manager)
 
     def context_resolve(self, field_uri: str) -> str:

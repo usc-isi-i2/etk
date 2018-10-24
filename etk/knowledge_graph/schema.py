@@ -15,8 +15,10 @@ class KGSchema(object):
     This class define the schema for a knowledge graph object.
     Create a knowledge graph schema according to the master config the user defined in myDIG UI
     """
-    def __init__(self) -> None:
+    def __init__(self, content=None) -> None:
         self.ontology = Ontology()
+        if content:
+            self.add_schema(content, 'master_config')
 
     def add_schema(self, content: str, format: str) -> None:
         """
@@ -25,7 +27,10 @@ class KGSchema(object):
         :param format: schema format, can be in 'master_config' or any RDF format
         """
         if format == 'master_config':
-            config = json.loads(content)
+            if isinstance(content, dict):
+                config = content
+            else:
+                config = json.loads(content)
             self._add_master_config(config)
         else:
             self.ontology.parse(content, format)
@@ -74,7 +79,7 @@ class KGSchema(object):
             self.ontology.object_properties | self.ontology.datatype_properties
         )})
 
-    @deprecated
+    @deprecated()
     def has_field(self, field_name: str) -> bool:
         """
         Return true if the schema has the field, otherwise false
@@ -82,7 +87,7 @@ class KGSchema(object):
         property_ = self.ontology._resolve_URI(URI(field_name))
         return property_ in self.ontology.object_properties or property_ in self.ontology.datatype_properties
 
-    @deprecated
+    @deprecated()
     def field_type(self, field_name: str, value: object) -> Union[Triples, URI, Literal, None]:
         """
         Return the type of a field defined in schema, if field not defined, return None
