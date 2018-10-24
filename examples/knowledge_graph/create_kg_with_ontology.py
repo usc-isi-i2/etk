@@ -2,7 +2,7 @@ from etk.etk import ETK
 from etk.knowledge_graph.schema import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
-from etk.knowledge_graph.node import URI, Literal
+from etk.knowledge_graph.node import URI, BNode, Literal
 from etk.knowledge_graph.triples import Triples
 
 
@@ -29,10 +29,14 @@ class ExampleETKModule(ETKModule):
 
         for p, n, d in zip(projects, names, descriptions):
             triple = Triples(URI(n.value))
+            triple.add_property(URI("rdf:type"), URI("Software"))
             developers = doc.extract(self.name_extractor, d)
             p.store(developers, "members")
             for developer in developers:
-                triple.add_property(URI("developer"), Literal(developer.value))
+                developer_t = Triples(BNode())
+                developer_t.add_property(URI("rdf:type"), URI("Developer"))
+                developer_t.add_property(URI("name"), Literal(developer.value))
+                triple.add_property(URI("developer"), developer_t)
             doc.kg.add_triples(triple)
 
         return list()
@@ -62,16 +66,23 @@ if __name__ == "__main__":
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 :Software a owl:Class ;
           rdfs:label "Software" .
-:developer a owl:DatatypeProperty ;
+:Person a owl:Class ;
+        rdfs:label "Person" .
+:Developer a owl:Class ;
+          rdfs:label "Developer" .
+:name a owl:DatatypeProperty ;
+      rdf:domain :Person ;
+      rdf:range xsd:string .
+:developer a owl:ObjectProperty ;
           rdfs:label "developer" ;
           rdf:domain :Software ;
-          rdf:range xsd:string .
+          rdf:range :Developer .
     """
 
     kg_schema = KGSchema()
-    kg_schema.add_schema(ontology, format='ttl')
+    kg_schema.add_schema(ontology, 'ttl')
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
-    doc = etk.create_document(sample_input)
+    doc = etk.create_document(sample_input, doc_id="http://isi.edu/default-ns/projects")
 
     docs = etk.process_ems(doc)
 

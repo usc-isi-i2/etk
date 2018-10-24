@@ -66,6 +66,11 @@ class Graph(object):
         pred = self._resolve_URI(p)
         if isinstance(o, URI):
             obj = self._resolve_URI(o)
+        elif isinstance(o, Triples):
+            if isinstance(o.subject, URI):
+                obj = self._resolve_URI(o.subject)
+            else:
+                obj = rdflib.BNode(o.subject.value)
         elif isinstance(o, BNode):
             obj = rdflib.BNode(o.value)
         else:
