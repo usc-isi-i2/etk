@@ -2,9 +2,10 @@ import logging
 from typing import Set, Union, Optional
 from functools import reduce
 from datetime import datetime, time, date
-from rdflib import Graph, URIRef
+from rdflib import Graph, URIRef, BNode
 from rdflib.namespace import RDF, RDFS, OWL, SKOS, XSD
-from etk.ontology_namespacemanager import OntologyNamespaceManager
+from etk.ontology_namespacemanager import OntologyNamespaceManager, SCHEMA
+from itertools import chain
 
 
 class OntologyEntity(object):
@@ -13,7 +14,7 @@ class OntologyEntity(object):
     """
 
     def __init__(self, uri):
-        self._uri = uri
+        self._uri = str(uri)
         self._label = set()
         self._definition = set()
         self._note = set()
@@ -76,6 +77,12 @@ class OntologyEntity(object):
         for n in self._note:
             s += '\n\tskos:note "{}"'.format(n)
         return s
+
+    def __hash__(self):
+        return hash(str(self._uri))
+
+    def __eq__(self, other):
+        return self._uri == other.uri()
 
 
 class OntologyClass(OntologyEntity):
@@ -173,7 +180,7 @@ class OntologyProperty(OntologyEntity):
 
         """
         domains = self.included_domains()
-        return c and (c in domains or c.super_classes_closure() & domains)
+        return c and (not domains or c in domains or c.super_classes_closure() & domains)
 
     def is_legal_object(self, object) -> bool:
         raise NotImplementedError('Subclass should implement this.')
@@ -202,7 +209,7 @@ class OntologyObjectProperty(OntologyProperty):
 
         """
         ranges = self.included_ranges()
-        return c in ranges or c.super_classes_closure() & ranges
+        return not ranges or c in ranges or c.super_classes_closure() & ranges
 
     def inverse(self) -> 'OntologyObjectProperty':
         """
@@ -243,13 +250,23 @@ class OntologyDatatypeProperty(OntologyProperty):
 
         """
         data_type = str(data_type)
-        return data_type in self.included_ranges() or self.super_properties() and \
+        ranges = self.included_ranges()
+        return not ranges or data_type in ranges or self.super_properties() and \
                any(x.is_legal_object(data_type) for x in self.super_properties())
 
 
 class ValidationError(Exception):
     """ Base class for all validation errors """
     pass
+
+
+class UnsupportOntologyExpression(Exception):
+    """ Base class for all unsupport Ontology expressions """
+    def __init__(self, msg):
+        self.message = msg
+
+    def __str__(self):
+        return "Doesn't support expression %s" % self.message
 
 
 class Ontology(object):
@@ -299,7 +316,11 @@ class Ontology(object):
         for uri, inv in self.g.query("""SELECT ?uri ?inv
                                    WHERE { ?uri a rdf:Property .
                                            OPTIONAL {?uri dig:inverse ?inv }}"""):
-            self.__init_ontology_object_property(uri, inv)
+            has_literal, all_literal = self.__check_range_is_literal(uri)
+            if has_literal or all_literal:
+                self.__init_ontology_datatype_property(uri)
+            if not all_literal or (not has_literal and all_literal):
+                self.__init_ontology_object_property(uri, inv)
 
         #Datatype property as range is a schema:DataType
         # for uri, range in self.g.query("""
@@ -327,12 +348,21 @@ class Ontology(object):
                              WHERE {{ ?uri rdfs:domain ?domain }
                                     UNION { ?uri schema:domainIncludes ?domain }
                                     UNION { ?domain dig:common_properties ?uri}}"""):
-            self.__init_ontology_property_domain(uri, d, include_undefined_class)
+            if isinstance(d, BNode):
+                for d_ in self.__read_owl_union_of(d):
+                    self.__init_ontology_property_domain(uri, d_, include_undefined_class)
+            else:
+                self.__init_ontology_property_domain(uri, d, include_undefined_class)
 
+        # range
         for uri, r in self.g.query("""SELECT ?uri ?range
                              WHERE {{ ?uri rdfs:range ?range }
                                     UNION { ?uri schema:rangeIncludes ?range }}"""):
-            self.__init_ontology_property_range(uri, r, include_undefined_class)
+            if isinstance(r, BNode):
+                for r_ in self.__read_owl_union_of(r):
+                    self.__init_ontology_property_range(uri, r_, include_undefined_class)
+            else:
+                self.__init_ontology_property_range(uri, r, include_undefined_class)
 
         for uri, range in self.g.query("""
                                         SELECT ?uri ?range
@@ -349,7 +379,6 @@ class Ontology(object):
                                         }
                                         """):
             self.__init_ontology_property_range(uri, URIRef("http://schema.org/DataType"), include_undefined_class)
-
 
         for entity in self.entities.values():
             uri = URIRef(entity.uri())
@@ -371,6 +400,44 @@ class Ontology(object):
             for p in self.data_properties:
                 self.__validation_property_domain(p)
 
+    def __read_owl_union_of(self, class_):
+        for head in self.g.objects(class_, OWL.unionOf):
+            # data range union
+            return self.g.items(head)
+        for head in self.g.objects(class_, OWL.onDatatype):
+            # datatype restriction
+            # [ a rdfs:Datatype ; owl:onDatatype DN ; owl:withRestrictions ()]
+            return [head]
+        for head in self.g.objects(class_, OWL.oneOf):
+            # literal enumeration
+            # [ a rdfs:Datatype ; owl:oneOf ()]
+            return self.g.items(head)
+        for _ in self.g.objects(class_, OWL.intersectionOf):
+            # data range intersection
+            raise UnsupportOntologyExpression("[ a rdfs:Datatype ; owl:intersectionOf ()]")
+        for _ in self.g.objects(class_, OWL.datatypeComplementOf):
+            # data range complement
+            raise UnsupportOntologyExpression("[ a rdfs:Datatype ; owl:datatypeComplementOf ()]")
+        return []
+
+    def __convert_cons_to_list(self, head):
+        list_ = []
+        while head is not RDF.nil:
+            for first in self.g.objects(head, RDF.first):
+                list_.append(first)
+            for rest in self.g.objects(head, RDF.rest):
+                head = rest
+        return list_
+
+    def __check_range_is_literal(self, uri):
+        has_literal, all_literal = False, True
+        for range_ in chain(self.g.objects(uri, RDFS.range), self.g.objects(uri, SCHEMA.rangeIncludes)):
+            if range_ == RDFS.Literal or range_ in self.xsd_ref:
+                has_literal = True
+            else:
+                all_literal = False
+        return has_literal, all_literal
+
     def __init_graph_parse(self, contents):
         nm = OntologyNamespaceManager(Graph())
         g = nm.graph
@@ -386,27 +453,27 @@ class Ontology(object):
             uri = uri.toPython()
         else:
             return
-        entity = OntologyClass(uri)
+        entity = self.entities.get(uri, OntologyClass(uri))
         self.entities[uri] = entity
         self.classes.add(entity)
         return entity
 
     def __init_ontology_datatype_property(self, uri):
         uri = uri.toPython()
-        entity = OntologyDatatypeProperty(uri)
+        entity = self.entities.get(uri, OntologyDatatypeProperty(uri))
         self.entities[uri] = entity
         self.data_properties.add(entity)
         return entity
 
     def __init_ontology_object_property(self, uri, inv):
         uri = uri.toPython()
-        entity = OntologyObjectProperty(uri, inv)
+        entity = self.entities.get(uri, OntologyObjectProperty(uri, inv))
         self.entities[uri] = entity
         self.object_properties.add(entity)
         if inv:
             inv = inv.toPython()
-            self.entities[inv] = entity.inverse()
-            self.object_properties.add(entity.inverse())
+            self.entities[inv] = self.entities.get(inv, entity.inverse())
+            self.object_properties.add(self.entities[inv])
         return entity
 
     def __init_ontology_subClassOf(self, uri, sub, include_undefined_class):

@@ -40,7 +40,7 @@ Tutorial
    :maxdepth: 2
 
    installation.rst
-   overview.rst
+..   overview.rst
 
 API Reference
 -------------

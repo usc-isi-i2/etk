@@ -1,8 +1,9 @@
 import platform
 import tempfile
 from typing import List, Dict
-import spacy, copy, json, os, jsonpath_ng, importlib, logging, sys
+import spacy, copy, json, os, jsonpath_ng.ext, importlib, logging, sys
 from etk.tokenizer import Tokenizer
+from etk.crf_tokenizer import CrfTokenizer
 from etk.document import Document
 from etk.etk_exceptions import InvalidJsonPathError
 from etk.etk_module import ETKModule
@@ -16,7 +17,7 @@ TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
                  logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False,
-                 output_kg_only=False):
+                 output_kg_only=False, use_spacy_tokenizer=False):
 
         self.generate_json_ld = generate_json_ld
         self.output_kg_only = output_kg_only
@@ -33,9 +34,12 @@ class ETK(object):
             )
             self.logger = logging.getLogger('ETK')
 
-        self.parser = jsonpath_ng.parse
+        self.parser = jsonpath_ng.ext.parse
         self.default_nlp = spacy.load('en_core_web_sm')
-        self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
+        if use_spacy_tokenizer:
+            self.default_tokenizer = Tokenizer(copy.deepcopy(self.default_nlp))
+        else:
+            self.default_tokenizer = CrfTokenizer()
         self.parsed = dict()
         self.kg_schema = kg_schema
         self.ontology = ontology
@@ -297,4 +301,3 @@ class ETK(object):
             self.logger.critical(message)
         elif level == "exception":
             self.logger.exception(message)
-    

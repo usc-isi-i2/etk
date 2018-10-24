@@ -20,8 +20,14 @@ class HTMLMetadataExtractor(Extractor):
     Examples:
         ::
 
-            html_metadata_extractor = HTMLMetadataExtractor(...)
-            html_metadata_extractor.extract(text=input_doc,...)
+            html_metadata_extractor = HTMLMetadataExtractor()
+            html_metadata_extractor.extract(text=input_doc,
+                                            extract_title=True,
+                                            extract_meta=True,
+                                            extract_microdata=False,
+                                            extract_json_ld=False,
+                                            extract_rdfa=False)
+
     """
 
     def __init__(self):
@@ -30,20 +36,6 @@ class HTMLMetadataExtractor(Extractor):
                            category="HTML extractor",
                            name="HTML metadata extractor")
 
-        """
-
-        Args:
-            html_text ():
-            extract_title (): extract the <title> tag from the HTML page, return as { "title": "..." }
-            extract_meta (): extract the meta tags, return as { "meta": { "author": "...", ...}}
-            extract_microdata (): extract microdata, returns as { "microdata": [...] }
-            extract_json_ld (): extract JSON-LD, return as { "json-ld": [...] }
-            extract_rdfa (): extract rdfa, returns as { "rdfa": [...] }
-
-        Returns: a singleton list containing a dict with each type of metadata.
-
-        """
-
     def extract(self, html_text: str,
                 extract_title: bool = False,
                 extract_meta: bool = False,
@@ -51,7 +43,18 @@ class HTMLMetadataExtractor(Extractor):
                 extract_json_ld: bool = False,
                 extract_rdfa: bool = False) \
             -> List[Extraction]:
+        """
+        Args:
+            html_text (str): input html string to be extracted
+            extract_title (bool): True if string of 'title' tag needs to be extracted, return as { "title": "..." }
+            extract_meta (bool): True if string of 'meta' tags needs to be extracted, return as { "meta": { "author": "...", ...}}
+            extract_microdata (bool): True if microdata needs to be extracted, returns as { "microdata": [...] }
+            extract_json_ld (bool): True if json-ld needs to be extracted, return as { "json-ld": [...] }
+            extract_rdfa (bool): True if rdfs needs to be extracted, returns as { "rdfa": [...] }
 
+        Returns:
+            List[Extraction]: the list of extraction or the empty list if there are no matches.
+        """
         res = list()
         soup = BeautifulSoup(html_text, 'html.parser')
 

@@ -52,9 +52,10 @@ class SentenceExtractor(Extractor):
         Splits text by sentences.
 
         Args:
-            text: str
+            text (str): Input text to be extracted.
 
-        Returns: List[Extraction]
+        Returns:
+            List[Extraction]: the list of extraction or the empty list if there are no matches.
         """
 
         doc = self.parser(text)

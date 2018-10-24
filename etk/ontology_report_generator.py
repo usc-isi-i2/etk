@@ -51,9 +51,12 @@ class OntologyReportGenerator:
             content = content.replace('{{{dataproperties}}}', properties[0])
             content = content.replace('{{{objectproperties}}}', properties[1])
 
+            # Logging
+            content = content.replace('{{{logging-title}}}', '' if exclude_warning else '<h2>Logging</h2>')
             logs = '' if exclude_warning else self.ontology.log_stream.getvalue()
             content = content.replace('{{{logging}}}', '<pre><code>{}</code></pre>'.format(logs))
 
+            # Auxiliary line
             content = content.replace('{{{list_auxiliary_line}}}', self.__show_list_auxiliary_line(list_auxiliary_line))
         return content
 

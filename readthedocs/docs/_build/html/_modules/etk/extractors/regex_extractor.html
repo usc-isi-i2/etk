@@ -1,0 +1,235 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>etk.extractors.regex_extractor &#8212; ETK 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for etk.extractors.regex_extractor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span> <span class="nn">etk.extractor</span> <span class="k">import</span> <span class="n">Extractor</span><span class="p">,</span> <span class="n">InputType</span>
+<span class="kn">from</span> <span class="nn">etk.extraction</span> <span class="k">import</span> <span class="n">Extraction</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+
+
+<span class="k">class</span> <span class="nc">MatchMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">MATCH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">(),</span>
+    <span class="n">SEARCH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">(),</span>
+    <span class="n">FINDALL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">(),</span>
+    <span class="n">SPLIT</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="RegexExtractor"><a class="viewcode-back" href="../../../extractors/regex_ext.html#etk.extractors.bitcoin_address_extractor.RegexExtractor">[docs]</a><span class="k">class</span> <span class="nc">RegexExtractor</span><span class="p">(</span><span class="n">Extractor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    **Description**</span>
+<span class="sd">        A wrapper for Python regular expressions.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        ::</span>
+
+<span class="sd">            pattern = &quot;some_pattern&quot;</span>
+<span class="sd">            regex_extractor = RegexExtractor(pattern=pattern,</span>
+<span class="sd">                                            flags=re.IGNORECASE)</span>
+<span class="sd">            regex_extractor.extract(text=input_doc,</span>
+<span class="sd">                                    flags=re.M,</span>
+<span class="sd">                                    MatchMode=MatchMode.SEARCH</span>
+<span class="sd">                                    )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">extractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                 <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">general_tag</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Extractor</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                           <span class="n">input_type</span><span class="o">=</span><span class="n">InputType</span><span class="o">.</span><span class="n">TEXT</span><span class="p">,</span>
+                           <span class="n">category</span><span class="o">=</span><span class="s2">&quot;regex&quot;</span><span class="p">,</span>
+                           <span class="n">name</span><span class="o">=</span><span class="n">extractor_name</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_general_tag</span> <span class="o">=</span> <span class="n">general_tag</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_match_functions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">MatchMode</span><span class="o">.</span><span class="n">MATCH</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_regex</span><span class="o">.</span><span class="n">match</span><span class="p">,</span>
+            <span class="n">MatchMode</span><span class="o">.</span><span class="n">SEARCH</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_regex</span><span class="o">.</span><span class="n">search</span><span class="p">,</span>
+            <span class="n">MatchMode</span><span class="o">.</span><span class="n">FINDALL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_regex</span><span class="o">.</span><span class="n">finditer</span><span class="p">,</span>
+            <span class="n">MatchMode</span><span class="o">.</span><span class="n">SPLIT</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compiled_regex</span><span class="o">.</span><span class="n">split</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">general_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_general_tag</span>
+
+<div class="viewcode-block" id="RegexExtractor.extract"><a class="viewcode-back" href="../../../extractors/regex_ext.html#etk.extractors.bitcoin_address_extractor.RegexExtractor.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">MatchMode</span> <span class="o">=</span> <span class="n">MatchMode</span><span class="o">.</span><span class="n">FINDALL</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">            Extracts information from a text using the given regex.</span>
+<span class="sd">            If the pattern has no groups, it returns a list with a single Extraction.</span>
+<span class="sd">            If the pattern has groups, it returns a list of Extraction, one for each group.</span>
+<span class="sd">            Each extraction records the start and end char positions of matches.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            text (str): the text to extract from.</span>
+<span class="sd">            flags (enum[&#39;a&#39;, &#39;i&#39;, &#39;L&#39;, &#39;m&#39;, &#39;s&#39;, &#39;u&#39;, &#39;x&#39;]): flags given to search or match. The value should be one \</span>
+<span class="sd">                or more letters from the set &#39;a&#39;, &#39;i&#39;, &#39;L&#39;, &#39;m&#39;, &#39;s&#39;, &#39;u&#39;, &#39;x&#39;.) The group matches the empty string; \</span>
+<span class="sd">                the letters set the corresponding flags: re.A (ASCII-only matching), re.I (ignore case), re.L (locale dependent),\</span>
+<span class="sd">                re.M (multi-line), re.S (dot matches all), re.U (Unicode matching), and re.X (verbose), for the entire \</span>
+<span class="sd">                regular expression.</span>
+<span class="sd">            mode (enum[MatchMode.MATCH, MatchMode.SEARCH, MatchMode.FINDALL, MatchMode.SPLIT]): whether to use re.search() or re.match().</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List(Extraction): the list of extraction or the empty list if there are no matches.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">match_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_functions</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">match_func</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_result</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span></div>
+
+    <span class="c1"># wrap the re return object to list of extraction</span>
+    <span class="k">def</span> <span class="nf">_wrap_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matches</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="c1"># matches are result of split()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_split_extraction</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+
+        <span class="c1"># matches are result of finditer()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matches</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
+                <span class="n">es</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_result</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">es</span><span class="p">)</span>
+
+        <span class="c1"># single match</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># check if the pattern has groups</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_extraction</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">matches</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_extraction</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">matches</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_split_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Extraction</span><span class="p">]:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">item</span><span class="p">,</span> <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">start_char</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_char</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+            <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="nf">_wrap_extraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">matches</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Extraction</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">group_idx</span><span class="p">),</span> <span class="n">matches</span><span class="o">.</span><span class="n">end</span><span class="p">(</span><span class="n">group_idx</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">matches</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">group_idx</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">Extraction</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">text</span><span class="p">,</span> <span class="n">extractor_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> \
+                       <span class="n">start_char</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_char</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">general_tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">ETK</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=usc-isi-i2&repo=etk&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../extractors.html">Extractors</a></li>
+</ul>
+
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/">ETK @ GitHub</a></li>
+    
+    <li class="toctree-l1"><a href="https://pypi.org/project/etk/">ETK @ PyPI</a></li>
+    
+    <li class="toctree-l1"><a href="https://github.com/usc-isi-i2/etk/issues">Issue Tracker</a></li>
+    
+    <li class="toctree-l1"><a href="http://usc-isi-i2.github.io/">USC/ISI CKG</a></li>
+    
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, USC/ISI.
+      
+    </div>
+
+    
+    <a href="https://github.com/usc-isi-i2/etk" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
