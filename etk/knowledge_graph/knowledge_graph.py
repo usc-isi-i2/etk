@@ -17,6 +17,7 @@ class KnowledgeGraph(Graph):
         super().__init__()
         self.origin_doc = doc
         self.schema = schema
+        self._fork_namespace_manager()
 
     @deprecated()
     def add_value(self, field_name: str, value: object=None) -> None:
@@ -109,3 +110,7 @@ class KnowledgeGraph(Graph):
             # Output DIG format
             return json.dumps(self.value)
         return super().serialize(format, namespace_manager)
+
+    def _fork_namespace_manager(self):
+        for prefix, ns in self.schema.ontology._ns.namespaces():
+            self.bind(prefix, ns)

@@ -86,3 +86,11 @@ class PrefixAlreadyUsedException(Exception):
 
 class SplitURIWithUnknownPrefix(Exception):
     pass
+
+
+class InvalidGraphNodeValueError(Exception):
+    pass
+
+
+class UnknownLiteralType(Exception):
+    pass

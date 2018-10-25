@@ -39,7 +39,6 @@ class Graph(object):
     def serialize(self, format='ttl', namespace_manager=None):
         # may need some way to serialize ttl, json-ld
         if format.lower() in ('ttl', 'turtle'):
-            # self._ns.bind()
             b_string = self._g.serialize(format=format, namespace_manager=namespace_manager)
         elif format.lower() == 'json-ld':
             b_string = self._g.serialize(format=format, contexts=namespace_manager)

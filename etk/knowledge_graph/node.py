@@ -2,10 +2,13 @@ from uuid import uuid4
 from time import time
 from datetime import date, datetime
 from xml.dom.minidom import Document, DocumentFragment
+from etk.etk_exceptions import InvalidGraphNodeValueError, UnknownLiteralType
 
 
 class Node(object):
     def __init__(self, value):
+        if not isinstance(value, str):
+            raise InvalidGraphNodeValueError()
         self._value = value
 
     def __eq__(self, other):
@@ -33,6 +36,9 @@ class URI(Node):
     def __hash__(self):
         return hash(self.value)
 
+    def is_valid(self):
+        return self.value is not None
+
 
 class BNode(Node):
     def __init__(self, value=None):
@@ -47,6 +53,9 @@ class BNode(Node):
 
     def __hash__(self):
         return hash(self.value)
+
+    def is_valid(self):
+        return self.value is not None
 
 
 class Literal(Node):
@@ -78,17 +87,16 @@ class Literal(Node):
             return self._type.value
         return self._type
 
+    def is_valid(self):
+        return self.value is not None and not (self._lang and self._type != LiteralType.string)
 
-class Type(type):
+
+class __Type(type):
     def __getattr__(self, item):
         return LiteralType(item)
 
 
-class UnknownLiteralType(Exception):
-    pass
-
-
-class LiteralType(URI, metaclass=Type):
+class LiteralType(URI, metaclass=__Type):
     def __init__(self, s):
         super().__init__(self._resolve(s))
 
@@ -152,4 +160,3 @@ class LiteralType(URI, metaclass=Type):
         'XMLLiteral': Document,
         'HTML': DocumentFragment
     }
-

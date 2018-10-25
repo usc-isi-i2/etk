@@ -5,6 +5,7 @@ from etk.etk_exceptions import SplitURIWithUnknownPrefix
 import rdflib.namespace
 from rdflib.namespace import Namespace, OWL, RDF, XSD
 from rdflib import URIRef
+import warnings
 
 
 SCHEMA = Namespace('http://schema.org/')
@@ -42,7 +43,7 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
                 return URIRef(base + name)
         raise WrongFormatURIException(text)
 
-    def bind(self, prefix: str, namespace: str, override=True, replace=False):
+    def bind(self, prefix: str, namespace: str, override=True, replace=True):
         """
         bind a given namespace to the prefix, forbids same prefix with different namespace
 
@@ -62,12 +63,12 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
             bound_namespace = URIRef(bound_namespace)
         if bound_namespace and bound_namespace != namespace:
 
+            # prefix already in use for different namespace
             if replace:
                 self.store.bind(prefix, namespace)
-            # prefix already in use for different namespace
-            raise PrefixAlreadyUsedException("Prefix (%s, %s) already used, instead of (%s, %s).",
-                                             prefix, self.store.namespace(prefix).toPython(),
-                                             prefix, namespace.toPython())
+            else:
+                warnings.warn("Prefix ({}, {}) already defined, if want to replace it, set flag replace to True".format(
+                    prefix if prefix else None, self.store.namespace(prefix)))
         else:
             bound_prefix = self.store.prefix(namespace)
             if bound_prefix is None:
@@ -80,6 +81,9 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
 
     @staticmethod
     def check_uriref(text: str) -> Optional[URIRef]:
+        """
+        Check if the input text is likely to be an URIRef and return None or URIRef
+        """
         if isinstance(text, URIRef):
             return text
         if isinstance(text, str):
@@ -88,13 +92,17 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
                 return URIRef(text)
 
     def split_uri(self, uri: str):
+        """
+        Overwrite rdflib's implementation which has a lot of issues
+        """
         for prefix, namespace in self.store.namespaces():
             if uri.startswith(namespace):
                 return prefix, uri[len(namespace):]
         raise SplitURIWithUnknownPrefix()
 
     def bind_for_master_config(self):
+        """
+        Bind must-have namespaces for master config, note RDF and XSD are already bound
+        """
         self.bind('owl', OWL)
-        self.bind('rdf', RDF)
-        self.bind('xsd', XSD)
-        self.bind(None, 'http://isi.edu/default-ns/')
+        self.bind('', 'http://isi.edu/default-ns/')
