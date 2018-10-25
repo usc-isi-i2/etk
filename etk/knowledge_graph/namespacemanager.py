@@ -1,5 +1,7 @@
 import re
 from typing import Optional
+from etk.etk_exceptions import WrongFormatURIException, PrefixNotFoundException, PrefixAlreadyUsedException
+from etk.etk_exceptions import SplitURIWithUnknownPrefix
 import rdflib.namespace
 from rdflib.namespace import Namespace, OWL, RDF, XSD
 from rdflib import URIRef
@@ -12,29 +14,10 @@ URI_PATTERN = re.compile(r'^http:|^urn:|^info:|^ftp:|^https:')
 URI_ABBR_PATTERN = re.compile(r'^(?:([^:]*):)?([^:]+)$')
 
 
-class WrongFormatURIException(Exception):
-    pass
-
-
-class PrefixNotFoundException(Exception):
-    pass
-
-
-class PrefixAlreadyUsedException(Exception):
-    pass
-
-
-class SplitURIWithUnknownPrefix(Exception):
-    pass
-
-
 class NamespaceManager(rdflib.namespace.NamespaceManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph.namespace_manager = self
-        # self.bind('owl', OWL)
-        # self.bind('schema', SCHEMA)
-        # self.bind('dig', DIG)
 
     def parse_uri(self, text: str) -> URIRef:
         """
@@ -114,4 +97,4 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
         self.bind('owl', OWL)
         self.bind('rdf', RDF)
         self.bind('xsd', XSD)
-        self.bind(None, 'http://isi.edu/')
+        self.bind(None, 'http://isi.edu/default-ns/')

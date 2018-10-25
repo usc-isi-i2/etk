@@ -1,10 +1,6 @@
 from typing import Dict, List
-import numbers
 from etk.knowledge_graph.schema import KGSchema
-from etk.field_types import FieldType
-from etk.etk_exceptions import KgValueError, UndefinedFieldError
-from etk.extraction import Extraction
-from etk.segment import Segment
+from etk.etk_exceptions import KGValueError, UndefinedFieldError
 from etk.knowledge_graph.graph import Graph
 from etk.knowledge_graph.triples import Triples
 from etk.knowledge_graph.node import URI, Literal
@@ -50,9 +46,7 @@ class KnowledgeGraph(Graph):
         types = []
         for t in triples:
             s, p, o = t
-            if p == 'rdf:type':  # TODO: not just rdf:type, also .../rdf-2011-x#type whole URI,
-                                 # or somehow resolve this URI before being inserted
-                                 # p == URI('rdf:type') or resolve(p) == URI('ht...#type')
+            if self._is_rdf_type(p):
                 if isinstance(o, Triples):
                     continue
                 types.append(o)
@@ -97,9 +91,9 @@ class KnowledgeGraph(Graph):
         Get a list of all the values of a field.
         """
         result = list()
-        if self.validate_field(field_name):
-            for value_key in self._kg.get(field_name):
-                result.append(value_key["value"])
+        p = self.schema.parse_field(field_name)
+        for o in self._g.objects(None, p):
+            result.append(o.toPython())
         return result
 
     def create_key_from_value(self, value, field_name: str):
@@ -115,34 +109,3 @@ class KnowledgeGraph(Graph):
             # Output DIG format
             return json.dumps(self.value)
         return super().serialize(format, namespace_manager)
-
-    def context_resolve(self, field_uri: str) -> str:
-        """
-        According to field_uri to add corresponding context and return a resolvable field_name
-
-        :param field_uri:
-        :return: a field_name that can be resolved with kg's @context
-        """
-        from rdflib.namespace import split_uri
-        context = self._kg["@context"] = self._kg.get("@context", dict())
-        nm = self.ontology.g.namespace_manager
-        space, name = split_uri(field_uri)
-        if "@vocab" not in context and None in nm.namespaces():
-            context["@vocab"] = nm.store.prefix(space)
-        if "@vocab" in context and space == context["@vocab"]:
-            # case #1, can directly use name
-            return name
-        if self.schema.has_field(name):
-            if name not in context:
-                prefix = [x for x in list(self.ontology.g.namespace_manager.namespaces())]
-                for x, y in prefix:
-                    if space[:-1] == x:
-                        context[name] = str(y) + name
-                        return name
-                context[name] = field_uri
-            return name
-        prefix = nm.store.prefix(space)
-        if prefix:
-            context[prefix] = space
-            return nm.qname(field_uri)
-        return field_uri

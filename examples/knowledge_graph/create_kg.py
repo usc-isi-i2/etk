@@ -55,3 +55,4 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(json.dumps(docs[0].kg.value, indent=2))
+    print(docs[0].kg.get_values('developer'))

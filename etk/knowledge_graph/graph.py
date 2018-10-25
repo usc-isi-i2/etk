@@ -47,15 +47,20 @@ class Graph(object):
             b_string = self._g.serialize(format=format)
         return b_string.decode('UTF-8')
 
+    @lru_cache()
     def _resolve_URI(self, uri: URI) -> rdflib.URIRef:
         """
         Convert a URI object into a RDFLib URIRef, including resolve its context
-        # TODO: this method will be called multi-times, consider adding a LRU for it
 
         :param uri: URI
         :return: rdflib.URIRef
         """
         return self._ns.parse_uri(uri.value)
+
+    def _is_rdf_type(self, uri: URI) -> bool:
+        if not isinstance(uri, URI):
+            return False
+        return self._resolve_URI(uri) == rdflib.RDF.type
 
     def _convert_triple_rdflib(self, triple):
         """

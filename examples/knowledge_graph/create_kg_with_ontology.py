@@ -13,14 +13,12 @@ class ExampleETKModule(ETKModule):
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.name_extractor = GlossaryExtractor(self.etk.load_glossary("./names.txt"), "name_extractor",
-                                                self.etk.default_tokenizer,
-                                                case_sensitive=False, ngrams=1)
+                                                self.etk.default_tokenizer, case_sensitive=False, ngrams=1)
 
     def process_document(self, doc):
         """
         Add your code for processing the document
         """
-
         descriptions = doc.select_segments("projects[*].description")
         names = doc.select_segments("projects[*].name")
         projects = doc.select_segments("projects[*]")
@@ -30,6 +28,7 @@ class ExampleETKModule(ETKModule):
         for p, n, d in zip(projects, names, descriptions):
             triple = Triples(URI(n.value))
             triple.add_property(URI("rdf:type"), URI("Software"))
+
             developers = doc.extract(self.name_extractor, d)
             p.store(developers, "members")
             for developer in developers:
@@ -43,7 +42,6 @@ class ExampleETKModule(ETKModule):
 
 
 if __name__ == "__main__":
-
     sample_input = {
         "projects": [
             {
@@ -69,16 +67,15 @@ if __name__ == "__main__":
 :Person a owl:Class ;
         rdfs:label "Person" .
 :Developer a owl:Class ;
-          rdfs:label "Developer" .
+           rdfs:label "Developer" .
 :name a owl:DatatypeProperty ;
       rdf:domain :Person ;
       rdf:range xsd:string .
 :developer a owl:ObjectProperty ;
-          rdfs:label "developer" ;
-          rdf:domain :Software ;
-          rdf:range :Developer .
+           rdfs:label "developer" ;
+           rdf:domain :Software ;
+           rdf:range :Developer .
     """
-
     kg_schema = KGSchema()
     kg_schema.add_schema(ontology, 'ttl')
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
@@ -87,3 +84,5 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
+    print(docs[0].kg.serialize('nt'))
+    print(docs[0].kg._resolve_URI.cache_info())

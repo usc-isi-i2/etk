@@ -18,9 +18,9 @@ class ETKValueError(Exception):
     pass
 
 
-class KgValueError(ETKValueError):
+class KGValueError(ETKValueError):
     def __init__(self, message=""):
-        super(KgValueError, self).__init__(message)
+        super(KGValueError, self).__init__(message)
 
 
 class ExtractorValueError(ETKValueError):
@@ -69,5 +69,20 @@ class ExtractorError(Exception):
 
 
 class UndefinedFieldError(Exception):
-    def __init__(self, message=""):
-        super(UndefinedFieldError, self).__init__(message)
+    pass
+
+
+class WrongFormatURIException(Exception):
+    pass
+
+
+class PrefixNotFoundException(Exception):
+    pass
+
+
+class PrefixAlreadyUsedException(Exception):
+    pass
+
+
+class SplitURIWithUnknownPrefix(Exception):
+    pass

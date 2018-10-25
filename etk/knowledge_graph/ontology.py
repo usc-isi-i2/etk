@@ -8,6 +8,10 @@ class Ontology(Graph):
 
     @property
     def object_properties(self):
+        """
+        Return all the defined ObjectProperty
+        :return: Set[URIRef]
+        """
         properties = []
         for property_ in self._g.subjects(RDF.type, OWL.ObjectProperty):
             properties.append(property_)
@@ -15,6 +19,10 @@ class Ontology(Graph):
 
     @property
     def datatype_properties(self):
+        """
+        Return all the defined DatatypeProperty
+        :return: Set[URIRef]
+        """
         properties = []
         for property_ in self._g.subjects(RDF.type, OWL.DatatypeProperty):
             properties.append(property_)

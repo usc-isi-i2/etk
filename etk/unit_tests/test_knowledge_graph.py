@@ -1,7 +1,7 @@
 import unittest, json
 from etk.knowledge_graph import KGSchema
 from etk.etk import ETK
-from etk.etk_exceptions import KgValueError
+from etk.etk_exceptions import KGValueError
 from datetime import date, datetime
 from etk.ontology_api import Ontology
 from etk.ontology_namespacemanager import DIG
@@ -59,23 +59,23 @@ class TestKnowledgeGraph(unittest.TestCase):
 
         try:
             sample_doc.kg.add_value("developer", json_path="projects[*].members[*]")
-        except KgValueError:
+        except KGValueError:
             pass
 
         try:
             sample_doc.kg.add_value("test_date", json_path="projects[*].date[*]")
-        except KgValueError:
+        except KGValueError:
             pass
 
         try:
             sample_doc.kg.add_value("test_add_value_date",
                                     value=[date(2018, 3, 28), {}, datetime(2018, 3, 28, 1, 1, 1)])
-        except KgValueError:
+        except KGValueError:
             pass
 
         try:
             sample_doc.kg.add_value("test_location", json_path="projects[*].place")
-        except KgValueError:
+        except KGValueError:
             pass
 
         try:
@@ -83,7 +83,7 @@ class TestKnowledgeGraph(unittest.TestCase):
             sample_doc.kg.add_value("test_non_empty", value="non-empty")
             sample_doc.kg.add_value("test_empty", value="", keep_empty=True)
             sample_doc.kg.add_value("test_empty", value="empty", keep_empty=True)
-        except KgValueError:
+        except KGValueError:
             pass
 
         expected_developers = [
