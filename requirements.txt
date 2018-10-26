@@ -13,7 +13,7 @@ landmark-extractor>=0.1.8.0
 langdetect>=1.0.7
 langid>=1.1.6
 lxml>=4.1.1
-msgpack-numpy>=0.4.1
+msgpack-numpy<0.4.4.0
 msgpack-python>=0.5.4
 murmurhash>=0.28.0
 numpy>=1.14.1
