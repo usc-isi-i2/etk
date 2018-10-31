@@ -58,14 +58,12 @@ class TestMetadataExtractor(unittest.TestCase):
                     ... </html>"""
 
         microdata = hme.extract(test_html, extract_microdata=True)[0].value
-        expected_microdata = [{'properties': {'license': 'http://www.opensource.org/licenses/mit-license.php',
-                                              'title': 'The house I found.',
-                                              'work': 'images/house.jpeg'},
-                               'type': 'http://n.whatwg.org/work'},
-                              {'properties': {'license': 'http://www.opensource.org/licenses/mit-license.php',
-                                              'title': 'The mailbox.',
-                                              'work': 'images/mailbox.jpeg'},
-                               'type': 'http://n.whatwg.org/work'}]
+        expected_microdata = [{"type": "http://n.whatwg.org/work",
+                               "properties": {"license": "http://www.opensource.org/licenses/mit-license.php",
+                                              "work": "http://www.example.com/images/house.jpeg",
+                                              "title": "The house I found."}}, {"type": "http://n.whatwg.org/work",
+                                        "properties": {"license": "http://www.opensource.org/licenses/mit-license.php",
+                            "work": "http://www.example.com/images/mailbox.jpeg", "title": "The mailbox."}}]
         self.assertEqual(microdata, expected_microdata)
 
     # value of microdata extraction is list
@@ -172,14 +170,14 @@ class TestMetadataExtractor(unittest.TestCase):
                     ... """
 
         rdfa_data = hme.extract(test_html, extract_rdfa=True)[0].value
-        expected_rdfa_data = [{'@id': '/alice/posts/trouble_with_bob',
-                               '@type': ['http://schema.org/BlogPosting'],
-                               'http://purl.org/dc/terms/creator': [{'@id': '#me'}],
-                               'http://purl.org/dc/terms/title': [{'@value': 'The trouble with Bob'}],
-                               'http://schema.org/articleBody':
-                                   [{'@value': '\n                    ...         The trouble with Bob is that he '
-                                               'takes much better photos than I do:\n                    ...       '}],
-                               'http://schema.org/creator': [{'@id': '#me'}]}]
+        expected_rdfa_data = [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob',
+                               '@type': ['http://schema.org/BlogPosting'], 'http://purl.org/dc/terms/creator':
+                                   [{'@id': 'http://www.example.com/#me'}], 'http://purl.org/dc/terms/title':
+                                   [{'@value': 'The trouble with Bob'}], 'http://schema.org/articleBody':
+                                   [{'@value': '\n                    ...         '
+                                               'The trouble with Bob is that he takes much better photos than I do:\n   '
+                                               '                 ...       '}],
+                               'http://schema.org/creator': [{'@id': 'http://www.example.com/#me'}]}]
         self.assertEqual(rdfa_data, expected_rdfa_data)
 
 
