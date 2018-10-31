@@ -76,7 +76,5 @@ class SentenceExtractor(Extractor):
                                          start_char=sent.text[0],
                                          end_char=sent.text[-1])
             sentence_count += 1
-            print(this_extraction)
             extractions.append(this_extraction)
-        print("Done with " + docId)
         return extractions
