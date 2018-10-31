@@ -1,6 +1,6 @@
 import re
 import etk.timeseries.location_range as lr
-#import etk.timeseries.LocationRange as lr
+
 
 class LocationParser(object):
     def __init__(self):
@@ -22,29 +22,29 @@ class LocationParser(object):
                     translate_fn = self.translate_col_label
 
                 if len(parts) == 1:
-                        rnge.add_component(lr.LocationRangeSingletonComponent(translate_fn(parts[0])-1))
+                    rnge.add_component(lr.LocationRangeSingletonComponent(translate_fn(parts[0]) - 1))
 
                 elif len(parts) == 2:
                     if self.is_sentinel(parts[1]):
-                        rnge.add_component(lr.LocationRangeInfiniteIntervalComponent(start=translate_fn(parts[0])-1))
+                        rnge.add_component(lr.LocationRangeInfiniteIntervalComponent(start=translate_fn(parts[0]) - 1))
                     else:
-                        rnge.add_component(lr.LocationRangeIntervalComponent(start=translate_fn(parts[0])-1,
+                        rnge.add_component(lr.LocationRangeIntervalComponent(start=translate_fn(parts[0]) - 1,
                                                                              end=translate_fn(parts[1])))
 
                 elif len(parts) == 3:
 
                     if self.is_sentinel(parts[1]):
-                        rnge.add_component(lr.LocationRangeInfiniteIntervalComponent(start=translate_fn(parts[0])-1,
+                        rnge.add_component(lr.LocationRangeInfiniteIntervalComponent(start=translate_fn(parts[0]) - 1,
                                                                                      increment=int(parts[1])))
                     else:
-                        rnge.add_component(lr.LocationRangeIntervalComponent(start=translate_fn(parts[0])-1,
+                        rnge.add_component(lr.LocationRangeIntervalComponent(start=translate_fn(parts[0]) - 1,
                                                                              end=translate_fn(parts[2]),
                                                                              increment=int(parts[1])))
 
                 else:
-                    raise Exception("Error parsing element of range: %s"%val)
+                    raise Exception("Error parsing element of range: %s" % val)
         else:
-            raise Exception('Error parsing range, data %s did not match pattern'%data)
+            raise Exception('Error parsing range, data %s did not match pattern' % data)
 
         return rnge
 
@@ -53,7 +53,7 @@ class LocationParser(object):
         if match:
             return (int(match.group(2)) - 1, self.translate_col_label(match.group(1)) - 1)
         else:
-            raise Exception('Error passing cell coordinates: %s'%data)
+            raise Exception('Error passing cell coordinates: %s' % data)
 
     def is_column(self, data):
         return self.patterns['col_label'].match(data)
@@ -68,7 +68,7 @@ class LocationParser(object):
         elif len(cl) == 1:
             return ord(cl[0]) - ord('A') + 1
         else:
-            raise Exception("Unexpected column label: %s"%cl)
+            raise Exception("Unexpected column label: %s" % cl)
 
     def translate_row_label(self, row_label):
         return int(row_label)
