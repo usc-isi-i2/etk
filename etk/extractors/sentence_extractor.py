@@ -59,17 +59,10 @@ class SentenceExtractor(Extractor):
         Splits text by sentences.
 
         Args:
-<<<<<<< HEAD
             text (str): Input text to be extracted.
 
         Returns:
             List[Extraction]: the list of extraction or the empty list if there are no matches.
-=======
-            text (str):
-
-        Returns:
-            List[Extraction]
->>>>>>> parent of b3d89c6... Sentence extraction example updated, sentence extractor updateD
         """
 
         doc = self._parser(text)
@@ -83,5 +76,4 @@ class SentenceExtractor(Extractor):
                                          start_char=sent.text[0],
                                          end_char=sent.text[-1])
             extractions.append(this_extraction)
-
         return extractions
