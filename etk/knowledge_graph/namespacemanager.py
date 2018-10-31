@@ -1,11 +1,12 @@
 import re
-from typing import Optional
-from etk.etk_exceptions import WrongFormatURIException, PrefixNotFoundException, PrefixAlreadyUsedException
-from etk.etk_exceptions import SplitURIWithUnknownPrefix
+from typing import Optional, Union
 import rdflib.namespace
 from rdflib.namespace import Namespace, OWL, RDF, XSD
 from rdflib import URIRef
 import warnings
+from etk.etk_exceptions import WrongFormatURIException, PrefixNotFoundException, PrefixAlreadyUsedException
+from etk.etk_exceptions import SplitURIWithUnknownPrefix
+from etk.knowledge_graph.node import URI
 
 
 SCHEMA = Namespace('http://schema.org/')
@@ -20,7 +21,7 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
         super().__init__(*args, **kwargs)
         self.graph.namespace_manager = self
 
-    def parse_uri(self, text: str) -> URIRef:
+    def parse_uri(self, text: Union[str, URI]) -> URIRef:
         """
         Parse input text into URI
 
@@ -41,6 +42,8 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
                 if not base:
                     raise PrefixNotFoundException("Prefix: %s", prefix)
                 return URIRef(base + name)
+        elif isinstance(text, URI):
+            return self.parse_uri(text.value)
         raise WrongFormatURIException(text)
 
     def bind(self, prefix: str, namespace: str, override=True, replace=True):
@@ -80,12 +83,14 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
                     self.store.bind(prefix, namespace)
 
     @staticmethod
-    def check_uriref(text: str) -> Optional[URIRef]:
+    def check_uriref(text: Union[str, URI]) -> Optional[URIRef]:
         """
         Check if the input text is likely to be an URIRef and return None or URIRef
         """
         if isinstance(text, URIRef):
             return text
+        if isinstance(text, URI):
+            text = text.value
         if isinstance(text, str):
             text = text.strip()
             if URI_PATTERN.match(text.strip()):

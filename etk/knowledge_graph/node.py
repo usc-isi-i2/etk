@@ -72,7 +72,7 @@ class Literal(Node):
         return super().__eq__(other) and self.lang == other.lang and self.type == other.type
 
     def __hash__(self):
-        return hash((self.value, self.lang, self.type))
+        return hash((self.value, self.lang, self.raw_type))
 
     def __str__(self):
         return self.value
@@ -83,9 +83,12 @@ class Literal(Node):
 
     @property
     def type(self):
+        return self._type
+
+    @property
+    def raw_type(self):
         if self._type:
             return self._type.value
-        return self._type
 
     def is_valid(self):
         return self.value is not None and not (self._lang and self._type != LiteralType.string)
@@ -101,6 +104,8 @@ class LiteralType(URI, metaclass=__Type):
         super().__init__(self._resolve(s))
 
     def _resolve(self, s):
+        if not isinstance(s, str):
+            raise UnknownLiteralType()
         if s.startswith(self.xsd) and s[len(self.xsd):] in self.xsd_tokens or \
                 s.startswith(self.rdf) and s[len(self.rdf)] in self.rdf_tokens:
             return s
