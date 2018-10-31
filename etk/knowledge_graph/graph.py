@@ -1,4 +1,4 @@
-from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, BNode, Literal
 from etk.knowledge_graph.namespacemanager import NamespaceManager
 from functools import lru_cache
@@ -13,15 +13,15 @@ class Graph(object):
     def bind(self, prefix, namespace, override=True, replace=False):
         self._ns.bind(prefix, namespace, override, replace)
 
-    def add_triples(self, triples, context=None):
+    def add_subject(self, subjects, context=None):
         if not context:
             context = set()
 
-        for t in triples:
+        for t in subjects:
             s, p, o = t
-            if isinstance(o, Triples) and o not in context:
+            if isinstance(o, Subject) and o not in context:
                 context.add(o)
-                self.add_triples(o, context)
+                self.add_subject(o, context)
                 o = o.subject
 
             # convert triple to RDFLib recognizable format
@@ -29,9 +29,9 @@ class Graph(object):
             self._g.add(triple)
 
     def add_triple(self, s, p, o):
-        t = Triples(s)
+        t = Subject(s)
         t.add_property(p, o)
-        self.add_triples(t)
+        self.add_subject(t)
 
     def parse(self, content, format='turtle'):
         self._g.parse(data=content, format=format)
@@ -70,7 +70,7 @@ class Graph(object):
         pred = self._resolve_URI(p)
         if isinstance(o, URI):
             obj = self._resolve_URI(o)
-        elif isinstance(o, Triples):
+        elif isinstance(o, Subject):
             if isinstance(o.subject, URI):
                 obj = self._resolve_URI(o.subject)
             else:

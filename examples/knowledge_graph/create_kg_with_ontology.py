@@ -3,7 +3,7 @@ from etk.knowledge_graph.schema import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
 from etk.knowledge_graph.node import URI, BNode, Literal
-from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.subject import Subject
 
 
 class ExampleETKModule(ETKModule):
@@ -26,17 +26,17 @@ class ExampleETKModule(ETKModule):
         doc.kg.bind(None, 'http://isi.edu/default-ns/')
 
         for p, n, d in zip(projects, names, descriptions):
-            triple = Triples(URI(n.value))
+            triple = Subject(URI(n.value))
             triple.add_property(URI("rdf:type"), URI("Software"))
 
             developers = doc.extract(self.name_extractor, d)
             p.store(developers, "members")
             for developer in developers:
-                developer_t = Triples(BNode())
+                developer_t = Subject(BNode())
                 developer_t.add_property(URI("rdf:type"), URI("Developer"))
                 developer_t.add_property(URI("name"), Literal(developer.value))
                 triple.add_property(URI("developer"), developer_t)
-            doc.kg.add_triples(triple)
+            doc.kg.add_subject(triple)
 
         return list()
 

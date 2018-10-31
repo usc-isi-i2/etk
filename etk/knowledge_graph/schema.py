@@ -3,7 +3,7 @@ import numbers, re
 from datetime import date, datetime
 from etk.etk_exceptions import ISODateError
 from etk.knowledge_graph.ontology import Ontology
-from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
 from etk.utilities import deprecated
 import json
@@ -38,7 +38,7 @@ class KGSchema(object):
         self.ontology._ns.bind_for_master_config()
         try:
             for field in config["fields"]:
-                t = Triples(URI(field))
+                t = Subject(URI(field))
                 if config["fields"][field]["type"] == "kg_id":
                     t.add_property(URI('rdf:type'), URI('owl:ObjectProperty'))
                 elif config["fields"][field]["type"] == "number":
@@ -53,7 +53,7 @@ class KGSchema(object):
                     t.add_property(URI('rdf:range'), URI('xsd:string'))
                 if "description" in config["fields"][field] and config["fields"][field]["description"]:
                     t.add_property(URI('rdf:comment'), Literal(config["fields"][field]["description"]))
-                self.ontology.add_triples(t)
+                self.ontology.add_subject(t)
         except KeyError as key:
             print(str(key) + " not in config")
 
@@ -94,13 +94,13 @@ class KGSchema(object):
         return property_
 
     @deprecated()
-    def field_type(self, field_name: str, value: object) -> Union[Triples, URI, Literal, None]:
+    def field_type(self, field_name: str, value: object) -> Union[Subject, URI, Literal, None]:
         """
         Return the type of a field defined in schema, if field not defined, return None
         """
         property_ = self.ontology._resolve_URI(URI(field_name))
         if property_ in self.ontology.object_properties:
-            return value if isinstance(value, Triples) else URI(value)
+            return value if isinstance(value, Subject) else URI(value)
         elif property_ in self.ontology.datatype_properties:
             # TODO: check Literal type
             return Literal(value)

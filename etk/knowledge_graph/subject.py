@@ -5,7 +5,7 @@ class InvalidParameter(Exception):
     pass
 
 
-class Triples(object):
+class Subject(object):
     def __init__(self, s):
         if not isinstance(s, URI) and not isinstance(s, BNode):
             raise InvalidParameter('Subject needs to be URI or BNode')
@@ -44,7 +44,7 @@ class Triples(object):
 
     @staticmethod
     def __is_valid_object(o):
-        if isinstance(o, URI) or isinstance(o, BNode) or isinstance(o, Literal) or isinstance(o, Triples):
+        if isinstance(o, URI) or isinstance(o, BNode) or isinstance(o, Literal) or isinstance(o, Subject):
             return True
         return False
 

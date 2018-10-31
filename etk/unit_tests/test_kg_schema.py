@@ -1,7 +1,7 @@
 import unittest
 from etk.knowledge_graph.graph import Graph
 from etk.knowledge_graph.schema import KGSchema
-from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
 
 

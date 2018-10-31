@@ -2,7 +2,7 @@ from typing import Dict, List
 from etk.knowledge_graph.schema import KGSchema
 from etk.etk_exceptions import KGValueError, UndefinedFieldError
 from etk.knowledge_graph.graph import Graph
-from etk.knowledge_graph.triples import Triples
+from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, Literal
 import json
 from etk.utilities import deprecated
@@ -48,22 +48,22 @@ class KnowledgeGraph(Graph):
         for t in triples:
             s, p, o = t
             if self._is_rdf_type(p):
-                if isinstance(o, Triples):
+                if isinstance(o, Subject):
                     continue
                 types.append(o)
         return types
 
-    def add_triples(self, triples, context=None):
+    def add_subject(self, subjects, context=None):
         if not context:
             context = set([])
-        s_types = self._find_types(triples)
+        s_types = self._find_types(subjects)
 
-        for t in triples:
+        for t in subjects:
             s, p, o = t
             o_types = []
-            if isinstance(o, Triples) and o not in context:
+            if isinstance(o, Subject) and o not in context:
                 context.add(o)
-                self.add_triples(o, context)
+                self.add_subject(o, context)
                 o_types = self._find_types(o)
 
             if self.schema.is_valid(s_types, p, o_types):
