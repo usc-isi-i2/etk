@@ -60,10 +60,10 @@ class TestMetadataExtractor(unittest.TestCase):
         microdata = hme.extract(test_html, extract_microdata=True)[0].value
         expected_microdata = [{"type": "http://n.whatwg.org/work",
                                "properties": {"license": "http://www.opensource.org/licenses/mit-license.php",
-                                              "work": "http://www.example.com/images/house.jpeg",
+                                              "work": "images/house.jpeg",
                                               "title": "The house I found."}}, {"type": "http://n.whatwg.org/work",
                                         "properties": {"license": "http://www.opensource.org/licenses/mit-license.php",
-                            "work": "http://www.example.com/images/mailbox.jpeg", "title": "The mailbox."}}]
+                            "work": "images/mailbox.jpeg", "title": "The mailbox."}}]
         self.assertEqual(microdata, expected_microdata)
 
     # value of microdata extraction is list
