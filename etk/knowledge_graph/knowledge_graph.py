@@ -35,7 +35,7 @@ class KnowledgeGraph(Graph):
             self.bind(None, 'http://isi.edu/default-ns/')
         obj = self.schema.field_type(field_name, value)
         if not obj:
-            raise Exception()
+            raise Exception()  # TODO: replace with a specific Exception
         self.add_triple(URI(self.origin_doc.doc_id), URI(field_name), obj)
 
     def _find_types(self, triples):
@@ -82,7 +82,7 @@ class KnowledgeGraph(Graph):
                 g[property_] = list()
             g[property_].append({
                 'key': self.create_key_from_value(o, property_),
-                'value': o
+                'value': o.toPython()
             })
         return g
 
@@ -114,3 +114,14 @@ class KnowledgeGraph(Graph):
     def _fork_namespace_manager(self):
         for prefix, ns in self.schema.ontology._ns.namespaces():
             self.bind(prefix, ns)
+
+    def add_types(self, type_):
+        s = Subject(URI(self.origin_doc.doc_id))
+        p = URI('rdf:type')
+
+        if isinstance(type_, list):
+            for a_type in type_:
+                s.add_property(p, a_type)
+        elif isinstance(type_, str):
+            s.add_property('rdf:type', type_)
+        self.add_subject(s)

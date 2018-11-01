@@ -85,4 +85,4 @@ if __name__ == "__main__":
 
     print(docs[0].kg.serialize('ttl'))
     print(docs[0].kg.serialize('nt'))
-    print(docs[0].kg._resolve_URI.cache_info())
+    print(docs[0].kg._resolve_uri.cache_info())

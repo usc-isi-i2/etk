@@ -296,7 +296,7 @@ class Document(Segment):
         return nested_docs
 
     def add_type(self, type_):
-        self.kg.add_value('@type', value=type_)
+        self.document.kg.add_types(type_)
 
     def with_type(self, type_):
         if type_:

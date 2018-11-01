@@ -1,8 +1,5 @@
 from etk.knowledge_graph.node import URI, BNode, Literal
-
-
-class InvalidParameter(Exception):
-    pass
+from etk.etk_exceptions import InvalidParameter
 
 
 class Subject(object):
@@ -33,6 +30,8 @@ class Subject(object):
                 del self._resource[p]
             else:
                 self._resource[p].remove(o)
+                if not self._resource[p]:
+                    del self._resource[p]
         except KeyError:
             return False
 

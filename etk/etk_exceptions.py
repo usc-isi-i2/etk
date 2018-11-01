@@ -94,3 +94,7 @@ class InvalidGraphNodeValueError(Exception):
 
 class UnknownLiteralType(Exception):
     pass
+
+
+class InvalidParameter(Exception):
+    pass

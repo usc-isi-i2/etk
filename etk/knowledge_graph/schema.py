@@ -82,7 +82,7 @@ class KGSchema(object):
         """
         Return true if the schema has the field, otherwise false
         """
-        property_ = self.ontology._resolve_URI(URI(field_name))
+        property_ = self.ontology._resolve_uri(URI(field_name))
         return property_ in self.ontology.object_properties or property_ in self.ontology.datatype_properties
 
     @deprecated()
@@ -90,7 +90,7 @@ class KGSchema(object):
         """
         Return the property URI of the field
         """
-        property_ = self.ontology._resolve_URI(URI(field_name))
+        property_ = self.ontology._resolve_uri(URI(field_name))
         return property_
 
     @deprecated()
@@ -98,7 +98,7 @@ class KGSchema(object):
         """
         Return the type of a field defined in schema, if field not defined, return None
         """
-        property_ = self.ontology._resolve_URI(URI(field_name))
+        property_ = self.ontology._resolve_uri(URI(field_name))
         if property_ in self.ontology.object_properties:
             return value if isinstance(value, Subject) else URI(value)
         elif property_ in self.ontology.datatype_properties:

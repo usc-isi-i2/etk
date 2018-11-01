@@ -1,5 +1,5 @@
 from etk.knowledge_graph.subject import Subject
-from etk.knowledge_graph.node import URI, BNode, Literal
+from etk.knowledge_graph.node import URI, BNode
 from etk.knowledge_graph.namespacemanager import NamespaceManager
 from functools import lru_cache
 import rdflib
@@ -36,18 +36,18 @@ class Graph(object):
     def parse(self, content, format='turtle'):
         self._g.parse(data=content, format=format)
 
-    def serialize(self, format='ttl', namespace_manager=None):
+    def serialize(self, format='ttl', namespace_manager=None, **kwargs):
         # may need some way to serialize ttl, json-ld
         if format.lower() in ('ttl', 'turtle'):
-            b_string = self._g.serialize(format=format, namespace_manager=namespace_manager)
+            b_string = self._g.serialize(format=format, namespace_manager=namespace_manager, **kwargs)
         elif format.lower() == 'json-ld':
-            b_string = self._g.serialize(format=format, contexts=namespace_manager)
+            b_string = self._g.serialize(format=format, contexts=namespace_manager, **kwargs)
         else:
-            b_string = self._g.serialize(format=format)
+            b_string = self._g.serialize(format=format, **kwargs)
         return b_string.decode('UTF-8')
 
     @lru_cache()
-    def _resolve_URI(self, uri: URI) -> rdflib.URIRef:
+    def _resolve_uri(self, uri: URI) -> rdflib.URIRef:
         """
         Convert a URI object into a RDFLib URIRef, including resolve its context
 
@@ -59,24 +59,24 @@ class Graph(object):
     def _is_rdf_type(self, uri: URI) -> bool:
         if not isinstance(uri, URI):
             return False
-        return self._resolve_URI(uri) == rdflib.RDF.type
+        return self._resolve_uri(uri) == rdflib.RDF.type
 
     def _convert_triple_rdflib(self, triple):
         """
         Convert a Node triple into RDFLib triple
         """
         s, p, o = triple
-        sub = self._resolve_URI(s) if isinstance(s, URI) else rdflib.BNode(s.value)
-        pred = self._resolve_URI(p)
+        sub = self._resolve_uri(s) if isinstance(s, URI) else rdflib.BNode(s.value)
+        pred = self._resolve_uri(p)
         if isinstance(o, URI):
-            obj = self._resolve_URI(o)
+            obj = self._resolve_uri(o)
         elif isinstance(o, Subject):
             if isinstance(o.subject, URI):
-                obj = self._resolve_URI(o.subject)
+                obj = self._resolve_uri(o.subject)
             else:
                 obj = rdflib.BNode(o.subject.value)
         elif isinstance(o, BNode):
             obj = rdflib.BNode(o.value)
         else:
-            obj = rdflib.Literal(o.value, o.lang, o.type)
+            obj = rdflib.Literal(o.value, o.lang, o.raw_type)
         return sub, pred, obj

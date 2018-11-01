@@ -28,4 +28,5 @@ class TestKGGraph(unittest.TestCase):
         print('========================================================================')
         print(g.serialize('nt'))
         print('========================================================================')
-        print(g.serialize('json-ld'))
+        context = {'@vocab': 'http://xmlns.com/foaf/0.1/'}
+        print(g.serialize('json-ld', context=context, auto_compact=True))
