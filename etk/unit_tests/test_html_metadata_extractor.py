@@ -170,14 +170,14 @@ class TestMetadataExtractor(unittest.TestCase):
                     ... """
 
         rdfa_data = hme.extract(test_html, extract_rdfa=True)[0].value
-        expected_rdfa_data = [{'@id': 'http://www.example.com/alice/posts/trouble_with_bob',
+        expected_rdfa_data = [{'@id': '/alice/posts/trouble_with_bob',
                                '@type': ['http://schema.org/BlogPosting'], 'http://purl.org/dc/terms/creator':
-                                   [{'@id': 'http://www.example.com/#me'}], 'http://purl.org/dc/terms/title':
+                                   [{'@id': '#me'}], 'http://purl.org/dc/terms/title':
                                    [{'@value': 'The trouble with Bob'}], 'http://schema.org/articleBody':
                                    [{'@value': '\n                    ...         '
                                                'The trouble with Bob is that he takes much better photos than I do:\n   '
                                                '                 ...       '}],
-                               'http://schema.org/creator': [{'@id': 'http://www.example.com/#me'}]}]
+                               'http://schema.org/creator': [{'@id': '#me'}]}]
         self.assertEqual(rdfa_data, expected_rdfa_data)
 
 

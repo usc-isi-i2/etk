@@ -26,7 +26,8 @@ class HTMLMetadataExtractor(Extractor):
                                             extract_meta=True,
                                             extract_microdata=False,
                                             extract_json_ld=False,
-                                            extract_rdfa=False)
+                                            extract_rdfa=False,
+                                            rdfa_base_url="")
 
     """
 
@@ -41,7 +42,8 @@ class HTMLMetadataExtractor(Extractor):
                 extract_meta: bool = False,
                 extract_microdata: bool = False,
                 extract_json_ld: bool = False,
-                extract_rdfa: bool = False) \
+                extract_rdfa: bool = False,
+                rdfa_base_url: str = "") \
             -> List[Extraction]:
         """
         Args:
@@ -51,6 +53,7 @@ class HTMLMetadataExtractor(Extractor):
             extract_microdata (bool): True if microdata needs to be extracted, returns as { "microdata": [...] }
             extract_json_ld (bool): True if json-ld needs to be extracted, return as { "json-ld": [...] }
             extract_rdfa (bool): True if rdfs needs to be extracted, returns as { "rdfa": [...] }
+            rdfa_base_url(str): base namespace url for rdfa, empty string if no base url is specified
 
         Returns:
             List[Extraction]: the list of extraction or the empty list if there are no matches.
@@ -79,7 +82,7 @@ class HTMLMetadataExtractor(Extractor):
 
         if extract_rdfa:
             rdfae = RDFaExtractor()
-            rdfae_data = self._wrap_data("rdfa", rdfae.extract(html_text))
+            rdfae_data = self._wrap_data("rdfa", rdfae.extract(html_text, rdfa_base_url))
             res.append(rdfae_data)
 
         return res
