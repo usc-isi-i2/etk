@@ -1,4 +1,4 @@
-from annotation.utility import date_cell, text_cell, empty_cell, blank_cell, number_cell, row_key, column_key, column_orientation
+from etk.timeseries.annotation.utility import date_cell, text_cell, empty_cell, blank_cell, number_cell, row_key, column_key, column_orientation
 import logging
 
 class rectangular_block:

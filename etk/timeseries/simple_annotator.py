@@ -1,8 +1,8 @@
-from annotation import input_processor
+from etk.timeseries.annotation import input_processor
 import json
 import numpy as np
 import re
-from annotation.table_processor import parsed_table
+from etk.timeseries.annotation.table_processor import parsed_table
 
 
 def is_number(value):

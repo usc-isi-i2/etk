@@ -1,8 +1,8 @@
-from annotation import utility, block_detector
-from annotation.table_processor import parsed_table
-from annotation import cell_classifier
+from etk.timeseries.annotation import utility, block_detector
+from etk.timeseries.annotation.table_processor import parsed_table
+from etk.timeseries.annotation import cell_classifier
 import logging
-from annotation import multi_table_processor
+from etk.timeseries.annotation import multi_table_processor
 
 class parsed_sheet:
     def __init__(self, name, index, real_values, merged_cells):

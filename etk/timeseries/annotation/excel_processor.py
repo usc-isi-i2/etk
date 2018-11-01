@@ -1,5 +1,3 @@
-import annotation.sheet_processor
-import annotation.input_processor
 import json
 import logging
 import argparse

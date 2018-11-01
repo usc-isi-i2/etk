@@ -1,6 +1,6 @@
 import datetime
 import string
-from annotation.utility import date_cell, number_cell, text_cell, empty_cell, blank_cell, special_keywords
+from etk.timeseries.annotation.utility import date_cell, number_cell, text_cell, empty_cell, blank_cell, special_keywords
 import logging
 import re
 

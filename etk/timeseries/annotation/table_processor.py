@@ -1,6 +1,6 @@
-from annotation import block_detector
-from annotation import date_utilities
-from annotation import utility
+from etk.timeseries.annotation import block_detector
+from etk.timeseries.annotation import date_utilities
+from etk.timeseries.annotation import utility
 import logging
 
 
