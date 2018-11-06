@@ -163,7 +163,7 @@ class DateExtractor(Extractor):
             use_default_formats (bool): if use default formats together with addtional_formats, default to False
             ignore_dates_before (datetime.datetime): ignore dates before 'ignore_dates_before', default to None
             ignore_dates_after (datetime.datetime): ignore dates after 'ignore_dates_after', default to None
-            detect_relative_dates (bool): if detect relative dates like '9 days before', default to False
+            detect_relative_dates (bool): if detect relative dates like '9 days before', default to False (pass in a ETK instance(with spaCy enabled) when init the DateExtractor is required for relative date extraction)
             relative_base (datetime.datetime): offset relative dates detected based on 'relative_base', default to None
             preferred_date_order (enum['MDY', 'DMY', 'YMD']): preferred date order when ambiguous, default to 'MDY'
             prefer_language_date_order (bool): if use the text language's preferred order, default to True
