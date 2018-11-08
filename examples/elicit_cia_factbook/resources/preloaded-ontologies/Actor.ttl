@@ -1,0 +1,635 @@
+@prefix : <http://ontology.causeex.com/ontology/odps/Actor#> .
+@prefix actor: <http://ontology.causeex.com/ontology/odps/Actor#> .
+@prefix cco: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix event: <http://ontology.causeex.com/ontology/odps/Event#> .
+@prefix general: <http://ontology.causeex.com/ontology/odps/GeneralConcepts#> .
+# @prefix oeceo: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#> .
+# @prefix oeorg: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEOrganizationOntology#> .
+@prefix oereligion: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEReligionOntology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://ontology.causeex.com/ontology/odps/Actor> rdf:type owl:Ontology ;
+    dcterms:created "January 28, 2018"^^xsd:string ;
+    dcterms:modified "October 28, 2018"^^xsd:string ;
+    rdfs:comment """October 28th 2018 revisions:
+                    Added the regex pattern for the iso_code properties. Removed cco:Government since it is not a white-listed class.
+                    Added SupportSystemOrNetwork. Changed the domain of has_citizenship to Actor to account for legal entities that may not
+                      be people. Changed equivalent class to subClassOf for CCO GeopoliticalEntity, Continent/Subcontinent and Government.
+                    Added owl:FunctionalProperty to the related_xxx properties.
+                    Added the cco:Ethnicity, Ideology and PolicitcalOrientation classes that are used in this ontology, and reduced imports 
+                      to what is used in this ontology.
+                    Added that a GPE can include the concept of a Continent or Subcontinent as the group of their governments. 
+                    Commented out references to cco:, oeceo: and oeorg: classes that are only used in equivalency declarations. 
+                    Removed ontology history older than 6 months. 
+                  September 17th 2018 revisions:
+                    Added range datatypes (xsd:string) to the iso_code properties.
+                    Removed LifeStatus, its individuals and has_life_status as they are incorrectly defined at the level of
+                      a Person. They should be applied to a reference to a Person in some Event, and are better defined with
+                      Death Event(s) with some possible earliest/latest_possible_start/end_time.
+                    Added GenderDetails.
+                    Corrected several descriptions/comments.
+                  August 24th 2018 revisions:
+                    Added the iso_code_3166-2 and iso_code_3166-1_alpha3 properties.
+                  July 10th 2018 revisions:
+                    Changed subclassing (where it was for documentation) involving CCO and OE classes, to a comment.
+                  June 12th 2018 revisions:
+                    Corrected owl:Class to be owl:ObjectProperty for has_gender/has_life_status. 
+                    Corrected typo in the range of has_country_of_origin.
+                    Used the predefined blank node for union of Person and GroupOfPersons (_:UnionOfPersonGroupOfPersons) 
+                      as the domain of several relationships (instead of redefining it).
+                    Added SymmetricProperty to has_familial_relationship. Modified has_life_status to apply to GroupsOfPersons. 
+                    Added/modified sub-classing to reduce false positives in constraint violations and better align with usage.
+                    Corrected the range of has_citizenship - it referred to 'County' instead of 'Country'.
+                    Added the properties, has_emotional_status, has_country_of_origin and has_life_status, and the classes, 
+                      EthnicGroup and LifeStatus (and its individuals Alive and Dead).
+                  April 21st 2018 revisions:
+                    Added cco:Artifact to the range of classes allowed for Affiliation (for has_affiliation and related_affiliation).
+                    Added the CyberSpecialist and Gender classes, the has_gender property and Male/Female individuals.
+                    Subclassed cco:GPE from :Organization and general:PhysicalLocation to reduce the number of domain/range mismatches 
+                      (without reasoning).
+                    Changed the domain of has_citizenship to be either a Person, GroupOfPersons or Organization. Also changed
+                      the domain and range of has_familial_relationship to be either a Person or GroupOfPersons."""@en ;
+#   owl:imports <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AllCoreOntology> ;
+    owl:imports <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/ArtifactOntology> ;
+    owl:imports <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/GeospatialOntology> ;
+#   owl:imports <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEOntology> ;
+    owl:imports <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEReligionOntology> ;
+    owl:imports <http://purl.org/dc/terms> ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/GeneralConcepts> ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/Event> ;
+    owl:versionInfo "Version 1.5"^^xsd:string .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:has_affiliation a owl:ObjectProperty, owl:IrreflexiveProperty ;
+    rdfs:label "has affiliation"@en ;
+    rdfs:comment "Indicates that an Actor is/was affiliated with the referenced entity. That entity can be another Actor (for example, a person affiliated with a business or religious group), a Location (such as a business associated with their headquarters or a facility), an Artifact (for example, a person affiliated with something that they invented), a Religion or an AffiliationDetails individual (which is then associated with the Actor, Location or Religion using the related_affiliation property.)"@en ;
+    rdfs:comment "Note that there is a level of indirection when referencing an AffiliationDetails individual, since the actual Actor, Location or Religion is defined using the related_affiliation property. This approach also allows for the specification of the timing of the association - defined by using the GeneralConcepts ontology's time-related properties. Time cannot be specified if using the has_affiliation property to directly relate an Actor to another Actor, Location or Religion. However, if the direct association is defined, it can be converted to an AffiliationDetails individual but with no time-related detail."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (event:Actor general:Location oereligion:Religion :AffiliationDetails cco:Artifact) ] .
+
+:has_citizenship a owl:ObjectProperty ;
+    rdfs:label "has citizenship"@en ;
+    rdfs:comment "Indicates that a Person/GroupOfPersons/legal entity has citizenship in the country indicated by the referenced entity. The entity can be defined as an individual of type, cco:Country (where the individuals are already defined in the CAMEOCountryCode ontology) or actor:CitizenshipDetails."@en ;
+    rdfs:comment "Note that there is a level of indirection when referencing a CitizenshipDetails individual, since the country is defined using the related_country_code property. This approach also allows for the specification of the timing of the association - defined by using the GeneralConcepts ontology's time-related properties. Time cannot be specified if using the has_citizenship property to define the country. However, if the direct association is defined, it can be converted to a Citizenship individual but with no time-related detail."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range  [ a owl:Class ;
+                 owl:unionOf (cco:Country :CitizenshipDetails) ] .
+
+:has_country_of_origin a owl:ObjectProperty ;
+    rdfs:label "has country of origin"@en ;
+    rdfs:comment "This property is used for any displaced persons or persons who have changed their country of birth. It indicates the original citizenship of the Person or GroupOfPersons."@en ;
+    rdfs:domain _:UnionOfPersonGroupOfPersons ;
+    rdfs:range  cco:Country .
+
+:has_emotional_status a owl:ObjectProperty ;
+    rdfs:label "has emotional status"@en ;
+    rdfs:comment "Indicates that an Actor (usually a Person or GroupOfPersons) has/is in the emotional state defined by the referenced sub-class of event:EmotionalResponse. This relationship is an implicit Event where the Actor is the Person/Group."@en ;
+    rdfs:domain _:UnionOfPersonGroupOfPersons ;
+    rdfs:range event:EmotionalResponse .
+
+:has_ethnicity a owl:ObjectProperty ;
+    rdfs:label "has ethnicity"@en ;
+    rdfs:comment "Indicates that an Actor (usually a Person) is descended from, is a member of, and/or associates with the ethnicity indicated by the referenced entity. The entity can be defined as an individual of type, cco:Ethnicity (typically, one of its sub-classes) or actor:EthnicityDetails."@en ;
+    rdfs:comment "Note that there is a level of indirection when referencing an EthnicityDetails individual, since the ethnic group is defined using the related_ethnicity property. This approach also allows for the specification of the timing of the association - defined by using the GeneralConcepts ontology's time-related properties. Time cannot be specified if using the has_ethnicity property to directly indicate the ethnic group. However, if the direct association is defined, it can be converted to an EthnicityDetails individual but with no time-related detail."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (cco:Ethnicity :EthnicityDetails) ] .
+
+:has_familial_relationship a owl:ObjectProperty, owl:IrreflexiveProperty, owl:SymmetricProperty ;
+    rdfs:label "has familial relationship"@en ;
+    rdfs:comment "Indicates that two Persons are related 'by virtue of ancestry or legal union' (per the CCO definition). This property is defined as an alternative to creating an individual of type, Family, and placing the Persons in the Family Group using the has_member property. It does not allow for the specification of a time frame when the Person is/was in the Family (if by marriage) or the relationship between the Person (such as specifying that two people are spouses or cousins which is accomplished by using the position_or_role property)."@en ;
+    rdfs:domain _:UnionOfPersonGroupOfPersons ;
+    rdfs:range _:UnionOfPersonGroupOfPersons .
+# cco:has_familial_relationship_to rdfs:subPropertyOf :has_familial_relationship .
+
+:has_gender a owl:ObjectProperty ;
+    rdfs:label "has gender"@en ;
+    rdfs:comment "Indicates whether a Person or GroupOfPersons has a gender of Male or Female. The related entity can be defined as an individual of type, actor:Gender or actor:GenderDetails."@en ;
+    rdfs:comment "Note that there is a level of indirection when referencing a GenderDetails individual, since the gender is defined using the related_gender property. This approach also allows for the specification of the timing of the association - defined by using the GeneralConcepts ontology's time-related properties. Time cannot be specified if using the has_gender property to directly indicate male or female. However, if the direct association is defined, it can be converted to a GenderDetails individual but with no time-related detail."@en ;
+    rdfs:domain _:UnionOfPersonGroupOfPersons ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (:Gender :GenderDetails) ] .
+
+:has_political_orientation a owl:ObjectProperty ;
+    rdfs:label "has political orientation"@en ;
+    rdfs:comment "Indicates that an Actor supports the political thinking indicated by the referenced entity. The entity can be defined as an individual of type, cco:PoliticalOrientation (typically, one of its sub-classes) or actor:PoliticalOrientationDetails."@en ;
+    rdfs:comment "Note that there is a level of indirection when referencing a PoliticalOrientationDetails individual, since the orientation is defined using the related_orientation property. This approach also allows for the specification of the timing of the association - defined by using the GeneralConcepts ontology's time-related properties. Time cannot be specified if using the has_political_orientation property to directly indicate the orientation. However, if the direct association is defined, it can be converted to a PoliticalOrientationDetails individual but with no time-related detail."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (cco:PoliticalOrientation :PoliticalOrientationDetails) ] .
+
+:has_position_or_role a owl:ObjectProperty ;
+    rdfs:label "has position or role"@en ;
+    rdfs:comment "Indicates that an Actor (usually a Person) holds a particular position or role as indicated by the PositionOrRoleDetails entity."@en; 
+    rdfs:comment "Note that there is a level of indirection when referencing a PositionOrRoleDetails individual, since the position/role is specified using the general:position_or_role property. This approach also allows for the specification of the time when the position/role was held - defined using the GeneralConcepts ontology's time-related properties. Time cannot be defined if using the general:position_or_role property to directly associate an Actor to their position/role."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range :PositionOrRoleDetails .
+
+:related_affiliation a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "related affiliation"@en ;
+    rdfs:comment "Indicates the entity to which an AffiliationDetails individual applies. This could be a Person, Organization or GroupOfActors, Artifact, Location or Religion. As an example, an Organization/Group could be affiliated with another Group or a Person (for example, if a terrorist group associates itself with a specific leader), a location (for example, owning a facility) or a religion (e.g., a charity associated with a specific religion). For this reason, the affiliated_with property associates an AffiliationDetails individual with any type of Actor, Artifact, Location or Religion."@en ;
+    rdfs:domain :AffiliationDetails ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (event:Actor general:Location oereligion:Religion cco:Artifact) ] .
+
+:related_country_code a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "related country code"@en ;
+    rdfs:comment "Indicates the Country code of a Citizenship as defined by the individuals in the CAMEO Country code ontology."@en ;
+    rdfs:domain :CitizenshipDetails ;
+    rdfs:range cco:Country .
+
+:related_ethnicity a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "related ethnicity"@en ;
+    rdfs:comment "Identifies the specific ethnicity (defined by individuals whose type is a sub-class of cco:Ethnicity) of an EthnicityDetails individual."@en ;
+    rdfs:domain :EthnicityDetails ;
+    rdfs:range cco:Ethnicity .
+
+:related_gender a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "related gender"@en ;
+    rdfs:comment "Identifies a Gender individual for a GenderDetails individual."@en ;
+    rdfs:domain :GenderDetails ;
+    rdfs:range actor:Gender .
+
+:related_orientation a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "related political orientation"@en ;
+    rdfs:comment "Identifies the specific political orientation (defined by individuals whose type is a sub-class of cco:PoliticalOrientation) of a PoliticalOrientationDetails individual."@en ;
+    rdfs:domain :PoliticalOrientationDetails ;
+    rdfs:range cco:PoliticalOrientation .
+
+:uses a owl:ObjectProperty ;
+    rdfs:label "uses"@en ;
+    rdfs:comment "Indicates that an Actor is associated with an Artifact and employs it for some end. An example would be an Organization 'using' a Facility as its headquarters, or a Person 'using' a car for transportation. Note that this is a general description of usage, not to be confused with the use of an instrument in an Event - such as the use of an IED in a RoadsideBombing Event."@en ;
+    rdfs:domain event:Actor ;
+    rdfs:range cco:Artifact .
+
+
+#################################################################
+#    Datatype Properties
+#################################################################
+
+:iso_code_3166-1_alpha3 a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "ISO 3166-1 alpha-3 code"@en ;
+    rdfs:domain :GeopoliticalEntity ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:onDatatype xsd:string ;
+                 owl:withRestrictions ( [ xsd:pattern "[A-Z]{3}" ] ) ] .
+#   owl:equivalentClass cco:CountryIdentifier .
+
+:iso_code_3166-2 a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "ISO 3166-2 code"@en ;
+    rdfs:domain :GeopoliticalEntity ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:onDatatype xsd:string ;
+                 owl:withRestrictions ( [ xsd:pattern "[A-Z]{2}" ] ) ] .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+:AffiliationDetails a owl:Class ;
+    rdfs:label "Affiliation Details"@en ;
+    rdfs:comment "Identifies that an Actor is affiliated with another Actor (typically a Group/Organization), a Location, an Artifact or a specific OE Religion, along with time and/or position/role-related information. For example, to indicate that a person is affiliated with a company, the triple, Person individual - has_affiliation - AffiliationDetails individual, is defined. To identify the company, the triple, AffiliationDetails individual - related_affiliated - Organization/company individual, is defined. The time-related aspects of the affiliation are defined for the AffiliationDetails individual, using the time properties of the GeneralConcepts ontology. Lastly, the role that the individual plays in the company can be defined using the general:position_or_role property."@en .
+
+:AgriculturalOrganization a owl:Class ;
+    rdfs:label "Agricultural Organization"@en ;
+    rdfs:comment "Organization dealing with growing crops and/or with agricultural issues"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass oeorg:Agriculture.
+
+:AidOrReliefOrganization a owl:Class ;
+    rdfs:label "Aid or Relief Organization"@en ;
+    rdfs:comment "Organization dealing with providing aid to people in need"@en ;
+    rdfs:subClassOf :Organization .
+
+:Allies a owl:Class ;
+    rdfs:label "Allies"@en ;
+    rdfs:comment "Sub-class of GroupOfActors, indicating that the members of the Group are cooperating and/or united as regards a specific activity or goal."@en ;
+    rdfs:subClassOf :GroupOfActors .
+
+:Anti-Government a owl:Class ;
+    rdfs:label "Anti-Government"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+
+:ArmedForce a owl:Class ;
+    rdfs:label "Armed Force"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass cco:ArmedForce .
+
+:AsylumSeekers a owl:Class ;
+    rdfs:label "Asylum Seekers"@en ;
+    rdfs:comment "Asylum seekers are people who leave their home country for another country, and apply for asylum in this other country. The act of moving to the new country can be defined as either a LocationChange or ForcedMove in the EventHierarchy ontology."@en ;
+    rdfs:subClassOf :DisplacedPersons .
+
+:BranchOfGovernment a owl:Class ;
+    rdfs:label "Branch of Government"@en ;
+    rdfs:subClassOf :Organization .
+
+:CivilSocietyOrganization a owl:Class ;
+    rdfs:label "Civil Society Organization (CSO)"@en ;
+    rdfs:comment "A sub-class of Organization indicating that its members are working together in the interest of citizens. A Civil Society Organization (CSO) is distinct from government and business, and includes community-based organizations as well as non-governmental organizations (NGOs)."@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass cco:CivilOrganization .
+
+:CitizenshipDetails a owl:Class ;
+    rdfs:label "Citizenship Details"@en ;
+    rdfs:comment "Identifies a country of citizenship for a Person, along with time-related information regarding when the Person held the citizenship. CitizenshipDetails are associated with a Person using the has_citizenship property. The country of citizenship is specified using the related_country_code object property, while the time aspects are defined using the time-related properties of the GeneralConcepts ontology."@en .
+
+:CommercialOrganization a owl:Class ;
+    rdfs:label "Commerical Organization"@en ;
+    rdfs:comment "An Organization 'with a particular skill set, strategy, resources, or priorities in place designed to turn a profit' (from http://www.businessdictionary.com/definition/commercial-organization.html)."@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass cco:CommercialOrganization, oeorg:Business .
+
+:ConstructionOrganization a owl:Class ;
+    rdfs:label "Construction Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with building structures/infrastructures."@en .
+
+:Crew a owl:Class ;
+    rdfs:label "Crew"@en ;
+    rdfs:comment "A GroupOfActors working together and assigned as a unit to perform a task. This is (logically) the super-class of cco:Crew since the latter is only related to operating a vehicle, while this class is defined more broadly."@en ;
+    rdfs:subClassOf :GroupOfPersons .
+# cco:Crew rdfs:subClassOf :Crew .
+
+:CriminalOrganization a owl:Class ;
+    rdfs:label "Criminal Organization"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass oeorg:Criminal .
+
+:CyberSpecialist a owl:Class ;
+    rdfs:label "Cyber Specialist"@en ;
+    rdfs:subClassOf :Person .
+
+:DisplacedPersons a owl:Class ;
+    rdfs:label "Displaced Person(s)"@en ;
+    rdfs:comment "Displaced persons are any person or people forced to move from their home or home region. The act of displacement is defined as a ForcedMove in the EventHierarchy ontology."@en ;
+    rdfs:subClassOf [ a owl:Class ;
+        owl:unionOf ( :PopulationOfConcern :Person ) ] .
+
+:EducationalOrganization a owl:Class ;
+    rdfs:label "Educational Organization"@en ;
+    rdfs:comment "An Organization supplying educational services. An EducationalOrganization's 'primary function is the presentation of formal instruction and it normally maintains a regular faculty and curriculum and normally has a regularly enrolled body of pupils or students in attendance' (https://www.law.cornell.edu/cfr/text/26/1.170A-9)."@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass cco:EducationalOrganization, oeorg:Education .
+
+:Enemies a owl:Class ;
+    rdfs:label "Enemies"@en ;
+    rdfs:comment "Sub-class of GroupOfActors, indicating that the members of the Group are opposed to/hostile towards each other."@en ;
+    rdfs:subClassOf :GroupOfActors .
+
+:EntertainmentOrganization a owl:Class ;
+    rdfs:label "Entertainment Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization dealing with the creation, production or provision of music, movies, performances, podcasts, sports, exhibitions, etc."@en .
+
+:EnvironmentalOrganization a owl:Class ;
+    rdfs:label "Environmental Organization"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "Organization dealing with protecting the environment and/or concerned with environmental issues such as wildlife preservation or climate change"@en .
+#   owl:equivalentClass oeorg:Environmental .
+
+:EthnicGroup a owl:Class ;
+    rdfs:label "Ethnic Group"@en ;
+    rdfs:subClassOf :Populace ;
+    rdfs:comment "Defines a Populace/GroupOfPersons all having the same ethnicity. If the ethnicity is known, it should be specified using the has_ethnicity property."@en .
+
+:EthnicityDetails a owl:Class ;
+    rdfs:label "Ethnicity Details"@en ;
+    rdfs:comment "Identifies the ethnicity of an Actor, along with time-related information regarding when the Actor/Person belonged to/associated with the ethnic group. EthnicityDetails are associated with an Actor using the has_ethnicity property. The ethnicity itself is specified using the related_ethnicity object property, while the time aspects are defined using time-related properties of the GeneralConcepts ontology."@en .
+
+:ExecutiveBranchOfGovernment a owl:Class ;
+    rdfs:label "Executive Branch of Government"@en ;
+    rdfs:subClassOf :BranchOfGovernment .
+#   owl:equivalentClass oeorg:Executive .
+
+:Family a owl:Class ;
+    rdfs:label "Family"@en ;
+    rdfs:subClassOf :GroupOfPersons .
+#   owl:equivalentClass cco:Family .
+
+:FinanceOrganization a owl:Class ;
+    rdfs:label "Finance Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization dealing with investments and financial issues"@en .
+
+:ForestryOrganization a owl:Class ;
+    rdfs:label "Forestry Organization"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "Organization dealing with growing or harvesting trees or with forestry issues"@en .
+
+:Gender a owl:Class ;
+    rdfs:label "Gender"@en ;
+    rdfs:comment "An enumeration indicating that a Person is either a Male or Female. The gender individual is associated with a Person using the has_gender property."@en ;
+    owl:equivalentClass [ a owl:Class ;
+                          owl:oneOf ( :Male :Female ) ] .
+
+:GenderDetails a owl:Class ;
+    rdfs:label "Gender Details"@en ;
+    rdfs:comment "Identifies the gender of a Person or GroupOfPersons, along with time-related information regarding when the Persons identified as that specific gender. GenderDetails are associated with a Person/Group using the has_gender property. The gender itself is specified using the related_gender object property, while the time aspects are defined using time-related properties of the GeneralConcepts ontology."@en .
+
+:GeopoliticalEntity a owl:Class ;
+    rdfs:label "GeopoliticalEntity"@en ;
+    rdfs:comment "An Actor identified as a political structure governing a geographical area. It is defined as a sub-class of both Organization and general:PhysicalLocation, since there is ambiguity in speech acts and a tendency to reference a Country/City/... as synonymous with its government (with an implicit assumption made about its area, and that assumption can change over time as boundaries evolve)."@en ;
+    rdfs:comment "cco:GeopoliticalEntity (and its sub-classes, cco:Country, cco:City, ..., cco:First/Second/...AdministrativeOrder), as well as cco:Continent/Subcontinent, can be used to further classify an actor:GeopoliticalEntity, indicating its geographical area."@en ;
+    rdfs:subClassOf :Organization, general:PhysicalLocation .
+cco:GeopoliticalEntity rdfs:subClassOf :GeopoliticalEntity .
+cco:Continent rdfs:subClassOf :GeopoliticalEntity .
+cco:Subcontinent rdfs:subClassOf :GeopoliticalEntity .
+
+:GovernmentAgency a owl:Class ;
+    rdfs:label "Government Agency"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass cco:GovernmentAgency .
+
+:GroupOfActors a owl:Class ;
+    rdfs:label "Group of Actors"@en ;
+    rdfs:comment "A Collection of two or more Actors performing activities/working/living together and/or having similar beliefs, ways of life, etc. The members of the group are defined using the inherited has_member object property, defined in the GeneralConcepts ontology. A GroupOfActors is always assumed to have the plural property (from the GeneralConcepts ontology) set to true."@en ;
+    rdfs:subClassOf event:Actor, general:Collection ; 
+#   owl:equivalentClass cco:GroupOfAgents ;
+    owl:equivalentClass [ a owl:Restriction ;
+                          owl:onProperty general:has_member ;
+                          owl:allValuesFrom event:Actor ] .
+
+:GroupOfOrganizations a owl:Class ;
+    rdfs:label "Group of Organizations"@en ;
+    rdfs:subClassOf :GroupOfActors ;
+#   owl:equivalentClass cco:GroupOfOrganizations ;
+    owl:equivalentClass [ a owl:Restriction ;
+                          owl:onProperty general:has_member ;
+                          owl:allValuesFrom :Organization ] .
+
+:GroupOfPersons a owl:Class ;
+    rdfs:label "Group of Persons"@en ;
+    rdfs:subClassOf :GroupOfActors ;
+#   owl:equivalentClass cco:GroupOfPersons ;
+    owl:equivalentClass [ a owl:Restriction ;
+                          owl:onProperty general:has_member ;
+                          owl:allValuesFrom _:UnionOfPersonGroupOfPersons ] .
+
+:HealthcareOrganization a owl:Class ;
+    rdfs:label "Healthcare Organization"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "Organization providing mental and/or physical health services and/or dealing with health issues"@en .
+#   owl:equivalentClass oeorg:Health .
+
+:Household a owl:Class ;
+    rdfs:label "Household"@en ;
+    rdfs:subClassOf :GroupOfPersons .
+
+:HumanRightsOrganization a owl:Class ;
+    rdfs:label "Human Rights Organization"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "Organization concerned with defining and/or documenting concerns regarding human rights"@en .
+#   owl:equivalentClass oeorg:HumanRights .
+
+:InternallyDisplacedPersons a owl:Class ;
+    rdfs:label "Internally Displaced Persons"@en ;
+    rdfs:comment "Internally displaced persons are 'people who have been forced to leave their homes to escape armed conflict, violence, violations of human rights, or natural disasters, and who have not crossed an international border' (UNHCR definition). The act of relocating can be defined as a ForcedMove in the EventHierarchy ontology."@en ;
+    rdfs:subClassOf :DisplacedPersons .
+
+:JihadistOrganization a owl:Class ;
+    rdfs:label "Jihadist Organization"@en ;
+    rdfs:comment "A JihadistOrganization is a type of TerroristOrganization that supports the 'jihadist' movement."@en ;
+    rdfs:subClassOf :TerroristOrganization .
+
+:JudicialBranchOfGovernment a owl:Class ;
+    rdfs:label "Judicial Branch of Government"@en ;
+    rdfs:subClassOf :BranchOfGovernment .
+#   owl:equivalentClass oeorg:Judiciary .
+
+:LaborOrganization a owl:Class ;
+    rdfs:label "Labor Organization"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "Organization that is a trade union or otherwise concerned with labor issues"@en .
+#   owl:equivalentClass oeorg:Labor .
+
+:LegalOrganization a owl:Class ;
+    rdfs:label "Legal Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with providing legal services such as businesses providing bail bonds, attorney services, etc."@en .
+
+:LegislativeBranchOfGovernment a owl:Class ;
+    rdfs:label "Legislative Branch of Government"@en ;
+    rdfs:subClassOf :BranchOfGovernment .
+#   owl:equivalentClass oeorg:Legislature .
+
+:ManufacturingOrganization a owl:Class ;
+    rdfs:label "Manufacturing Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with the creation of goods for use or sale. The types of goods created are defined using the involves_goods_or_property predicate defined in the GeneralConcepts ontology."@en .
+
+:MediaOrganization a owl:Class ;
+    rdfs:label "Media Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization dealing with the various forms of mass information dissemination such as newspapers, radio, cable television, etc."@en .
+#   owl:equivalentClass oeorg:Media .
+
+:MilitaryForce a owl:Class ;
+    rdfs:label "Military Force"@en ;
+    rdfs:subClassOf :ArmedForce .
+#   owl:equivalentClass cco:MilitaryPersonnelForce .
+
+:MiningOrDrillingOrganization a owl:Class ;
+    rdfs:label "Mining or Drilling Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization dealing with mining or drilling for resources or with related issues"@en .
+
+:NonGovernmentalOrganization a owl:Class ;
+    rdfs:label "Non-Governmental Organization (NGO)"@en ;
+    rdfs:comment "A sub-class of CivilSocietyOrganization. According to NGO.org (http://www.ngo.org/ngoinfo/define.html), 'NGOs perform a variety of service and humanitarian functions, bring citizen concerns to Governments, advocate and monitor policies and encourage political participation through provision of information.'"@en ;
+    rdfs:subClassOf :CivilSocietyOrganization .
+
+:Organization a owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "Identifies an organized GroupOfActors with a particular purpose related to business, society, personal interests, etc."@en ;
+    rdfs:subClassOf :GroupOfActors .
+#   owl:equivalentClass cco:Organization .
+
+:OrganizationalUnit a owl:Class ;
+    rdfs:label "Organizational Unit"@en ;
+    rdfs:subClassOf :Organization ;
+    rdfs:comment "A work team or functional or business unit within an Organization. It is recommended that the parent Organization of an OrganizationalUnit be defined using the general:has_component property, where the appropriate triple is specified as Organization - general:has_component - OrganizationalUnit."@en .
+
+:Refugees a owl:Class ;
+    rdfs:label "Refugees"@en ;
+    rdfs:comment "Refugees are displaced persons who has been forced to move to another country (from their home country). There is a formal, legal definition of the term given by the UNHCR as including 'individuals recognized under the 1951 Convention relating to the Status of Refugees; its 1967 Protocol; the 1969 OAU Convention Governing the Specific Aspects of Refugee Problems in Africa; those recognized in accordance with the UNHCR Statute; individuals granted complementary forms of protection; or, those enjoying temporary protection'. The act of moving to another country can be defined as a ForcedMove in the EventHierarchy ontology."@en ;
+    rdfs:subClassOf :DisplacedPersons .
+
+:ReturnedInternallyDisplacedPersons a owl:Class ;
+    rdfs:label "Returned Internally Displaced Persons"@en ;
+    rdfs:comment "Returned Internally Displaced Persons are former IDPs who have returned to their home/home region. The act of returning can be defined as a LocationChange in the EventHierarchy ontology. The return event can be linked to an earlier displacement event using the event:preceded_by object property."@en ;
+    rdfs:subClassOf :Returnees .
+
+:ReturnedRefugees a owl:Class ;
+    rdfs:label "Returned Refugees"@en ;
+    rdfs:comment "Returned refugees are 'former refugees who have returned to their country of origin spontaneously or with assistance but are yet to be fully integrated' (UNHCR definition). The act of returning can be defined as a LocationChange in the EventHierarchy ontology. The return event can be linked to an earlier displacement event using the event:preceded_by object property."@en ;
+    rdfs:subClassOf :Returnees .
+
+:Returnees a owl:Class ;
+    rdfs:label "Returnee(s)"@en ;
+    rdfs:comment "Returnees are formerly DisplacedPersons who have returned to their home/home region. The act of returning can be defined as a LocationChange in the EventHierarchy ontology. The return event can be linked to the earlier displacement/location change event using the event:preceded_by object property."@en ;
+    rdfs:subClassOf [ a owl:Class ;
+        owl:unionOf ( :PopulationOfConcern :Person ) ] .
+
+:ParamilitaryForce a owl:Class ;
+    rdfs:label "Paramilitary Force"@en ;
+    rdfs:comment "Defined by Wikipedia as 'a semi-militarized force whose organizational structure, tactics, training, subculture, and (often) function are similar to those of a professional military, but which is not included as part of a state's formal armed forces'. Examples include militias, guerillas, the US's Federal Protective Forces, etc."@en ;
+    rdfs:subClassOf :ArmedForce .
+#   owl:equivalentClass cco:ParamilitaryForce .
+
+:Person a owl:Class ;
+    rdfs:label "Person"@en ;
+    rdfs:comment "Identifies a human being."@en ;
+    rdfs:subClassOf event:Actor .
+#   owl:equivalentClass cco:Person .
+
+:PoliceForce a owl:Class ;
+    rdfs:label "Police Force"@en ;
+    rdfs:subClassOf :ArmedForce .
+#   owl:equivalentClass oeorg:Police .
+
+:PoliticalOrientationDetails a owl:Class ;
+    rdfs:label "Political Orientation Details"@en ;
+    rdfs:comment "Identifies the political thinking of an Actor, along with time-related information regarding when the Actor practiced/expounded that thinking. PoliticalOrientationDetails are associated with an Actor using the has_political_orientation property. The orientation itself is specified using the related_orientation object property, while the time aspects are defined using the time-related properties of the GeneralConcepts ontology."@en .
+
+:PoliticalParty a owl:Class ;
+    rdfs:label "Political Party"@en ;
+    rdfs:subClassOf :Organization .
+
+:Populace a owl:Class ;
+    rdfs:label "Populace"@en ;
+    rdfs:comment "A Populace is a GroupOfPersons living in a particular PhysicalLocation. The location is defined using the GeneralConcepts ontology's property, located_at. Note that a Populace individual is always assumed to have the 'plural' property (from the GeneralConcepts ontology) set to true."@en ;
+    rdfs:subClassOf :GroupOfPersons .
+#   owl:equivalentClass cco:Populace .
+
+:PopulationOfConcern a owl:Class ;
+    rdfs:label "Population of Concern"@en ;
+    rdfs:comment "A 'population of concern' is a GroupOfPersons defined by the UNHCR as 'refugees, asylum seekers, internally displaced persons (IDPs) ..., stateless persons, and returnees (returned refugees and IDPs)' (https://www.migrationpolicy.org/programs/data-hub/charts/internally-displaced-persons-idp-stateless-persons-and-other-unhcr)."@en ;
+    rdfs:subClassOf :GroupOfPersons .
+
+:PositionOrRoleDetails a owl:Class ;
+    rdfs:label "Position or Role Details"@en ;
+    rdfs:comment "Identifies the position/role held by an Actor, along with time-related information regarding when the Actor held the position/role. PositionOrRoleDetails are associated with an Actor using the has_position_or_role property. The position/role itself is specified using the datatype property, general:position_or_role, while the time aspects are defined using time-related properties of the GeneralConcepts ontology."@en .
+
+:Pro-Government a owl:Class ;
+    rdfs:label "Pro-Government"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+
+:RealEstateOrganization a owl:Class ;
+    rdfs:label "Real Estate Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with buying, selling or managing real estate/properties"@en .
+
+:ReligiousOrganization a owl:Class ;
+    rdfs:label "Religious Organization"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass oeorg:Religious, oereligion:ReligiousOrganization .
+
+:RetailOrganization a owl:Class ;
+    rdfs:label "Retail Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with selling 'consumer goods or services to customers through multiple channels of distribution' (from Wikipedia)"@en .
+
+:SalafistJihadistOrganization a owl:Class ;
+    rdfs:label "Salafist Jihadist Organization"@en ;
+    rdfs:comment "A Salafist Jihadist Organization is a type of TerroristOrganization that supports 'Salafist jihadism'."@en ;
+    rdfs:subClassOf :JihadistOrganization .
+
+:ServiceProvider a owl:Class ;
+    rdfs:label "Service Provider"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization that provides services. The type of services provided can be defined using the position_or_role property from the GeneralConcepts ontology. For example, the position_or_role can specify 'Application_service_provider', 'Internet_service_provider', 'Managed_services', etc."@en .
+#   owl:equivalentClass cco:ServiceProvider .
+
+:SoftwareOrganization a owl:Class ;
+    rdfs:label "Software Organization"@en ;
+    rdfs:subClassOf :CommercialOrganization ;
+    rdfs:comment "Organization concerned with the creation, distribution, use or management of software and data"@en .
+
+:StatelessPersons a owl:Class ;
+    rdfs:label "Stateless Person(s)"@en ;
+    rdfs:comment "Stateless persons are individuals who are not considered as nationals by any State under the operation of its law."@en ;
+    rdfs:subClassOf [ a owl:Class ;
+        owl:unionOf ( :PopulationOfConcern :Person ) ] .
+
+:SupportSystemOrNetwork a owl:Class ;
+    rdfs:label "Support System or Network"@en ;
+    rdfs:comment "A group of Actors providing emotional, financial or practical support to another Actor."@en ;
+    rdfs:subClassOf :GroupOfActors .
+
+:TaskForce a owl:Class ;
+    rdfs:label "Task Force"@en ;
+    rdfs:comment "A GroupOfPersons working together on a single task or activity, specifically designated as a 'task force'."@en ;
+    rdfs:subClassOf :GroupOfPersons .
+# oeceo:JointTaskForce rdfs:subClassOf :TaskForce .
+
+:TerroristOrganization a owl:Class ;
+    rdfs:label "Terrorist Organization"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass oeceo:TerroristOrganization .
+
+:TransportationOrganization a owl:Class ;
+    rdfs:label "Transportation Organization"@en ;
+    rdfs:comment "Organization dealing with personnel or cargo transportation"@en ;
+    rdfs:subClassOf :CommercialOrganization .
+
+:UtilitiesOrganization a owl:Class ;
+    rdfs:label "Utilities Organization"@en ;
+    rdfs:comment "Organization dealing with infrastructure services such as electricity, natural gas, water, sewage, telephone, internet and mass transportation services"@en ;
+    rdfs:subClassOf :Organization .
+#   owl:equivalentClass oeorg:Development .
+
+_:UnionOfPersonGroupOfPersons a owl:Class ;
+    owl:unionOf ( :Person :GroupOfPersons ) .
+
+
+#################################################################
+#    CCO Ethnicity, Ideology and PoliticalOrientation classes
+#       extracted from the CCO Agent Ontology
+#################################################################
+
+cco:Ethnicity rdf:type owl:Class ;
+#             rdfs:subClassOf obo:BFO_0000019 ;
+              cco:definition "A Quality that inheres in its bearers by virtue of a common heritage, often consisting of a common language, a common culture (often including a shared religion) and an ideology that stresses common ancestry or endogamy."^^xsd:string ;
+              cco:definition_source "http://en.wikipedia.org/wiki/Ethncity)"^^xsd:string ;
+              cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AgentOntology"^^xsd:string ;
+              rdfs:label "Ethnicity"^^xsd:string .
+
+
+cco:Ideology rdf:type owl:Class ;
+#            rdfs:subClassOf cco:InformationContentEntity ;
+             cco:definition "An Information Content Entity that consists of a collection of claims about how some part of the world is or should be and which is accepted as true by an Agent or Group of Agents such that it forms the basis of their beliefs, goals, expectations, and motivations."^^xsd:string ;
+             cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AgentOntology"^^xsd:string ;
+             rdfs:label "Ideology"^^xsd:string .
+
+
+cco:PoliticalOrientation rdf:type owl:Class ;
+             rdfs:subClassOf cco:Ideology ;
+             cco:definition "An Ideology that characterizes the political thinking of an Agent or Group of Agents, usually with respect to the political environment within a particular nation."^^xsd:string ;
+             cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AgentOntology"^^xsd:string ;
+             rdfs:label "Political Orientation"^^xsd:string .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+:Female a owl:NamedIndividual, :Gender ;
+    rdfs:label "Female"@en .
+
+:Male a owl:NamedIndividual, :Gender ;
+    rdfs:label "Male"@en .
+
+_:diff1 rdf:type owl:AllDifferent ; 
+    owl:members ( :Female :Male ) .
+
