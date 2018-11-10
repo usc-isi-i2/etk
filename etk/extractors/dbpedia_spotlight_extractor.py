@@ -83,7 +83,9 @@ class DBpediaSpotlightExtractor(Extractor):
                           'similarity_scores': float(one_result['@similarityScore'])}
                 if self._get_attr:
                     if one_result['@URI'] not in self.seen_uris:
-                        attr = self._attr_finder(one_result['@URI'])
+                        # attr = self._attr_finder(one_result['@URI'])
+                        attr = self._en_label_finder(one_result['@URI'])
+
                         self.seen_uris[one_result['@URI']] = attr
                     values['attributes'] = self.seen_uris[one_result['@URI']]
                     values['surface_form'] = self.seen_uris[one_result['@URI']]['rdf-schema#label']
@@ -97,6 +99,23 @@ class DBpediaSpotlightExtractor(Extractor):
 
             return return_result
         return list()
+
+    def _en_label_finder(self, uri):
+        sparql = SPARQLWrapper(self._get_attr_url)
+        sparql.setQuery("SELECT distinct * WHERE {<" + uri + "> "
+                                                             "<http://www.w3.org/2000/01/rdf-schema#label> "
+                                                             "?resource  FILTER(langMatches(lang(?resource),'en'))}")
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        attr = OrderedDict()
+        attr_key = 'rdf-schema#label'
+        for one_item in results['results']['bindings']:
+            attr_val = one_item['resource']['value']
+            if attr_key not in attr:
+                attr[attr_key] = [attr_val]
+            else:
+                attr[attr_key].append(attr_val)
+        return attr
 
     def _attr_finder(self, uri) -> dict:
         sparql = SPARQLWrapper(self._get_attr_url)
