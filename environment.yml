@@ -70,3 +70,4 @@ dependencies:
     - lml>=0.0.1
     - demjson>=2.2.4
     - jupyter>=1.0.0
+    - SPARQLWrapper>=1.8.2
