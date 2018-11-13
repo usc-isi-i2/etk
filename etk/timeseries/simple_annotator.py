@@ -3,6 +3,7 @@ import json
 import numpy as np
 import re
 from etk.timeseries.annotation.table_processor import parsed_table
+from etk.timeseries.annotation.granularity_detector import GranularityDetector
 
 
 def is_number(value):
@@ -75,6 +76,7 @@ def get_base_annotation(tp):
                     ],
                     "orientation": "col",
                     "times": {
+                        "granularity": "%s",
                         "locs": "[%s]"
                     }
                 }
@@ -84,6 +86,7 @@ def get_base_annotation(tp):
 
     return json.loads(annotation % (tp['ts_column'], tp['start_row'], tp['end_row'],
                                     get_header_object(tp['header_present']),
+                                    tp['granularity'],
                                     tp['time_column']))
 
 
@@ -171,7 +174,7 @@ class SimpleAnnotator:
             table_properties['time_column'] = parsed_table.get_excel_column_name(date_col)
             table_properties['header_present'] = header_present
             table_properties['ts_column'] = parsed_table.get_excel_column_name(data_col)
-            # table_properties['granularity'] = table.get_granularity()
+            table_properties['granularity'] = GranularityDetector.get_granularity(sheet[:, date_col])
 
             annotation = get_base_annotation(table_properties)
 
