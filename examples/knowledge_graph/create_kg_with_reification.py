@@ -2,7 +2,7 @@ from etk.etk import ETK
 from etk.knowledge_graph.schema import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
-from etk.knowledge_graph.node import URI, BNode, Literal
+from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
 from etk.knowledge_graph.subject import Subject
 
 
@@ -26,6 +26,9 @@ class ExampleETKModule(ETKModule):
         # Bind all your prefixes at here
         # None is default namespace
         doc.kg.bind(None, 'http://isi.edu/default-ns/')
+        # Add two namespaces for reification domain
+        doc.kg.bind('nsp', 'http://isi.edu/reified-predicates/')
+        doc.kg.bind('nss', 'http://isi.edu/statements/')
 
         for p, n, d in zip(projects, names, descriptions):
             triple = Subject(URI(n.value))
@@ -37,7 +40,11 @@ class ExampleETKModule(ETKModule):
                 developer_t = Subject(BNode())
                 developer_t.add_property(URI("rdf:type"), URI("Developer"))
                 developer_t.add_property(URI("name"), Literal(developer.value))
-                triple.add_property(URI("developer"), developer_t)
+                # enable reification
+                developer_state = triple.add_property(URI("developer"), developer_t, reify=URI("nsp:developer"))
+                developer_state.add_property(URI("nsp:name"), Literal(developer.value))
+                developer_state.add_property(URI("nsp:startDate"), Literal("2017-11-14", type_=LiteralType.date))
+                developer_state.add_property(URI("nsp:endDate"), Literal("2018-11-14", type_=LiteralType.date))
             doc.kg.add_subject(triple)
 
         return list()

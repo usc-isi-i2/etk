@@ -42,3 +42,27 @@ class TestKGTriples(unittest.TestCase):
 
         with self.assertRaises(InvalidParameter):
             s.add_property(BNode(), URI('dig:Person'))
+
+    def test_subject_reification(self):
+        s = URI('ex:ex1')
+        t = Subject(s)
+        lit = Literal('jack', 'en', 'xsd:string')
+        statement1 = t.add_property(URI('rdf:type'), URI('dig:Person'))
+        statement2 = t.add_property(URI('dig:name'), lit, reify=URI('digg:name'))
+        self.assertEqual(t.subject, s)
+        self.assertEqual(len(t._resource), 3)
+        self.assertIn(URI('rdf:type'), t._resource)
+        self.assertIn(URI('dig:name'), t._resource)
+        self.assertIn(URI('digg:name'), t._resource)
+        self.assertNotIsInstance(statement1, Subject)
+        self.assertIsInstance(statement2, Subject)
+        self.assertIn(URI('digg:name'), statement2._resource)
+
+        # exception
+        with self.assertRaises(InvalidParameter):
+            t.add_property(URI('dig:name'), lit, reify=(None, URI('s')))
+        with self.assertRaises(InvalidParameter):
+            t.add_property(URI('dig:name'), lit, reify=(URI('digg:name'), 3))
+        with self.assertRaises(InvalidParameter):
+            t.add_property(URI('dig:name'), lit, reify=(URI('digg:name'), ''))
+

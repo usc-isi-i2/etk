@@ -1,3 +1,7 @@
+"""
+The methods used in this file are mostly deprecated.
+Please refer to create_kg_with_ontology.py instead.
+"""
 from etk.etk import ETK
 from etk.knowledge_graph.schema import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
