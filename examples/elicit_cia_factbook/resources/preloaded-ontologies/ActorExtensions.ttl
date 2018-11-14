@@ -1,0 +1,1213 @@
+@prefix : <http://ontology.causeex.com/ontology/odps/Actor#> .
+@prefix actor: <http://ontology.causeex.com/ontology/odps/Actor#> .
+@prefix cco: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix oeethnicity: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEEthnicityOntology#> .
+@prefix oereligion: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEReligionOntology#> .
+@prefix oeideology: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEIdeologyOntology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://ontology.causeex.com/ontology/odps/ActorExtensions> rdf:type owl:Ontology ;
+    dcterms:description "Ontology extending the CCO PoliticalOrientation and Ethnicity class hierarchies."@en ;
+    dcterms:created "April 18, 2018"^^xsd:string ;
+    dcterms:modified "October 22, 2018"^^xsd:string ;
+    rdfs:comment """October 22nd 2018 revisions:
+                    Added European-related ethnicities and individuals.
+                    Modified the imports to only add the ontologies explicitly referenced.
+                  August 3rd 2018 revisions:
+                    Added import of the Actor ontology for completeness.
+                  June 27th 2018 revisions:
+                    Added the Salafist religion.
+                    Added the sub-classes of cco:PoliticalOrientation from the OEIdeology ontology (this avoids loading that
+                       ontology).
+                  May 16th 2018 revisions:
+                    Added the Green_Class and Green individual."""@en ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/Actor> ;
+    owl:imports <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEEthnicityOntology> ;
+    owl:imports <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OEReligionOntology> ;
+    owl:imports <http://purl.org/dc/terms> ;
+    owl:versionInfo "Version 0.7"^^xsd:string .
+
+
+#################################################################
+#    New Religion class extending the OE Ideology Ontology
+#################################################################
+
+:Salafist a owl:Class ;
+    rdfs:subClassOf oereligion:Sunni .
+    
+
+#################################################################
+#    Individuals corresponding to cco:PoliticalOrientation 
+#       sub-classes defined in the OE Ideology Ontology
+#    These classes are moved here to avoid importing the 
+#       entire OE Ideology file
+#################################################################
+
+oeideology:Anarchist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Anarchist a owl:NamedIndividual, oeideology:Anarchist ;
+    rdfs:label "Anarchist" .
+
+oeideology:Center_Left a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Center_Left a owl:NamedIndividual, oeideology:Center_Left ;
+    rdfs:label "Center Left" .
+
+oeideology:Center_Right a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Center_Right a owl:NamedIndividual, oeideology:Center_Right ;
+    rdfs:label "Center Right" .
+
+oeideology:Centrist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Centrist a owl:NamedIndividual, oeideology:Centrist ;
+    rdfs:label "Centrist" .
+
+oeideology:Communist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Communist a owl:NamedIndividual, oeideology:Communist ;
+    rdfs:label "Communist" .
+
+oeideology:Far_Left a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Far_Left a owl:NamedIndividual, oeideology:Far_Left ;
+    rdfs:label "Far Left" .
+
+oeideology:Far_Right a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Far_Right a owl:NamedIndividual, oeideology:Far_Right ;
+    rdfs:label "Far Right" .
+
+oeideology:Fundamentalist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Fundamentalist a owl:NamedIndividual, oeideology:Fundamentalist ;
+    rdfs:label "Fundamentalist" .
+
+oeideology:Libertarian a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Libertarian a owl:NamedIndividual, oeideology:Libertarian ;
+    rdfs:label "Libertarian" .
+
+oeideology:Nationalist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Nationalist a owl:NamedIndividual, oeideology:Nationalist ;
+    rdfs:label "Nationalist" .
+
+oeideology:Secular a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Secular a owl:NamedIndividual, oeideology:Secular ;
+    rdfs:label "Secular" .
+
+oeideology:Tribalist a owl:Class ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Tribalist a owl:NamedIndividual, oeideology:Tribalist ;
+    rdfs:label "Tribalist" .
+
+
+#################################################################
+#    New sub-classes of cco:PoliticalOrientation
+#.   and corresponding individuals
+#################################################################
+
+:Absolutist_Class a owl:Class ;
+    rdfs:label "Absolutist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Absolutist a owl:NamedIndividual, :Absolutist_Class ;
+    rdfs:label "Absolutist" .
+
+:Autocratist_Class a owl:Class ;
+    rdfs:label "Autocratist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Autocratist a owl:NamedIndividual, :Autocratist_Class ;
+    rdfs:label "Autocratist" .
+
+:Collectivist_Class a owl:Class ;
+    rdfs:label "Collectivist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Collectivist a owl:NamedIndividual, :Collectivist_Class ;
+    rdfs:label "Collectivist" .
+
+:Conservative_Class a owl:Class ;
+    rdfs:label "Conservative"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Collectivist a owl:NamedIndividual, :Collectivist_Class ;
+    rdfs:label "Collectivist" .
+
+:Constitutionalist_Class a owl:Class ;
+    rdfs:label "Constitutionalist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Conservative a owl:NamedIndividual, :Conservative_Class ;
+    rdfs:label "Conservative" .
+
+:Democrat_Class a owl:Class ;
+    rdfs:label "Democrat"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Democrat a owl:NamedIndividual, :Democrat_Class ;
+    rdfs:label "Democrat" .
+
+:Elitist_Class a owl:Class ;
+    rdfs:label "Elitist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Elitist a owl:NamedIndividual, :Elitist_Class ;
+    rdfs:label "Elitist" .
+
+:Federalist_Class a owl:Class ;
+    rdfs:label "Federalist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Federalist a owl:NamedIndividual, :Federalist_Class ;
+    rdfs:label "Federalist" .
+
+:Green_Class a owl:Class ;
+    rdfs:label "Green"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Green a owl:NamedIndividual, :Green_Class ;
+    rdfs:label "Green" .
+
+:Imperialist_Class a owl:Class ;
+    rdfs:label "Imperialist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Imperialist a owl:NamedIndividual, :Imperialist_Class ;
+    rdfs:label "Imperialist" .
+
+:Liberal_Class a owl:Class ;
+    rdfs:label "Liberal"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Liberal a owl:NamedIndividual, :Liberal_Class ;
+    rdfs:label "Liberal" .
+
+:Meritocratist_Class a owl:Class ;
+    rdfs:label "Meritocratist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Meritocratist a owl:NamedIndividual, :Meritocratist_Class ;
+    rdfs:label "Meritocratist" .
+
+:Monarchist_Class a owl:Class ;
+    rdfs:label "Monarchist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Monarchist a owl:NamedIndividual, :Monarchist_Class ;
+    rdfs:label "Monarchist" .
+
+:Populist_Class a owl:Class ;
+    rdfs:label "Populist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Populist a owl:NamedIndividual, :Populist_Class ;
+    rdfs:label "Populist" .
+
+:Progressivist_Class a owl:Class ;
+    rdfs:label "Progressivist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Progressivist a owl:NamedIndividual, :Progressivist_Class ;
+    rdfs:label "Progressivist" .
+
+:Radicalist_Class a owl:Class ;
+    rdfs:label "Radicalist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Radicalist a owl:NamedIndividual, :Radicalist_Class ;
+    rdfs:label "Radicalist" .
+
+:Reactionist_Class a owl:Class ;
+    rdfs:label "Reactionist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Reactionist a owl:NamedIndividual, :Reactionist_Class ;
+    rdfs:label "Reactionist" .
+
+:Republican_Class a owl:Class ;
+    rdfs:label "Republican"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Republican a owl:NamedIndividual, :Republican_Class ;
+    rdfs:label "Republican" .
+
+:Segregationist_Class a owl:Class ;
+    rdfs:label "Segregationist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Segregationist a owl:NamedIndividual, :Segregationist_Class ;
+    rdfs:label "Segregationist" .
+
+:Socialist_Class a owl:Class ;
+    rdfs:label "Socialist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Socialist a owl:NamedIndividual, :Socialist_Class ;
+    rdfs:label "Socialist" .
+
+:Theocrat_Class a owl:Class ;
+    rdfs:label "Theocrat"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Theocrat a owl:NamedIndividual, :Theocrat_Class ;
+    rdfs:label "Theocrat" .
+
+:Totalitarianist_Class a owl:Class ;
+    rdfs:label "Totalitarianist"@en ;
+    rdfs:subClassOf cco:PoliticalOrientation .
+:Totalitarianist a owl:NamedIndividual, :Totalitarianist_Class ;
+    rdfs:label "Totalitarianist" .
+
+
+#################################################################
+#    Individuals corresponding to cco:Ethnicity
+#.   sub-classes defined in the OE Ethnicity Ontology
+#.   for Nigerian and European ethnicities
+#################################################################
+
+:Albanian a owl:NamedIndividual, oeethnicity:Albanian ;
+    rdfs:label "Albanian" .
+
+:AngloCelt a owl:NamedIndividual, oeethnicity:Anglo-Celt ;
+    rdfs:label "Anglo-Celt" .
+
+:Arab a owl:NamedIndividual, oeethnicity:Arab  ;
+    rdfs:label "Arab/Arabic" .
+	
+:Armenian a owl:NamedIndividual, oeethnicity:Armenian ;
+    rdfs:label "Armenian" .
+
+:Assyrian a owl:NamedIndividual, oeethnicity:Assyrian_Aramaic ;
+    rdfs:label "Assyrian" .
+
+:Azerbaijani a owl:NamedIndividual, oeethnicity:Azerbaijani ;
+    rdfs:label "Azerbaijani" .
+
+:Baltic a owl:NamedIndividual, oeethnicity:Baltic ;
+    rdfs:label "Baltic" .
+
+:Basque a owl:NamedIndividual, oeethnicity:Basque ;
+    rdfs:label "Basque" .
+
+:Caucasus a owl:NamedIndividual, oeethnicity:Caucasus ;
+    rdfs:label "Caucasus" .
+
+:Chechen a owl:NamedIndividual, oeethnicity:Chechen ;
+    rdfs:label "Chechen" .
+
+:Chinese a owl:NamedIndividual, oeethnicity:Chinese ;
+    rdfs:label "Chinese" .
+
+:Egyptian a owl:NamedIndividual, oeethnicity:Egyptian ;
+    rdfs:label "Egyptian" .
+
+:Filipino a owl:NamedIndividual, oeethnicity:Filipino ;
+    rdfs:label "Filipino" .
+
+:Finno-Ugric a owl:NamedIndividual, oeethnicity:Finno-Ugric ;
+    rdfs:label "Finno-Ugric" .
+
+:French a owl:NamedIndividual, oeethnicity:French ;
+    rdfs:label "French" .
+
+:Fulani a owl:NamedIndividual, oeethnicity:Fulani_Fulbe ;
+    rdfs:label "Fulani" .
+
+:German a owl:NamedIndividual, oeethnicity:Germanic ;
+    rdfs:label "German" .
+
+:Greek a owl:NamedIndividual, oeethnicity:Greek ;
+    rdfs:label "Greek" .
+
+:Gypsy a owl:NamedIndividual, oeethnicity:Gypsy ;
+    rdfs:label "Gypsy" .
+
+:Hausa a owl:NamedIndividual, oeethnicity:Hausa ;
+    rdfs:label "Hausa" .
+
+:Hausa-Fulani a owl:NamedIndividual, oeethnicity:Hausa, oeethnicity:Fulani_Fulbe ;
+    rdfs:label "Hausa-Fulani" .
+
+:Hispanic a owl:NamedIndividual, oeethnicity:Hispanic ;
+    rdfs:label "Hispanic" .
+
+:Hmong a owl:NamedIndividual, oeethnicity:Hmong ;
+    rdfs:label "Hmong" .
+
+:Hungarian a owl:NamedIndividual, oeethnicity:Hungarian ;
+    rdfs:label "Hungarian" .
+
+:Igbo a owl:NamedIndividual, oeethnicity:Igbo ;
+    rdfs:label "Igbo" .
+
+:Ijaw a owl:NamedIndividual, oeethnicity:Ijaw ;
+    rdfs:label "Ijaw" .
+
+:Inuit a owl:NamedIndividual, oeethnicity:Inuit ;
+    rdfs:label "Inuit" .
+
+:Italian a owl:NamedIndividual, oeethnicity:Italian ;
+    rdfs:label "Italian" .
+
+:Japanese a owl:NamedIndividual, oeethnicity:Japanese ;
+    rdfs:label "Japanese" .
+
+:Jewish a owl:NamedIndividual, oeethnicity:Jews ;
+    rdfs:label "Jewish/Jew" .
+
+:Kanuri a owl:NamedIndividual, oeethnicity:Kanuri-Saharan ;
+    rdfs:label "Kanuri" .
+
+:Kazakh a owl:NamedIndividual, oeethnicity:Kazakh ;
+    rdfs:label "Kazakh" .
+
+:Korean a owl:NamedIndividual, oeethnicity:Korean ;
+    rdfs:label "Korean" .
+
+:Levant_Arab a owl:NamedIndividual, oeethnicity:Levant_Arab ;
+    rdfs:label "Levant Arab" .
+
+:Maldivian a owl:NamedIndividual, oeethnicity:Maldivian ;
+    rdfs:label "Maldivian" .
+
+:Maltese a owl:NamedIndividual, oeethnicity:Maltese ;
+    rdfs:label "Maltese" .
+
+:Micronesian a owl:NamedIndividual, oeethnicity:Micronesian ;
+    rdfs:label "Micronesian" .
+
+:Mongolian a owl:NamedIndividual, oeethnicity:Mongolian ;
+    rdfs:label "Mongolian" .
+
+:Palistinian a owl:NamedIndividual, oeethnicity:Palestinian ;
+    rdfs:label "Palestinian" .
+
+:Polynesian a owl:NamedIndividual, oeethnicity:Polynesian ;
+    rdfs:label "Polynesian" .
+
+:Portuguese a owl:NamedIndividual, oeethnicity:Portuguese ;
+    rdfs:label "Portuguese" .
+
+:Romanian a owl:NamedIndividual, oeethnicity:Romanian ;
+    rdfs:label "Romanian" .
+
+:Sami a owl:NamedIndividual, oeethnicity:Sami ;
+    rdfs:label "Sami" .
+ 
+:Scandinavian a owl:NamedIndividual, oeethnicity:Scandinavian ;
+    rdfs:label "Scandinavian" .
+
+:Slavic a owl:NamedIndividual, oeethnicity:Slav ;
+    rdfs:label "Slavic/Slav" .
+
+:Somali a owl:NamedIndividual, oeethnicity:Somali ;
+    rdfs:label "Somali" .
+
+:SouthHimalaya a owl:NamedIndividual, oeethnicity:South_Himalaya ;
+   rdfs:label "South Himalaya" .
+
+:Spanish a owl:NamedIndividual, oeethnicity:Spanish ;
+    rdfs:label "Spanish/Spaniard" .
+
+:Sub-Saharan_African a owl:NamedIndividual, oeethnicity:Sub-Saharan_African ;
+    rdfs:label "Sub-Saharan African" .
+
+:Talysh a owl:NamedIndividual, oeethnicity:Talysh ;
+    rdfs:label "Talysh".
+
+:Thai a owl:NamedIndividual, oeethnicity:Thai ;
+    rdfs:label "Thai".
+
+:Tibetan a owl:NamedIndividual, oeethnicity:Tibetan ;
+    rdfs:label "Tibetan" .
+
+:Turkish a owl:NamedIndividual, oeethnicity:Turkish ;
+    rdfs:label "Turkish/Turkic/Turk" .
+
+:Turkmen a owl:NamedIndividual, oeethnicity:Turkmen ;
+    rdfs:label "Turkmen" .
+
+:Vietnamese a owl:NamedIndividual, oeethnicity:Vietnamese ;
+    rdfs:label "Vietnamese" .
+
+:Yoruba a owl:NamedIndividual, oeethnicity:Yoruba ;
+    rdfs:label "Yoruba" .
+
+
+#################################################################
+#    New sub-classes of cco:Ethnicity 
+#.   and corresponding individuals
+#################################################################
+
+:Alsatian_Class a owl:Class ;
+    rdfs:label "Alsatian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Alsatian a owl:NamedIndividual, :Alsatian_Class ;
+    rdfs:label "Alsatian" .
+
+:Anaang_Class a owl:Class ;
+    rdfs:label "Anaang" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Anaang a owl:NamedIndividual, :Anaang_Class ;
+    rdfs:label "Anaang" .
+
+:AostaValleyFrench_Class a owl:Class ;
+    rdfs:label "Aosta Valley French" ;
+    rdfs:subClassOf oeethnicity:French .
+:AostaValleyFrench a owl:NamedIndividual, :AostaValleyFrench_Class ;
+    rdfs:label "Aosta Valley French" .
+
+:Aromanian_Class a owl:Class ;
+    rdfs:label "Aromanian" ;
+    rdfs:subClassOf :Vlach .
+:Aromanian a owl:NamedIndividual, :Aromanian_Class ;
+    rdfs:label "Aromanian" .
+
+:Arpitan_Class a owl:Class ;
+    rdfs:label "Arpitan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Arpitan a owl:NamedIndividual, :Arpitan_Class ;
+    rdfs:label "Arpitan" .
+
+:Arvanite_Class a owl:Class ;
+    rdfs:label "Arvanite" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Arvanite a owl:NamedIndividual, :Arvanite_Class ;
+    rdfs:label "Arvanite" .
+
+:Ashkali_Class a owl:Class ;
+    rdfs:label "Ashkali" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ashkali a owl:NamedIndividual, :Ashkali_Class ;
+    rdfs:label "Ashkali" .
+
+:Asturian_Class a owl:Class ;
+    rdfs:label "Asturian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Asturian a owl:NamedIndividual, :Asturian_Class ;
+    rdfs:label "Asturian" .
+
+:Atyap_Class a owl:Class ;
+    rdfs:label "Atyap" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Atyap a owl:NamedIndividual, :Atyap_Class ;
+    rdfs:label "Atyap" .
+
+:Austrian_Class a owl:Class ;
+    rdfs:label "Austrian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Austrian a owl:NamedIndividual, :Austrian_Class ;
+    rdfs:label "Austrian" .
+
+:Avar_Class a owl:Class ;
+    rdfs:label "Avar" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Avar a owl:NamedIndividual, :Avar_Class ;
+    rdfs:label "Avar" .
+
+:Awori_Class a owl:Class ;
+    rdfs:label "Awori" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Awori a owl:NamedIndividual, :Awori_Class ;
+    rdfs:label "Awori" .
+
+:BalkanEgyptian_Class a owl:Class ;
+    rdfs:label "Balkan Egyptian" ;
+    rdfs:subClassOf oeethnicity:Egyptian .
+:BalkanEgyptian a owl:NamedIndividual, :BalkanEgyptian_Class ;
+    rdfs:label "Balkan Egyptian" .
+
+:Bashkir_Class a owl:Class ;
+    rdfs:label "Bashkir" ;
+    rdfs:subClassOf oeethnicity:Turkish .
+:Bashkir a owl:NamedIndividual, :Bashkir_Class ;
+    rdfs:label "Bashkir" .
+
+:Belarusian_Class a owl:Class ;
+    rdfs:label "Belarusian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Belarusian a owl:NamedIndividual, :Belarusian_Class ;
+    rdfs:label "Belarusian" .
+
+:Berom_Class a owl:Class ;
+    rdfs:label "Berom" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Berom a owl:NamedIndividual, :Berom_Class ;
+    rdfs:label "Berom" .
+
+:Bosniak_Class a owl:Class ;
+    rdfs:label "Bosniak" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Bosniak a owl:NamedIndividual, :Bosniak_Class ;
+    rdfs:label "Bosniak" .
+
+:Breton_Class a owl:Class ;
+    rdfs:label "Breton" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Breton a owl:NamedIndividual, :Breton_Class ;
+    rdfs:label "Breton" .
+
+:British_Class a owl:Class ;
+    rdfs:label "British/English/Anglic" ;
+    rdfs:subClassOf cco:Ethnicity .
+:British a owl:NamedIndividual, :British_Class ;
+    rdfs:label "British/English" .
+
+:Buduma_Class a owl:Class ;
+    rdfs:label "Buduma" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Buduma a owl:NamedIndividual, :Buduma_Class ;
+    rdfs:label "Buduma" .
+
+:Bulgarian_Class a owl:Class ;
+    rdfs:label "Bulgarian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Bulgarian a owl:NamedIndividual, :Bulgarian_Class ;
+    rdfs:label "Bulgarian" .
+
+:Caribbean_Class a owl:Class ;
+    rdfs:label "Caribbean" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Caribbean a owl:NamedIndividual, :Caribbean_Class ;
+    rdfs:label "Caribbean" .
+
+:Castilian_Class a owl:Class ;
+    rdfs:label "Castilian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Castilian a owl:NamedIndividual, :Castilian_Class ;
+    rdfs:label "Castilian" .
+
+:Catalan_Class a owl:Class ;
+    rdfs:label "Catalan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Catalan a owl:NamedIndividual, :Catalan_Class ;
+    rdfs:label "Catalan" .
+
+:Chamba_Class a owl:Class ;
+    rdfs:label "Chamba" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Chamba a owl:NamedIndividual, :Chamba_Class ;
+    rdfs:label "Chamba" .
+
+:Chilean_Class a owl:Class ;
+    rdfs:label "Chilean" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Chilean a owl:NamedIndividual, :Chilean_Class ;
+    rdfs:label "Chilean" .
+
+:Chuvash_Class a owl:Class ;
+    rdfs:label "Chuvash" ;
+    rdfs:subClassOf oeethnicity:Turkish .
+:Chuvash a owl:NamedIndividual, :Chuvash_Class ;
+    rdfs:label "Chuvash" .
+
+:Circassian_Class a owl:Class ;
+    rdfs:label "Circassian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Circassian a owl:NamedIndividual, :Circassian_Class ;
+    rdfs:label "Circassian" .
+
+:Cornish_Class a owl:Class ;
+    rdfs:label "Cornish" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Cornish a owl:NamedIndividual, :Cornish_Class ;
+    rdfs:label "Cornish" .
+
+:Corsican_Class a owl:Class ;
+    rdfs:label "Corsican" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Corsican a owl:NamedIndividual, :Corsican_Class ;
+    rdfs:label "Corsican" .
+
+:Croat_Class a owl:Class ;
+    rdfs:label "Croat" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Croat a owl:NamedIndividual, :Croat_Class ;
+    rdfs:label "Croat" .
+
+:Czech_Class a owl:Class ;
+    rdfs:label "Czech" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Czech a owl:NamedIndividual, :Czech_Class ;
+    rdfs:label "Czech" .
+
+:DalmatianItalian_Class a owl:Class ;
+    rdfs:label "Dalmatian Italian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:DalmatianItalian a owl:NamedIndividual, :DalmatianItalian_Class ;
+    rdfs:label "Dalmatian Italian" .
+
+:Danish_Class a owl:Class ;
+    rdfs:label "Danish/Dane" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Danish a owl:NamedIndividual, :Danish_Class ;
+    rdfs:label "Danish/Dane" .
+
+:Dutch_Class a owl:Class ;
+    rdfs:label "Dutch" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Dutch a owl:NamedIndividual, :Dutch_Class ;
+    rdfs:label "Dutch" .
+
+:Ebira_Class a owl:Class ;
+    rdfs:label "Ebira" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ebira a owl:NamedIndividual, :Ebira_Class ;
+    rdfs:label "Ebira" .
+
+:Edo_Class a owl:Class ;
+    rdfs:label "Edo" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Edo a owl:NamedIndividual, :Edo_Class ;
+    rdfs:label "Edo" .
+
+:Efik_Class a owl:Class ;
+    rdfs:label "Efik" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Efik a owl:NamedIndividual, :Efik_Class ;
+    rdfs:label "Efik" .
+
+:Egba_Class a owl:Class ;
+    rdfs:label "Egba" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Egba a owl:NamedIndividual, :Egba_Class ;
+    rdfs:label "Egba" .
+
+:Ekoi_Class a owl:Class ;
+    rdfs:label "Ekoi" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ekoi a owl:NamedIndividual, :Ekoi_Class ;
+    rdfs:label "Ekoi" .
+
+:Esan_Class a owl:Class ;
+    rdfs:label "Esan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Esan a owl:NamedIndividual, :Esan_Class ;
+    rdfs:label "Esan" .
+
+:Estonian_Class a owl:Class ;
+    rdfs:label "Estonian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Estonian a owl:NamedIndividual, :Estonian_Class ;
+    rdfs:label "Estonian" .
+
+:Faroese_Class a owl:Class ;
+    rdfs:label "Faroese" ;
+    rdfs:subClassOf oeethnicity:Germanic .
+:Faroese a owl:NamedIndividual, :Faroese_Class ;
+    rdfs:label "Faroese" .
+
+:Finnish_Class a owl:Class ;
+    rdfs:label "Finnish/Finn" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Finnish a owl:NamedIndividual, :Finnish_Class ;
+    rdfs:label "Finnish/Finn" .
+
+:Flemish_Class a owl:Class ;
+    rdfs:label "Flemish/Fleming" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Flemish a owl:NamedIndividual, :Flemish_Class ;
+    rdfs:label "Flemish/Fleming" .
+
+:Fon_Class a owl:Class ;
+    rdfs:label "Fon" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Fon a owl:NamedIndividual, :Fon_Class ;
+    rdfs:label "Fon" .
+
+:Frisian_Class a owl:Class ;
+    rdfs:label "Frisian" ;
+    rdfs:subClassOf oeethnicity:Germanic .
+:Frisian a owl:NamedIndividual, :Frisian_Class ;
+    rdfs:label "Frisian" .
+
+:Friulian_Class a owl:Class ;
+    rdfs:label "Friulian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Friulian a owl:NamedIndividual, :Friulian_Class ;
+    rdfs:label "Friulian" .
+
+:Gagauz_Class a owl:Class ;
+    rdfs:label "Gagauz" ;
+    rdfs:subClassOf oeethnicity:Turkish .
+:Gagauz a owl:NamedIndividual, :Gagauz_Class ;
+    rdfs:label "Gagauz" .
+
+:Galician_Class a owl:Class ;
+    rdfs:label "Galician" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Galician a owl:NamedIndividual, :Galician_Class ;
+    rdfs:label "Galician" .
+
+:Gbagyi_Class a owl:Class ;
+    rdfs:label "Gbagyi" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Gbagyi a owl:NamedIndividual, :Gbagyi_Class ;
+    rdfs:label "Gbagyi" .
+
+:Georgian_Class a owl:Class ;
+    rdfs:label "Georgian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Georgian a owl:NamedIndividual, :Georgian_Class ;
+    rdfs:label "Georgian" .
+
+:Gorani_Class a owl:Class ;
+    rdfs:label "Gorani" ;
+    rdfs:subClassOf :Slavic_Muslim .
+:Gorani a owl:NamedIndividual, :Gorani_Class ;
+    rdfs:label "Gorani" .
+
+:Ibibio_Class a owl:Class ;
+    rdfs:label "Ibibio" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ibibio a owl:NamedIndividual, :Ibibio_Class ;
+    rdfs:label "Ibibio" .
+
+:Icelander_Class a owl:Class ;
+    rdfs:label "Icelander" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Icelander a owl:NamedIndividual, :Icelander_Class ;
+    rdfs:label "Icelander" .
+
+:Idoma_Class a owl:Class ;
+    rdfs:label "Idoma" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Idoma a owl:NamedIndividual, :Idoma_Class ;
+    rdfs:label "Idoma" .
+
+:Igala_Class a owl:Class ;
+    rdfs:label "Igala" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Igala a owl:NamedIndividual, :Igala_Class ;
+    rdfs:label "Igala" .
+
+:Igede_Class a owl:Class ;
+    rdfs:label "Igede" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Igede a owl:NamedIndividual, :Igede_Class ;
+    rdfs:label "Igede" .
+
+:Ikwerre_Class a owl:Class ;
+    rdfs:label "Ikwerre" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ikwerre a owl:NamedIndividual, :Ikwerre_Class ;
+    rdfs:label "Ikwerre" .
+
+:Indochinese_Class a owl:Class ;
+    rdfs:label "Indochinese" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Indochinese a owl:NamedIndividual, :Indochinese_Class ;
+    rdfs:label "Indochinese" .
+
+:Indonesian_Class a owl:Class ;
+    rdfs:label "Indonesian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Indonesian a owl:NamedIndividual, :Indonesian_Class ;
+    rdfs:label "Indonesian" .
+
+:Ingush_Class a owl:Class ;
+    rdfs:label "Ingush" ;
+    rdfs:subClassOf oeethnicity:Caucasus .
+:Ingush a owl:NamedIndividual, :Ingush_Class ;
+    rdfs:label "Ingush" .
+
+:Iranian_Class a owl:Class ;
+    rdfs:label "Iranian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Iranian a owl:NamedIndividual, :Iranian_Class ;
+    rdfs:label "Iranian" .
+
+:Iraqi_Class a owl:Class ;
+    rdfs:label "Iraqi" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Iraqi a owl:NamedIndividual, :Iraqi_Class ;
+    rdfs:label "Iraqi" .
+
+:Irish_Class a owl:Class ;
+    rdfs:label "Irish" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Irish a owl:NamedIndividual, :Irish_Class ;
+    rdfs:label "Irish" .
+
+:ItaliotGreek_Class a owl:Class ;
+    rdfs:label "Italiot Greek" ;
+    rdfs:subClassOf cco:Ethnicity .
+:ItaliotGreek a owl:NamedIndividual, :ItaliotGreek_Class ;
+    rdfs:label "Italiot Greek" .
+
+:Itsekiri_Class a owl:Class ;
+    rdfs:label "Itsekiri" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Itsekiri a owl:NamedIndividual, :Itsekiri_Class ;
+    rdfs:label "Itsekiri" .
+
+:Jukun_Class a owl:Class ;
+    rdfs:label "Jukun" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Jukun a owl:NamedIndividual, :Jukun_Class ;
+    rdfs:label "Jukun" .
+
+:Kabardian_Class a owl:Class ;
+    rdfs:label "Kabardian" ;
+    rdfs:subClassOf :Circassian .
+:Kabardian a owl:NamedIndividual, :Kabardian_Class ;
+    rdfs:label "Kabardian" .
+
+:Kalmyk_Class a owl:Class ;
+    rdfs:label "Kalmyk" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Kalmyk a owl:NamedIndividual, :Kalmyk_Class ;
+    rdfs:label "Kalmyk" .
+
+:Kamuku_Class a owl:Class ;
+    rdfs:label "Kamuku" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Kamuku a owl:NamedIndividual, :Kamuku_Class ;
+    rdfs:label "Kamuku" .
+
+:Kilba_Class a owl:Class ;
+    rdfs:label "Kilba" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Kilba a owl:NamedIndividual, :Kilba_Class ;
+    rdfs:label "Kilba" .
+
+:Kurdish_Class a owl:Class ;
+    rdfs:label "Kurdish/Kurd" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Kurdish a owl:NamedIndividual, :Kurdish_Class ;
+    rdfs:label "Kurdish" .
+
+:Kuteb_Class a owl:Class ;
+    rdfs:label "Kuteb" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Kuteb a owl:NamedIndividual, :Kuteb_Class ;
+    rdfs:label "Kuteb" .
+
+:Ladin_Class a owl:Class ;
+    rdfs:label "Ladin" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ladin a owl:NamedIndividual, :Ladin_Class ;
+    rdfs:label "Ladin" .
+
+:Latvian_Class a owl:Class ;
+    rdfs:label "Latvian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Latvian a owl:NamedIndividual, :Latvian_Class ;
+    rdfs:label "Latvian" .
+
+:Laz_Class a owl:Class ;
+    rdfs:label "Laz" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Laz a owl:NamedIndividual, :Laz_Class ;
+    rdfs:label "Laz" .
+
+:Lebanese_Class a owl:Class ;
+    rdfs:label "Lebanese" ;
+    rdfs:subClassOf oeethnicity:Arab .
+:Lebanese a owl:NamedIndividual, :Lebanese_Class ;
+    rdfs:label "Lebanese" .
+
+:Leonese_Class a owl:Class ;
+    rdfs:label "Leonese" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Leonese a owl:NamedIndividual, :Leonese_Class ;
+    rdfs:label "Leonese" .
+
+:Lezgin_Class a owl:Class ;
+    rdfs:label "Lezgin" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Lezgin a owl:NamedIndividual, :Lezgin_Class ;
+    rdfs:label "Lezgin" .
+
+:Lithuanian_Class a owl:Class ;
+    rdfs:label "Lithuanian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Lithuanian a owl:NamedIndividual, :Lithuanian_Class ;
+    rdfs:label "Lithuanian" .
+
+:Longuda_Class a owl:Class ;
+    rdfs:label "Longuda" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Longuda a owl:NamedIndividual, :Longuda_Class ;
+    rdfs:label "Longuda" .
+
+:Luxembourger_Class a owl:Class ;
+    rdfs:label "Luxembourger" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Luxembourger a owl:NamedIndividual, :Luxembourger_Class ;
+    rdfs:label "Luxembourger" .
+
+:Macedonian_Class a owl:Class ;
+    rdfs:label "Macedonian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Macedonian a owl:NamedIndividual, :Macedonian_Class ;
+    rdfs:label "Macedonian" .
+
+:Mambila_Class a owl:Class ;
+    rdfs:label "Mambila" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Mambila a owl:NamedIndividual, :Mambila_Class ;
+    rdfs:label "Mambila" .
+
+:Manx_Class a owl:Class ;
+    rdfs:label "Manx" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Manx a owl:NamedIndividual, :Manx_Class ;
+    rdfs:label "Manx" .
+
+:Moldovan_Class a owl:Class ;
+    rdfs:label "Moldovan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Moldovan a owl:NamedIndividual, :Moldovan_Class ;
+    rdfs:label "Moldovan" .
+
+:Montenegrin_Class a owl:Class ;
+    rdfs:label "Montenegrin" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Montenegrin a owl:NamedIndividual, :Montenegrin_Class ;
+    rdfs:label "Montenegrin" .
+
+:Moravian_Class a owl:Class ;
+    rdfs:label "Moravian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Moravian a owl:NamedIndividual, :Moravian_Class ;
+    rdfs:label "Moravian" .
+
+:Mordvin_Class a owl:Class ;
+    rdfs:label "Mordvin" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Mordvin a owl:NamedIndividual, :Mordvin_Class ;
+    rdfs:label "Mordvin" .
+
+:Moroccan_Class a owl:Class ;
+    rdfs:label "Moroccan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Moroccan a owl:NamedIndividual, :Moroccan_Class ;
+    rdfs:label "Moroccan" .
+
+:Mumuye_Class a owl:Class ;
+    rdfs:label "Mumuye" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Mumuye a owl:NamedIndividual, :Mumuye_Class ;
+    rdfs:label "Mumuye" .
+
+:Muslim_Class a owl:Class ;
+    rdfs:label "Muslim" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Muslim a owl:NamedIndividual, :Muslim_Class ;
+    rdfs:label "Muslim" .
+
+:Norwegian_Class a owl:Class ;
+    rdfs:label "Norwegian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Norwegian a owl:NamedIndividual, :Norwegian_Class ;
+    rdfs:label "Norwegian" .
+
+:Occitan_Class a owl:Class ;
+    rdfs:label "Occitan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Occitan a owl:NamedIndividual, :Occitan_Class ;
+    rdfs:label "Occitan" .
+
+:Ogu_Egun_Class a owl:Class ;
+    rdfs:label "Ogu/Egun" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ogu_Egun a owl:NamedIndividual, :Ogu_Egun_Class ;
+    rdfs:label "Ogu/Egun" .
+
+:Ossetian_Class a owl:Class ;
+    rdfs:label "Ossetian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ossetian a owl:NamedIndividual, :Ossetian_Class ;
+    rdfs:label "Ossetian" .
+
+:Owan_Class a owl:Class ;
+    rdfs:label "Owan" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Owan a owl:NamedIndividual, :Owan_Class ;
+    rdfs:label "Owan" .
+
+:Pakistani_Class a owl:Class ;
+    rdfs:label "Pakistani" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Pakistani a owl:NamedIndividual, :Pakistani_Class ;
+    rdfs:label "Pakistani" .
+
+:PacificIslander_Class a owl:Class ;
+    rdfs:label "Pacific Islander" ;
+    rdfs:subClassOf cco:Ethnicity .
+:PacificIslander a owl:NamedIndividual, :PacificIslander_Class ;
+    rdfs:label "Pacific Islander" .
+
+:Polish_Class a owl:Class ;
+    rdfs:label "Polish/Pole" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Polish a owl:NamedIndividual, :Polish_Class ;
+    rdfs:label "Polish/Pole" .
+
+:Romani_Class a owl:Class ;
+    rdfs:label "Romani/Roma/Gypsy" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Romani a owl:NamedIndividual, :Romani_Class ;
+    rdfs:label "Romani/Roma/Gypsy" .
+
+:Russian_Class a owl:Class ;
+    rdfs:label "Russian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Russian a owl:NamedIndividual, :Russian_Class ;
+    rdfs:label "Russian" .
+
+:Rusyn_Class a owl:Class ;
+    rdfs:label "Rusyn" ;
+    rdfs:subClassOf oeethnicity:Slav .
+:Rusyn a owl:NamedIndividual, :Rusyn_Class ;
+    rdfs:label "Rusyn" .
+
+:Ruthenian_Class a owl:Class ;
+    rdfs:label "Ruthenian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ruthenian a owl:NamedIndividual, :Ruthenian_Class ;
+    rdfs:label "Ruthenian" .
+
+:Sardinian_Class a owl:Class ;
+    rdfs:label "Sardinian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Sardinian a owl:NamedIndividual, :Sardinian_Class ;
+    rdfs:label "Sardinian" .
+
+:Saro_Class a owl:Class ;
+    rdfs:label "Saro" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Saro a owl:NamedIndividual, :Saro_Class ;
+    rdfs:label "Saro" .
+
+:Scottish_Class a owl:Class ;
+    rdfs:label "Scottish" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Scottish a owl:NamedIndividual, :Scottish_Class ;
+    rdfs:label "Scottish" .
+
+:Serbian_Class a owl:Class ;
+    rdfs:label "Serbian/Serb" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Serbian a owl:NamedIndividual, :Serbian_Class ;
+    rdfs:label "Serbian/Serb" .
+
+:Sicilian_Class a owl:Class ;
+    rdfs:label "Sicilian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Sicilian a owl:NamedIndividual, :Sicilian_Class ;
+    rdfs:label "Sicilian" .
+
+:SlavicMuslim_Class a owl:Class ;
+    rdfs:label "Slavic Muslim" ;
+    rdfs:subClassOf oeethnicity:Slav, :Muslim .
+:SlavicMuslim a owl:NamedIndividual, :SlavicMuslim_Class ;
+    rdfs:label "Slavic Muslim" .
+
+:Slovak_Class a owl:Class ;
+    rdfs:label "Slovak" ;
+    rdfs:subClassOf oeethnicity:Slav .
+:Slovak a owl:NamedIndividual, :Slovak_Class ;
+    rdfs:label "Slovak" .
+
+:Slovene_Class a owl:Class ;
+    rdfs:label "Slovene" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Slovene a owl:NamedIndividual, :Slovene_Class ;
+    rdfs:label "Slovene" .
+
+:Surinamese_Class a owl:Class ;
+    rdfs:label "Surinamese" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Surinamese a owl:NamedIndividual, :Surinamese_Class ;
+    rdfs:label "Surinamese" .
+
+:Swedish_Class a owl:Class ;
+    rdfs:label "Swedish/Swede" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Swedish a owl:NamedIndividual, :Swedish_Class ;
+    rdfs:label "Swedish/Swede" .
+
+:Syriac_Class a owl:Class ;
+    rdfs:label "Syriac" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Syriac a owl:NamedIndividual, :Syriac_Class ;
+    rdfs:label "Syriac" .
+
+:Syrian_Class a owl:Class ;
+    rdfs:label "Syrian" ;
+    rdfs:subClassOf oeethnicity:Arab .
+:Syrian a owl:NamedIndividual, :Syrian_Class ;
+    rdfs:label "Syrian" .
+
+:Tarok_Class a owl:Class ;
+    rdfs:label "Tarok" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Tarok a owl:NamedIndividual, :Tarok_Class ;
+    rdfs:label "Tarok" .
+
+:Tatar_Class a owl:Class ;
+    rdfs:label "Tatar" ;
+    rdfs:subClassOf :Muslim .
+:Tatar a owl:NamedIndividual, :Tatar_Class ;
+    rdfs:label "Tatar" .
+
+:Tiv_Class a owl:Class ;
+    rdfs:label "Tiv" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Tiv a owl:NamedIndividual, :Tiv_Class ;
+    rdfs:label "Tiv" .
+
+:Ukrainian_Class a owl:Class ;
+    rdfs:label "Ukrainian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Ukrainian a owl:NamedIndividual, :Ukrainian_Class ;
+    rdfs:label "Ukrainian" .
+
+:Urhobo_Class a owl:Class ;
+    rdfs:label "Urhobo" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Urhobo a owl:NamedIndividual, :Urhobo_Class ;
+    rdfs:label "Urhobo" .
+
+:Urum_Class a owl:Class ;
+    rdfs:label "Urum" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Urum a owl:NamedIndividual, :Urum_Class ;
+    rdfs:label "Urum" .
+
+:Valencian_Class a owl:Class ;
+    rdfs:label "Valencian" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Valencian a owl:NamedIndividual, :Valencian_Class ;
+    rdfs:label "Valencian" .
+
+:Vlach_Class a owl:Class ;
+    rdfs:label "Vlach" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Vlach a owl:NamedIndividual, :Vlach_Class ;
+    rdfs:label "Vlach" .
+
+:Walloon_Class a owl:Class ;
+    rdfs:label "Walloon" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Walloon a owl:NamedIndividual, :Walloon_Class ;
+    rdfs:label "Walloon" .
+
+:Welsh_Class a owl:Class ;
+    rdfs:label "Welsh" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Welsh a owl:NamedIndividual, :Welsh_Class ;
+    rdfs:label "Welsh" .
+
+:Yazidi_Class a owl:Class ;
+    rdfs:label "Yazidi" ;
+    rdfs:subClassOf :Kurdish .
+:Yazidi a owl:NamedIndividual, :Yazidi_Class ;
+    rdfs:label "Yazidi" .
+
+:Yugoslavic_Class a owl:Class ;
+    rdfs:label "Yugoslavic/Yugoslav" ;
+    rdfs:subClassOf oeethnicity:Slav .
+:Yugoslavic a owl:NamedIndividual, :Yugoslavic_Class ;
+    rdfs:label "Yugoslavic/Yugoslav" .
+
+:Zarma_Class a owl:Class ;
+    rdfs:label "Zarma" ;
+    rdfs:subClassOf cco:Ethnicity .
+:Zarma a owl:NamedIndividual, :Zarma_Class ;
+    rdfs:label "Zarma" .
+
+:Zaza_Class a owl:Class ;
+    rdfs:label "Zaza" ;
+    rdfs:subClassOf :Kurdish .
+:Zaza a owl:NamedIndividual, :Zaza_Class ;
+    rdfs:label "Zaza" .
