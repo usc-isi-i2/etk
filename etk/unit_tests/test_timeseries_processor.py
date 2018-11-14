@@ -7,6 +7,7 @@ kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.jso
 
 etk = ETK(kg_schema=kg_schema)
 
+
 # python -m unittest etk.unit_tests.test_timeseries_processor to run all unittests
 
 class TestTimeseriesProcessor(unittest.TestCase):
@@ -19,7 +20,7 @@ class TestTimeseriesProcessor(unittest.TestCase):
         selected_docs = docs[1]
         expected_metadata = {
             "name": "AVERAGE DIESEL (AUTOMATIVE GAS OIL) PRICES/ Litre NGN",
-            "granularity":"monthly",
+            "granularity": "monthly",
             "provenance": {
                 "filename": "DIESEL_june_2017.xlsx",
                 "sheet": 0,
@@ -42,15 +43,14 @@ class TestTimeseriesProcessor(unittest.TestCase):
                        ('2017-06-01', 221.25)]
         actual_ts = []
         for t in selected_docs['ts']:
-             if 'instant' in t['time'].keys():
-                  actual_ts.append((t['time']['instant'], t['value']))
-             else:
-                  actual_ts.append((t['time']['span']['start_time'], t['value']))
+            if 'instant' in t['time'].keys():
+                actual_ts.append((t['time']['instant'], t['value']))
+            else:
+                actual_ts.append((t['time']['span']['start_time'], t['value']))
 
         self.assertEqual(actual_ts, expected_ts)
         for k in expected_metadata.keys():
             self.assertEqual(selected_docs['metadata'][k], expected_metadata[k])
-
 
     def testSimpleExtraction(self):
 
@@ -63,12 +63,15 @@ class TestTimeseriesProcessor(unittest.TestCase):
 
         actual_ts = []
         for t in selected_docs['ts']:
-             if 'instant' in t['time'].keys():
-                  actual_ts.append((t['time']['instant'], t['value']))
-             else:
-                  actual_ts.append((t['time']['span']['start_time'], t['value']))
+            if 'instant' in t['time'].keys():
+                actual_ts.append((t['time']['instant'], t['value']))
+            else:
+                actual_ts.append((t['time']['span']['start_time'], t['value']))
 
-        assert actual_ts == [(u'1/1/18', 1234.123), (u'2/1/18', 1241.243), (u'3/1/18', 1254.23), (u'4/1/18', 1674.46), (u'5/1/18', 1252.12), (u'6/1/18', 1178.323), (u'7/1/18', 1265.34), (u'8/1/18', 1154.345), (u'9/1/18', 1253.345), (u'10/1/18', 1325.52), (u'11/1/18', 1345.346), (u'12/1/18', 1234.345)]
+        assert actual_ts == [(u'1/1/18', 1234.123), (u'2/1/18', 1241.243), (u'3/1/18', 1254.23), (u'4/1/18', 1674.46),
+                             (u'5/1/18', 1252.12), (u'6/1/18', 1178.323), (u'7/1/18', 1265.34), (u'8/1/18', 1154.345),
+                             (u'9/1/18', 1253.345), (u'10/1/18', 1325.52), (u'11/1/18', 1345.346),
+                             (u'12/1/18', 1234.345)]
 
     def testExtractionSucceedsWhenMetadataPropertyIsEmpty(self):
         annotation = 'etk/unit_tests/ground_truth/ts_csv.csv_annotation2.json'
@@ -80,10 +83,12 @@ class TestTimeseriesProcessor(unittest.TestCase):
 
         actual_ts = []
         for t in selected_docs['ts']:
-             if 'instant' in t['time'].keys():
-                  actual_ts.append((t['time']['instant'], t['value']))
-             else:
-                  actual_ts.append((t['time']['span']['start_time'], t['value']))
+            if 'instant' in t['time'].keys():
+                actual_ts.append((t['time']['instant'], t['value']))
+            else:
+                actual_ts.append((t['time']['span']['start_time'], t['value']))
 
-        assert actual_ts == [(u'1/1/18', 1234.123), (u'2/1/18', 1241.243), (u'3/1/18', 1254.23), (u'4/1/18', 1674.46), (u'5/1/18', 1252.12), (u'6/1/18', 1178.323), (u'7/1/18', 1265.34), (u'8/1/18', 1154.345), (u'9/1/18', 1253.345), (u'10/1/18', 1325.52), (u'11/1/18', 1345.346), (u'12/1/18', 1234.345)]
-
+        assert actual_ts == [(u'1/1/18', 1234.123), (u'2/1/18', 1241.243), (u'3/1/18', 1254.23), (u'4/1/18', 1674.46),
+                             (u'5/1/18', 1252.12), (u'6/1/18', 1178.323), (u'7/1/18', 1265.34), (u'8/1/18', 1154.345),
+                             (u'9/1/18', 1253.345), (u'10/1/18', 1325.52), (u'11/1/18', 1345.346),
+                             (u'12/1/18', 1234.345)]
