@@ -12,11 +12,11 @@ class TestGranularityDetector(unittest.TestCase):
         dates5 = ["2010-01-01", "2010-01-02", "2010-01-03", "cant parse this", "2010-01-05", "2010-01-06"]
         # dates6 = ["2001Q1", "2001Q2", "2001Q3"]
 
-        assert GranularityDetector.get_granularity(dates1, return_best=True) == "daily"
+        assert GranularityDetector.get_granularity(dates1, return_best=True) == "day"
         assert GranularityDetector.get_granularity(dates2, return_best=True) == "unknown"
-        assert GranularityDetector.get_granularity(dates3, return_best=True) == "yearly"
-        assert GranularityDetector.get_granularity(dates4, return_best=True) == "quarterly"
-        assert GranularityDetector.get_granularity(dates5, return_best=True) == "daily"
+        assert GranularityDetector.get_granularity(dates3, return_best=True) == "year"
+        assert GranularityDetector.get_granularity(dates4, return_best=True) == "quarter"
+        assert GranularityDetector.get_granularity(dates5, return_best=True) == "day"
         # assert GranularityDetector.get_granularity(dates6, return_best=True) == "quarterly"
 
     def test_date_parser(self):
@@ -34,4 +34,5 @@ class TestGranularityDetector(unittest.TestCase):
         assert GranularityDetector.get_parsed_date(date4) == None
         assert GranularityDetector.get_parsed_date(date5) == None
         assert GranularityDetector.get_parsed_date(date6) == datetime(2001, 1, 1)
-        assert GranularityDetector.get_parsed_date(date7) == datetime(2018, 10, 8, 20, 20, 00)  # Seconds resolution is lost
+        assert GranularityDetector.get_parsed_date(date7) == datetime(2018, 10, 8, 20, 20,
+                                                                      00)  # Seconds resolution is lost
