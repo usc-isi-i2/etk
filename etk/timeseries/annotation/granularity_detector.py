@@ -10,15 +10,18 @@ de = DateExtractor(extractor_name='date_extractor')
 """
 Detect simple granularity types in a sequence of dates.
 """
+
+
 class GranularityDetector:
     granularity = {
         "second": timedelta(seconds=1),
         "minute": timedelta(minutes=1),
-        "hourly": timedelta(hours=1),
-        "daily": timedelta(hours=24),
-        "monthly": timedelta(days=30),
-        "quarterly": timedelta(days=120),
-        "yearly": timedelta(days=365)
+        "hour": timedelta(hours=1),
+        "day": timedelta(hours=24),
+        "week": timedelta(days=7),
+        "month": timedelta(days=30),
+        "quarter": timedelta(days=120),
+        "year": timedelta(days=365)
     }
 
     @staticmethod
@@ -30,9 +33,9 @@ class GranularityDetector:
         elif isinstance(my_date, str):
             try:
                 extraction = de.extract(my_date,
-                       date_value_resolution=DateResolution.SECOND,
-                       use_default_formats=True,
-                       additional_formats=['%Y'])
+                                        date_value_resolution=DateResolution.SECOND,
+                                        use_default_formats=True,
+                                        additional_formats=['%Y'])
                 iso_date = extraction[0].value
                 parsed_date = parser.parse(iso_date) if iso_date else None
 
@@ -40,7 +43,6 @@ class GranularityDetector:
             except:
                 return None
         return None
-
 
     @staticmethod
     def get_granularity(dates: List, return_best=True, min_confidence=0.5) -> Dict or str:
@@ -56,10 +58,11 @@ class GranularityDetector:
                 confidence = 0.0
 
                 for i in range(1, len(parsed_dates)):
-                    if parsed_dates[i] and parsed_dates[i-1]:
-                        time_diff = abs(parsed_dates[i] - parsed_dates[i-1])
-                        error = abs(time_diff - time_delta) / (time_diff + time_delta)  # Is there a better measure for error?
-                        confidence += 1-error
+                    if parsed_dates[i] and parsed_dates[i - 1]:
+                        time_diff = abs(parsed_dates[i] - parsed_dates[i - 1])
+                        error = abs(time_diff - time_delta) / (
+                                    time_diff + time_delta)  # Is there a better measure for error?
+                        confidence += 1 - error
 
                 confidence /= (len(parsed_dates) - 1)
                 granularity_confidence[g] = confidence
