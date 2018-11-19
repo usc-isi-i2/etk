@@ -1,0 +1,434 @@
+@prefix : <http://ontology.causeex.com/ontology/odps/ICM#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix event: <http://ontology.causeex.com/ontology/odps/Event#> .
+@prefix icm: <http://ontology.causeex.com/ontology/odps/ICM#> .
+@prefix meas: <http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://ontology.causeex.com/ontology/odps/ICM> rdf:type owl:Ontology ;
+    dcterms:created "May 3, 2018"^^xsd:string ;
+    dcterms:modified "October 23, 2018"^^xsd:string ;
+    rdfs:comment """October 23rd 2018 revisions:
+                    Corrected rdfs:label that should have been an rdfs:comment.
+                    Added the String individual, a kind of VariableDataType, and the string_value datatype property.
+                    Updated rdfs:comments.
+                    Added the CausalVariableEvidence class and has_causal_var_class_ref and has_topic_class_ref properties. Added the 
+                       Actor/Artifact has_xxx_class_ref properties.
+                    Removed the supporting_event property, replacing it with the has_positive/negative_event_class_ref properties.
+                  September 24th 2018 revisions:
+                    Added the ICM prefix name.
+                    Renamed enum_value to possible_enum_value to avoid confusion with the TimeSeriesAndMeasurements
+                      property.
+                    Added FunctionalProperty to has_evidence_entity.
+                    Changed xsd:double to xsd:decimal or xsd:double, and xsd:long to the more generic xsd:integer.
+                    Removed the timestep property since it is no longer needed in the ICM API.
+                    Updated/clarified several class and property descriptions.
+                  August 3rd 2018 revisions:
+                    Added the enum_value, last_updated, supporting_event and time_step datatype properties. 
+                    Removed the Double data type individuals, and added the Boolean, DistributionEnumeration, 
+                      and Enumeration individuals. Added the DistributionProbability class and its properties,
+                      classification_value, classification_probability and has_distribution_probability.
+                    Changed the capitalization of VariableDatatype (to VariableDataType) and has_datatype (to has_data_type).
+                    Removed the max/min/step_value properties and replaced them with int_max/min/step_value and 
+                      float_max/min/step_value properties. 
+                    Renamed has_evidence_reference to has_evidence_entity. 
+                    Removed the specification, FunctionalProperty, from has_backing_entity and has_evidence_entity. 
+                    Removed the VariableValueProperty individual instead assuming that a default ReportedProperty is used. 
+                    Removed the VariableValueSeries class as it is not needed. 
+                    Updated several of the class and property comments/descriptions."""@en ;
+    owl:imports <http://purl.org/dc/terms> ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/Event> ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/TimeSeriesAndMeasurements> ;
+    owl:versionInfo "Version 0.6"^^xsd:string .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+:has_active_actor_class_ref a owl:ObjectProperty ;
+    rdfs:label "has active Actor class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Actor (defined in the Actor ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event class(es) are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of event:Actor is related to the Event using the has_active_actor property. The type of Actor (which must be related by the has_active_actor property) is specified using has_active_actor_class_ref."@en ;
+    rdfs:comment "Actor sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of Actor sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_active_state a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has active state"@en ;
+    rdfs:comment "Indicates the state/status of the VariableValue. The state may be 'Active', 'Inactive' or 'Unknown' at the point in time defined by the VariableValue's timestamp property. The three, possible states are defined in the 'closed class', ActiveState."@en ;
+    rdfs:domain :VariableValue ;
+    rdfs:range :ActiveState .
+
+:has_actor_class_ref a owl:ObjectProperty ;
+    rdfs:label "has Actor class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Actor (defined in the Actor ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event class(es) are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of event:Actor is related to the Event using the has_actor, has_active/affected_actor or has_provider/recipient properties. The type of Actor (which must be related by the has_xxx properties) is specified using the has_actor_class_ref property."@en ;
+    rdfs:comment "Actor sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Actor sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_affected_actor_class_ref a owl:ObjectProperty ;
+    rdfs:label "has affected Actor class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Actor (defined in the Actor ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event class(es) are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of event:Actor is related to the Event using the has_affected_actor property. The type of Actor (which must be related by the has_affected_actor property) is specified using has_affected_actor_class_ref."@en ;
+    rdfs:comment "Actor sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of Actor sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_artifact_class_ref a owl:ObjectProperty ;
+    rdfs:label "has Artifact class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of cco:Artifact (defined in the ccoArtifact and EventArtifact ontologies). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event class(es) are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of cco:Artifact is related to the Event using the has_instrument or is_about_artifact properties. The type of Artifact (which must be related by the has_instrument or is_about_artifact properties) is specified using has_artifact_class_ref."@en ;
+    rdfs:comment "Artifact sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of cco:Artifact sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_backing_entity a owl:ObjectProperty ;
+    rdfs:label "has backing entity"@en ;
+    rdfs:comment "Reference to an individual that gives the context for a CausalVariable, and which is classified using the Event ontology's Actor/agent class, GeneralConcepts ontology's Location/PhysicalLocation classes or (less likely) CCO Artifact ontology's class. For example, if a CausalVariable is describing attacks by Boko Haram, then a 'BokoHaram' Actor individual would be referenced, using this property."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range :Entity .
+
+:has_causal_var_class_ref a owl:ObjectProperty ;
+    rdfs:label "has Causal Variable class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of icm:CausalVariable (defined in the ICMHierarchy ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for instances of that CausalVariable."@en ;
+    rdfs:comment "Using has_causal_var_class_ref, CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance which is a type of has_causal_var_class_ref. (Note that Event classes are associated with an instance of CausalVariableEvidence using the positive/negative_event-class_ref properties.)"@en ;
+    rdfs:comment "CausalVariable sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of cco:Artifact sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_data_type a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has data type"@en ;
+    rdfs:comment "Indicates the type of values of a CausalVariable or ConfigurationVariable. Its values can be defined as a set of enumerated values (either an 'Enumeration' or a 'DistributionEnumeration'), true/false values (a 'Boolean'), a set of string values ('String') or numeric values (a 'Float' or 'Integer' data type). The numeric values are defined as 64-bit integers and floats (decimals or doubles). The possible data types are defined in the 'closed class', VariableDataType."@en ;
+    rdfs:domain _:UnionOfCausalConfigurationVariable ;
+    rdfs:range :VariableDataType .
+
+:has_distribution_probability a owl:ObjectProperty ;
+    rdfs:label "has distribution probability"@en ;
+    rdfs:comment "Relates DistributionProbability instances to a VariableValue to define the complete probability distribution of a CausalVariable at a specific time-step/point in time. The DistributionProbability instances relate a classification value (specified using the DistributionProbability's classification_value property) and its probabilities (specified using the classification_probability property). The sum of all the classification_probabilities of all the DistributionProbability instances of a VariableValue must be 1."@en ;
+    rdfs:comment "Note that only non-zero probabilities need to be specified in DistributionProbability instances. Any meas:enum_values that are not specified for a VariableValue are assumed to be 0."@en ;
+    rdfs:domain :VariableValue;
+    rdfs:range :DistributionProbability .
+
+:has_evidence a owl:ObjectProperty ;
+    rdfs:label "has evidence"@en ;
+    rdfs:comment "An association from a CausalPrimitive to an Evidence individual, indicating that the IRI specified by the Evidence's has_evidence_entity property should be queried to obtain information substantiating the Primitive. Evidence is a reification of the IRI. It is needed in order to also define  'description' and 'rank' properties (where the latter indicates the significance of the IRI, relative to other IRIs/Evidence, for the CausalPrimitive)."@en ;
+    rdfs:domain :CausalPrimitive ;
+    rdfs:range :Evidence .
+
+:has_evidence_entity a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has evidence entity"@en ;
+    rdfs:comment "An association from an Evidence individual to an entity in the backing knowledge base. It indicates that the entity should be queried to obtain information substantiating the Primitive that is related to the Evidence using the has_evidence property. Evidence is a reification of the reference to the entity. It is needed in order to also define 'description' and 'rank' properties."@en ;
+    rdfs:domain :Evidence .
+
+:has_last_value a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has last value"@en ;
+    rdfs:comment "In the TA1 data, the values of a variable in a time series are specified using the TimeSeriesAndMeasurements ontology's has_reported_value property. This property is specialized as has_last_value to supply the 'last known value' of a CausalVariable or ConfigurationVariable."@en ;
+    rdfs:domain _:UnionOfCausalConfigurationVariable ;
+    rdfs:range :VariableValue ;
+    rdfs:subPropertyOf meas:has_reported_value .
+
+:has_negative_event_class_ref a owl:ObjectProperty ;
+    rdfs:label "negative Event class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Event (defined in the Event and EventHierarchy ontologies). This property is used to indicate that instances of this class detract as Evidence for a CausalVariable (i.e., events whose classification match the specified IRI would be counter-examples of the CausalVariable)."@en ;
+    rdfs:comment "The Event class is related to a CausalVariableEvidence individual using the has_negative_event_class_ref property. The CausalVariableEvidence individual is relevant as a counter-example of a particular CausalVariable instance IF the class identified by the Evidence's has_causal_var_class_ref property matches the class type of the CausalVariable. For example, consider the use case of finding evidence for the level of a military force's aggressive activities. In this case, the has_causal_var_class_ref would be set to http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities. The negative evidence would be instances of the Event classes, http://ontology.causeex.com/ontology/odps/Event#MilitaryDeescalation and http://ontology.causeex.com/ontology/odps/Event#Peacekeeping. A CausalVariable of type, icm:CausalVariable and icm:MilitaryActivities, would use the Event class references as detracting evidence."@en ;
+    rdfs:comment "Event sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Event sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_positive_event_class_ref a owl:ObjectProperty ;
+    rdfs:label "positive Event class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Event (defined in the Event and EventHierarchy ontologies). This property is used to indicate that instances of this class are relevant as Evidence supporting a CausalVariable (i.e., events whose classification match the specified IRI could be relevant as evidence for the CausalVariable)."@en ;
+    rdfs:comment "The Event class is related to a CausalVariableEvidence individual using the has_positive_event_class_ref property. The CausalVariableEvidence individual is relevant to a particular CausalVariable instance IF the class identified by the Evidence's has_causal_var_class_ref property matches the class type of the CausalVariable. For example, consider the use case of finding evidence for the level of a military force's aggressive activities. In this case, the has_causal_var_class_ref would be set to http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities. The positive evidence would be instances of the Event classes, http://ontology.causeex.com/ontology/odps/Event#Attack (including its sub-classes), http://ontology.causeex.com/ontology/odps/Event#ApplicationOfMilitaryOrPoliticalPressure and http://ontology.causeex.com/ontology/odps/Event#MilitaryAction. A CausalVariable of type, icm:CausalVariable and icm:MilitaryActivities, could use the Event class references to find relevant evidence."@en ;
+    rdfs:comment "Event sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Event sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_provider_class_ref a owl:ObjectProperty ;
+    rdfs:label "provider (Actor) class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Actor (defined in the Actor ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event classes are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of event:Actor is related to the Event using the has_provider property. The type of Actor (which must be related by the has_provider property) is specified using has_provider_class_ref."@en ;
+    rdfs:comment "Actor sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Event sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_recipient_class_ref a owl:ObjectProperty ;
+    rdfs:label "recipient (Actor) class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Actor (defined in the Actor ontology). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event classes are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when a specific type of event:Actor is related to the Event using the has_recipient property. The type of Actor (which must be related by the has_recipient property) is specified using has_recipient_class_ref."@en ;
+    rdfs:comment "Actor sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Event sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+:has_source a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has source"@en ;
+    rdfs:comment "Since Relationships are directed, the has_source property defines the CausalVariable or Entity that is the origin of the association."@en ;
+    rdfs:comment "For CausalRelationships, the has_source property defines the cause, precondition, catalyst, or preventative or mitigating factor of the association. Whether the 'source' is positively (cause, precondition or catalyst) or negatively (preventative or mitigating factor) correlated with the 'target' is defined by the CausalRelationship's reinforcement property."@en ;
+    rdfs:domain :Relationship ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (:CausalVariable :Entity) ] .
+
+:has_target a owl:ObjectProperty, owl:FunctionalProperty ;
+    rdfs:label "has target"@en ;
+    rdfs:comment "Since Relationships are directed, the has_target property defines the CausalVariable or Entity that is the endpoint of the association."@en ;
+    rdfs:comment "For CausalRelationships, the has_target property defines the effect."@en ;
+    rdfs:domain :Relationship ;
+    rdfs:range [ a owl:Class ;
+                 owl:unionOf (:CausalVariable :Entity) ] .
+
+:has_topic_class_ref a owl:ObjectProperty ;
+    rdfs:label "topic Event class reference"@en ;
+    rdfs:comment "An IRI referencing a sub-class of event:Event (defined in the Event and EventHierarchy ontologies). This property is used in a CausalVariableEvidence definition and determines when the details in the Evidence individual are relevant as evidence for a particular CausalVariable."@en ;
+    rdfs:comment "CausalVariableEvidence relates a sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#Propaganda) with classes in the Event ontology's hierarchy. CausalVariableEvidence defines which Events may be relevant to determining/substantiating a CausalVariable instance. The Event class(es) are associated with an instance of CausalVariableEvidence using the has_positive/negative_event_class_ref properties. But, other requirements for inclusion may also be needed, such as whether the classes are only relevant when another type of Event is related using the has_topic property. For example, an Accusation Event may be relevant to providing evidence of Propaganda only if it has a has_topic reference to a Corruption Event, and an active actor of a PoliticalOrganization. The type of Event (which must be related by the has_topic property) is specified using has_topic_class_ref."@en ;
+    rdfs:comment "Event sub-class IRIs are provided using this property, and OWL puning is assumed (meaning that the class IRI is treated as a individual of the 'metaconcept' of event:Event sub-classes)."@en ;
+    rdfs:domain :CausalVariableEvidence .
+
+
+#################################################################
+#    Data Properties
+#################################################################
+
+:classification_probability a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "classification probability"@en ;
+    rdfs:comment "A decimal indicating the probability of a classification/value. The value text is specified using the classification_property property and the probability is defined using this property. The details are reified in an instance of DistributionProbability."@en ;
+    rdfs:domain :DistributionProbability ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:onDatatype xsd:decimal ;
+                 owl:withRestrictions ( [ owl:minInclusive "0.00"^^xsd:decimal ]
+                                        [ owl:maxInclusive "1.00"^^xsd:decimal ] ) ] .
+
+:classification_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "classification value"@en ;
+    rdfs:comment "A string indicating the specific classification/value for which a probability is provided. The value text is specified using this property and the probability is defined using the classification_probability property. The details are reified in an instance of DistributionProbability."@en ;
+    rdfs:domain :DistributionProbability ;
+    rdfs:range xsd:string .
+
+:description a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "description"@en ;
+    rdfs:comment "A string providing additional information about a CausalPrimitive."@en ;
+    rdfs:domain :CausalPrimitive, :Evidence ;
+    rdfs:range xsd:string .
+
+:disableable a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "disableable"@en ;
+    rdfs:comment "A boolean indicating that the CausalPrimitive may be excluded."@en ;
+    rdfs:domain :CausalPrimitive ;
+    rdfs:range xsd:boolean .
+
+:disabled a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "disabled"@en ;
+    rdfs:comment "A boolean indicating that the CausalPrimitive is currently disabled/excluded."@en ;
+    rdfs:domain :CausalPrimitive ;
+    rdfs:range xsd:boolean .
+
+:editable a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "editable"@en ;
+    rdfs:comment "A boolean indicating that the CausalPrimitive's values or properties may be changed."@en ;
+    rdfs:domain :CausalPrimitive ;
+    rdfs:range xsd:boolean .
+
+:float_max_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "maximum value for Float Variable (decimal or double)"@en ;
+    rdfs:comment "An xsd:decimal or xsd:double defining the largest possible amount/count/measurment/... of a 'Float' VariableValue. This is used to calibrate the scale for displaying the values, along with float_min_value and float_step_value."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:unionOf ( xsd:decimal xsd:double ) ] .
+
+:float_min_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "minimum value for Float Variable (decimal or double)"@en ;
+    rdfs:comment "An xsd:decimal or xsd:double defining the smallest/lowest possible amount/count/measurment/... of a 'Float' VariableValue. This is used to calibrate the scale for displaying the values, along with float_max_value and float_step_value."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:unionOf ( xsd:decimal xsd:double ) ] .
+
+:float_step_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "step value for Float Variable (decimal or double)"@en ;
+    rdfs:comment "An xsd:decimal or xsd:double defining the scalar increments for displaying 'Float' VariableValues. This is used in combination with the float_max_value and float_min_value properties."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:unionOf ( xsd:decimal xsd:double ) ] .
+
+:int_max_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "maximum value for Integer Variable (integer)"@en ;
+    rdfs:comment "An integer defining the largest possible amount/count/measurment/... of an 'Integer' VariableValue. This is used to calibrate the scale for displaying the values, along with int_min_value and int_step_value."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range xsd:integer .
+
+:int_min_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "minimum value for Integer Variable (integer)"@en ;
+    rdfs:comment "An integer defining the smallest/lowest possible amount/count/measurment/... of an 'Integer' VariableValue. This is used to calibrate the scale for displaying the values, along with int_max_value and int_step_value."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range xsd:integer .
+
+:int_step_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "step value for Integer Variable (integer)"@en ;
+    rdfs:comment "An integer defining the scalar increments for displaying 'Integer' VariableValues. This is used in combination with the int_max_value and int_min_value properties."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range xsd:integer .
+
+:last_updated a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "last updated"@en ;
+    rdfs:comment "A dateTime value indicating when the CausalPrimitive's values or properties were last changed."@en ;
+    rdfs:domain :CausalPrimitive ;
+    rdfs:range xsd:dateTime .
+
+:possible_enum_value a owl:DatatypeProperty ;
+    rdfs:label "possible enumerated value"@en ;
+    rdfs:comment "A string defining one of the possible values of an Enumeration or DistributionEnumeration VariableValue. All possible enumeration values should be related to a VariableValue to define its scope."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range xsd:string .
+
+:rank a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "rank"@en ;
+    rdfs:comment "An integer value between 0 and 10 indicating the significance of the evidence, where 0 is totally insignificant/irrelevant and 10 is extremely significant/relevant."@en ;
+    rdfs:domain :Evidence ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:onDatatype xsd:integer ;
+                 owl:withRestrictions ( [ owl:minInclusive "0"^^xsd:integer ]
+                                        [ owl:maxInclusive "10"^^xsd:integer ] ) ] .
+
+:reinforcement a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "reinforcement"@en ;
+    rdfs:comment "A boolean set to true if the source reference in a CausalRelationship increases the likelihood of the target occurring, or false if the source reference decreases the likelihood of the target occurring."@en ;
+    rdfs:comment "If generalizing a CausalAssertion in TA1 data, the reinforcement property is set to true if the source is defined using the has_cause, has_precondition or has_catalyst properties, and set to false if the source is specified using the has_preventative or has_mitigating_factor properties."@en ;
+    rdfs:domain :CausalRelationship ;
+    rdfs:range xsd:boolean .
+
+:strength a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "strength"@en ;
+    rdfs:comment "A decimal value between 0 and 1 indicating the intensity of the effect that the source reference in a CausalRelationship has upon the target, or indicating the strength of the relationship of the Event classes to the CausalVariable for a CausalVariableEvidence individual. For the latter, the Events are related using the has_positive/negative_class_ref properties and the CausalVariable is identified using the has_causal_var_class_ref property. A value of 0 indicates that there is no effect, while a value of 1 indicates that there is an extremely strong effect. The effect is either positive or negative depending on whether the CausalRelationship's reinforcement property is true (positive effect) or false (negative effect), or based on whether the Event is related using the has_positive or has_negative_class_ref property."@en ;
+    rdfs:comment "Note that multiple CausalVariableEvidence instances may be needed for the same CausalVariable class (referenced using the has_causal_var_class_ref property) if the strengths/contributions of the different Events vary. This is the simplest way to reify that information."@en ;
+    rdfs:domain [ a owl:Class ;
+                  owl:unionOf ( :CausalRelationship :CausalVariableEvidence ) ] ;
+    rdfs:range [ a rdfs:Datatype ;
+                 owl:onDatatype xsd:decimal ;
+                 owl:withRestrictions ( [ owl:minInclusive "0.00"^^xsd:decimal ]
+                                        [ owl:maxInclusive "1.00"^^xsd:decimal ] ) ] .
+
+:string_value a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "string value"@en ;
+    rdfs:comment "A string specifying the value of a ReportedValue individual, when its ReportedPropertyType is String."@en ;
+    rdfs:domain :ReportedValue ;
+    rdfs:range xsd:string .
+
+:timestamp a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "timestamp"@en ;
+    rdfs:comment "A dateTime value at which a VariableValue is reported."@en ;
+    rdfs:domain :VariableValue ;
+    rdfs:range xsd:dateTime .
+
+:units a owl:DatatypeProperty, owl:FunctionalProperty ;
+    rdfs:label "units"@en ;
+    rdfs:comment "A string defining the units for any VariableValues of the CausalVariable. Note that it is also possible to map the has_measurement/relative_unit and multiplier/divisor, relative_multiplier/divisor properties of the TimeSeriesAndMeasurements ontology to a 'units' string if TA1 ReportedValues are directly incorporated."@en ;
+    rdfs:domain :CausalVariable ;
+    rdfs:range xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+:ActiveState a owl:Class ;
+    rdfs:label "Active State"@en ;
+    rdfs:comment "An enumeration (also known as a 'closed class') which defines the state/status of a VariableValue. The state may be 'Active', 'Inactive' or 'Unknown' at the point in time defined by the VariableValue's timestamp property."@en ;
+    owl:equivalentClass [ a owl:Class ;
+                          owl:oneOf ( :Active :Inactive :Unknown ) ] .
+
+:CausalPrimitive a owl:Class ;
+    rdfs:label "Causal Primitive" ;
+    rdfs:comment "CausalPrimitive is the top of the ICM ODP inheritance tree. It is logically 'abstract' - meaning that only its sub-classes should be directly instantiated (CausalVariable, ConfigurationVariable, Relationship and CausalRelationship). CausalPrimitive exists only to define properties that are inherited by its sub-classes. The properties of CausalPrimitive are: editable, disableable, disabled, last_updated and description. In addition, a label should be defined, which is captured using the GeneralConcepts ontology's canonical_name property. In addition, an Evidence individual can be associated with a Primitive using the has_evidence property."@en .
+
+:CausalRelationship a owl:Class ;
+    rdfs:label "Causal Relationship" ;
+    rdfs:comment "Causal Relationship is a specialization of Relationship where the has_source and has_target properties have specific semantics ('causal'/'preventative' for the source and 'effect' for the target), and a few additional properties are defined. CausalRelationship has similar semantics to the CausalAssertion class defined in the CauseEffect ontology."@en ;
+    rdfs:comment "CausalRelationship's additional properties are: reinforcement, strength and the GeneralConcepts ontology's numeric_confidence."@en ;
+    rdfs:subClassOf :Relationship .
+
+:CausalVariable a owl:Class ;
+    rdfs:label "Causal Variable" ;
+    rdfs:comment "CausalVariables are key semantics/concepts extracted from the backing knowledge base that are correlated with each other and whose values are reported/projected over time (creating a time series). For example, increases in the price of diesel fuel may be correlated with increases in the cost of public transportation. Both of these concepts (price of diesel fuel and price of public transportation) may be defined as CausalVariables, and the specific values (price and cost) can be reported at various time steps using instances of the VariableValue class."@en ;
+    rdfs:comment "CausalVariable is sub-classed in the ICMHierarchy.ttl ontology file. Since a CausalVariable is sub-classed from both CausalPrimitive and event:Event, one might ask why a separate sub-classing tree is defined. Certainly, the Event sub-classes could be used. The answer is that the Event hierarchy is too fine-grained. So, the ICM hierarchy is defined in order to summarize CausalVariable semantics. Also, the hierarchy is useful to associate different icons with the various Variables (for example, having one icon for Violence, another for Corruption, a third for DisinformationActivities, etc.)."@en ;
+    rdfs:comment "The properties of a CausalVariable individual are has_data_type (referencing a VariableDataType individual - i.e., 'Boolean', 'DistributionEnumeration', 'Enumeration', 'Float', 'Integer' or 'String'), has_last_value (referencing a VariableValue individual), has_backing_entity (referencing an Entity individual), description, and the TimeSeriesAndMeasurements ontology's has_measurement_unit and has_relative_unit properties. Several additional properties are defined for a CausalVariable to capture all the semantics required by the JSON encoding. These are: possible_enum_value (defining each of the possible values of an Enumeration or DistributionEnumeration Variable), int/float_max/min_value, int/float_step_value and units. Also, the GeneralConcepts ontology's canonical_name property is used to define the Variable's label and the GeneralConcepts ontology's numeric_confidence property defines the trust/confidence in the Variable's concept."@en ;
+    rdfs:comment "It is recommended that the has_measurement_unit and has_relative_unit properties of the TimeSeriesAndMeasurements ontology be used instead of the icm:units datatype property, since the former are defined to be very flexible, non-ambiguous and easily transformed for comparison purposes. If this cannot be done (for whatever reason), then the information can be expressed as a free-form string using the icm:units property."@en ;
+    rdfs:comment "Note that if the CausalVariable is a Boolean or String VariableDataType, no additional information is needed (no xxx_values are defined). For an 'Integer' VariableDataType, the int_max/min_value and int_step_value properties are defined. For an Enumeration or DistributionEnumeration VariableDataType, the possible_enum_value property is used to define each possible value/string. For a 'Float' VariableDataType, the float_max/min_value and float_step_value properties must also be defined."@en ;
+    rdfs:subClassOf :CausalPrimitive, meas:TimeSeries .
+
+:CausalVariableEvidence a owl:Class ;
+    rdfs:label "Causal Variable Evidence" ;
+    rdfs:comment "It is difficult to determine exactly which Events are relevant as evidence for a CausalVariable. For this reason, the CausalVariableEvidence class is defined. Its properties relate a specific sub-class of CausalVariable (for example, http://ontology.causeex.com/ontology/odps/ICM#MilitaryActivities) with classes in the Event ontology's hierarchy. It is used to define which Events may be relevant to determining/substantiating a CausalVariable instance which is a type of that class."@en ;
+    rdfs:comment "The properties of CausalVariableEvidence identify the CausalVariable sub-class (has_causal_var_class_ref), and one or more sub-classes of event:Event, along with whether those classes have a positive or negative effect on the CausalVariable (has_positive/negative_event_class_ref). In addition, other requirements for inclusion can be specified, such as whether the classes are only relevant when a specific type of event:Actor or cco:Artifact is also involved (other has_xxx_class_ref properties). If multiple Event sub-classes are defined (by using multiple has_positive/negative_event_class_refs or by defining multiple Evidence individuals for the same CausalVariable), the resulting evidence is assumed to be a union of all Event individuals that have a type of at least one of the specified IRIs, along with matching any specified, related Actor and/or Artifact class types."@en .
+
+:ConfigurationVariable a owl:Class ;
+    rdfs:label "Configuration Variable" ;
+    rdfs:comment "ConfigurationVariables are not derived from any extracted or inferred knowledge/information, but are parameters affecting the set-up and execution of the ICM processing."@en ;
+    rdfs:comment "A ConfigurationVariable has additional properties beyond those inherited from CausalPrimitive. These are has_data_type (referencing a VariableDataType individual), and has_last_value (referencing a VariableValue individual)."@en ;
+    rdfs:subClassOf :CausalPrimitive .
+
+:DistributionProbability a owl:Class ;
+    rdfs:label "Distribution Probability"@en ;
+    rdfs:comment "A class whose instances reify the possible classifications/values and their probabilities for a CausalVariable whose data type is 'DistributionEnumeration'. The individual values and their probabilities are defined using instances of this class - where the enumerated value (for example, 'yes' or 'no' for a SufferedAttackInPast variable, or 'high'/'medium'/'low' values for a LackOfFood variable) is specified using the classification_value property and the probability is specified using the classification_probability property. DistributionProbability instances are related to a VariableValue (of the CausalVariable) using the has_distribution_probability object property."@en . 
+
+:Entity a owl:Class ;
+    rdfs:label "Entity" ;
+    rdfs:comment "An Entity individual defines the context for a CausalVariable. The individual is related to the CausalVariable using the has_backing_entity property. Note that an Entity individual is also classified using a sub-class of the Event ontology's Actor/agent class, GeneralConcepts ontology's Location/PhysicalLocation classes or (less likely) CCO Artifact ontology's class. For example, if a CausalVariable is describing attacks by Boko Haram, then a 'BokoHaram' Actor individual would be created and referenced by the CausalVariable via the has_backing_entity property."@en ;
+    rdfs:comment "A confidence property (GeneralConcepts ontology's numeric_confidence) can be specified for an Entity."@en ;
+    rdfs:subClassOf :CausalPrimitive .
+
+:Evidence a owl:Class ;
+    rdfs:label "Evidence"@en ;
+    rdfs:comment "A CausalPrimitive may be substantiated by information/entities in the backing knowledge base. These entities are identified by their IRIs. The Evidence class is defined in order to reify the reference to the IRI - and therefore allow more data to be associated with it. The entity/IRI is referenced using the has_evidence_entity property, and the additional information is the 'description' and 'rank' properties. The latter defines the significance of the entity, relative to other IRIs/entities."@en .
+
+:Relationship a owl:Class ;
+    rdfs:label "Relationship" ;
+    rdfs:comment "Relationship is used to reify any association between CausalPrimitives and/or Entities. It is sub-classed to create a CausalRelationship class to highlight the importance of that semantic in the ICM ODP."@en ;
+    rdfs:comment "A Relationship describes a directed association from the 'source' entity to the 'target'. It is used to reify any subject-predicate-object triple defined in the backing knowledge base, that should be surfaced to the user interface. For example, if a whole-part relationship defining the segmentation of a religious organization Entity into sects is needed, this is described by reifying the organization - general:has_component - sect triples. Or, if an actor:Person Entity is affiliated with an organization, that is described by reifying the person - actor:has_affiliation - organization triple. Reification is needed since a Relationship has all the properties inherited from CausalPrimitive and also defines a confidence property (the GeneralConcepts ontology's numeric_confidence) to indicate the trust that one places in the correctness of its definition."@en ;
+    rdfs:subClassOf :CausalPrimitive .
+
+:VariableDataType a owl:Class ;
+    rdfs:label "Variable Data Type"@en ;
+    rdfs:comment "An enumeration (a 'closed class') which defines the type of values of a CausalVariable or ConfigurationVariable. A Variable's values can be defined as a set of enumerated values (either an 'Enumeration' or a 'DistributionEnumeration'), true/false values (a 'Boolean'), string values (a 'String') or numeric values (a 'Float' or 'Integer' data type). The numeric values are defined as 64-bit integers and floats (decimals or doubles)."@en ;
+    owl:equivalentClass [ a owl:Class ;
+                          owl:oneOf ( :Boolean :DistributionEnumeration :Enumeration :Float :Integer :String ) ] .
+
+:VariableValue a owl:Class ;
+    rdfs:label "Variable Value"@en ;
+    rdfs:comment "A specialization of the TimeSeriesAndMeasurements ontology's ReportedValue class. The specific value of the Variable is reported using the TimeSeriesAndMeasurements ontology's enum_value or numeric_value datatype properties, or using the has_distribution_probability object property or string_value datatype property (defined in this ontology). Causal or ConfigurationVariables of type, 'Boolean' or 'Enumeration', utilize the meas:enum_value property. Variables of type, 'Integer' or 'Float', use meas:numeric_value. Causal or ConfigurationVariables of type, 'DistributionEnumeration', utilize the icm:has_distribution_probability object property. And, Variables of type, 'String', use the icm:string_value datatype property. In addition, the timestamp datatype properties indicates the time-related details of the value."@en ;
+    rdfs:comment "In addition to the value and timestamp of the Variable, a trend can also be indicated using the meas:has_trend object property."@en ;
+    rdfs:subClassOf meas:ReportedValue .
+
+_:UnionOfCausalConfigurationVariable a owl:Class ;
+    owl:unionOf ( :CausalVariable :ConfigurationVariable ) .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+:Active a owl:NamedIndividual, :ActiveState ;
+    rdfs:label "Active"@en .
+
+:Boolean a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "Boolean"@en .
+
+:DistributionEnumeration a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "Distribution Enumeration"@en ;
+    rdfs:comment "When a CausalVariable is defined as a DistributionEnumeration data type (using the has_data_type property), the CausalVariable must define its possible values using the possible_enum_value datatype property."@en .
+
+:Enumeration a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "Enumeration"@en ;
+    rdfs:comment "When a CausalVariable is defined as an Enumeration data type (using the has_data_type property), the CausalVariable must define its specific enumerated values using the possible_enum_value datatype property."@en .
+
+:Float a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "Float"@en ;
+    rdfs:comment "When a CausalVariable is defined as an 'Float' data type (using the has_data_type property), the CausalVariable must define the applicable max/min and step values using the float_max/min_value and float_step_value properties."@en .
+
+:Inactive a owl:NamedIndividual, :ActiveState ;
+    rdfs:label "Inactive"@en .
+
+:Integer a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "Integer"@en ;
+    rdfs:comment "When a CausalVariable is defined as an 'Integer' data type (using the has_data_type property), the CausalVariable must define the applicable max/min and step values using the int_max/min_value and int_step_value properties."@en .
+
+:String a owl:NamedIndividual, :VariableDataType ;
+    rdfs:label "String"@en .
+
+:Unknown a owl:NamedIndividual, :ActiveState ;
+    rdfs:label "Unknown"@en .
+
+_:diff1 rdf:type owl:AllDifferent ; 
+    owl:members ( :Active :Boolean :DistributionEnumeration :Enumeration :Float :Inactive :Integer :String :Unknown ) .

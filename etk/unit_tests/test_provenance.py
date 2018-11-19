@@ -1,7 +1,7 @@
 import unittest, json
 from etk.etk import ETK
 from etk.extractors.glossary_extractor import GlossaryExtractor
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph import KGSchema
 
 sample_input = {
         "projects": [
@@ -160,11 +160,9 @@ class TestProvenance(unittest.TestCase):
                   ]
                 }
               ]
-        #print ("hiiiiiiiiiiiiiiiii")
-        #print ("projects: " + str(doc.value["projects"]))
-        #print ("provenances: " + str(doc.value["provenances"]))
         self.assertEqual(expected_projects, doc.value["projects"])
         self.assertEqual(expected_provenances, doc.value["provenances"])
+
 
 if __name__ == '__main__':
     unittest.main()

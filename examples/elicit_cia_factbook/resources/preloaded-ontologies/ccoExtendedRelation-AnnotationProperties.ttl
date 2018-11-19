@@ -1,0 +1,219 @@
+@prefix : <http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix cco: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+# @prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+# @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology> .
+
+<http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology> rdf:type owl:Ontology ;
+#      owl:imports <http://www.obofoundry.org/ro/ro.owl> ;
+       rdfs:comment "Original comment: This ontology is designed to represent many of the relations (i.e. object properties) that hold between entities at the level of the mid-level Common Core Ontologies."^^xsd:string ;
+       rdfs:comment """Last modified:
+                      October 5th 2018 to retain annotation properties that are used in the CCO class/property definitions and remove unused imports and prefixes."""^^xsd:string ;
+       cco:content_license "The Creative Commons BY 3.0 License (https://creativecommons.org/licenses/by/3.0/)."^^xsd:string ;
+       cco:code_license "The 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)."^^xsd:string ;
+       cco:copyright "COPYRIGHT © 2017 CUBRC, Inc."^^xsd:string ;
+       rdfs:label "Extended Relation Ontology"^^xsd:string ;
+       owl:versionInfo "October 16, 2017"^^xsd:string , "Version 1.0.1"^^xsd:string, "CauseEx Version 1.0.0"^^xsd:string .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/acronym
+cco:acronym rdf:type owl:AnnotationProperty ;
+            cco:definition "An Alternative Label that consists of a shortened or abbreviated form of the rdfs:label and is used to denote the entity."^^xsd:string ;
+            cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+            rdfs:label "acronym"^^xsd:string ;
+            rdfs:subPropertyOf cco:alternative_label .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/alternative_label
+cco:alternative_label rdf:type owl:AnnotationProperty ;
+                      cco:definition "A term or phrase that may be used in place of the stated rdfs:label to denote the entity in question."^^xsd:string ;
+                      cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                      rdfs:label "alternative label"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/code_license
+cco:code_license rdf:type owl:AnnotationProperty ;
+                 cco:definition "The name and description of the license under which the .owl file is released."^^xsd:string ;
+                 cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                 rdfs:label "code license"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/content_license
+cco:content_license rdf:type owl:AnnotationProperty ;
+                    cco:definition "The name and description of the license under which the ideas, concepts and other informational content expressed in the .owl file are released."^^xsd:string ;
+                    cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                    rdfs:label "content license"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/copyright
+cco:copyright rdf:type owl:AnnotationProperty ;
+              cco:definition "An assertion of copyright"^^xsd:string ;
+              cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+              rdfs:label "copyright"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/definition
+cco:definition rdf:type owl:AnnotationProperty ;
+               cco:definition "A natural language explication of the meaning of the term."^^xsd:string ;
+               cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+               rdfs:label "definition"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/definition_source
+cco:definition_source rdf:type owl:AnnotationProperty ;
+                      cco:definition "A citation of where all or some of the information used to create the term's Definition was acquired from."^^xsd:string ;
+                      cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                      rdfs:label "definition source"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/designator_annotation
+cco:designator_annotation rdf:type owl:AnnotationProperty ;
+                          cco:definition "A name or other identifier that is used to designate an individual."^^xsd:string ;
+                          cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                          rdfs:label "designator annotation"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/doctrinal_acronym
+cco:doctrinal_acronym rdf:type owl:AnnotationProperty ;
+                      cco:definition "An Acronym that is used by a Doctrinal Source to denote the entity."^^xsd:string ;
+                      cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                      rdfs:label "doctrinal acronym"^^xsd:string ;
+                      rdfs:subPropertyOf cco:acronym .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/doctrinal_definition
+cco:doctrinal_definition rdf:type owl:AnnotationProperty ;
+                         cco:definition "A Definition that is taken directly from a Doctrinal Source."^^xsd:string ;
+                         cco:elucidation "There is only one definition for any given term in an ontology; however, a Doctrinal Definition may be provided in addition to the asserted Definition if the preservation of this information is important. When both a Definition and a Doctrinal Definition are provided for a term, the Definition takes precedence."^^xsd:string ;
+                         cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                         rdfs:label "doctrinal definition"^^xsd:string ;
+                         rdfs:subPropertyOf cco:definition .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/doctrinal_label
+cco:doctrinal_label rdf:type owl:AnnotationProperty ;
+                    cco:definition "An Alternative Label that consists of the preferred term or phrase used by a Doctrinal Source to denote the entity."^^xsd:string ;
+                    cco:elucidation "When the cco:doctrinal_label is identical to the rdfs:label, the cco:doctrinal_label annotation is superfluous. As a subclass of 'alternative label', 'doctrinal label' is intended to be used to provide additional information about the entity when its preferred doctrinal designator is ambiguous or otherwise inappropriate for use as the rdfs:label."^^xsd:string ;
+                    cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                    rdfs:label "doctrinal label"^^xsd:string ;
+                    rdfs:subPropertyOf cco:alternative_label .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/doctrinal_source
+cco:doctrinal_source rdf:type owl:AnnotationProperty ;
+                     cco:definition "A Definition Source that consists of a formalized doctrine in which the term is authoritatively defined."^^xsd:string ;
+                     cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                     rdfs:label "doctrinal source"^^xsd:string ;
+                     rdfs:subPropertyOf cco:definition_source .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/elucidation
+cco:elucidation rdf:type owl:AnnotationProperty ;
+                cco:definition "A clarification or further explanation of a term beyond what is included in the Definition or which is used when the term is primitive such that no non-circular definition can be given for it."^^xsd:string ;
+                cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                rdfs:label "elucidation"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/example_of_usage
+cco:example_of_usage rdf:type owl:AnnotationProperty ;
+                     cco:definition "A phrase, sentence or set of terms intended to convey the conventional usage of the term."^^xsd:string ;
+                     cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                     rdfs:label "example of usage"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/has_token_unit
+cco:has_token_unit rdf:type owl:AnnotationProperty ;
+                   cco:definition "A relation between an information content entity and a widely used measurement unit of the token used to express it."^^xsd:string ;
+                   cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                   rdfs:label "has token unit"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/http_query_string
+cco:http_query_string rdf:type owl:AnnotationProperty ;
+                      cco:definition "The text of an HTTP request that can be sent to a SPARQL Protocol service."^^xsd:string ;
+                      cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                      rdfs:label "http query string"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/interval_measurement_annotation
+cco:interval_measurement_annotation rdf:type owl:AnnotationProperty ;
+                                    cco:definition "A interval measurement value of an instance of a quality, realizable or process profile "^^xsd:string ;
+                                    cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                                    rdfs:label "interval measurement annotation"^^xsd:string ;
+                                    rdfs:subPropertyOf cco:measurement_annotation .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/is_curated_in_ontology
+cco:is_curated_in_ontology rdf:type owl:AnnotationProperty ;
+                           cco:definition "This annotation is used to provide the name of the ontology file in which a class or property is located."^^xsd:string ;
+                           cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                           rdfs:label "is curated in ontology"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/is_tokenized_by
+cco:is_tokenized_by rdf:type owl:AnnotationProperty ;
+                    cco:definition "A relation between an information content entity and a widely used token used to express it."^^xsd:string ;
+                    cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                    rdfs:label "is tokenized by"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/measurement_annotation
+cco:measurement_annotation rdf:type owl:AnnotationProperty ;
+                           cco:definition "A measurement value of an instance of a quality, reazlizable or process profile"^^xsd:string ;
+                           cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                           rdfs:label "measurement annotation"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/nominal_measurement_annotation
+cco:nominal_measurement_annotation rdf:type owl:AnnotationProperty ;
+                                   cco:definition "A nominal measurement value of an instance of a quality, realizable or process profile"^^xsd:string ;
+                                   cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                                   rdfs:label "nominal measurement annotation"^^xsd:string ;
+                                   rdfs:subPropertyOf cco:measurement_annotation .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/ordinal_measurement_annotation
+cco:ordinal_measurement_annotation rdf:type owl:AnnotationProperty ;
+                                   cco:definition "An ordinal measurement value of an instance of a quality, realizable or process profile"^^xsd:string ;
+                                   cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                                   rdfs:label "ordinal measurement annotation"^^xsd:string ;
+                                   rdfs:subPropertyOf cco:measurement_annotation .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/query_text
+cco:query_text rdf:type owl:AnnotationProperty ;
+               cco:definition "The text of a query that is associated with a class"^^xsd:string ;
+               cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+               rdfs:label "query text"^^xsd:string .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/ratio_measurement_annotation
+cco:ratio_measurement_annotation rdf:type owl:AnnotationProperty ;
+                                 cco:definition "A ratio measurement value of an instance of a quality, realizable or process profile"^^xsd:string ;
+                                 cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                                 rdfs:label "ratio measurement annotation"^^xsd:string ;
+                                 rdfs:subPropertyOf cco:measurement_annotation .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/term_creator
+cco:term_creator rdf:type owl:AnnotationProperty ;
+                 cco:definition "The name of the Term Editor who added the term to the ontology."^^xsd:string ;
+                 cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                 rdfs:label "term creator"^^xsd:string ;
+                 rdfs:subPropertyOf cco:term_editor .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/term_editor
+cco:term_editor rdf:type owl:AnnotationProperty ;
+                cco:definition "The name of a person who contributed to the development or enhancement of the term."^^xsd:string ;
+                cco:is_curated_in_ontology "http://www.ontologyrepository.com/CommonCoreOntologies/Upper/ExtendedRelationOntology"^^xsd:string ;
+                rdfs:label "term editor"^^xsd:string .

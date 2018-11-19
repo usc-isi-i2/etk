@@ -1,0 +1,366 @@
+@prefix : <http://ontology.causeex.com/ontology/odps/Event#> .
+@prefix cco: <http://www.ontologyrepository.com/CommonCoreOntologies/> .
+@prefix data-prov: <http://ontology.causeex.com/ontology/odps/DataProvenance#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix event: <http://ontology.causeex.com/ontology/odps/Event#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://ontology.causeex.com/ontology/odps/EventArtifact> rdf:type owl:Ontology ;
+    dcterms:created "January 28, 2018"^^xsd:string ;
+    dcterms:description "Ontology holding new classes, extending the hierarchy of the CCO Artifact ontology."@en ;
+    dcterms:modified "October 23, 2018"^^xsd:string ;
+    rdfs:comment """October 23rd 2018 revisions:
+                     Corrected several rdfs:labels that should have been comments.
+                     Added Annuity, BankProduct, CommodityOrSecurityFuture, InvestmentFund, Option and RetirementInvestment.
+                     Removed/refined the ontology imports to limit them to what is explicitly referenced.
+                     Removed change history more than 6 months old.
+                     Corrected InformationBearingEntity to InformationBearingArtifact.
+                   August 3rd 2018 revisions:
+                     Moved the equivalentClass definition for Document to this ontology (to avoid cyclic imports).
+                     Added import of the DataProvenance and Event ontologies, for completeness.
+                   July 2nd 2018 revisions:
+                     Added FarmingInstrument. Added that cco:Sensor sub-classes from :MeasurementDevice.
+                     Added classes to account for key concepts in cco:Artifact that were only defined as ArtifactFunctions
+                       (such as Pesticide and CleaningAgent) or as ArticleOfX/PortionOfX (such as Coolant and CryogenicMaterial).
+                     Removed the ImprovisedExplosiveDevice class since it is newly defined in the CCO Artifact ontology.
+                     Corrected reference to cco:Article to :Article. Changed FoodTruck to subclass from cco:Truck.
+                     Added the class :ShortenedHierarchy and subclassed cco:AssaultRilfe from it.
+                   May 28th 2018 revisions:
+                     Added LawPolicyOrDirective, Air, Energy, Services (and its sub-classes), ElectricityOrPowerAndHeat, Markets
+                       (and its sub-classes), InformationOrKnowledge, ShelterOrHousing and Resources (and its sub-classes).
+                   April 19th 2018 revisions:
+                     Added Ammunition, Clothing, Pesticide and Waste to address more 'Article/PortionOfXxx' concepts from the 
+                       CCO Artifact ontology.
+                     Added Animal, SpecificTypeOfArtifact and Vegetation classes."""@en;
+#   owl:imports <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AllCoreOntology> ;
+    owl:imports <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/ArtifactOntology> ;
+    owl:imports <http://ontology.causeex.com/ontology/odps/DataProvenance> ;
+    owl:imports <http://purl.org/dc/terms> ;
+    owl:versionInfo "Version 1.2"^^xsd:string .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+:Air a owl:Class ;
+    rdfs:label "Air"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Ammunition a owl:Class ;
+    rdfs:label "Ammunition"@en ;
+    rdfs:subClassOf cco:Artifact .
+cco:Arrow rdfs:subClassOf :Ammunition .
+cco:Bullet rdfs:subClassOf :Ammunition .
+cco:Cartridge rdfs:subClassOf :Ammunition .
+cco:PrecisionGuidedMissile rdfs:subClassOf :Ammunition .
+cco:RoundShot rdfs:subClassOf :Ammunition .
+cco:Shell rdfs:subClassOf :Ammunition .
+cco:UnguidedRocket rdfs:subClassOf :Ammunition .
+
+:Animal a owl:Class ;
+    rdfs:label "Animal"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Annuity a owl:Class ;
+    rdfs:label "Annuity"@en ;
+    rdfs:comment "An annuity is a fixed sum of money paid on some schedule."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:Article a owl:Class ;
+    rdfs:label "Article"@en ;
+    rdfs:subClassOf cco:InformationBearingArtifact, cco:Document .
+cco:JournalArticle rdfs:subClassOf :Article .
+
+:BankProduct a owl:Class ;
+    rdfs:label "Bank product"@en ;
+    rdfs:comment "Examples of BankProducts include checking and savings accounts."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:BiomedicalWaste a owl:Class ;
+    rdfs:label "Biomedical waste"@en ;
+    rdfs:subClassOf :Waste .
+
+:BlogPost a owl:Class ;
+    rdfs:label "Blog post"@en ;
+    rdfs:subClassOf :Article .
+
+:Broadcast a owl:Class ;
+    rdfs:label "Broadcast for radio or television"@en ;
+    rdfs:subClassOf cco:InformationBearingArtifact .
+
+:CableOrTelevisionBroadcast a owl:Class ;
+    rdfs:label "Cable or television broadcast"@en ;
+    rdfs:subClassOf :Broadcast .
+
+:CapitalResources a owl:Class ;
+    rdfs:label "Capital resources"@en ;
+    rdfs:subClassOf :Resources .
+
+:ChemicalSubstance a owl:Class ;
+    rdfs:label "Chemical substance"@en ;
+    rdfs:comment "A ChemicalSubstance is any type of catalyst, cleaning agent, emulsifier, fertilizer, pesticide, solvent, surfactant, oxidizer, coolant, etc. Note that some of these are defined as specific sub-classes of ChemicalSubstance (such as CleaningAgent and Pesticide)."@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:CleaningAgent a owl:Class ;
+    rdfs:label "Cleaning agent"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Clothing a owl:Class ;
+    rdfs:label "Clothing"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:CommodityOrSecurityFuture a owl:Class ;
+    rdfs:label "Commodity or security future"@en ;
+    rdfs:comment "Commodity futures are contracts to buy or sell a specific quantity of a commodity at a specified price on a particular date. Security futures involve trading in futures contracts on single stocks and certain security indices."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:CommunicationsServices a owl:Class ;
+    rdfs:label "Communications services"@en ;
+    rdfs:subClassOf :Services .
+
+:Coolant a owl:Class ;
+    rdfs:label "Coolant"@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:CorrectionalFacility a owl:Class ;
+    rdfs:label "Correctional facility"@en ;
+    rdfs:subClassOf cco:Facility .
+
+:CryogenicMaterial a owl:Class ;
+    rdfs:label "Cryogenic material"@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:Defoliant a owl:Class ;
+    rdfs:label "Defoliant"@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:Documentary a owl:Class ;
+    rdfs:label "Documentary"@en ;
+    rdfs:subClassOf cco:InformationBearingArtifact .
+
+:EconomicMarkets a owl:Class ;
+    rdfs:label "Economic markets"@en ;
+    rdfs:subClassOf :Markets .
+
+:ElectricityOrPowerAndHeat a owl:Class ;
+    rdfs:label "Electricity or power/heat"@en ;
+    rdfs:subClassOf :Services .
+
+:Energy a owl:Class ;
+    rdfs:label "Energy"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:FarmingInstrument a owl:Class ;
+    rdfs:label "Farming instrument"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Fertilizer a owl:Class ;
+    rdfs:label "Fertilizer"@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:Filter a owl:Class ;
+    rdfs:label "Filter"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:FinancialMarkets a owl:Class ;
+    rdfs:label "Financial markets"@en ;
+    rdfs:subClassOf :Markets .
+
+:Food a owl:Class ;
+    rdfs:label "Food"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:FoodTruck a owl:Class ;
+    rdfs:label "Food truck"@en ;
+    rdfs:subClassOf cco:Truck, :Restaurant .
+
+:ForestryResources a owl:Class ;
+    rdfs:label "Forestry resources"@en ;
+    rdfs:subClassOf :LandResources .
+
+:Fuel a owl:Class ;
+    rdfs:label "Fuel"@en ;
+    rdfs:subClassOf :LandResources .
+
+:HealthcareServices a owl:Class ;
+    rdfs:label "Healthcare services"@en ;
+    rdfs:subClassOf :Services .
+
+:HouseholdWaste a owl:Class ;
+    rdfs:label "Household waste"@en ;
+    rdfs:subClassOf :Waste .
+
+:IndustrialWaste a owl:Class ;
+    rdfs:label "Industrial waste"@en ;
+    rdfs:subClassOf :Waste .
+
+:InformationOrKnowledge a owl:Class ;
+    rdfs:label "Information or knowledge"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:InvestmentFund a owl:Class ;
+    rdfs:label "Investment fund"@en ;
+    rdfs:comment "Examples of InvestmentFunds include mutual funds, closed-end funds and exchange-traded funds."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:LandResources a owl:Class ;
+    rdfs:label "Land resources"@en ;
+    rdfs:subClassOf :Resources .
+
+:LaborResources a owl:Class ;
+    rdfs:label "Labor resources"@en ;
+    rdfs:subClassOf :Resources .
+
+:LawPolicyOrDirective a owl:Class ;
+    rdfs:label "Law, policy or other directive"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Markets a owl:Class ;
+    rdfs:label "Markets (such as Economic or Financial)"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:MassMailing a owl:Class ;
+    rdfs:label "Mass mailing"@en ;
+    rdfs:subClassOf cco:Message .
+
+:MeasurementDevice a owl:Class ;
+    rdfs:label "Measurement device"@en ;
+    rdfs:subClassOf cco:Artifact .
+cco:Sensor rdfs:subClassOf :MeasurementDevice .
+
+:MedicalSupplies a owl:Class ;
+    rdfs:label "Medical supplies"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Medicine a owl:Class ;
+    rdfs:label "Medicine"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:MicroBlogOrTweet a owl:Class ;
+    rdfs:label "Micro-blog or tweet"@en ;
+    rdfs:subClassOf cco:Message .
+
+:Mineral a owl:Class ;
+    rdfs:label "Minerals"@en ;
+    rdfs:subClassOf :LandResources .
+
+:NewsArticle a owl:Class ;
+    rdfs:label "News article"@en ;
+    rdfs:subClassOf :Article .
+
+:Option a owl:Class ;
+    rdfs:label "Option (financial investment)"@en ;
+    rdfs:comment "Options are contracts that give the purchaser the right, but not the obligation, to buy or sell an investment, such as a stock or fund, at a fixed price."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:Paper a owl:Class ;
+    rdfs:label "Paper"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Pesticide a owl:Class ;
+    rdfs:label "Pesticide"@en ;
+    rdfs:comment "Pesticides include fungicides, insecticides and herbicides."@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:Poison a owl:Class ;
+    rdfs:label "Poison"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:PowerOrGeneratingStation a owl:Class ;
+    rdfs:label "Power or generating station/plant"@en ;
+    rdfs:subClassOf cco:Facility .
+
+:PressRelease a owl:Class ;
+    rdfs:label "Press release"@en ;
+    rdfs:subClassOf cco:Message, :Article .
+
+:RadioactiveMaterial a owl:Class ;
+    rdfs:label "Radioactive material"@en ;
+    rdfs:subClassOf :ChemicalSubstance .
+
+:RadioBroadcast a owl:Class ;
+    rdfs:label "Radio broadcast"@en ;
+    rdfs:subClassOf :Broadcast .
+
+:Resources a owl:Class ;
+    rdfs:label "Resources (such as Land, Capital or Labor)"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Restaurant a owl:Class ;
+    rdfs:label "Restaurant"@en ;
+    rdfs:subClassOf cco:Facility .
+
+:RetirementInvestment a owl:Class ;
+    rdfs:label "Retirment investment"@en ;
+    rdfs:comment "Examples of RetirementInvestments include 401Ks and IRAs."@en ;
+    rdfs:subClassOf cco:FinancialInstrument .
+
+:SanitationServices a owl:Class ;
+    rdfs:label "Sanitation services"@en ;
+    rdfs:subClassOf :Services .
+
+:SchoolsOrTraining a owl:Class ;
+    rdfs:label "Schools or training"@en ;
+    rdfs:subClassOf :Services .
+
+:Services a owl:Class ;
+    rdfs:label "Services (such as Communications or Sanitation)"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:ShelterOrHousing a owl:Class ;
+    rdfs:label "Shelter or housing"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:ShortenedHierarchy a owl:Class ;
+    rdfs:label "Shortened Artifact hierarchy"@en ;
+    rdfs:comment "Class created to artifically shorten the number of subclasses from cco:Artifact. For example, the cco:AssaultRifle class is 6 levels deep in the Artifact hierarchy (AssaultRifle -> Rifle -> LongGun -> Firearm -> ProjectileLauncher -> Weapon -> Artifact). When this is sub-classed from ShortenedHierarchy, the number of levels is reduced to 2 (AssaultRifle -> ShortenedHierarchy -> Artifact). This is done to allow the workarounds for rdfs:subClassOf* errors in Virtuoso."@en ;
+    rdfs:subClassOf cco:Artifact .
+cco:AssaultRifle rdfs:subClassOf :ShortenedHierarchy .
+
+:SoilAndFarming a owl:Class ;
+    rdfs:label "Soil and farming"@en ;
+    rdfs:subClassOf :LandResources .
+
+:SmallArmsAndLightWeapons a owl:Class ;
+    rdfs:label "Small arms and light weapons"@en ;
+    rdfs:subClassOf cco:Weapon .
+
+:SocialMediaMessage a owl:Class ;
+    rdfs:label "Social media message"@en ;
+    rdfs:subClassOf cco:Message .
+
+:SpecificTypeOfArtifact a owl:Class ;
+    rdfs:label "Specific type of artifact"@en ;
+    rdfs:commment "Defined as the type of an individual along with another sub-class of cco:Artifact. It indicates that the actual type of the individual is more specific than that other class. This approach is necessary to avoid defining hundreds of sub-classes of cco:Artifact to capture the various types of Food, Animals, Vegetation, Fuels, etc. that exist. The specific type is indicated in the individual's rdfs:label. For example, to define an individual representing the general concept of 'diesel fuel', its classification would be event:Fuel and event:SpecificTypeOfFuel, its label would indicate 'diesel fuel', and its general:generic property would be true. The latter defines that the general concept of 'diesel fuel' is intended, as opposed to a specific quantity of diesel that might have been stolen or used in an event."@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Vegetation a owl:Class ;
+    rdfs:label "Vegetation/plant"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Waste a owl:Class ;
+    rdfs:label "Waste"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:Water a owl:Class ;
+    rdfs:label "Water"@en ;
+    rdfs:subClassOf cco:Artifact .
+
+:WeaponOfMassDestruction a owl:Class ;
+    rdfs:label "Weapon of mass destruction"@en ;
+    rdfs:subClassOf cco:Weapon ;
+    owl:equivalentClass [ a owl:Class ;
+                          owl:unionOf (cco:BiologicalWeapon cco:ChemicalWeapon cco:RadiologicalWeapon) ] .
+
+:Webcast a owl:Class ;
+    rdfs:label "Webcast"@en ;
+    rdfs:subClassOf cco:InformationBearingArtifact .
+
+data-prov:Document owl:equivalentClass [ a owl:Class ;
+    owl:unionOf ( cco:Book cco:Document cco:JournalArticle cco:Message cco:Report cco:Spreadsheet 
+                  cco:Transcript cco:Web_Page data-prov:DataSet 
+                  :NewsArticle :BlogPost :MicroBlogOrTweet :PressRelease ) ] .

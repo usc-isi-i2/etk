@@ -1,0 +1,1031 @@
+@prefix : <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#> .
+@prefix geo: <http://www.ontologylibrary.mil/CommonCore/Mid/GeospatialOntology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix info: <http://www.ontologylibrary.mil/CommonCore/Mid/InformationEntityOntology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix oeceo: <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#> .
+@prefix units: <http://www.ontologylibrary.mil/CommonCore/Mid/UnitsOfMeasureOntology#> .
+@base <http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology> .
+
+<http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology> rdf:type owl:Ontology ;
+                                                                                         owl:imports <http://purl.obolibrary.org/obo/bfo/classes-only.owl> ,
+                                                                                                     <http://www.obofoundry.org/ro/ro.owl> ,
+                                                                                                     <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/EventOntology> ,
+                                                                                                     <http://www.ontologyrepository.com/CommonCoreOntologies/Mid/AgentOntology> ;
+                                                                                         owl:versionInfo "COPYRIGHT © 2017 InCadence Strategic Solutions, Inc." ,
+                                                                                                         "June 25, 2017" .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#affects
+<http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#affects> rdf:type owl:ObjectProperty .
+
+
+###  http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#bearer_of
+<http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#bearer_of> rdf:type owl:ObjectProperty .
+
+
+###  http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by
+<http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> rdf:type owl:ObjectProperty .
+
+
+###  http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#is_cause_of
+<http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#is_cause_of> rdf:type owl:ObjectProperty .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ActOfAssassination
+oeceo:ActOfAssassination rdf:type owl:Class ;
+                         rdfs:subClassOf oeceo:ActOfCriminalViolence ;
+                         rdfs:label "Act Of Assassination" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ActOfCriminalViolence
+oeceo:ActOfCriminalViolence rdf:type owl:Class ;
+                            rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/CriminalAct> ;
+                            rdfs:label "Act Of Criminal Violence" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ActOfMurder
+oeceo:ActOfMurder rdf:type owl:Class ;
+                  rdfs:subClassOf oeceo:ActOfCriminalViolence ;
+                  rdfs:label "Act Of Murder" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ActOfTerrorism
+oeceo:ActOfTerrorism rdf:type owl:Class ;
+                     rdfs:subClassOf oeceo:ActOfCriminalViolence ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#is_cause_of> ;
+                                       owl:someValuesFrom oeceo:Terror
+                                     ] ;
+                     rdfs:label "Act Of Terrorism" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#AggressiveBehavior
+oeceo:AggressiveBehavior rdf:type owl:Class ;
+                         rdfs:subClassOf oeceo:EmotionalBehavior ;
+                         <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000015" ;
+                         rdfs:label "Aggressive Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Amusement
+oeceo:Amusement rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:Happiness ;
+                rdfs:label "Amusement" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Anger
+oeceo:Anger rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:Emotion ;
+            rdfs:label "Anger" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Annoyance
+oeceo:Annoyance rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:Anger ;
+                rdfs:label "Annoyance" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Apprehension
+oeceo:Apprehension rdf:type owl:Class ;
+                   rdfs:subClassOf oeceo:Terror ;
+                   rdfs:label "Apprehension" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArmoredBrigadeCombatTeam
+oeceo:ArmoredBrigadeCombatTeam rdf:type owl:Class ;
+                               rdfs:subClassOf oeceo:BrigadeCombatTeam ,
+                                               [ rdf:type owl:Restriction ;
+                                                 owl:onProperty <http://www.obofoundry.org/ro/ro.owl#has_part> ;
+                                                 owl:someValuesFrom oeceo:CombinedArmsBattalion
+                                               ] ;
+                               <http://purl.obolibrary.org/obo/IAO_0000115> "The ABCT is a combined arms organization consisting of three combined arms battalions of Armor and mechanized infantry companies. Cavalry, field artillery, engineer, intelligence, signal, sustainment, and CBRN reconnaissance units are organic to the ABCT, also. Higher commanders augment the ABCT for a specific mission. Augmentation can include aviation, armor, field artillery, air defense, military police, civil affairs, military information support operations elements, engineers, CBRN, and additional information systems assets." ,
+                                                                            "The ABCT’s role is to close with the enemy using fire and movement to destroy or capture enemy forces, to repel enemy attacks by fire, to engage in close combat, and to counterattack to control land areas, including populations and resources. The ABCT organizes to concentrate overwhelming combat power. Mobility, protection, and firepower enable the ABCT to conduct offensive tasks with great precision and speed. The ABCT performs complementary missions to the IBCT and SBCT." ;
+                               <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.apd.army.mil/epubs/DR_pubs/DR_a/pdf/web/fm3_96.pdf" ;
+                               <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                               rdfs:label "Armored Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArmoredCompany
+oeceo:ArmoredCompany rdf:type owl:Class ;
+                     rdfs:subClassOf oeceo:ArmyCompany ;
+                     rdfs:label "Armored Company" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArmyCompany
+oeceo:ArmyCompany rdf:type owl:Class ;
+                  rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+                  rdfs:label "Army Company" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArmyDivision
+oeceo:ArmyDivision rdf:type owl:Class ;
+                   rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+                   rdfs:label "Army Division" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArtilleryBattery
+oeceo:ArtilleryBattery rdf:type owl:Class ;
+                       rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+                       rdfs:label "Artillery Battery" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Battalion
+oeceo:Battalion rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:TacticalMilitaryOrganization .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#BrigadeCombatTeam
+oeceo:BrigadeCombatTeam rdf:type owl:Class ;
+                        rdfs:subClassOf oeceo:TacticalMilitaryOrganization ,
+                                        [ rdf:type owl:Restriction ;
+                                          owl:onProperty <http://www.obofoundry.org/ro/ro.owl#part_of> ;
+                                          owl:someValuesFrom oeceo:JointTaskForce
+                                        ] ,
+                                        [ rdf:type owl:Restriction ;
+                                          owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#bearer_of> ;
+                                          owl:someValuesFrom <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability>
+                                        ] ;
+                        <http://purl.obolibrary.org/obo/IAO_0000115> "Brigade combat teams (BCTs) organize to conduct decisive action, which is the continuous, simultaneous combinations of offensive, defensive, and stability or defense support of civil authorities tasks (ADRP 3-0). The BCT is the Army’s primary combined arms, close combat force. BCTs often operate as part of a division or joint task force. The division or joint task force acts as a tactical headquarters that can control up to six BCTs in high- or mid-intensity combat operations. The tactical headquarters assigns the BCT its mission, area of operations, and supporting elements. The headquarters coordinates the BCT’s actions with other BCTs in the formation. The BCT might be required to detach subordinate elements to other brigades attached or assigned to the division or task force. Usually, this tactical headquarters assigns augmentation elements to the BCT. Field artillery, maneuver enhancement, sustainment, and combat aviation brigades can all support BCT operations. (Refer to ATP 3-91 for additional information on division operations.)" ;
+                        <http://purl.obolibrary.org/obo/IAO_0000119> "Field Manual 3-96 Brigade Combat Team, October 2015, HQ DA" ;
+                        rdfs:label "Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#CivilWar
+oeceo:CivilWar rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:War ;
+               rdfs:label "Civil War" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#CloseCombatLandOperation
+oeceo:CloseCombatLandOperation rdf:type owl:Class ;
+                               rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> ;
+                               rdfs:label "Close Combat Land Operation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#CombinedArmsBattalion
+oeceo:CombinedArmsBattalion rdf:type owl:Class ;
+                            rdfs:subClassOf oeceo:Battalion ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty <http://www.obofoundry.org/ro/ro.owl#has_part> ;
+                                              owl:someValuesFrom oeceo:ArmoredCompany
+                                            ] ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty <http://www.obofoundry.org/ro/ro.owl#has_part> ;
+                                              owl:someValuesFrom oeceo:MechanizedInfantryCompany
+                                            ] ,
+                                            [ rdf:type owl:Restriction ;
+                                              owl:onProperty <http://www.obofoundry.org/ro/ro.owl#participates_in> ;
+                                              owl:someValuesFrom oeceo:CloseCombatLandOperation
+                                            ] ;
+                            <http://purl.obolibrary.org/obo/IAO_0000115> "1-48. Three combined arms battalions are the ABCT’s primary maneuver force. The combined arms battalion combines the efforts of its two Armor companies and two mechanized infantry companies along with the headquarters company to execute tactical missions as part of a combined arms operation. The combined arms battalion conducts sustained combined arms and close combat land operations as an essential part of the ABCT formation. Combined arms battalions serve as a deterrent to armed conflict; they can deploy worldwide in the conduct of decisive action. Combined arms battalions are responsible for executing combined arms operations within their assigned area of operations to support the ABCT commander. (Refer to FM 3-90.5 and FM 3-90.1 for additional information.)" ;
+                            <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.apd.army.mil/epubs/DR_pubs/DR_a/pdf/web/fm3_96.pdf" ;
+                            rdfs:label "Combined Arms Battalion" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#CommunicationBehavior
+oeceo:CommunicationBehavior rdf:type owl:Class ;
+                            rdfs:subClassOf oeceo:SocialBehavior ;
+                            <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000015" ;
+                            rdfs:label "Communicaiton Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Compassion
+oeceo:Compassion rdf:type owl:Class ;
+                 rdfs:subClassOf oeceo:Emotion ;
+                 rdfs:label "Compassion" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Condition
+oeceo:Condition rdf:type owl:Class ;
+                rdfs:subClassOf <http://purl.obolibrary.org/obo/BFO_0000017> ;
+                <http://purl.obolibrary.org/obo/IAO_0000115> "A state of being or a state of physical fitness" ;
+                <http://purl.obolibrary.org/obo/IAO_0000119> "https://www.merriam-webster.com/dictionary/condition" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Conflict
+oeceo:Conflict rdf:type owl:Class ;
+               rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> ;
+               rdfs:label "Conflict" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Contempt
+oeceo:Contempt rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:Emotion ;
+               rdfs:label "Contempt" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Contentment
+oeceo:Contentment rdf:type owl:Class ;
+                  rdfs:subClassOf oeceo:Happiness ;
+                  rdfs:label "Contentment" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ConventionalWar
+oeceo:ConventionalWar rdf:type owl:Class ;
+                      rdfs:subClassOf oeceo:War ;
+                      rdfs:label "Conventional War" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#DiscriminatoryBehavior
+oeceo:DiscriminatoryBehavior rdf:type owl:Class ;
+                             rdfs:subClassOf oeceo:SocialBehavior ;
+                             <http://purl.obolibrary.org/obo/IAO_0000232> "Synonyms: Discrimination and Prejudice" ;
+                             rdfs:label "Discriminatory Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Disgust
+oeceo:Disgust rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:Emotion ;
+              rdfs:label "Disgust" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Drought
+oeceo:Drought rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:WeatherProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Earthquake
+oeceo:Earthquake rdf:type owl:Class ;
+                 rdfs:subClassOf oeceo:GeologicProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EconomicCondition
+oeceo:EconomicCondition rdf:type owl:Class ;
+                        rdfs:subClassOf oeceo:Condition ;
+                        <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                        rdfs:label "Economic Condition" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EffectiveGovernance
+oeceo:EffectiveGovernance rdf:type owl:Class ;
+                          rdfs:subClassOf oeceo:PoliticalCondition ;
+                          <http://purl.obolibrary.org/obo/IAO_0000115> "Governance is the state’s ability to serve the citizens through the rules, processes, and behavior by which interests are articulated, resources are managed, and power is exercised in a society. A state’s ability to provide effective governance rests on its capability and capacity to establish rules and procedures for political decision making, strengthen public sector management and administrative institutions and practices, provide public services in an effective and transparent manner, and provide civil administration that supports lawful private activity and enterprise." ;
+                          <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, pg. I-4" ;
+                          rdfs:label "Effective Governance" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Elation
+oeceo:Elation rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:Happiness ;
+              rdfs:label "Elation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Emotion
+oeceo:Emotion rdf:type owl:Class ;
+              rdfs:subClassOf <http://purl.obolibrary.org/obo/BFO_0000017> ;
+              <http://purl.obolibrary.org/obo/IAO_0000115> "A realizable entity that is an affective state of consciousness in which joy, sorrow, fear, hate, or the like, is experienced, as distinguished from cognitive and volitional states of consciousness."@en ;
+              <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.dictionary.com/browse/emotion"^^xsd:anyURI ;
+              rdfs:label "Emotion"@en .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EmotionalBehavior
+oeceo:EmotionalBehavior rdf:type owl:Class ;
+                        rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/Behavior> ;
+                        <http://purl.obolibrary.org/obo/IAO_0000115> "\"Behavior related to the complex psychophysiological experience of an individual's state of mind as interacting with biochemical (internal) and environmental (external) influences.\" [wikipedia:Emotions]" ;
+                        <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000003" ;
+                        rdfs:label "Emotional Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Epidemic
+oeceo:Epidemic rdf:type owl:Class ;
+               rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EssentialSerivce
+oeceo:EssentialSerivce rdf:type owl:Class ;
+                       rdfs:subClassOf oeceo:PhysicalCondition ;
+                       <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                       rdfs:label "Essential Service" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Euphoria
+oeceo:Euphoria rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:Happiness ;
+               rdfs:label "Euphoria" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Famine
+oeceo:Famine rdf:type owl:Class ;
+             rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Fear
+oeceo:Fear rdf:type owl:Class ;
+           rdfs:subClassOf oeceo:Terror ;
+           rdfs:label "Fear" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FearRelatedBehavior
+oeceo:FearRelatedBehavior rdf:type owl:Class ;
+                          rdfs:subClassOf oeceo:EmotionalBehavior ;
+                          <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000015" ;
+                          rdfs:label "Fear Related Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FieldArtilleryBattalion
+oeceo:FieldArtilleryBattalion rdf:type owl:Class ;
+                              rdfs:subClassOf oeceo:Battalion ;
+                              rdfs:label "Field Artillery Battalion" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FieldArtilleryCapability
+oeceo:FieldArtilleryCapability rdf:type owl:Class ;
+                               rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> ;
+                               rdfs:label "Field Artillery Capability" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FireTeam
+oeceo:FireTeam rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+               rdfs:label "Fire Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Fury
+oeceo:Fury rdf:type owl:Class ;
+           rdfs:subClassOf oeceo:Anger ;
+           rdfs:label "Fury" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#GeologicProcess
+oeceo:GeologicProcess rdf:type owl:Class ;
+                      rdfs:subClassOf oeceo:NaturalProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#GovernmentLegitimacy
+oeceo:GovernmentLegitimacy rdf:type owl:Class ;
+                           rdfs:subClassOf oeceo:PoliticalCondition ;
+                           rdfs:label "Governmental Legitimacy" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Grief
+oeceo:Grief rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:Emotion ;
+            rdfs:label "Grief" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#GroupBehavior
+oeceo:GroupBehavior rdf:type owl:Class ;
+                    rdfs:subClassOf oeceo:SocialBehavior ;
+                    rdfs:label "Group Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Happiness
+oeceo:Happiness rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:Emotion ;
+                rdfs:label "Happiness" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HeatWave
+oeceo:HeatWave rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:WeatherProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HistoricalGrievance
+oeceo:HistoricalGrievance rdf:type owl:Class ;
+                          rdfs:subClassOf oeceo:SocialCondition ;
+                          rdfs:label "Historical Grievance" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Hope
+oeceo:Hope rdf:type owl:Class ;
+           rdfs:subClassOf oeceo:Emotion ;
+           rdfs:label "Hope" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HumanDislocation
+oeceo:HumanDislocation rdf:type owl:Class ;
+                       rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> ;
+                       rdfs:label "Human Dislocation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HumanRight
+oeceo:HumanRight rdf:type owl:Class ;
+                 rdfs:subClassOf oeceo:SocialCondition ;
+                 rdfs:label "Human Right" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HumanitarianDisaster
+oeceo:HumanitarianDisaster rdf:type owl:Class ;
+                           rdfs:subClassOf oeceo:SocialCondition ;
+                           <http://purl.obolibrary.org/obo/IAO_0000115> "A social condition that occurs because of (is realized by) natural processes or through human activities, which threatens or inflicts human suffering on a scale that may warrant emergency relief assistance from the United States Government or from foreign partners." ;
+                           <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-29 Foreign Humanitarian Assistance" ;
+                           rdfs:label "Humanitarian Disaster" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Hurricane
+oeceo:Hurricane rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:WeatherProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#InfantryBattalion
+oeceo:InfantryBattalion rdf:type owl:Class ;
+                        rdfs:subClassOf oeceo:Battalion ,
+                                        [ rdf:type owl:Restriction ;
+                                          owl:onProperty <http://www.obofoundry.org/ro/ro.owl#part_of> ;
+                                          owl:someValuesFrom oeceo:InfantryBrigadeCombatTeam
+                                        ] ;
+                        <http://purl.obolibrary.org/obo/IAO_0000115> "The primary mission of the Infantry battalion is to close with the enemy by means of fire and maneuver. Its purpose is to destroy or capture him, to repel his assaults by fire, close combat, and counterattack, or all of these. Infantry battalions can deploy rapidly and can be sustained by an austere support structure. They conduct operations against conventional and unconventional enemy forces in all types of terrain and climate conditions. The battalion's composition and training uniquely equip it to conduct its mission. In addition to its primary war-fighting mission, the Infantry battalion might be tasked to perform other types of operations, including stability operations and civil support operations, semi-independently or as an integral part of a larger force. The Infantry battalion can routinely be task organized as part of an IBCT, Heavy brigade combat team (HBCT), Stryker brigade combat team (SBCT), or possibly to a supporting brigade." ;
+                        <http://purl.obolibrary.org/obo/IAO_0000119> "https://fas.org/irp/doddir/army/fm3-21-20.pdf" ;
+                        rdfs:label "Infantry Battalion" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#InfantryBrigadeCombatTeam
+oeceo:InfantryBrigadeCombatTeam rdf:type owl:Class ;
+                                rdfs:subClassOf oeceo:BrigadeCombatTeam ;
+                                <http://purl.obolibrary.org/obo/IAO_0000115> "The IBCT is an expeditionary, combined arms formation optimized for dismounted operations in complex terrain—a geographical area consisting of an urban center larger than a village and/or of two or more types of restrictive terrain or environmental conditions occupying the same space (ATP 3-34.80). The IBCT can conduct entry operations by ground, air land, air assault, or amphibious assault (via surface and vertical) into austere areas of operations with little or no advanced notice. Airborne IBCTs can conduct vertical envelopment by parachute assault. The IBCT’s dismounted capability in complex terrain separates it from other functional brigades and BCTs." ;
+                                <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.apd.army.mil/epubs/DR_pubs/DR_a/pdf/web/fm3_96.pdf" ;
+                                <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                                rdfs:label "Infantry Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Inflation
+oeceo:Inflation rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:EconomicCondition ;
+                rdfs:label "Inflation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Inspiration
+oeceo:Inspiration rdf:type owl:Class ;
+                  rdfs:subClassOf oeceo:Emotion ;
+                  rdfs:label "Inspiration" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Insurgency
+oeceo:Insurgency rdf:type owl:Class ;
+                 rdfs:subClassOf oeceo:War ,
+                                 [ rdf:type owl:Restriction ;
+                                   owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                   owl:someValuesFrom oeceo:Unemployment
+                                 ] ;
+                 <http://purl.obolibrary.org/obo/IAO_0000115> "The organized use of subversion and violence by a group or movement that seeks to overthrow or force change of a governing authority. Insurgency can also refer to the group itself." ;
+                 <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009" ;
+                 rdfs:label "Insurgency" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#IntelligenceCapability
+oeceo:IntelligenceCapability rdf:type owl:Class ;
+                             rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> ;
+                             rdfs:label "Intelligence Capability" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Jealousy
+oeceo:Jealousy rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:Emotion ;
+               rdfs:label "Jealousy" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#JointMilitaryOperation
+oeceo:JointMilitaryOperation rdf:type owl:Class ;
+                             rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> ;
+                             <http://purl.obolibrary.org/obo/IAO_0000115> "Military actions conducted by joint forces and those Service forces employed in specified command relationships with each other, which of themselves, do not establish joint forces." ;
+                             <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.dtic.mil/doctrine/new_pubs/jp3_0.pdf" ;
+                             <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                             rdfs:label "Joint Military Operation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#JointTaskForce
+oeceo:JointTaskForce rdf:type owl:Class ;
+                     rdfs:subClassOf oeceo:TacticalMilitaryOrganization ,
+                                     [ rdf:type owl:Restriction ;
+                                       owl:onProperty <http://www.obofoundry.org/ro/ro.owl#participates_in> ;
+                                       owl:someValuesFrom oeceo:JointMilitaryOperation
+                                     ] ;
+                     <http://purl.obolibrary.org/obo/IAO_0000115> "A joint force that is constituted and so designated by the Secretary of Defense, a combatant commander, a subunified commander, or an existing joint task force commander. Also called JTF." ;
+                     <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 1 Doctrine for the Armed Forces of the United States, 25 March 2013" ,
+                                                                  "http://www.dtic.mil/doctrine/new_pubs/jp1.pdf" ;
+                     <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                     rdfs:label "Joint Task Force" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Joy
+oeceo:Joy rdf:type owl:Class ;
+          rdfs:subClassOf oeceo:Happiness ;
+          rdfs:label "Joy" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Lawlessness
+oeceo:Lawlessness rdf:type owl:Class ;
+                  rdfs:subClassOf oeceo:PoliticalCondition ;
+                  <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                  rdfs:label "Lawlessness" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#LightInfantryCompany
+oeceo:LightInfantryCompany rdf:type owl:Class ;
+                           rdfs:subClassOf oeceo:ArmyCompany ;
+                           rdfs:label "Light Infantry Company" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Loathing
+oeceo:Loathing rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:Emotion ;
+               rdfs:label "Loathing" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#MechanizedInfantryCompany
+oeceo:MechanizedInfantryCompany rdf:type owl:Class ;
+                                rdfs:subClassOf oeceo:ArmyCompany ;
+                                rdfs:label "Mechanized Infantry Company" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#NaturalProcess
+oeceo:NaturalProcess rdf:type owl:Class ;
+                     rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Oppression
+oeceo:Oppression rdf:type owl:Class ;
+                 rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> ;
+                 <http://purl.obolibrary.org/obo/IAO_0000115> """a :  unjust or cruel exercise of authority or power
+b :  something that oppresses especially in being an unjust or excessive exercise of power""" ;
+                 <http://purl.obolibrary.org/obo/IAO_0000119> "https://www.merriam-webster.com/dictionary/oppression" ;
+                 rdfs:label "Oppression" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#PhysicalCondition
+oeceo:PhysicalCondition rdf:type owl:Class ;
+                        rdfs:subClassOf oeceo:Condition ;
+                        rdfs:label "Physical Condition" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Platoon
+oeceo:Platoon rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+              rdfs:label "Platoon" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#PoliticalCondition
+oeceo:PoliticalCondition rdf:type owl:Class ;
+                         rdfs:subClassOf oeceo:Condition ;
+                         <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                         rdfs:label "Political Condition" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#PoliticalCorruption
+oeceo:PoliticalCorruption rdf:type owl:Class ;
+                          rdfs:subClassOf oeceo:PoliticalCondition ;
+                          <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                          rdfs:label "Political Corruption" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#PoliticalRevolution
+oeceo:PoliticalRevolution rdf:type owl:Class ;
+                          rdfs:subClassOf oeceo:Conflict ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:HistoricalGrievance
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Lawlessness
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Oppression
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:PoliticalCorruption
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Poverty
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Repression
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Sectarianism
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:SystemicDiscrimination
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:SystemicExploitation
+                                          ] ,
+                                          [ rdf:type owl:Restriction ;
+                                            owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#caused_by> ;
+                                            owl:someValuesFrom oeceo:Unemployment
+                                          ] ;
+                          <http://purl.obolibrary.org/obo/IAO_0000115> "Conflict resulting in a fundamental change in political organization; especially :  the overthrow or renunciation of one government or ruler and the substitution of another by the governed" ;
+                          <http://purl.obolibrary.org/obo/IAO_0000119> "https://www.merriam-webster.com/dictionary/revolution" ;
+                          rdfs:label "Political Revolution" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Poverty
+oeceo:Poverty rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:EconomicCondition .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Pride
+oeceo:Pride rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:Emotion ;
+            rdfs:label "Pride" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Rage
+oeceo:Rage rdf:type owl:Class ;
+           rdfs:subClassOf oeceo:Anger ;
+           rdfs:label "Rage" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Regiment
+oeceo:Regiment rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:TacticalMilitaryOrganization .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Repression
+oeceo:Repression rdf:type owl:Class ;
+                 rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#RuleOfLaw
+oeceo:RuleOfLaw rdf:type owl:Class ;
+                rdfs:subClassOf oeceo:PoliticalCondition ;
+                rdfs:label "Rule Of Law" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Sadness
+oeceo:Sadness rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:Emotion ;
+              rdfs:label "Sadness" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Sectarianism
+oeceo:Sectarianism rdf:type owl:Class ;
+                   rdfs:subClassOf oeceo:SocialCondition ;
+                   <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                   rdfs:label "Sectarianism" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Serenity
+oeceo:Serenity rdf:type owl:Class ;
+               rdfs:subClassOf oeceo:Happiness ;
+               rdfs:label "Serenity" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Shame
+oeceo:Shame rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:Emotion ;
+            rdfs:label "Shame" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SignalsCapability
+oeceo:SignalsCapability rdf:type owl:Class ;
+                        rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> ;
+                        rdfs:label "Signals Capability" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SocialBehavior
+oeceo:SocialBehavior rdf:type owl:Class ;
+                     rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/Behavior> ;
+                     <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000015" ;
+                     rdfs:label "Social Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SocialCondition
+oeceo:SocialCondition rdf:type owl:Class ;
+                      rdfs:subClassOf oeceo:Condition ;
+                      <http://purl.obolibrary.org/obo/IAO_0000119> "Joint Publication 3-24 Counterinsurgency Operations. 05 October 2009, Chapter II" ;
+                      rdfs:label "Social Condition" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SocialInfluenceBehavior
+oeceo:SocialInfluenceBehavior rdf:type owl:Class ;
+                              rdfs:subClassOf oeceo:SocialBehavior ;
+                              rdfs:label "Social Influence Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Squad
+oeceo:Squad rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:TacticalMilitaryOrganization ;
+            rdfs:label "Squad" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#StressRelatedBehavior
+oeceo:StressRelatedBehavior rdf:type owl:Class ;
+                            rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/Behavior> ;
+                            <http://purl.obolibrary.org/obo/IAO_0000115> "\"Behavior related to how the body reacts to a stressor ( a stimulus that causes stress), real or imagined.\" [wikipedia:Stress_(biological)]" ;
+                            <http://purl.obolibrary.org/obo/IAO_0000119> "http://purl.obolibrary.org/obo/NBO_0000469" ;
+                            rdfs:label "Stress Related Behavior" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#StrykerBrigadeCombatTeam
+oeceo:StrykerBrigadeCombatTeam rdf:type owl:Class ;
+                               rdfs:subClassOf oeceo:BrigadeCombatTeam ;
+                               <http://purl.obolibrary.org/obo/IAO_0000115> "The SBCT is an expeditionary combined arms force organized around mounted infantry. SBCT units operate effectively in most terrain and weather conditions due to their rapid strategic deployment and mobility. The role of the SBCT is to close with the enemy by means of fire and movement, to destroy or capture enemy forces, or repel enemy attacks by fire, close combat, and counterattack to control land areas, including populations and resources. The SBCT can gain the initiative early, seize and retain key terrain, any locality, or area, the seizure or retention of which affords a marked advantage to either combatant (JP 2-01.3), and conduct massed fire, fire from a number of weapons directed at a single point or small area (JP 3-02), to stop the enemy." ;
+                               <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.apd.army.mil/epubs/DR_pubs/DR_a/pdf/web/fm3_96.pdf" ;
+                               <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                               rdfs:label "Stryker Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SustainmentCapability
+oeceo:SustainmentCapability rdf:type owl:Class ;
+                            rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> ;
+                            rdfs:label "Sustainment Capability" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SystemicDiscrimination
+oeceo:SystemicDiscrimination rdf:type owl:Class ;
+                             rdfs:subClassOf oeceo:SocialCondition ;
+                             rdfs:label "Systemic Discrimination" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SystemicExploitation
+oeceo:SystemicExploitation rdf:type owl:Class ;
+                           rdfs:subClassOf oeceo:SocialCondition ;
+                           rdfs:label "Systemic Exploitation" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#TacticalManeuverCapability
+oeceo:TacticalManeuverCapability rdf:type owl:Class ;
+                                 rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> ;
+                                 rdfs:label "Tactical Maneuver Capability" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#TacticalMilitaryOrganization
+oeceo:TacticalMilitaryOrganization rdf:type owl:Class ;
+                                   rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/MilitaryPersonnelForce> ;
+                                   <http://purl.obolibrary.org/obo/IAO_0000115> "A Military Organization that is the bearer of tactical capabilities to include planning, maneuver, lethal engagement, indirect fires, and resupply." ;
+                                   <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick@incadencecorp.com" ;
+                                   rdfs:label "Tactical Military Organization" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Terror
+oeceo:Terror rdf:type owl:Class ;
+             rdfs:subClassOf oeceo:Emotion ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty <http://www.ontologylibrary.mil/CommonCore/Upper/ExtendedRelationOntology#affects> ;
+                               owl:someValuesFrom <http://www.ontologyrepository.com/CommonCoreOntologies/Person>
+                             ] ;
+             rdfs:label "Terror" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#TerroristOrganization
+oeceo:TerroristOrganization rdf:type owl:Class ;
+                            rdfs:subClassOf <http://www.ontologyrepository.com/CommonCoreOntologies/ArmedForce> ;
+                            rdfs:label "Terrorist Organization" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Tornado
+oeceo:Tornado rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:WeatherProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Tsunami
+oeceo:Tsunami rdf:type owl:Class ;
+              rdfs:subClassOf oeceo:GeologicProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Unemployment
+oeceo:Unemployment rdf:type owl:Class ;
+                   rdfs:subClassOf oeceo:EconomicCondition .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#War
+oeceo:War rdf:type owl:Class ;
+          rdfs:subClassOf oeceo:Conflict ;
+          rdfs:label "War" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#WeatherProcess
+oeceo:WeatherProcess rdf:type owl:Class ;
+                     rdfs:subClassOf oeceo:NaturalProcess .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#Worry
+oeceo:Worry rdf:type owl:Class ;
+            rdfs:subClassOf oeceo:Emotion ;
+            rdfs:label "Worry" .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/ArmedForce
+<http://www.ontologyrepository.com/CommonCoreOntologies/ArmedForce> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/Behavior
+<http://www.ontologyrepository.com/CommonCoreOntologies/Behavior> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/CriminalAct
+<http://www.ontologyrepository.com/CommonCoreOntologies/CriminalAct> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/MilitaryPersonnelForce
+<http://www.ontologyrepository.com/CommonCoreOntologies/MilitaryPersonnelForce> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability
+<http://www.ontologyrepository.com/CommonCoreOntologies/OrganizationCapability> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/Person
+<http://www.ontologyrepository.com/CommonCoreOntologies/Person> rdf:type owl:Class .
+
+
+###  http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate
+<http://www.ontologyrepository.com/CommonCoreOntologies/ProcessAggregate> rdf:type owl:Class ;
+                                                                          rdfs:subClassOf <http://purl.obolibrary.org/obo/BFO_0000003> ;
+                                                                          rdfs:label "Process Aggregate" .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#AlQaedaInsurgencyInYemen
+oeceo:AlQaedaInsurgencyInYemen rdf:type owl:NamedIndividual ,
+                                        oeceo:Insurgency ;
+                               rdfs:label "Al Qaeda Insurgency In Yemen" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ArabSpring
+oeceo:ArabSpring rdf:type owl:NamedIndividual ,
+                          oeceo:PoliticalRevolution ;
+                 rdfs:label "Arab Spring" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#BokoHaram
+oeceo:BokoHaram rdf:type owl:NamedIndividual ,
+                         oeceo:TerroristOrganization ;
+                rdfs:label "Boko Haram" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#CombinedJointTaskForceOperationInherentResolve
+oeceo:CombinedJointTaskForceOperationInherentResolve rdf:type owl:NamedIndividual ,
+                                                              oeceo:JointTaskForce ;
+                                                     <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.inherentresolve.mil" ;
+                                                     <http://purl.org/dc/elements/1.1/contributor> "Bill Mandrick" ;
+                                                     rdfs:label "Combined Joint Task Force Operation Inherent Resolve" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EightyFirstStrykerBrigadeCombatTeam
+oeceo:EightyFirstStrykerBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                   oeceo:StrykerBrigadeCombatTeam ;
+                                          <http://purl.obolibrary.org/obo/IAO_0000232> "https://mil.wa.gov/81st-brigade" ;
+                                          rdfs:label "81st Stryker Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EightySecondAirborneDivision
+oeceo:EightySecondAirborneDivision rdf:type owl:NamedIndividual ,
+                                            oeceo:ArmyDivision ;
+                                   <http://www.obofoundry.org/ro/ro.owl#part_of> oeceo:JointTaskForce120 ;
+                                   rdfs:label "82nd Airborne Division" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#EightySixthInfantryBrigadeCombatTeam
+oeceo:EightySixthInfantryBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                    oeceo:InfantryBrigadeCombatTeam ;
+                                           rdfs:label "86th Infantry Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FirstArmoredBrigadeCombatTeamThirtyFourthInfantryDivision
+oeceo:FirstArmoredBrigadeCombatTeamThirtyFourthInfantryDivision rdf:type owl:NamedIndividual ,
+                                                                         oeceo:ArmoredBrigadeCombatTeam ;
+                                                                rdfs:label "1st Armored Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FortyithInfantryBrigadeCombatTeam
+oeceo:FortyithInfantryBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                 oeceo:InfantryBrigadeCombatTeam ;
+                                        rdfs:label "40th Infantry Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#FourthBrigadeCombatTeamFirstArmoredDivision
+oeceo:FourthBrigadeCombatTeamFirstArmoredDivision rdf:type owl:NamedIndividual ,
+                                                           oeceo:ArmoredBrigadeCombatTeam ;
+                                                  rdfs:label "4th Brigade Combat Team First Armored Division" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#HungarianRevolutionOf1956
+oeceo:HungarianRevolutionOf1956 rdf:type owl:NamedIndividual ,
+                                         oeceo:PoliticalRevolution ;
+                                rdfs:label "Hungarian Revolution Of 1956" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ISILInsurgencyInTunisia
+oeceo:ISILInsurgencyInTunisia rdf:type owl:NamedIndividual ,
+                                       oeceo:Insurgency ;
+                              rdfs:label "ISIL Insurgency In Tunisia" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#InsurgencyInKashmir
+oeceo:InsurgencyInKashmir rdf:type owl:NamedIndividual ,
+                                   oeceo:Insurgency ;
+                          rdfs:label "Insurgency In Kashmir" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#JointTaskForce120
+oeceo:JointTaskForce120 rdf:type owl:NamedIndividual ,
+                                 oeceo:JointTaskForce ;
+                        rdfs:label "Joint Task Force 120" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#JointTaskForceGlobalNetworkOperations
+oeceo:JointTaskForceGlobalNetworkOperations rdf:type owl:NamedIndividual ,
+                                                     oeceo:JointTaskForce ;
+                                            <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.dtic.mil/dtic/tr/fulltext/u2/a463655.pdf" ;
+                                            rdfs:label "Joint Task Force Global Network Operations" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#KillingOfNineInNiger
+oeceo:KillingOfNineInNiger rdf:type owl:NamedIndividual ,
+                                    oeceo:ActOfTerrorism .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationDesertStorm
+oeceo:OperationDesertStorm rdf:type owl:NamedIndividual ,
+                                    oeceo:JointMilitaryOperation .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationInherentResolve
+oeceo:OperationInherentResolve rdf:type owl:NamedIndividual ,
+                                        oeceo:JointMilitaryOperation ;
+                               rdfs:label "Operation Inherent Resolve" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationIraqiFreedom
+oeceo:OperationIraqiFreedom rdf:type owl:NamedIndividual ,
+                                     oeceo:JointMilitaryOperation .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationJustCause
+oeceo:OperationJustCause rdf:type owl:NamedIndividual ,
+                                  oeceo:JointMilitaryOperation .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationUpholdDemocracy
+oeceo:OperationUpholdDemocracy rdf:type owl:NamedIndividual ,
+                                        oeceo:JointMilitaryOperation .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#OperationUrgentFury
+oeceo:OperationUrgentFury rdf:type owl:NamedIndividual ,
+                                   oeceo:JointMilitaryOperation .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#PragueSpringOf1968
+oeceo:PragueSpringOf1968 rdf:type owl:NamedIndividual ,
+                                  oeceo:PoliticalRevolution ;
+                         rdfs:label "Prague Spring Of 1968" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SecondCavalryStrykerBrigadeCombatTeam
+oeceo:SecondCavalryStrykerBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                     oeceo:StrykerBrigadeCombatTeam ;
+                                            rdfs:label "2nd Cavalry Stryker Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#SeventyFifthRangerRegiment
+oeceo:SeventyFifthRangerRegiment rdf:type owl:NamedIndividual ,
+                                          oeceo:Regiment ;
+                                 <http://www.obofoundry.org/ro/ro.owl#part_of> oeceo:JointTaskForce120 ;
+                                 rdfs:label "75th Ranger Regiment" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#TalibanInsurgency
+oeceo:TalibanInsurgency rdf:type owl:NamedIndividual ,
+                                 oeceo:Insurgency ;
+                        rdfs:label "Taliban Insurgency" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#TaskForceViking
+oeceo:TaskForceViking rdf:type owl:NamedIndividual ,
+                               oeceo:JointTaskForce ;
+                      <http://purl.obolibrary.org/obo/IAO_0000119> "http://www.americanspecialops.com/operations/sof-iraq/task-force-viking.php" ;
+                      rdfs:label "Task Force Viking" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ThirdCavalryBrigadeCombatTeam
+oeceo:ThirdCavalryBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                             oeceo:StrykerBrigadeCombatTeam ;
+                                    rdfs:label "3rd Cavalry Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ThirtyNinthInfantryBrigadeCombatTeam
+oeceo:ThirtyNinthInfantryBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                    oeceo:InfantryBrigadeCombatTeam ;
+                                           rdfs:label "39th Infantry Brigade Combat Team" .
+
+
+###  http://www.ontologylibrary.mil/OperationalEnvironment/Mid/OECausalExplorationOntology#ThirtyithArmoredBrigadeCombatTeam
+oeceo:ThirtyithArmoredBrigadeCombatTeam rdf:type owl:NamedIndividual ,
+                                                 oeceo:ArmoredBrigadeCombatTeam ;
+                                        rdfs:label "30th Armored Brigade Combat Team" .
+
+
+###  Generated by the OWL API (version 4.2.8.20170104-2310) https://github.com/owlcs/owlapi

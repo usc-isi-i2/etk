@@ -15,10 +15,8 @@ TEMP_DIR = '/tmp' if platform.system() == 'Darwin' else tempfile.gettempdir()
 
 class ETK(object):
     def __init__(self, kg_schema=None, modules=None, extract_error_policy="process", logger=None,
-                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, generate_json_ld=False,
-                 output_kg_only=False):
+                 logger_path=os.path.join(TEMP_DIR, 'etk.log'), ontology=None, output_kg_only=False):
 
-        self.generate_json_ld = generate_json_ld
         self.output_kg_only = output_kg_only
 
         if logger:
@@ -165,9 +163,6 @@ class ETK(object):
 
         # Do house cleaning.
         doc.insert_kg_into_cdr()
-        if not self.generate_json_ld:
-            if "knowledge_graph" in doc.cdr_document:
-                doc.cdr_document["knowledge_graph"].pop("@context", None)
         Utility.make_json_serializable(doc.cdr_document)
 
         if self.output_kg_only:
