@@ -77,3 +77,16 @@ class TestKGNode(unittest.TestCase):
         self.assertEqual(lit.type, LiteralType('xsd:string'))
         self.assertEqual(lit.raw_type, LiteralType.string.value)
         self.assertTrue(lit.is_valid())
+
+    def test_nodes_init_with_nodes(self):
+        uri = URI('rdf:type')
+        self.assertIsInstance(URI(uri), URI)
+        self.assertEqual(URI(uri), uri)
+
+        bnode = BNode()
+        self.assertIsInstance(BNode(bnode), BNode)
+        self.assertEqual(BNode(bnode), bnode)
+
+        lit = Literal('name', 'en', LiteralType.string)
+        self.assertIsInstance(Literal(lit), Literal)
+        self.assertEqual(Literal(lit), lit)

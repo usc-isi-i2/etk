@@ -7,6 +7,8 @@ from datetime import date, datetime
 from etk.knowledge_graph.ontology import Ontology
 from etk.knowledge_graph.namespacemanager import DIG
 from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
+from etk.knowledge_graph.subject import Subject
+import rdflib
 
 
 class TestKnowledgeGraph(unittest.TestCase):
@@ -173,38 +175,36 @@ class TestKnowledgeGraphWithOntology(unittest.TestCase):
         etk = ETK(kg_schema=kg_schema)
         self.doc = etk.create_document(dict(), doc_id='http://xxx/1', type_=[URI('dig:Person')])
 
-    # def test_valid_kg_jsonld(self):
-    #     kg = self.doc.kg
-    #     self.assertIn('@id', kg._kg)
-    #     self.assertEqual('http://xxx/1', kg._kg['@id'])
-    #     self.assertIn('@type', kg._kg)
-    #     self.assertIn(DIG.Person.toPython(), kg._kg['@type'])
+    def test_valid_kg(self):
+        kg = self.doc.kg
+        self.assertIsInstance(kg._g, rdflib.Graph)
+        self.assertEqual(len(kg._g), 1)
+        self.assertIn((rdflib.URIRef('http://xxx/1'), rdflib.RDF.type, DIG.Person), kg._g)
 
-    # def test_valid_kg(self):
-    #     kg = self.doc2.kg
-    #     self.assertNotIn('@id', kg._kg)
-    #     self.assertNotIn('@type', kg._kg)
+    def test_valid_ontology(self):
+        onto = self.doc.etk.kg_schema.ontology
+        self.assertIsInstance(onto._g, rdflib.Graph)
+        self.assertEqual(len(onto._g), 12)
 
-    # def test_add_value_kg_jsonld(self):
-    #     kg = self.doc.kg
-    #     field_name = kg.context_resolve(DIG.has_name)
-    #     self.assertEqual('has_name', field_name)
-    #     kg.add_value(field_name, 'Jack')
-    #     self.assertIn({'@value': 'Jack'}, kg._kg[field_name])
-    #     field_child = kg.context_resolve(DIG.has_child)
-    #     self.assertEqual('has_child', field_child)
-    #     child1 = 'http://xxx/2'
-    #     child2 = {'@id': 'http://xxx/3', 'has_name': 'Daniels', '@type': [DIG.Person],
-    #               '@context': {'has_name': DIG.has_name.toPython()}}
-    #     kg.add_value(field_child, child1)
-    #     kg.add_value(field_child, child2)
-    #     self.assertIn({'@id': 'http://xxx/2'}, kg._kg[field_child])
+    def test_add_types(self):
+        kg = self.doc.kg
+        self.assertIn((rdflib.URIRef('http://xxx/1'), rdflib.RDF.type, DIG.Person), kg._g)
+        kg.add_types(URI('dig:Male'))
+        self.assertIn((rdflib.URIRef('http://xxx/1'), rdflib.RDF.type, DIG.Male), kg._g)
+        kg.add_types([URI('dig:Human')])
+        self.assertIn((rdflib.URIRef('http://xxx/1'), rdflib.RDF.type, DIG.Human), kg._g)
 
-    # def test_add_value_kg(self):
-    #     kg = self.doc2.kg
-    #
-    #     field_name = kg.context_resolve(DIG.has_name)
-    #
-    #     self.assertEqual('has_name', field_name)
-    #     kg.add_value(field_name, 'Jack')
-    #     self.assertIn({'value': 'Jack', "key": "jack"}, kg._kg[field_name])
+    def test_add_subject(self):
+        kg = self.doc.kg
+        subject = Subject(URI('http://xxx/1'))
+        subject.add_property(URI('dig:name'), Literal('Jack', lang='en'))
+        subject.add_property(URI('dig:age'), Literal('18', type_=LiteralType.int))
+        friend = Subject(BNode())
+        friend.add_property(URI('rdf:type'), Literal('dig:Person'))
+        friend.add_property(URI('dig:name'), Literal('José', lang='es'))
+        friend.add_property(URI('dig:age'), Literal('19', type_=LiteralType.int))
+        friend.add_property(URI('dig:friend'), subject)
+        subject.add_property(URI('dig:friend'), friend)
+        kg.add_subject(subject)
+        self.assertEqual(len(kg._g), 8)
+        self.assertIn((rdflib.URIRef('http://xxx/1'), DIG.name, rdflib.Literal('Jack', lang='en')), kg._g)

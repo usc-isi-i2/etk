@@ -1,10 +1,9 @@
+import json
 from typing import Dict, List
 from etk.knowledge_graph.schema import KGSchema
-from etk.etk_exceptions import KGValueError, UndefinedFieldError
 from etk.knowledge_graph.graph import Graph
 from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, Literal
-import json
 from etk.utilities import deprecated
 
 
@@ -119,9 +118,8 @@ class KnowledgeGraph(Graph):
         s = Subject(URI(self.origin_doc.doc_id))
         p = URI('rdf:type')
 
-        if isinstance(type_, list):
-            for a_type in type_:
-                s.add_property(p, a_type)
-        elif isinstance(type_, str):
-            s.add_property('rdf:type', type_)
+        if not isinstance(type_, list):
+            type_ = [type_]
+        for a_type in type_:
+            s.add_property(p, URI(a_type))
         self.add_subject(s)

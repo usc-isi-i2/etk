@@ -28,6 +28,12 @@ class Node(object):
 
 
 class URI(Node):
+    def __init__(self, value):
+        if isinstance(value, URI):
+            super().__init__(value.value)
+        else:
+            super().__init__(value)
+
     def __eq__(self, other):
         if not isinstance(other, URI):
             return False
@@ -42,9 +48,12 @@ class URI(Node):
 
 class BNode(Node):
     def __init__(self, value=None):
-        if not value:
-            value = uuid4().hex
-        super().__init__(value)
+        if isinstance(value, BNode):
+            super().__init__(value.value)
+        else:
+            if not value:
+                value = uuid4().hex
+            super().__init__(value)
 
     def __eq__(self, other):
         if not isinstance(other, BNode):
@@ -60,11 +69,16 @@ class BNode(Node):
 
 class Literal(Node):
     def __init__(self, value, lang=None, type_=None):
-        super().__init__(value)
-        self._lang = lang
-        if type_ and isinstance(type_, str):
-            type_ = LiteralType(type_)
-        self._type = type_
+        if isinstance(value, Literal):
+            super().__init__(value.value)
+            self._lang = value.lang
+            self._type = value._type
+        else:
+            super().__init__(value)
+            self._lang = lang
+            if type_ and isinstance(type_, str):
+                type_ = LiteralType(type_)
+            self._type = type_
 
     def __eq__(self, other):
         if not isinstance(other, Literal):
