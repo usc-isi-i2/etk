@@ -1,9 +1,7 @@
 from etk.etk import ETK
-from etk.knowledge_graph.schema import KGSchema
+from etk.knowledge_graph import KGSchema, URI, BNode, Literal, LiteralType, Subject
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
-from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
-from etk.knowledge_graph.subject import Subject
 
 
 class ExampleETKModule(ETKModule):
@@ -93,5 +91,3 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
-    print(docs[0].kg.serialize('nt'))
-    print(docs[0].kg._resolve_uri.cache_info())

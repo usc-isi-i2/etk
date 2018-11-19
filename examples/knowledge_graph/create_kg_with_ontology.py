@@ -1,9 +1,7 @@
 from etk.etk import ETK
-from etk.knowledge_graph.schema import KGSchema
+from etk.knowledge_graph import KGSchema, URI, BNode, Literal, Subject
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
-from etk.knowledge_graph.node import URI, BNode, Literal
-from etk.knowledge_graph.subject import Subject
 
 
 class ExampleETKModule(ETKModule):
