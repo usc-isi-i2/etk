@@ -1,7 +1,7 @@
 import unittest, json
 from etk.extractors.email_extractor import EmailExtractor
 from etk.etk import ETK
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph import KGSchema
 
 
 class TestEmailExtractor(unittest.TestCase):
