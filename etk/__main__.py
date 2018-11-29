@@ -1,14 +1,14 @@
 import sys
-import os
 import importlib
+import pkgutil
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
+
+from etk import cli
 
 # module name should NOT starts with '__' (double underscore)
 # module name can not be in 'help', '--help', 'h', '-h'.
-dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'cli')
-handlers = list(filter(lambda x: not x.startswith('__'),
-                       [os.path.splitext(fname)[0] for fname in os.listdir(dir_path)]))
-
+handlers = [x.name for x in pkgutil.iter_modules(cli.__path__)
+                   if not x.name.startswith('__')]
 
 def help_info():
     print('Usage:')
@@ -41,8 +41,7 @@ if __name__ == '__main__':
         help_info()
 
     # load module
-    sys.path.append(dir_path)
-    mod = importlib.import_module(cmd)
+    mod = importlib.import_module('.' + cmd, 'etk.cli')
 
     # parse arguments
     parser = ArgumentParser(prog='python -m etk {}'.format(cmd), formatter_class=RawDescriptionHelpFormatter)
