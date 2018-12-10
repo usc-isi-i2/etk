@@ -337,7 +337,7 @@ class TableExtraction:
                             row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
                             row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
                 
-                features["merged_cells"] = merged_cells
+                # features["merged_cells"] = merged_cells
                 # To avoid division by zero
                 if len_row == 0:
                     tdcount = 1
