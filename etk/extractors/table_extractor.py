@@ -6,6 +6,7 @@ from etk.extraction import Extraction
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 import re
+import copy
 
 
 class Toolkit:
@@ -218,26 +219,50 @@ class TableExtraction:
                 max_cols = 0
                 row_shift = 0
                 
+                ## detect merged cells and find table demension
                 merged_cells = []
-                
+                row_spans = dict()
                 for ri, row in enumerate(rows):
-                    row_shift = max(0, row_shift-1)
+                    rshift = 0
                     num_rows += 1
                     num_cols = 0
+                    col_shift = 0
                     for ci, c in enumerate(row.findAll(['td', 'th'])):
                         num_cols += 1
                         cspan = c.get('colspan')
-                        if cspan is not None:
-                            num_cols += int(cspan)-1
                         rspan = c.get('rowspan')
-                        if rspan is not None:
-                            row_shift = int(rspan) - 1
+                        ci += col_shift+rshift
+                        
+                        if ci in row_spans:
+                            if row_spans[ci] <= 0:
+                                del row_spans[ci]
+                            else:
+                                rshift += 1
+                                row_spans[ci] -= 1
+                                ci += 1
+                        if cspan is not None and rspan is not None:
+                            cspan = int(cspan)
+                            rspan = int(rspan)
+                            col_shift += cspan-1
+                            row_spans[ci] = rspan-1
+                            merged_cells.append((ri, ri+rspan, ci, ci+cspan))
+                        elif cspan is not None:
+                            cspan = int(cspan)
+                            col_shift += cspan-1
+                            merged_cells.append((ri, ri+1, ci, ci+cspan))
+                        elif rspan is not None:
+                            rspan = int(rspan)
+                            row_spans[ci] = rspan-1
+                            merged_cells.append((ri, ri+rspan, ci, ci+1))
                     if max_cols < num_cols:
                         max_cols = num_cols
-                num_rows = num_rows+row_shift
-
-                tarr = []
-                metadata = []
+                if len(merged_cells) > 0:
+                    max_cols = max(max_cols, max([x[3] for x in merged_cells]))
+                    num_rows = max(len(rows), max([x[1] for x in merged_cells]))
+                else:
+                    num_rows = len(rows)
+                
+                ## create table array
                 row_spans = dict()
                 for ri, row in enumerate(rows):
                     row_data = ' '.join(row.stripped_strings)
@@ -259,60 +284,60 @@ class TableExtraction:
                     
                     row_dict = dict()
                     newr = [None]*max_cols
-                    newmd = [dict(isheader=False, html=None) for _ in range(max_cols)]
                     shift = 0
                     rshift = 0
                     ci = 0
                     
                     for i, c in enumerate(row.findAll(['td', 'th'])):
-                        ci = i+shift
+                        ci = i+shift+rshift
                         if ci in row_spans:
                             if row_spans[ci] <= 0:
                                 del row_spans[ci]
                             else:
-            #                     print(ri,ci,row_spans[ci])
                                 rshift += 1
                                 row_spans[ci] -= 1
-                        ci += rshift
+                                ci += 1
                         for br in c.find_all("br"):
                             br.replace_with(" ")
                         for br in c.find_all("script"):
                             br.decompose()
-            #             print(ri, ci, i, shift, rshift)
                         cell_dict = dict()
                         cell_dict["cell"] = str(c)
                         cell_dict["text"] = ' '.join(c.stripped_strings)
                         cell_dict["id"] = 'row_{0}_col_{1}'.format(ri, ci)
                         
                         avg_cell_len += len(cell_dict["text"])
-                        # cell_list.append(cell_dict)
                         
                         newr[ci] = cell_dict
-                        newmd[ci]['html'] = str(c)
-                        newmd[ci]['isheader'] = True if c.name == 'th' else False
                         cspan = c.get('colspan')
                         rspan = c.get('rowspan')
 
                         if rspan is not None:
-                            ci = i+shift
+                            # ci = i+shift
                             row_spans[ci] = int(rspan)-1
-            #                 print('rspan: ', ri, ci, rspan)
                         if cspan is not None:
                             shift += int(cspan)-1
                     for i in range(ci+1, max_cols):
                         if i in row_spans:
                             row_spans[i] -= 1
-
-                    # metadata.append(newmd)
-                    # tarr.append(newr)
                     
                     avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) if x else 0 for x in newr])
                     row_dict["cells"] = newr
-                    row_dict["meta"] = newmd
                     row_dict["text"] = self.row_to_text(newr)
                     row_dict["html"] = self.row_to_html(newr)
                     row_dict["id"] = "row_{}".format(ri)
                     row_list.append(row_dict)
+                    
+                ## replicate merged cells
+                for m in merged_cells:
+                    for ii in range(m[0], m[1]):
+                        for jj in range(m[2], m[3]):
+                            if ii == m[0] and jj == m[2]:
+                                continue
+                            row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
+                            row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
+                
+                features["merged_cells"] = merged_cells
                 # To avoid division by zero
                 if len_row == 0:
                     tdcount = 1
