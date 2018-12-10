@@ -135,7 +135,7 @@ class TableExtraction:
             rows.extend(table.tbody.findAll('tr', recursive=False))
         for tr in rows:
             if TableExtraction.is_data_row(tr):
-                data_rows.append(str(tr))
+                data_rows.append(tr)
         return data_rows
 
     @staticmethod
@@ -190,7 +190,7 @@ class TableExtraction:
         return uniq_list
 
     def extract(self, html_doc, min_data_rows = 1):
-        soup = BeautifulSoup(html_doc, 'html.parser')
+        soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
         for table in tables:
@@ -212,50 +212,107 @@ class TableExtraction:
                 row_len_list = list()
                 avg_cell_len = 0
                 avg_row_len_dev = 0
-                for index_row, row in enumerate(rows):
-                    row_dict = dict()
-                    soup_row = BeautifulSoup(row, 'html.parser')
-                    row_data = ' '.join(soup_row.stripped_strings)
-                    row_data = row_data.replace("\\t", "").replace("\\r", "").replace("\\n", "")
-                    if row_data != '':
-                        row_len_list.append(len(row_data))
-                        row_tdcount = len(soup_row.findAll('td')) + len(soup_row.findAll('th'))
-                        if row_tdcount > max_tdcount:
-                            max_tdcount = row_tdcount
-                        tdcount += row_tdcount
-                        img_count += len(soup_row.findAll('img'))
-                        href_count += len(soup_row.findAll('a'))
-                        inp_count += len(soup_row.findAll('input'))
-                        sel_count += len(soup_row.findAll('select'))
-                        colspan_count += row_data.count("colspan")
-                        colon_count += row_data.count(":")
-                        len_row += 1
-                        table_data += row
-                        # row_dict["row"] = str(row)
-                        cell_list = list()
-                        for index_col, td in enumerate(soup_row.findAll('th')):
-                            cell_dict = dict()
-                            cell_dict["cell"] = str(td)
-                            # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                            cell_dict["text"] = ' '.join(td.stripped_strings)
-                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
-                            avg_cell_len += len(cell_dict["text"])
-                            cell_list.append(cell_dict)
-                        for index_col, td in enumerate(soup_row.findAll('td')):
-                            cell_dict = dict()
-                            cell_dict["cell"] = str(td)
-                            # cell_dict["text"] = [{"result": {"value": ''.join(td.stripped_strings)}}]
-                            cell_dict["text"] = ' '.join(td.stripped_strings)
-                            cell_dict["id"] = 'row_{0}_col_{1}'.format(index_row, index_col)
-                            avg_cell_len += len(cell_dict["text"])
-                            cell_list.append(cell_dict)
-                        avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) for x in cell_list])
-                        row_dict["cells"] = cell_list
-                        row_dict["text"] = self.row_to_text(cell_list)
-                        row_dict["html"] = self.row_to_html(cell_list)
-                        row_dict["id"] = "row_{}".format(index_row)
-                        row_list.append(row_dict)
+                
+                num_rows = 0
+                num_cols = 0
+                max_cols = 0
+                row_shift = 0
+                
+                merged_cells = []
+                
+                for ri, row in enumerate(rows):
+                    row_shift = max(0, row_shift-1)
+                    num_rows += 1
+                    num_cols = 0
+                    for ci, c in enumerate(row.findAll(['td', 'th'])):
+                        num_cols += 1
+                        cspan = c.get('colspan')
+                        if cspan is not None:
+                            num_cols += int(cspan)-1
+                        rspan = c.get('rowspan')
+                        if rspan is not None:
+                            row_shift = int(rspan) - 1
+                    if max_cols < num_cols:
+                        max_cols = num_cols
+                num_rows = num_rows+row_shift
 
+                tarr = []
+                metadata = []
+                row_spans = dict()
+                for ri, row in enumerate(rows):
+                    row_data = ' '.join(row.stripped_strings)
+                    row_data = row_data.replace("\\t", "").replace("\\r", "").replace("\\n", "")
+                    
+                    row_len_list.append(len(row_data))
+                    row_tdcount = len(row.findAll('td')) + len(row.findAll('th'))
+                    if row_tdcount > max_tdcount:
+                        max_tdcount = row_tdcount
+                    tdcount += row_tdcount
+                    img_count += len(row.findAll('img'))
+                    href_count += len(row.findAll('a'))
+                    inp_count += len(row.findAll('input'))
+                    sel_count += len(row.findAll('select'))
+                    colspan_count += row_data.count("colspan")
+                    colon_count += row_data.count(":")
+                    len_row += 1
+                    table_data += str(row)
+                    
+                    row_dict = dict()
+                    newr = [None]*max_cols
+                    newmd = [dict(isheader=False, html=None) for _ in range(max_cols)]
+                    shift = 0
+                    rshift = 0
+                    ci = 0
+                    
+                    for i, c in enumerate(row.findAll(['td', 'th'])):
+                        ci = i+shift
+                        if ci in row_spans:
+                            if row_spans[ci] <= 0:
+                                del row_spans[ci]
+                            else:
+            #                     print(ri,ci,row_spans[ci])
+                                rshift += 1
+                                row_spans[ci] -= 1
+                        ci += rshift
+                        for br in c.find_all("br"):
+                            br.replace_with(" ")
+                        for br in c.find_all("script"):
+                            br.decompose()
+            #             print(ri, ci, i, shift, rshift)
+                        cell_dict = dict()
+                        cell_dict["cell"] = str(c)
+                        cell_dict["text"] = ' '.join(c.stripped_strings)
+                        cell_dict["id"] = 'row_{0}_col_{1}'.format(ri, ci)
+                        
+                        avg_cell_len += len(cell_dict["text"])
+                        # cell_list.append(cell_dict)
+                        
+                        newr[ci] = cell_dict
+                        newmd[ci]['html'] = str(c)
+                        newmd[ci]['isheader'] = True if c.name == 'th' else False
+                        cspan = c.get('colspan')
+                        rspan = c.get('rowspan')
+
+                        if rspan is not None:
+                            ci = i+shift
+                            row_spans[ci] = int(rspan)-1
+            #                 print('rspan: ', ri, ci, rspan)
+                        if cspan is not None:
+                            shift += int(cspan)-1
+                    for i in range(ci+1, max_cols):
+                        if i in row_spans:
+                            row_spans[i] -= 1
+
+                    # metadata.append(newmd)
+                    # tarr.append(newr)
+                    
+                    avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) if x else 0 for x in newr])
+                    row_dict["cells"] = newr
+                    row_dict["meta"] = newmd
+                    row_dict["text"] = self.row_to_text(newr)
+                    row_dict["html"] = self.row_to_html(newr)
+                    row_dict["id"] = "row_{}".format(ri)
+                    row_list.append(row_dict)
                 # To avoid division by zero
                 if len_row == 0:
                     tdcount = 1
@@ -349,7 +406,8 @@ class TableExtraction:
     def row_to_html(cells):
         res = '<html><body><table>'
         for i, c in enumerate(cells):
-            res += c['cell'] + '\n'
+            t = c['cell'] if c else ''
+            res += t + '\n'
         res += '</table></body></html>'
         return res
 
@@ -357,7 +415,8 @@ class TableExtraction:
     def row_to_text(cells):
         res = ''
         for i, c in enumerate(cells):
-            res += c['text']
+            t = c['text'] if c else ''
+            res += t
             if i < len(cells)-1:
                 res += ' | '
         return res
@@ -367,7 +426,8 @@ class TableExtraction:
         res = ''
         for row in rows:
             for i, c in enumerate(row['cells']):
-                res += c['text']
+                t = c['text'] if c else ''
+                res += t
                 if i < len(row['cells']) - 1:
                     res += ' | '
             res += '\n'
@@ -381,8 +441,9 @@ class TableExtraction:
         for row in row_list:
             table += "<tr>"
             cells = row["cells"]
-            for cell in cells:
-                table += str(cell["cell"])
+            for c in cells:
+                t = c['cell'] if c else ''
+                table += t
             table += "</tr>"
         table += "</table>"
         return table
