@@ -29,7 +29,7 @@ class SHACL(Graph):
 class SHACLOntoConverter:
     def __init__(self, class_nodes: Dict[str, Union[URI, BNode]] = None):
         super().__init__()
-        self.onto_graph: Graph = None
+        self.onto_graph: rdflib.Graph = None
         self._g = Graph()
         self._class_nodes = class_nodes if class_nodes else {}
         self._g.bind('sh', SH)
@@ -41,34 +41,18 @@ class SHACLOntoConverter:
         return self._class_nodes[class_]
 
     def convert_ontology(self, onto_graph: Graph) -> Graph:
-        self.onto_graph = onto_graph
+        self.onto_graph = onto_graph._g if isinstance(onto_graph, Graph) else onto_graph
         # build shacl property-based NodeShape for non-domain-referenced properties
         self._convert_ontology_non_referenced_property()
         # build shacl class-based NodeShape
         # build shacl property path-based blank node for domain-referenced properties
         # for path-based property,
         # we can only add sh:datatype/sh:class based on rdfs:range
-        self._convert_ontology_class_node_shape(onto_graph)
+        self._convert_ontology_class_node_shape()
 
         # build shacl property based on owl restriction
         # we can add cardinality to it
-        for s, p in self._g.query("""
-          SELECT ?s ?p ?all ?some ?has ?exact ?min ?max
-          WHERE {
-            ?s rdfs:subClassOf|owl:equivalentClass ?res .
-            ?res a owl:Restriction ;
-                 owl:onProperty ?p .
-            OPTIONAL {?res owl:allValuesFrom ?all}
-            OPTIONAL {?res owl:someValuesFrom ?some}
-            OPTIONAL {?res owl:hasValue ?has}
-            OPTIONAL {?res owl:cardinality ?exact}
-            OPTIONAL {?res owl:minCardinality ?min}
-            OPTIONAL {?res owl:maxCardinality ?max}
-          }
-        """):
-            # owl:allValuesFrom, owl:someValuesFrom, owl:hasValue
-            # owl:cardinality, owl:minCardinality, owl:maxCardinality
-            pass
+        self._convert_ontology_owl_restriction()
 
     def _property_shape(self, property_: Union[rdflib.URIRef, str, URI]):
         if isinstance(property_, URI):
@@ -81,6 +65,8 @@ class SHACLOntoConverter:
         return p_shape
 
     def _build_property_ranges(self, p_shape, ranges):
+        if not ranges:
+            return
         if len(ranges) == 1:
             range_ = ranges[0]
             type_ = URI('sh:datatype') if self._is_datatype(range_) else URI('sh:class')
@@ -117,10 +103,9 @@ class SHACLOntoConverter:
             p_shape.add_property(URI('rdf:type'), URI('sh:PropertyShape'))
             self._g.add_subject(p_shape)
 
-    def _convert_ontology_class_node_shape(self, onto_graph: rdflib.Graph):
-        # TODO
-        for s in onto_graph.query("""
-          SELECT ?s WHERE {
+    def _convert_ontology_class_node_shape(self):
+        for c, in self.onto_graph.query("""
+          SELECT DISTINCT ?s WHERE {
             {?s a owl:Class}
             UNION
             {?s a rdfs:Class}
@@ -138,14 +123,52 @@ class SHACLOntoConverter:
               sh:targetClass ?s ; 
               sh:property [ sh:path p ; sh:class class ;] ;]
             """
-            node_subject = Subject(BNode())
-            node_subject.add_property('rdf:type', 'sh:NodeShape')
-            node_subject.add_property('sh:targetClass', URI(s))
-            for range_ in onto_graph.subjects(RDFS.domain, s):
-                property_subject = Subject(BNode())
-                property_subject.add_property(URI('sh:path'), URI(range_))
-                property_subject.add_property(URI('sh:class'))  # TODO
+            node_subject = self._class_shape(c)
+            for p in self.onto_graph.subjects(RDFS.domain, c):
+                property_subject = self._property_shape(p)
                 node_subject.add_property(URI('sh:property'), property_subject)
+            self._g.add_subject(node_subject)
+
+    def _class_shape(self, c):
+        node_subject = Subject(self.cnode(c))
+        node_subject.add_property(URI('rdf:type'), URI('sh:NodeShape'))
+        node_subject.add_property(URI('sh:targetClass'), URI(c))
+        return node_subject
+
+    def _convert_ontology_owl_restriction(self):
+        for c, p, exact, min_, max_ in self.onto_graph.query("""
+          SELECT ?c ?p ?exact ?min ?max
+          WHERE {
+            ?c rdfs:subClassOf|owl:equivalentClass ?res .
+            ?res a owl:Restriction ;
+                 owl:onProperty ?p .
+            OPTIONAL {?res owl:cardinality ?exact}
+            OPTIONAL {?res owl:minCardinality ?min}
+            OPTIONAL {?res owl:maxCardinality ?max}
+          }
+        """):
+            node_subject = self._class_shape(c)
+            property_shape = self._property_shape(p)
+            if exact:
+                property_shape.add_property(URI('sh:count'), Literal(str(exact), type_=LiteralType.integer))
+            if min_:
+                property_shape.add_property(URI('sh:minCount'), Literal(str(min_), type_=LiteralType.integer))
+            if max_:
+                property_shape.add_property(URI('sh:maxCount'), Literal(str(max_), type_=LiteralType.integer))
+            ranges = []
+            for r, in self.onto_graph.query("""
+              SELECT ?r
+              WHERE {
+                ?c rdfs:subClassOf|owl:equivalentClass ?res .
+                ?res a owl:Restriction ;
+                     owl:onProperty ?p ;
+                     owl:allValuesFrom|owl:someValuesFrom|owl:hasValue ?r
+              }
+            """, initBindings={'c': c, 'p': p}):
+                ranges.append(r)
+            self._build_property_ranges(property_shape, ranges)
+            node_subject.add_property(URI('sh:property'), property_shape)
+            self._g.add_subject(node_subject)
 
     def _add_list(self, list_):
         """

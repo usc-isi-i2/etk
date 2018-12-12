@@ -100,22 +100,6 @@ class TestPySHACL(unittest.TestCase):
 
 
 class TestSHACLOntoConverter(unittest.TestCase):
-    def setUp(self):
-        ontology = """
-            @prefix : <http://example.org/> .
-            @prefix owl: <http://www.w3.org/2002/07/owl#> .
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-            :Person a owl:Class .
-            :Developer a owl:Class ;
-                       rdfs:subClassOf :Person .
-            :name a owl:DatatypeProperty ;
-                  rdfs:domain :Person ;
-                  rdfs:range xsd:string .
-        """
-        self.onto_graph = Ontology()
-        self.onto_graph.parse(ontology)
-
     def test_cnode(self):
         converter = SHACLOntoConverter()
         c1 = rdflib.URIRef('http://example.org/Person')
@@ -163,30 +147,22 @@ class TestSHACLOntoConverter(unittest.TestCase):
         p_shape = converter._property_shape('http://example.org/name')
         self.assertIsInstance(p_shape, Subject)
         p_shape_graph = subject_to_graph(p_shape)
-        print(p_shape_graph.serialize())
         self.assertTrue(p_shape_graph._g.query("""
-            PREFIX : <http://example.org/> 
-            PREFIX sh: <http://www.w3.org/ns/shacl#> 
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
             ASK { ?s sh:path :name ;
                      sh:datatype xsd:string .
             }
-        """))
+        """, initNs=namespaces))
 
         p_shape = converter._property_shape('http://example.org/developer')
         self.assertIsInstance(p_shape, Subject)
         p_shape_graph = subject_to_graph(p_shape)
-        print(p_shape_graph.serialize())
         self.assertTrue(p_shape_graph._g.query("""
-            PREFIX : <http://example.org/> 
-            PREFIX sh: <http://www.w3.org/ns/shacl#> 
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> 
             ASK { 
                 ?s sh:path :developer ;
                    sh:or ( [ sh:class ?c1 ] [ sh:class ?c2 ]) .
                 FILTER (?c1 != ?c2)
             }
-        """))
+        """, initNs=namespaces))
 
     def test_convert_non_referenced_property(self):
         ontology = """
@@ -212,6 +188,112 @@ class TestSHACLOntoConverter(unittest.TestCase):
             }
         """, initNs=namespaces))
         self.assertFalse(converter._g._g.query("ASK { ?s sh:path :name }", initNs=namespaces))
+
+    def test_convert_non_referenced_property(self):
+        ontology = """
+            @prefix : <http://example.org/> .
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            :name a owl:DatatypeProperty ;
+              rdfs:domain :Person, :Software ;
+              rdfs:range xsd:string ; .
+            :developer a owl:ObjectProperty ;
+              rdfs:range :PythonDeveloper, :JavaDeveloper ; .
+        """
+        onto_graph = Ontology()
+        onto_graph.parse(ontology)
+        converter = SHACLOntoConverter()
+        converter.onto_graph = onto_graph._g
+        converter._convert_ontology_non_referenced_property()
+        self.assertTrue(converter._g._g.query("""
+            ASK { ?s a sh:PropertyShape ;
+                     sh:path :developer ;
+                     sh:or ?range .
+            }
+        """, initNs=namespaces))
+        self.assertFalse(converter._g._g.query("ASK { ?s sh:path :name }", initNs=namespaces))
+
+    def test_convert_ontology_class_node_shape(self):
+        ontology = """
+            @prefix : <http://example.org/> .
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            :Developer rdfs:subClassOf :Person .
+            :name a owl:DatatypeProperty ;
+              rdfs:domain :Person, :Software ;
+              rdfs:range xsd:string ; .
+            :developer a owl:ObjectProperty ;
+              rdfs:domain :Software ;
+              rdfs:range :PythonDeveloper, :JavaDeveloper ; .
+        """
+        onto_graph = Ontology()
+        onto_graph.parse(ontology)
+        converter = SHACLOntoConverter()
+        converter.onto_graph = onto_graph._g
+        converter._convert_ontology_class_node_shape()
+        self.assertTrue(converter._g._g.query("""
+            ASK { ?s a sh:NodeShape ; sh:targetClass :Developer }
+        """, initNs=namespaces))
+        self.assertTrue(converter._g._g.query("""
+            ASK { ?s sh:targetClass :Person ; sh:property ?p }
+        """, initNs=namespaces))
+        self.assertTrue(converter._g._g.query("""
+            ASK { 
+              ?s sh:targetClass :Software ; 
+                 sh:property ?p1 ;
+                 sh:property ?p2 
+              FILTER (?p1 != ?p2)
+            }
+        """, initNs=namespaces))
+
+    def test_convert_ontology_owl_restriction(self):
+        ontology = """
+            @prefix : <http://example.org/> .
+            @prefix owl: <http://www.w3.org/2002/07/owl#> .
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            :Developer rdfs:subClassOf [ a owl:Restriction ;
+                owl:onProperty :name ;
+                owl:allValuesFrom xsd:string ;
+                owl:cardinality 1 
+            ] ; .
+            :Software rdfs:subClassOf [ a owl:Restriction ;
+                    owl:onProperty :name ;
+                    owl:allValuesFrom xsd:string ;
+                    owl:cardinality 1
+                ];
+                rdfs:subClassOf [ a owl:Restriction ;
+                    owl:onProperty :developer ;
+                    owl:allValuesFrom :Developer ;
+                    owl:minCardinality 1
+                ]; .
+        """
+        onto_graph = Ontology()
+        onto_graph.parse(ontology)
+        converter = SHACLOntoConverter()
+        converter.onto_graph = onto_graph._g
+        converter._convert_ontology_owl_restriction()
+        self.assertTrue(converter._g._g.query("""
+            ASK { 
+                ?s a sh:NodeShape ; 
+                   sh:targetClass :Developer ; 
+                   sh:property ?p .
+                ?p sh:path :name ;
+                   sh:count 1 ;
+                   sh:datatype xsd:string .
+            }
+        """, initNs=namespaces))
+        self.assertTrue(converter._g._g.query("""
+            ASK { 
+                ?s sh:targetClass :Software ; 
+                   sh:property ?p .
+                ?p sh:path :developer ;
+                   sh:minCount 1 ;
+                   sh:class :Developer .
+            }
+        """, initNs=namespaces))
 
 
 class TestSHACL(unittest.TestCase):
