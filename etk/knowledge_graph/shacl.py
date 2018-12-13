@@ -14,16 +14,25 @@ class SHACL(Graph):
     def __init__(self):
         super().__init__()
         self._class_nodes: Dict[str, Union[URI, BNode]] = {}
-
-    def cnode(self, class_):
-        class_ = str(class_)
-        if class_ not in self._class_nodes:
-            self._class_nodes[class_] = BNode()
-        return self._class_nodes[class_]
+        self.bind('sh', SH)
 
     def add_ontology(self, onto_graph):
         converter = SHACLOntoConverter(self._class_nodes)
-        self._g += converter.convert_ontology()
+        self._g += converter.convert_ontology(onto_graph)._g
+        self._class_nodes.update(converter.class_nodes)
+
+    def validate(self, data_graph, onto_graph=None, inference=None):
+        if isinstance(data_graph, Graph):
+            data_graph = data_graph._g
+        if isinstance(onto_graph, Graph):
+            onto_graph = onto_graph._g
+        if onto_graph and inference:
+            conforms, results_graph, results_text = validate(data_graph + onto_graph, shacl_graph=self._g,
+                                                             inference=inference)
+        else:
+            conforms, results_graph, results_text = validate(data_graph, shacl_graph=self._g)
+        results_graph = Graph(results_graph)
+        return conforms, results_graph
 
 
 class SHACLOntoConverter:
@@ -40,6 +49,10 @@ class SHACLOntoConverter:
             self._class_nodes[class_] = BNode()
         return self._class_nodes[class_]
 
+    @property
+    def class_nodes(self):
+        return self._class_nodes
+
     def convert_ontology(self, onto_graph: Graph) -> Graph:
         self.onto_graph = onto_graph._g if isinstance(onto_graph, Graph) else onto_graph
         # build shacl property-based NodeShape for non-domain-referenced properties
@@ -53,6 +66,7 @@ class SHACLOntoConverter:
         # build shacl property based on owl restriction
         # we can add cardinality to it
         self._convert_ontology_owl_restriction()
+        return self._g
 
     def _property_shape(self, property_: Union[rdflib.URIRef, str, URI]):
         if isinstance(property_, URI):

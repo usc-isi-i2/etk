@@ -125,7 +125,5 @@ class KnowledgeGraph(Graph):
         self.add_subject(s)
 
     def validate(self):
-        # TODO
-        self.schema.is_valid()
-        pass
-
+        conforms, result_graph = self.schema.validate(self)
+        return conforms, result_graph
