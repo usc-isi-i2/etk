@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0075)http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587568.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+   <title> [PATCH net-next 5/5] net: gemini: Indicate that we can handle jumboframes
+   </title>
+   <link rel="Index" href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/index.html">
+   <link rel="made" href="mailto:linux-arm-kernel%40lists.infradead.org?Subject=Re:%20Re%3A%20%5BPATCH%20net-next%205/5%5D%20net%3A%20gemini%3A%20Indicate%20that%20we%20can%20handle%0A%20jumboframes&amp;In-Reply-To=%3C20180701075854.GB15006%40lunn.ch%3E">
+   <meta name="robots" content="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   
+   <link rel="Previous" href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587567.html">
+   <link rel="Next" href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587569.html">
+ </head>
+ <body bgcolor="#ffffff">
+   <h1>[PATCH net-next 5/5] net: gemini: Indicate that we can handle jumboframes</h1>
+    <b>Andrew Lunn</b> 
+    <a href="mailto:linux-arm-kernel%40lists.infradead.org?Subject=Re:%20Re%3A%20%5BPATCH%20net-next%205/5%5D%20net%3A%20gemini%3A%20Indicate%20that%20we%20can%20handle%0A%20jumboframes&amp;In-Reply-To=%3C20180701075854.GB15006%40lunn.ch%3E" title="[PATCH net-next 5/5] net: gemini: Indicate that we can handle jumboframes">andrew at lunn.ch
+       </a><br>
+    <i>Sun Jul  1 00:58:54 PDT 2018</i>
+    <p></p><ul>
+        <li>Previous message (by thread): <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587567.html">[PATCH net-next 2/5] net: gemini: Improve connection prints
+</a></li>
+        <li>Next message (by thread): <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587569.html">[PATCH v3 5/6] i2c: Add Actions Semiconductor Owl family S900 I2C driver
+</a></li>
+         <li> <b>Messages sorted by:</b> 
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/date.html#587568">[ date ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/thread.html#587568">[ thread ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/subject.html#587568">[ subject ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/author.html#587568">[ author ]</a>
+         </li>
+       </ul>
+    <hr>  
+<!--beginarticle-->
+<pre>On Sat, Jun 30, 2018 at 06:18:06PM +0200, Linus Walleij wrote:
+&gt;<i> The hardware supposedly handles frames up to 10236 bytes and
+</i>&gt;<i> implements .ndo_change_mtu() so accept 10236 minus the ethernet
+</i>&gt;<i> header for a VLAN tagged frame on the netdevices.
+</i>&gt;<i> 
+</i>&gt;<i> Signed-off-by: Linus Walleij &lt;<a href="http://lists.infradead.org/mailman/listinfo/linux-arm-kernel">linus.walleij at linaro.org</a>&gt;
+</i>&gt;<i> ---
+</i>&gt;<i>  drivers/net/ethernet/cortina/gemini.c | 5 +++++
+</i>&gt;<i>  1 file changed, 5 insertions(+)
+</i>&gt;<i> 
+</i>&gt;<i> diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
+</i>&gt;<i> index 79324bbfd768..ae475393e4ac 100644
+</i>&gt;<i> --- a/drivers/net/ethernet/cortina/gemini.c
+</i>&gt;<i> +++ b/drivers/net/ethernet/cortina/gemini.c
+</i>&gt;<i> @@ -2473,6 +2473,11 @@ static int gemini_ethernet_port_probe(struct platform_device *pdev)
+</i>&gt;<i>  
+</i>&gt;<i>  	netdev-&gt;hw_features = GMAC_OFFLOAD_FEATURES;
+</i>&gt;<i>  	netdev-&gt;features |= GMAC_OFFLOAD_FEATURES | NETIF_F_GRO;
+</i>&gt;<i> +	/* We can handle jumbo frames up to 10236 bytes so, let's accept
+</i>&gt;<i> +	 * payloads of 10236 bytes minus VLAN and ethernet header
+</i>&gt;<i> +	 */
+</i>&gt;<i> +	netdev-&gt;min_mtu = 256;
+</i>&gt;<i> +	netdev-&gt;max_mtu = 10236 - VLAN_ETH_HLEN;
+</i>
+Hi Linus
+
+The commit message does not mention the min mtu you set here. Where
+does 256 come from?
+
+Thanks
+     Andrew
+
+</pre>
+
+
+<!--endarticle-->
+    <hr>
+    <p></p><ul>
+        <!--threads-->
+	<li>Previous message (by thread): <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587567.html">[PATCH net-next 2/5] net: gemini: Improve connection prints
+</a></li>
+	<li>Next message (by thread): <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/587569.html">[PATCH v3 5/6] i2c: Add Actions Semiconductor Owl family S900 I2C driver
+</a></li>
+         <li> <b>Messages sorted by:</b> 
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/date.html#587568">[ date ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/thread.html#587568">[ thread ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/subject.html#587568">[ subject ]</a>
+              <a href="http://lists.infradead.org/pipermail/linux-arm-kernel/2018-July/author.html#587568">[ author ]</a>
+         </li>
+       </ul>
+
+<hr>
+<a href="http://lists.infradead.org/mailman/listinfo/linux-arm-kernel">More information about the linux-arm-kernel
+mailing list</a><br>
+
+</body></html>
