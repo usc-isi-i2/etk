@@ -116,7 +116,7 @@ skos:prefLabel a owl:DatatypeProperty ;
 
     ontology = Ontology(ontology_content, validation=False, include_undefined_class=True, quiet=True)
     kg_schema = KGSchema(ontology.merge_with_master_config(dict()))
-    etk = ETK(modules=ExampleETKModule, kg_schema=kg_schema, ontology=ontology)
+    etk = ETK(modules=ExampleETKModule, kg_schema=kg_schema, ontology=ontology, generate_json_ld=True)
     input_data = {'doc_id': '1', 'data': json.loads(sample_input)}
     doc = etk.create_document(input_data)
     docs = etk.process_ems(doc)

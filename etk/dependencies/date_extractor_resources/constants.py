@@ -36,14 +36,14 @@ singleton_regex = {
     # reference: https://en.wikipedia.org/wiki/Time_zone
     # 'splitters': r'(?:[,/ \.\-]? ?)',
     'splitters': r'(?:,? of |,? del |,? de |,? el |\. |, |-|/| ?)',
-    'y_prefix': r'in |at |by |year ',
-    'w_prefix': r'on ',
+    'y_prefix': r'(?:in |at |by |year )',
+    'w_prefix': r'(?:on )',
 }
 
-possible_illegal = r'^\b(?:[0-9]{3}[-/ ,\.] ?[0-9]{4}|[0-9]{3}|[0-9]{5}|[0-9]{2}[-/ ,\.] ?[0-9]{4}|' \
-                   r'[0-9]{4}[-/ ,\.] ?[0-9]{3}|[0-9]{2}[-/ ,\.] ?[0-9]{1}|[0-9]{1}[-/ ,\.] ?[0-9]{2}|' \
-                   r'[0-9]{2}|[0-9]{1,2} ?[0-9]{1,2} ?[0-9]{1,2}|[0-9]{1,2}[- ,.:][0-9]{1,2}|[0-9]{1}|' \
-                   r'[0-9]{1}[-/ ,\.][0-9]{1})\b$'
+# TODO: reconstruct the regex generater to filter out the false positives on first time matching, to speed up
+illegal = '^\b?(?:[a-zA-Z]?[0-9]{1,3}[a-zA-Z]?|[0-9]{5}|[0-9]{7})\b?$'
+possible_illegal = '^\b?(?:[0-9]{1,6}[-/ ,\.] ?[0-9]{1,6})\b?$'
+possible_illegal_3 = '^\b?(?:[0-9]{1,2}[-/ ,\.] ?[0-9]{1,2}[-/ ,\.] ?[0-9]{1,2})\b?$'
 
 units = {
     'Y': ['%Y', '%y'],
@@ -84,7 +84,7 @@ foreign_to_english = {
     'octubre': 'October',
     'noviembre': 'November',
     'diciembre': 'December',
-    'feb': 'Feb',
+    # 'feb': 'Feb',
     'abr': 'Apr',
     'set': 'Sept',
     'dic': 'Dec',
@@ -107,15 +107,15 @@ foreign_to_english = {
     'januari': 'January',
     'februari': 'February',
     'mars': 'March',
-    'april': 'April',
+    # 'april': 'April',
     'maj': 'May',
     'juni': 'June',
     'juli': 'July',
     'augusti': 'August',
-    'september': 'September',
+    # 'september': 'September',
     'oktober': 'October',
-    'november': 'November',
-    'december': 'December',
+    # 'november': 'November',
+    # 'december': 'December',
     'måndag': 'Monday',
     'tisdag': 'Tuesday',
     'onsdag': 'Wednesday',
@@ -584,7 +584,7 @@ spacy_rules = {
           "shapes": [
           ],
           "suffix": "",
-          "token": ["yesterday", "tomorrow"],
+          "token": ["yesterday", "today", "tomorrow"],
           "type": "word"
         },
       ],

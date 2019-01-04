@@ -78,7 +78,7 @@ deactivate
 
 For example:
 
-`python -m etk dummy --test "this is a test"`
+`python -m etk regex_extractor "a.*c" "abcd"`
 
 ## Docker
 

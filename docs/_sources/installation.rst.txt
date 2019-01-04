@@ -54,6 +54,20 @@ Run all ETK unit test::
 
     python -m unittest discover
 
+Run ETK CLI
+-----------
+ETK needs to be installed as python package::
+
+    python -m etk <command> [options]
+
+For example::
+
+    python -m etk regex_extractor "a.*c" "abcd"
+
+Chained extractors::
+
+    cat ./sample_input/test.html | python -m etk html_content_extractor | python -m etk date_extractor
+
 
 Build documentation
 -------------------

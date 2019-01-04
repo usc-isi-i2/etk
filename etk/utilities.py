@@ -38,5 +38,26 @@ class Utility(object):
         return hashlib.sha256(json.dumps(doc, sort_keys=True).encode('utf-8')).hexdigest()
 
     @staticmethod
+    def create_doc_id_string(any_string):
+        """
+        Creates sha256 has of a string
+        :param any_string: input string
+        :return: sha256 hash of any_string
+        """
+        try:
+            return hashlib.sha256(any_string).hexdigest()
+        except:
+            # probably failed because of unicode
+            return hashlib.sha256(any_string.encode('utf-8')).hexdigest()
+
+    @staticmethod
     def create_uuid():
         return str(uuid.uuid4())
+
+    @staticmethod
+    def create_description_from_json(doc_json):
+        description = ''
+        for key in doc_json:
+            description += '"' + key + '":"' + str(doc_json[key]) + '", <br/>'
+        description += '}'
+        return description

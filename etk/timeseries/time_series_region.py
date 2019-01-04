@@ -1,11 +1,9 @@
-import sys
-from datetime import date, datetime
 import logging
 import json
 import copy
 import decimal
 import etk.timeseries.location_range as lr
-import etk.timeseries.location_parser as lp
+
 import hashlib
 import re
 
@@ -75,13 +73,13 @@ class TimeSeriesRegion(object):
                         if not self.is_blank(val):
                             all_blank = False
                     metadata[md_name] = " ".join(md_vals)
-                if not metadata[md_name] and mds[md_name]['mode']=='backfill':
+                if not metadata[md_name] and mds[md_name]['mode'] == 'backfill':
                     metadata[md_name] = self.time_series[-1]['metadata'][md_name]
             else:
                 md_modes[mds[md_name]['mode']] = True
-        if all_blank and ("inline" not in md_modes or not md_modes["inline"]):
-            logging.debug("%s",metadata)
-            raise IndexError("All metadata values blank for %d"%(tsidx))
+        if all_blank and ("inline" not in md_modes or not md_modes["inline"]) and not len(mds) == 0:
+            logging.debug("%s", metadata)
+            raise IndexError("All metadata values blank for %d" % (tsidx))
         return md_modes
 
     def parse_inline_tsr_metadata(self, metadata, data, dataidx):
@@ -121,7 +119,11 @@ class TimeSeriesRegion(object):
         if self.time_coordinates['post_process']:
             func = eval('lambda v: ' + self.time_coordinates['post_process'])
             time_label = func(time_label)
-        return self.process_time_span(time_label, self.time_coordinates['granularity'])
+
+        return {'instant': time_label}
+
+        # TODO: Process time span function needs to be fixed to handle all cases before being included
+        # return self.process_time_span(time_label, self.time_coordinates['granularity'])
 
     def process_time_span(self, time_instant, granularity):
         # TODO: other granularities added (weekly :-?)
@@ -134,7 +136,8 @@ class TimeSeriesRegion(object):
         date_parts = time_instant.split('-')
         if granularity == 'yearly':
             time_span = {'start_time': self.fill_date_pattern(self.parse_yearly_date(time_instant))}
-            time_span['end_time'] = self.parse_yearly_date(self.parse_yearly_date(date_parts[0]))#str(int(date_parts[0]))
+            time_span['end_time'] = self.parse_yearly_date(
+                self.parse_yearly_date(date_parts[0]))  # str(int(date_parts[0]))
             time_span['end_time'] += '-' + date_parts[1] if len(date_parts) > 1 else '-12'
             time_span['end_time'] += '-' + date_parts[2] if len(date_parts) > 2 else '-30'
             return {'span': time_span}
@@ -160,18 +163,18 @@ class TimeSeriesRegion(object):
         time_span['end_time'] += '-' + date_parts[2] if len(date_parts) > 2 else '-01'
         return {'span': time_span}
 
-
     def parse_yearly_date(self, time_label):
-        try: #TODO: add unforseen date patterns here
+        try:  # TODO: add unforseen date patterns here
             return re.search('(\d{4})', time_label)[0]
         except:
             logging.error('This date format is not recognized, yearly granularity reported {}'.format(time_label))
-            return '2000' # only for preventing the extractor to crash
-
+            return '2000'  # only for preventing the extractor to crash
 
     def parse_monthly_date(self, time_label):
-        month_kw = {"jan":1, "feb":2, "mar":3, "apr":4, "may":5, "jun":6, "jul":7, "aug":8, "sep":9, "oct":10, "nov":11, "dec":12,
-            "january":1, "february":2, "march":3, "april":4, "june":6, "july":7, "august":8, "september":9, "october":10, "november":11, "december":12}
+        month_kw = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7, "aug": 8, "sep": 9, "oct": 10,
+                    "nov": 11, "dec": 12,
+                    "january": 1, "february": 2, "march": 3, "april": 4, "june": 6, "july": 7, "august": 8,
+                    "september": 9, "october": 10, "november": 11, "december": 12}
         try:
             year = re.search('(\d{4})', time_label).group(1)
             month = re.search('(^|[^\d])(\d{2})([^\d]|$)', time_label)
@@ -180,13 +183,11 @@ class TimeSeriesRegion(object):
             for k in month_kw:
                 if k in time_label.lower:
                     return year + '-' + str(month_kw[k])
-            #TODO: add unforseen date patterns here
+            # TODO: add unforseen date patterns here
         except:
             logging.error('This date format is not recognized, monthly granularity reported {}'.format(time_label))
         logging.error('This date format is not recognized, monthly granularity reported {}'.format(time_label))
         return '1'
-
-
 
     def fill_date_pattern(self, time_instant):
         date_parts = time_instant.split('-')
@@ -202,6 +203,7 @@ class TimeSeriesRegion(object):
             timeseries = []
             ts_metadata = copy.deepcopy(metadata)
             ts_metadata['provenance'][self.orientation] = ts_idx
+            ts_metadata['granularity'] = self.time_coordinates['granularity']
 
             try:
                 md_modes = self.parse_tsr_metadata(ts_metadata, data, ts_idx)
@@ -229,7 +231,7 @@ class TimeSeriesRegion(object):
 
                 if type(
                         self.data_range.curr_component()) is lr.LocationRangeInfiniteIntervalComponent and self.is_blank(
-                        time_label):
+                    time_label):
                     logging.info("blank cell in infinite interval")
                     break
 
@@ -276,4 +278,3 @@ class TimeSeriesRegion(object):
 
     def is_blank(self, data):
         return len(str(data).strip()) == 0
-
