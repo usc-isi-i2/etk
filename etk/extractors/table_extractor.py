@@ -290,7 +290,7 @@ class TableExtraction:
                     
                     for i, c in enumerate(row.findAll(['td', 'th'])):
                         ci = i+shift+rshift
-                        if ci in row_spans:
+                        while ci in row_spans:
                             if row_spans[ci] <= 0:
                                 del row_spans[ci]
                             else:
