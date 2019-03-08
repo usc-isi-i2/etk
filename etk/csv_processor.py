@@ -7,7 +7,7 @@ from etk.document import Document
 from typing import List
 from io import StringIO
 from etk.etk_exceptions import InvalidArgumentsError, InvalidFilePathError
-
+import pandas as pd
 
 class CsvProcessor(object):
     """
@@ -75,6 +75,7 @@ class CsvProcessor(object):
                           dataset: str = None,
                           nested_key: str = None,
                           doc_id_field: str = None,
+                          dataframe: pd.DataFrame = None,
                           encoding=None) -> List[Document]:
         """
         Read the input file/content and return a list of Document(s)
@@ -87,6 +88,7 @@ class CsvProcessor(object):
             dataset: user provided string to be added to output Document(s)
             nested_key: user provided string to be added to output Document(s)
             doc_id_field: specify this field(should be present in the input file), its value will be used as doc_id
+            dataframe: use this parameter if the contents being passed along are a pandas DataFrame
 
         Returns: List[Document]
 
@@ -102,6 +104,10 @@ class CsvProcessor(object):
             reader = csv.reader(f, delimiter=',')
             for row in reader:
                 data.append(row)
+
+        elif dataframe is not None:
+            data = [dataframe.columns.values.tolist()] + dataframe.values.tolist()
+
         elif filename is not None:
             # always read the entire file first
             fn, extension = os.path.splitext(filename)
