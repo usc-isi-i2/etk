@@ -22,7 +22,7 @@ class TestProvenance(unittest.TestCase):
     def test_Provenance(self) -> None:
         kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 
-        self.etk = ETK(kg_schema=kg_schema)
+        self.etk = ETK(kg_schema=kg_schema, use_spacy_tokenizer=True)
         g = ['runqi', 'sylvia', 'dongyu', 'mayank', 'pedro', 'amandeep', 'yixiang']
         self.name_extractor = GlossaryExtractor(g, "name_extractor",
                                                 self.etk.default_tokenizer,

@@ -13,7 +13,7 @@ from etk.extraction import Extraction
 from etk.dependencies.date_extractor_resources.date_regex_generator import DateRegexGenerator
 from etk.dependencies.date_extractor_resources.constants import units, singleton_regex, \
     spacy_rules, directions, num_to_digit, foreign_to_english, language_date_order, \
-    day_of_week_to_number, possible_illegal
+    day_of_week_to_number, illegal, possible_illegal, possible_illegal_3
 
 # to avoid typo:
 EXTRACT_FIRST_DATE_ONLY = 'extract_first_date_only'
@@ -163,7 +163,7 @@ class DateExtractor(Extractor):
             use_default_formats (bool): if use default formats together with addtional_formats, default to False
             ignore_dates_before (datetime.datetime): ignore dates before 'ignore_dates_before', default to None
             ignore_dates_after (datetime.datetime): ignore dates after 'ignore_dates_after', default to None
-            detect_relative_dates (bool): if detect relative dates like '9 days before', default to False
+            detect_relative_dates (bool): if detect relative dates like '9 days before', default to False (pass in a ETK instance(with spaCy enabled) when init the DateExtractor is required for relative date extraction)
             relative_base (datetime.datetime): offset relative dates detected based on 'relative_base', default to None
             preferred_date_order (enum['MDY', 'DMY', 'YMD']): preferred date order when ambiguous, default to 'MDY'
             prefer_language_date_order (bool): if use the text language's preferred order, default to True
@@ -322,8 +322,21 @@ class DateExtractor(Extractor):
         if not all_results or len(all_results) == 0:
             return list()
         all_results.sort(key=lambda k: k['start'])
-        cur_max = all_results[0]
-        for x in all_results[1:]:
+        cur_max = None
+        i = 0
+        while i < len(all_results) and not cur_max:
+            if self._post_check(all_results[i]):
+                cur_max = all_results[i]
+            i += 1
+
+        if not cur_max:
+            return res
+
+        while i < len(all_results):
+            x = all_results[i]
+            i += 1
+            if not self._post_check(x):
+                continue
             if cur_max['end'] <= x['start']:
                 parsed_date = self._parse_date(cur_max)
                 if parsed_date:
@@ -363,16 +376,13 @@ class DateExtractor(Extractor):
         apply the customizations like date range, date completion etc.
 
         """
-        miss_day = miss_month = miss_year = miss_week = True
+
         user_defined_pattern = None
 
         if date_info['pattern']:
             user_defined_pattern = re.findall(r'%[a-zA-Z]', date_info['pattern'])
-        else:
-            if re.match(possible_illegal, date_info['value']):
-                return None
-            elif re.match(r'^[0-9]{4}$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1:
-                return None
+
+        miss_day = miss_month = miss_year = miss_week = True
 
         i = 0
         pattern = list()
@@ -383,20 +393,23 @@ class DateExtractor(Extractor):
                 p = self._symbol_list[date_info['order']][i] if not user_defined_pattern else user_defined_pattern[i]
                 if p in units['D']:
                     miss_day = False
-                if p in units['M']:
+                elif p in units['M']:
                     miss_month = False
-                if p in units['Y']:
+                elif p in units['Y']:
                     miss_year = False
-                if p in units['W']:
+                elif p in units['W']:
                     miss_week = False
-                pattern.append(p)
                 formatted_str = s.strip('.').strip().lower()
                 if p in ['%B', '%b', '%A', '%a']:
                     if formatted_str in foreign_to_english:
+                        # TODO: rearrange language detection in a better way
+                        if self._lan == 'en':
+                            continue
                         formatted_str = foreign_to_english[formatted_str]
                 if p in ['%b', '%a']:
                     formatted_str = formatted_str[:3]
                 formatted.append(re.sub(r'[^0-9+\-]', '', formatted_str) if p == '%z' else formatted_str)
+                pattern.append(p)
             i += 1
 
         # TODO: deduplicate in the regex extraction part would be better
@@ -544,8 +557,13 @@ class DateExtractor(Extractor):
                 measure = '1'
             elif relative_date.rule_id == 'the_day':
                 unit = 'days'
-                direction = 'ago' if relative_date.value.split()[-1].lower() == 'yesterday' else 'later'
-                measure = '1' if len(relative_date.value.split()) == 1 else '2'
+                key_ = relative_date.value.split()[-1].lower()
+                if key_ == 'today':
+                    direction = 'ago'
+                    measure = '0'
+                else:
+                    direction = 'ago' if key_ == 'yesterday' else 'later'
+                    measure = '1' if len(relative_date.value.split()) == 1 else '2'
             else:
                 continue
             unit = unit if unit[-1] == 's' else unit+'s'
@@ -561,6 +579,28 @@ class DateExtractor(Extractor):
                 if extraction_date:
                     ans.append(extraction_date)
         return ans
+
+    @staticmethod
+    def _post_check(date_info: dict) -> bool:
+        """
+
+        Post check the extracted date string to filter out some false positives
+
+        Args:
+            date_info: dict - includes the extracted string, matching groups, patterns etc.
+
+        Returns: bool - if the date extracted is valid
+
+        """
+        if date_info['pattern']:
+            return True
+        # TODO: consider more context when extract dates?? (e.g. for 'may')
+        if date_info['value'] == 'may' or re.match(illegal, date_info['value'])\
+            or (re.match(possible_illegal, date_info['value']) and len([g for g in date_info['groups'] if g]) != 2) \
+            or (re.match(possible_illegal_3, date_info['value']) and len([g for g in date_info['groups'] if g]) != 3) \
+            or (re.match('^\b?[0-9]{4}\b?$', date_info['value']) and len([g for g in date_info['groups'] if g]) > 1):
+            return False
+        return True
 
     @staticmethod
     def _convert_to_iso_format(date: datetime.datetime, resolution: DateResolution = DateResolution.DAY) -> str or None:
