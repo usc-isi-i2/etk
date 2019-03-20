@@ -2,7 +2,7 @@ import unittest, datetime, pytz, json
 from dateutil.relativedelta import relativedelta
 from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk import ETK
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph import KGSchema
 
 kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 de = DateExtractor(ETK(kg_schema=kg_schema), 'unit_test_date')
