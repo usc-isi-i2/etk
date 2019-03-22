@@ -7,6 +7,7 @@ from etk.document import Document
 from typing import List
 from io import StringIO
 from etk.etk_exceptions import InvalidArgumentsError, InvalidFilePathError
+
 import pandas as pd
 
 class CsvProcessor(object):
