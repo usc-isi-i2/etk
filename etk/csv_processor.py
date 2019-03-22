@@ -76,7 +76,9 @@ class CsvProcessor(object):
                           nested_key: str = None,
                           doc_id_field: str = None,
                           dataframe: pd.DataFrame = None,
-                          encoding=None) -> List[Document]:
+                          encoding=None,
+                          fillnan = None,
+                          df_string = False) -> List[Document]:
         """
         Read the input file/content and return a list of Document(s)
         Args:
@@ -89,6 +91,8 @@ class CsvProcessor(object):
             nested_key: user provided string to be added to output Document(s)
             doc_id_field: specify this field(should be present in the input file), its value will be used as doc_id
             dataframe: use this parameter if the contents being passed along are a pandas DataFrame
+            fillnan: specify the value to be filled for NaNs in the dataframe
+            df_string: converts all dataframe columns to type str
 
         Returns: List[Document]
 
@@ -99,6 +103,14 @@ class CsvProcessor(object):
             raise InvalidArgumentsError(message="for arguments 'table_str' and 'filename', please specify only one "
                                                 "argument!")
 
+        if dataframe is not None and filename is not None:
+            raise InvalidArgumentsError(message="for arguments 'dataframe' and 'filename', please specify only one "
+                                                "argument!")
+
+        if table_str is not None and dataframe is not None:
+            raise InvalidArgumentsError(message="for arguments 'table_str' and 'dataframe', please specify only one "
+                                                "argument!")
+
         elif table_str is not None:
             f = StringIO(table_str)
             reader = csv.reader(f, delimiter=',')
@@ -106,8 +118,15 @@ class CsvProcessor(object):
                 data.append(row)
 
         elif dataframe is not None:
+            if self.heading_row is not None and self.heading_row > 1:
+                raise InvalidArgumentsError(message="Use pandas skiprows to decide the heading row!")
+            if fillnan is not None:
+                dataframe = dataframe.fillna(fillnan)
+            else:
+                dataframe = dataframe.fillna('')
+            if df_string:
+                dataframe = dataframe.astype(str)
             data = [dataframe.columns.values.tolist()] + dataframe.values.tolist()
-
         elif filename is not None:
             # always read the entire file first
             fn, extension = os.path.splitext(filename)
@@ -144,7 +163,6 @@ class CsvProcessor(object):
                 data = data[file_type] if file_type else data[fn.split('/')[-1] + extension]
 
         table_content, heading = self.content_recognizer(data)
-
         return self.create_documents(rows=table_content,
                                      heading=heading,
                                      file_name=filename,
