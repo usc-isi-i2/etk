@@ -1,7 +1,7 @@
 import unittest, json
 from etk.csv_processor import CsvProcessor
 from etk.etk import ETK
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph import KGSchema
 
 csv_str = """text,with,Polish,non-Latin,lettes
 1,2,3,4,5,6
