@@ -7,8 +7,8 @@ from etk.document import Document
 from typing import List
 from io import StringIO
 from etk.etk_exceptions import InvalidArgumentsError, InvalidFilePathError
-
 import pandas as pd
+
 
 class CsvProcessor(object):
     """
@@ -30,22 +30,26 @@ class CsvProcessor(object):
             self.heading_row = self.heading_row - 1
 
         if self.heading_row is not None:
-            self.content_start_row = mapping_spec.get("content_start_row", self.heading_row + 2) - 1
+            self.content_start_row = mapping_spec.get(
+                "content_start_row", self.heading_row + 2) - 1
 
         if self.heading_row is None:
-            self.content_start_row = mapping_spec.get("content_start_row", 1) - 1
+            self.content_start_row = mapping_spec.get(
+                "content_start_row", 1) - 1
 
         # how about if heading_col is not present? read until first empty cell?
         self.heading_columns = mapping_spec.get("heading_columns")
 
         if self.heading_columns is not None:
-            self.heading_columns = (self.heading_columns[0] - 1, self.heading_columns[1])
+            self.heading_columns = (self.heading_columns[
+                                    0] - 1, self.heading_columns[1])
 
         # if not present, default read until an empty row
         self.content_end_row = mapping_spec.get("content_end_row")
 
         # if set to false, read until EOF
-        self.blank_row_ends_content = mapping_spec.get("ends_with_blank_row", True)
+        self.blank_row_ends_content = mapping_spec.get(
+            "ends_with_blank_row", True)
 
         # remove all white space of the value
         self.remove_leading_trailing_whitespace = \
@@ -78,8 +82,8 @@ class CsvProcessor(object):
                           doc_id_field: str = None,
                           dataframe: pd.DataFrame = None,
                           encoding=None,
-                          fillnan = None,
-                          df_string = False) -> List[Document]:
+                          fillnan=None,
+                          df_string=False) -> List[Document]:
         """
         Read the input file/content and return a list of Document(s)
         Args:
@@ -100,16 +104,8 @@ class CsvProcessor(object):
         """
         data = list()
 
-        if table_str is not None and filename is not None:
-            raise InvalidArgumentsError(message="for arguments 'table_str' and 'filename', please specify only one "
-                                                "argument!")
-
-        if dataframe is not None and filename is not None:
-            raise InvalidArgumentsError(message="for arguments 'dataframe' and 'filename', please specify only one "
-                                                "argument!")
-
-        if table_str is not None and dataframe is not None:
-            raise InvalidArgumentsError(message="for arguments 'table_str' and 'dataframe', please specify only one "
+        if (table_str is not None and filename is not None) or (dataframe is not None and filename is not None) or (table_str is not None and dataframe is not None):
+            raise InvalidArgumentsError(message="for arguments 'table_str', 'filename' and 'dataframe', please specify only one "
                                                 "argument!")
 
         elif table_str is not None:
@@ -120,14 +116,14 @@ class CsvProcessor(object):
 
         elif dataframe is not None:
             if self.heading_row is not None and self.heading_row > 1:
-                raise InvalidArgumentsError(message="Use pandas skiprows to decide the heading row!")
+                raise InvalidArgumentsError(
+                    message="Use pandas skiprows to decide the heading row!")
             if fillnan is not None:
                 dataframe = dataframe.fillna(fillnan)
-            else:
-                dataframe = dataframe.fillna('')
             if df_string:
                 dataframe = dataframe.astype(str)
-            data = [dataframe.columns.values.tolist()] + dataframe.values.tolist()
+            data = [dataframe.columns.values.tolist()] + \
+                dataframe.values.tolist()
         elif filename is not None:
             # always read the entire file first
             fn, extension = os.path.splitext(filename)
@@ -137,7 +133,8 @@ class CsvProcessor(object):
                 get_data = self._get_data_function[extension]
             else:
                 # in pyexcel we trust
-                # if there is an extension we have not mapped, just let pyexcel figure it out
+                # if there is an extension we have not mapped, just let pyexcel
+                # figure it out
                 get_data = pyexcel_io.get_data
 
             try:
@@ -161,7 +158,8 @@ class CsvProcessor(object):
 
                 data = data[sheet_name]
             else:
-                data = data[file_type] if file_type else data[fn.split('/')[-1] + extension]
+                data = data[file_type] if file_type else data[
+                    fn.split('/')[-1] + extension]
 
         table_content, heading = self.content_recognizer(data)
         return self.create_documents(rows=table_content,
@@ -175,8 +173,10 @@ class CsvProcessor(object):
         heading = list()
         # process heading
         if self.heading_row is not None:
-            heading, col_start, col_end = self.process_heading(data[self.heading_row])
-            # if heading_row is specified, discards/overwrite the heading_columns
+            heading, col_start, col_end = self.process_heading(
+                data[self.heading_row])
+            # if heading_row is specified, discards/overwrite the
+            # heading_columns
             self.heading_columns = (col_start, col_end)
         else:
             heading = None
@@ -219,7 +219,8 @@ class CsvProcessor(object):
     def extract_row_content(self, sheet: List[List[str]]) -> List[List[str]]:
         valid_row = list()
         for row in sheet:
-            valid_row.append(row[self.heading_columns[0]:self.heading_columns[1]])
+            valid_row.append(
+                row[self.heading_columns[0]:self.heading_columns[1]])
 
         return valid_row
 
@@ -262,7 +263,8 @@ class CsvProcessor(object):
         documents = list()
         # etk = ETK()
         if self.heading_row is None and self.required_columns is not None:
-            raise InvalidArgumentsError("cannot match the required columns since heading is not specified")
+            raise InvalidArgumentsError(
+                "cannot match the required columns since heading is not specified")
 
         # get the heading line index of required columns
         list_idx = list()
