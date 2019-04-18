@@ -93,10 +93,7 @@ class KGSchema(object):
         """
         Return a list of all fields that are defined in master config
         """
-        return list({"{}:{}".format(prefix, property_) for prefix, property_ in map(
-            self.ontology._ns.split_uri,
-            self.ontology.object_properties | self.ontology.datatype_properties
-        )})
+        return [self.ontology._ns.qname(uri) for uri in self.ontology.object_properties | self.ontology.datatype_properties]
 
     @deprecated()
     def has_field(self, field_name: str) -> bool:

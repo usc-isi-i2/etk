@@ -100,9 +100,12 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
         """
         Overwrite rdflib's implementation which has a lot of issues
         """
+        ns = ''
         for prefix, namespace in self.store.namespaces():
-            if uri.startswith(namespace):
-                return prefix, uri[len(namespace):]
+            if uri.startswith(namespace) and len(namespace) > len(ns):
+                ns = namespace
+        if ns:
+            return ns, uri[len(ns):]
         raise SplitURIWithUnknownPrefix()
 
     def bind_for_master_config(self):
@@ -111,3 +114,27 @@ class NamespaceManager(rdflib.namespace.NamespaceManager):
         """
         self.bind('owl', OWL)
         self.bind('', 'http://isi.edu/default-ns/')
+
+    def compute_qname(self, uri, generate=True):
+        namespace, name = self.split_uri(uri)
+        namespace = URIRef(namespace)
+        prefix = self.store.prefix(namespace)
+        if prefix is None:
+            if not generate:
+                raise Exception("No known prefix for %s and generate=False")
+            num = 1
+            while 1:
+                prefix = "ns%s" % num
+                if not self.store.namespace(prefix):
+                    break
+                num += 1
+            self.bind(prefix, namespace)
+        return prefix, namespace, name
+
+
+if __name__ == '__main__':
+    from rdflib import Graph
+    nm = NamespaceManager(Graph())
+    nm.bind('wdref', 'http://www.wikidata.org/reference/')
+    print(nm.split_uri('http://www.wikidata.org/reference/355b56329b78db22be549dec34f2570ca61ca056'))
+    print(nm.compute_qname('http://www.wikidata.org/reference/355b56329b78db22be549dec34f2570ca61ca056'))
