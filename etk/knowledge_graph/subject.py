@@ -2,9 +2,54 @@ from etk.knowledge_graph.node import URI, BNode, Literal
 from etk.etk_exceptions import InvalidParameter
 
 
+class Reification:
+    def __init__(self, p1, p2=None, statement=None):
+        """
+        Make reification.
+
+        :param p1: URI, predicate for reification
+        :param p2: Optional[URI],
+                    URI -> second predicate for reification
+                    None -> reuse p1 as second predicate
+        :param statement: Optional[Union[URI, BNode]],
+                    URI or BNode -> use provided node as statement term
+                    None -> generate a new BNode as statement term
+        """
+        if isinstance(p1, URI):
+            self.p1 = p1
+        else:
+            raise InvalidParameter('Reification predicate needs to be a valid URI')
+
+        if p2 is None:
+            self.p2 = p1
+        elif isinstance(p2, URI):
+            self.p2 = p2
+        else:
+            raise InvalidParameter('Reification second predicate needs to be a valid URI or None')
+
+        if statement is None:
+            self.statement = BNode()
+        elif isinstance(statement, (URI, BNode)):
+            self.statement = statement
+        else:
+            raise InvalidParameter('Reification statement term needs to be a valid URI or BNode or None')
+
+    @classmethod
+    def parse_legacy_format(cls, seq):
+        if not isinstance(seq, (list, tuple)):
+            return cls(seq)
+        if len(seq) == 1:
+            return cls(seq[0], None, None)
+        if len(seq) == 2:
+            return cls(seq[0], None, seq[1])
+        if len(seq) == 3:
+            return cls(*seq)
+        raise InvalidParameter('Reification legacy format takes a tuple with length between [1,3]')
+
+
 class Subject(object):
     def __init__(self, s):
-        if not isinstance(s, URI) and not isinstance(s, BNode):
+        if not isinstance(s, (URI, BNode)):
             raise InvalidParameter('Subject needs to be URI or BNode')
         self._resource = dict()
         self._s = s
@@ -14,39 +59,32 @@ class Subject(object):
 
         :param p: URI, predicate
         :param o: [URI, BNode, Literal, Subject], object
-        :param reify: [None, (URI, [None, URI, BNode])], reification
+        :param reify: Optional[Reification, Tuple[URI, Optional[URI or BNode],
+                        Tuple[URI, URI, Optional[URI, BNode]]
                     None -> don't reify
-                    (URI, None) -> reify, and generate BNode statement
-                    (URI, [URI, BNode]) -> reify, use provided statement term
-        :return: None if not reify else statement term
+                    Reification -> reify with Reification specification
+                    URI -> reify with specific predicate
+                    (URI, Optional[Term]) -> reify, and use provided statement term or BNode
+                    (URI, URI, Optional[Term]) -> reify with two predicates, statement term or BNode
+        :return: statement term if reify else None
         """
         if not isinstance(p, URI):
             raise InvalidParameter('Predict needs to be URI')
         if not self.__is_valid_object(o):
             raise InvalidParameter('Object needs to be URI or BNode or Literal or Triple')
-        statement = None
-        if reify:
-            if isinstance(reify, URI):
-                p_, s_ = (reify, None)
-            elif isinstance(reify, tuple):
-                p_, s_ = reify
-            else:
-                raise InvalidParameter('Reification paremeter is invalid')
-            if not isinstance(p_, URI):
-                raise InvalidParameter('Reification predicate needs to be URI')
-            if s_ is None:
-                s_ = BNode()
-            if not isinstance(s_, URI) and not isinstance(s_, BNode):
-                raise InvalidParameter('Reification statement needs to be URI or BNode')
-            statement = Subject(s_)
-            statement.add_property(p_, o)
-            self.add_property(p_, statement)
 
         if p not in self._resource:
             self._resource[p] = set([])
         self._resource[p].add(o)
 
-        return statement
+        if reify:
+            if not isinstance(reify, Reification):
+                # legacy format
+                reify = Reification.parse_legacy_format(reify)
+            statement = Subject(reify.statement)
+            self.add_property(reify.p1, statement)
+            statement.add_property(reify.p2, o)
+            return statement
 
     def remove_property(self, p, o=None):
         if not isinstance(p, URI):
@@ -72,9 +110,7 @@ class Subject(object):
 
     @staticmethod
     def __is_valid_object(o):
-        if isinstance(o, URI) or isinstance(o, BNode) or isinstance(o, Literal) or isinstance(o, Subject):
-            return True
-        return False
+        return isinstance(o, (URI, BNode, Literal, Subject))
 
     def __iter__(self):
         for p, os in self._resource.items():
