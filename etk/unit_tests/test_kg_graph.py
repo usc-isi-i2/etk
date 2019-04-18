@@ -24,9 +24,9 @@ class TestKGGraph(unittest.TestCase):
         g.add_subject(t)
 
         self.assertEqual(len(g._g), 7)
-        print(g.serialize())
-        print('========================================================================')
-        print(g.serialize('nt'))
-        print('========================================================================')
-        context = {'@vocab': 'http://xmlns.com/foaf/0.1/'}
-        print(g.serialize('json-ld', context=context, auto_compact=True))
+        # print(g.serialize())
+        # print('========================================================================')
+        # print(g.serialize('nt'))
+        # print('========================================================================')
+        # context = {'@vocab': 'http://xmlns.com/foaf/0.1/'}
+        # print(g.serialize('json-ld', context=context, auto_compact=True))
