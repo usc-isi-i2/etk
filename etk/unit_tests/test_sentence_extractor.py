@@ -61,12 +61,12 @@ class TestSentenceExtractor(unittest.TestCase):
     def test_worst_case_scenario(self):
 
         input_text = "Spacy's parser splits sentences better if the inputs " \
-                     "are formatted with proper grammar.however, this is " \
+                     "are formatted with proper grammar. However, this is " \
                      "not always the case for text scraped from the internet."
 
         output_expected = ["Spacy's parser splits sentences better if the "
-                           "inputs are formatted with proper grammar."
-                           "however, this is not always the case for text "
+                           "inputs are formatted with proper grammar.",
+                           "However, this is not always the case for text "
                            "scraped from the internet."]
 
         output_desired = ["Spacy's parser splits sentences better if the "

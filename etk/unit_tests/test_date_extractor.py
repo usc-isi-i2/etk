@@ -4,7 +4,6 @@ from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.etk import ETK
 from etk.knowledge_graph import KGSchema
 
-
 kg_schema = KGSchema(json.load(open('etk/unit_tests/ground_truth/test_config.json')))
 de = DateExtractor(ETK(kg_schema=kg_schema), 'unit_test_date')
 
@@ -75,16 +74,18 @@ class TestDateExtractor(unittest.TestCase):
                                    date_value_resolution=DateResolution.SECOND
                                    if format and len(format) > 1 and format[1] in ['H', 'I'] else DateResolution.DAY
                                    )
-                    expected = expected.replace('@today', self.convert_to_iso_format(datetime.datetime.now()))
+                    now_date = datetime.datetime.now()
+                    expected = expected.replace('@today', self.convert_to_iso_format(now_date))
+                    expected = expected.replace('@year', str(now_date.year))
                     if expected.startswith('@recentYear'):
                         today = datetime.datetime.now()
                         expected = expected.replace('@recentYear', str(today.year))
                         date = datetime.datetime.strptime(expected, '%Y-%m-%d')
-                        next_year = date.replace(year=today.year+1)
-                        last_year = date.replace(year=today.year-1)
-                        if date > today and (date-today > today-last_year):
+                        next_year = date.replace(year=today.year + 1)
+                        last_year = date.replace(year=today.year - 1)
+                        if date > today and (date - today > today - last_year):
                             expected = str(last_year.year) + expected[4:]
-                        elif date < today and (today-date > next_year-today):
+                        elif date < today and (today - date > next_year - today):
                             expected = str(next_year.year) + expected[4:]
                     if expected and expected[0] != '@':
                         self.assertEqual(e[0].value if e else '', expected)
@@ -93,8 +94,8 @@ class TestDateExtractor(unittest.TestCase):
         text = '2018@3@25  July 29 in 2018, 4/3@2018  2009-10-23 Jun 27 2017    D-3/8/91    S-07-08-2018'
         formats = ['%Y@%m@%d', '%B %d in %Y', '%m/%d@%Y', 'D-%d/%m/%y', 'S-%m-%d-%Y']
 
-        extractions_with_default = de.extract(text, additional_formats=formats, use_default_formats=True )
-        extractions_without_default = de.extract(text, additional_formats=formats, use_default_formats=False )
+        extractions_with_default = de.extract(text, additional_formats=formats, use_default_formats=True)
+        extractions_without_default = de.extract(text, additional_formats=formats, use_default_formats=False)
 
         results_with_default = [e.value for e in extractions_with_default]
         results_without_default = [e.value for e in extractions_without_default]
@@ -184,12 +185,12 @@ class TestDateExtractor(unittest.TestCase):
         self.assertEqual(results, expected)
 
     def test_corner_cases(self) -> None:
-        text='That star is MARS. ' \
-             'It happened in 2012.' \
-             'he may go to his hometown' \
-             '13X or the ratio is 69/44  ' \
-             'I was born in 94/10 ' \
-             'I will take vocation on 12/23'
+        text = 'That star is MARS. ' \
+               'It happened in 2012.' \
+               'he may go to his hometown' \
+               '13X or the ratio is 69/44  ' \
+               'I was born in 94/10 ' \
+               'I will take vocation on 12/23'
 
         extractions = de.extract(text=text, date_value_resolution=DateResolution.ORIGINAL, prefer_dates_from='future')
 

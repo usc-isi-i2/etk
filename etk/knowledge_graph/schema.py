@@ -1,10 +1,8 @@
 from typing import List, Dict, Union
-import numbers, re
-from datetime import date, datetime
-from etk.etk_exceptions import ISODateError
 from etk.knowledge_graph.ontology import Ontology
 from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, BNode, Literal, LiteralType
+from etk.knowledge_graph.shacl import SHACL
 from etk.utilities import deprecated
 import json
 
@@ -16,7 +14,10 @@ class KGSchema(object):
     """
     def __init__(self, content=None):
         self.ontology = Ontology()
+        self.shacl = SHACL()
+        self.need_convert = False
         if content:
+            self.need_convert = True
             self.add_schema(content, 'master_config')
 
     def add_schema(self, content: str, format: str):
@@ -25,6 +26,7 @@ class KGSchema(object):
         :param content: schema content
         :param format: schema format, can be in 'master_config' or any RDF format
         """
+        self.need_convert = True
         if format == 'master_config':
             if isinstance(content, dict):
                 config = content
@@ -33,6 +35,25 @@ class KGSchema(object):
             self._add_master_config(config)
         else:
             self.ontology.parse(content, format)
+
+    def add_shacl(self, content: str, format: str):
+        """
+        Add SHACL file into the SHACL
+        """
+        self.shacl.parse(content, format)
+
+    def _merge_ontology(self):
+        self.shacl.add_ontology(self.ontology)
+        self.need_convert = False
+
+    def validate(self, data_graph, inference=None):
+        if self.need_convert:
+            self._merge_ontology()
+        if inference:
+            conforms, results_graph = self.shacl.validate(data_graph, self.ontology, inference)
+        else:
+            conforms, results_graph = self.shacl.validate(data_graph)
+        return conforms, results_graph
 
     def _add_master_config(self, config):
         self.ontology._ns.bind_for_master_config()

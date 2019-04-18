@@ -123,3 +123,7 @@ class KnowledgeGraph(Graph):
         for a_type in type_:
             s.add_property(p, URI(a_type))
         self.add_subject(s)
+
+    def validate(self):
+        conforms, result_graph = self.schema.validate(self)
+        return conforms, result_graph

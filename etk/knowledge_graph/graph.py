@@ -6,8 +6,11 @@ import rdflib
 
 
 class Graph(object):
-    def __init__(self):
-        self._g = rdflib.Graph()
+    def __init__(self, graph=None):
+        if graph:
+            self._g = graph
+        else:
+            self._g = rdflib.Graph()
         self._ns = NamespaceManager(self._g)
 
     def bind(self, prefix, namespace, override=True, replace=False):
