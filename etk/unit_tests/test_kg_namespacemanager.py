@@ -48,8 +48,9 @@ class TestKGNamespaceManager(unittest.TestCase):
     def test_namespace_split_uri(self):
         nm = NamespaceManager(Graph())
         nm.bind('rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
-        prefix, property_ = nm.split_uri('http://www.w3.org/1999/02/22-rdf-syntax-ns#label')
-        self.assertEqual(prefix, 'rdf')
+        ns, property_ = nm.split_uri('http://www.w3.org/1999/02/22-rdf-syntax-ns#label')
+        self.assertEqual(str(ns), 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+        self.assertEqual(nm.store.prefix(ns), 'rdf')
         self.assertEqual(property_, 'label')
 
     def test_namespace_check_uriref(self):
