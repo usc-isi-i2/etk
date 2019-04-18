@@ -16,14 +16,21 @@ class TestSpacyNerExtractor(unittest.TestCase):
                 'value': i.value,
                 'start_char': i.provenance['start_char'],
                 'end_char': i.provenance['end_char'],
+                'start_token': i.provenance['start_token'],
+                'end_token': i.provenance['end_token'],
                 'tag': i.tag
             }
             extracted.append(extracted_value)
-        expected = [{'value': 'Napoléon Bonaparte', 'start_char': 0, 'end_char': 18, 'tag': 'PERSON'},
-                    {'value': 'Napoleon', 'start_char': 192, 'end_char': 200, 'tag': 'ORG'},
-                    {'value': 'Napoleon', 'start_char': 304, 'end_char': 312, 'tag': 'ORG'},
-                    {'value': 'France', 'start_char': 388, 'end_char': 394, 'tag': 'GPE'},
-                    {'value': 'Napoleon', 'start_char': 738, 'end_char': 746, 'tag': 'ORG'}]
+        expected = [{'value': 'Napoléon Bonaparte', 'start_char': 0, 'end_char': 18, 'start_token': 0, 'end_token': 2,
+                     'tag': 'PERSON'},
+                    {'value': 'Napoleon', 'start_char': 192, 'end_char': 200, 'start_token': 29, 'end_token': 30,
+                     'tag': 'ORG'},
+                    {'value': 'Napoleon', 'start_char': 304, 'end_char': 312, 'start_token': 52, 'end_token': 53,
+                     'tag': 'ORG'},
+                    {'value': 'France', 'start_char': 388, 'end_char': 394, 'start_token': 65, 'end_token': 66,
+                     'tag': 'GPE'},
+                    {'value': 'Napoleon', 'start_char': 738, 'end_char': 746, 'start_token': 129, 'end_token': 130,
+                     'tag': 'ORG'}]
         result_count = 0
         while result_count < len(extracted):
             self.assertEqual(extracted[result_count], expected[result_count])

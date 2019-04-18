@@ -1,20 +1,14 @@
-import sys
 import os
-import re
 import argparse
-import pyexcel
-import numpy
-from datetime import date, datetime
 import pyexcel
 import logging
 import demjson
 import json
-import copy
-import etk.timeseries.location_range as lr
 import etk.timeseries.location_parser as lp
 import etk.timeseries.time_series_region as tsr
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.WARN)
+
 
 class SpreadsheetAnnotation(object):
     def __init__(self, annotation, fn):
@@ -54,7 +48,8 @@ class SpreadsheetAnnotation(object):
 
         time_coords = {}
         time_coords['locs'] = self.locparser.parse_range(tsr_json['times']['locs'])
-        time_coords['granularity'] = tsr_json['times']['granularity'] if 'granularity' in tsr_json['times'] else 'unknown'
+        time_coords['granularity'] = tsr_json['times']['granularity'] if 'granularity' in tsr_json[
+            'times'] else 'unknown'
         if 'mode' in tsr_json['times']:
             time_coords['mode'] = tsr_json['times']['mode']
         else:
@@ -65,8 +60,8 @@ class SpreadsheetAnnotation(object):
         mdspec = self.parse_tsr_metadata(tsr_json['metadata'], orientation)
 
         return tsr.TimeSeriesRegion(orientation=orientation, series_range=series_range, data_range=data_range,
-                                metadata_spec=mdspec, time_coordinates=time_coords, global_metadata=self.metadata,
-                                provenance = self.provenance)
+                                    metadata_spec=mdspec, time_coordinates=time_coords, global_metadata=self.metadata,
+                                    provenance=self.provenance)
 
     def parse_tsr_metadata(self, md_json, orientation):
         md_dict = {}
@@ -106,10 +101,15 @@ class SpreadsheetAnnotation(object):
 
 class ExtractSpreadsheet(object):
 
-    def __init__(self, spreadsheet_fn, annotations_fn):
+    def __init__(self, spreadsheet_fn, annotations_fn=None, annotations=None):
         self.normalized_source_file = os.path.basename(spreadsheet_fn)
         self.book = pyexcel.get_book(file_name=spreadsheet_fn, auto_detect_datetime=False)
-        self.annotations = self.load_annotations(annotations_fn)
+        if annotations is not None:
+            self.annotations = annotations
+        elif annotations_fn is not None:
+            self.annotations = self.load_annotations(annotations_fn)
+        else:
+            raise Exception('Please provide either annotations file path or annotations json')
 
     def process(self):
         timeseries = []
@@ -121,14 +121,15 @@ class ExtractSpreadsheet(object):
                 sheet = self.book.sheet_by_index(anidx)
                 data = sheet.to_array()
                 for rgn in ssa.timeseries_regions:
-                    rgn.provenance['sheet']=anidx
+                    rgn.provenance['sheet'] = anidx
                     for parsed_tsr in rgn.parse(data, sheet.name):
                         yield parsed_tsr
-#                        parsed.append(parsed_tsr)
-#                logging.debug("%s",parsed)
-#            timeseries.append(parsed)
-#        return timeseries
-    def load_annotations(self,annotations_fn):
+
+    #                        parsed.append(parsed_tsr)
+    #                logging.debug("%s",parsed)
+    #            timeseries.append(parsed)
+    #        return timeseries
+    def load_annotations(self, annotations_fn):
         anfile = open(annotations_fn)
         annotations_decoded = demjson.decode(anfile.read(), return_errors=True)
         for msg in annotations_decoded[1]:
@@ -146,9 +147,10 @@ def main():
     args = ap.parse_args()
     es = ExtractSpreadsheet(args.spreadsheet, args.annotation)
     with open(args.outfile, 'w') as outfile:
-            for timeseries in es.process():
-                json.dump(timeseries, outfile)
-                outfile.write("\n");
+        for timeseries in es.process():
+            json.dump(timeseries, outfile)
+            outfile.write("\n");
+
 
 if __name__ == "__main__":
     main()
