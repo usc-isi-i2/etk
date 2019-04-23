@@ -37,7 +37,7 @@ toolz==0.9.0
 tqdm==4.19.5
 tzlocal==1.5.1
 ujson==1.35
-urllib3==1.22
+urllib3>=1.24.2
 wcwidth==0.1.7
 wrapt==1.10.11
 jsonpath-ng==1.4.3
