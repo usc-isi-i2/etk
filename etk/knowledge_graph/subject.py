@@ -2,52 +2,7 @@ from etk.knowledge_graph.node import URI, BNode, Literal
 from etk.etk_exceptions import InvalidParameter
 
 
-class Reification:
-    def __init__(self, p1, p2=None, statement=None):
-        """
-        Make reification.
-
-        :param p1: URI, predicate for reification
-        :param p2: Optional[URI],
-                    URI -> second predicate for reification
-                    None -> reuse p1 as second predicate
-        :param statement: Optional[Union[URI, BNode]],
-                    URI or BNode -> use provided node as statement term
-                    None -> generate a new BNode as statement term
-        """
-        if isinstance(p1, URI):
-            self.p1 = p1
-        else:
-            raise InvalidParameter('Reification predicate needs to be a valid URI')
-
-        if p2 is None:
-            self.p2 = p1
-        elif isinstance(p2, URI):
-            self.p2 = p2
-        else:
-            raise InvalidParameter('Reification second predicate needs to be a valid URI or None')
-
-        if statement is None:
-            self.statement = BNode()
-        elif isinstance(statement, (URI, BNode)):
-            self.statement = statement
-        else:
-            raise InvalidParameter('Reification statement term needs to be a valid URI or BNode or None')
-
-    @classmethod
-    def parse_legacy_format(cls, seq):
-        if not isinstance(seq, (list, tuple)):
-            return cls(seq)
-        if len(seq) == 1:
-            return cls(seq[0], None, None)
-        if len(seq) == 2:
-            return cls(seq[0], None, seq[1])
-        if len(seq) == 3:
-            return cls(*seq)
-        raise InvalidParameter('Reification legacy format takes a tuple with length between [1,3]')
-
-
-class Subject(object):
+class Subject:
     def __init__(self, s):
         if not isinstance(s, (URI, BNode)):
             raise InvalidParameter('Subject needs to be URI or BNode')
@@ -81,10 +36,9 @@ class Subject(object):
             if not isinstance(reify, Reification):
                 # legacy format
                 reify = Reification.parse_legacy_format(reify)
-            statement = Subject(reify.statement)
-            self.add_property(reify.p1, statement)
-            statement.add_property(reify.p2, o)
-            return statement
+            self.add_property(reify.p1, reify)
+            reify.add_property(reify.p2, o)
+            return reify
 
     def remove_property(self, p, o=None):
         if not isinstance(p, URI):
@@ -119,3 +73,50 @@ class Subject(object):
 
     def __next__(self):
         return self.__iter__()
+
+
+class Reification(Subject):
+    def __init__(self, p1, p2=None, statement=None):
+        """
+        Make reification.
+
+        :param p1: URI, predicate for reification
+        :param p2: Optional[URI],
+                    URI -> second predicate for reification
+                    None -> reuse p1 as second predicate
+        :param statement: Optional[Union[URI, BNode]],
+                    URI or BNode -> use provided node as statement term
+                    None -> generate a new BNode as statement term
+        """
+        if isinstance(p1, URI):
+            self.p1 = p1
+        else:
+            raise InvalidParameter('Reification predicate needs to be a valid URI')
+
+        if p2 is None:
+            self.p2 = p1
+        elif isinstance(p2, URI):
+            self.p2 = p2
+        else:
+            raise InvalidParameter('Reification second predicate needs to be a valid URI or None')
+
+        if statement is None:
+            self.statement = BNode()
+        elif isinstance(statement, (URI, BNode)):
+            self.statement = statement
+        else:
+            raise InvalidParameter('Reification statement term needs to be a valid URI or BNode or None')
+        super().__init__(self.statement)
+
+    @classmethod
+    def parse_legacy_format(cls, seq):
+        if not isinstance(seq, (list, tuple)):
+            return cls(seq)
+        if len(seq) == 1:
+            return cls(seq[0], None, None)
+        if len(seq) == 2:
+            return cls(seq[0], None, seq[1])
+        if len(seq) == 3:
+            return cls(*seq)
+        raise InvalidParameter('Reification legacy format takes a tuple with length between [1,3]')
+
