@@ -2,6 +2,7 @@ from etk.etk import ETK
 from etk.knowledge_graph import KGSchema, URI, Literal, LiteralType, Subject, Reification
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
+from etk.wikidata import *
 
 
 class ExampleETKModule(ETKModule):
@@ -31,38 +32,50 @@ class ExampleETKModule(ETKModule):
         doc.kg.bind('p', 'http://www.wikidata.org/prop/')
         doc.kg.bind('pr', 'http://www.wikidata.org/prop/reference/')
         doc.kg.bind('ps', 'http://www.wikidata.org/prop/statement/')
+        doc.kg.bind('psv', 'http://www.wikidata.org/prop/statement/value/')
+        doc.kg.bind('psn', 'http://www.wikidata.org/prop/statement/value-normalized/')
         doc.kg.bind('pq', 'http://www.wikidata.org/prop/qualifier/')
         doc.kg.bind('pqv', 'http://www.wikidata.org/prop/qualifier/value/')
         doc.kg.bind('skos', 'http://www.w3.org/2004/02/skos/core#')
         doc.kg.bind('prov', 'http://www.w3.org/ns/prov#')
+        doc.kg.bind('schema', 'http://schema.org/')
 
-        triple = Subject(URI('wd:Q42'))
-        triple.add_property(URI('rdfs:label'), Literal('Douglas Adams', lang='en'))
-        triple.add_property(URI('skos:altLabel'), Literal('Douglas Noël Adams', lang='fr'))
+        douglas = WDItem('Q42')
+        douglas.add_label('Douglas Adams', lang='en')
+        douglas.add_alias('Douglas Noël Adams', lang='fr')
+        # educated at
+        statement = douglas.add_statement('P69', Item('Q691283'), rank=Rank.Normal)
+        # education: start time
+        statement.add_qualifier('P580', TimeValue('1971',
+                                                  calendar=Item('Q1985727'),
+                                                  precision=Precision.year,
+                                                  time_zone=0))
+        # education: end time
+        statement.add_qualifier('P582', TimeValue('1974',
+                                                  calendar=Item('Q1985727'),
+                                                  precision=Precision.year,
+                                                  time_zone=0))
+        # birth date
+        douglas.add_statement('P569', TimeValue('1952-03-11T00:00:00+00:00',
+                                                calendar=Item('Q1985727'),
+                                                precision=Precision.day,
+                                                time_zone=0))
+        # reference
+        ref_1 = WDReference()
+        ref_1.add_value('P248', Item('Q5375741'))
+        statement.add_reference(ref_1)
 
-        reification = Reification(URI('p:P69'), URI('ps:P69'), URI('wds:q42-0E9C4724-C954-4698-84A7-5CE0D296A6F2'))
-        statement = triple.add_property(URI('wdt:P69'), URI('wd:Q691283'), reification)
+        # height
+        douglas.add_statement('P2048', QuantityValue(1.96, unit=Item('Q11573')))
 
-        # Qualifiers
-        reification_start_time = Reification(URI('pqv:P580'), URI('wikibase:timeValue'),
-                                             URI('wdv:cf5d396bdc1074d11438fc47ab8bcf40'))
-        statement_start_time = statement.add_property(URI('pq:P580'), Literal('1 January 1971', type_=LiteralType.date), reification_start_time)
-        statement_start_time.add_property(URI('rdf:type'), URI('wikibase:TimeValue'))
-        statement_start_time.add_property(URI('wikibase:timeCalendarModel'), URI('wd:Q1985727'))
-        statement_start_time.add_property(URI('wikibase:timePrecision'), Literal('9', type_=LiteralType.integer))
-        statement_start_time.add_property(URI('wikibase:timeTimezone'), Literal('0', type_=LiteralType.integer))
-        statement.add_property(URI('pq:P582'), Literal('1 January 1974', type_=LiteralType.date))
+        # official website
+        statement = douglas.add_statement('P856', URLValue('http://douglasadams.com/'))
+        statement.add_qualifier('P407', Item('Q1860'))
 
-        # References
-        refnode = Subject(URI('wdref:355b56329b78db22be549dec34f2570ca61ca056'))
-        refnode.add_property(URI('pr:P248'), URI('wd:Q5375741'))
-        statement.add_property(URI('prov:wasDerivedFrom'), refnode)
+        # Freebase ID
+        douglas.add_statement('P646', ExternalIdentifier('/m/0282x', 'http://g.co/kg/m/0282x'))
 
-        # Ranks
-        statement.add_property(URI('rdf:type'), URI('wikibase:BestRank'))
-        statement.add_property(URI('wikibase:rank'), URI('wikibase:NormalRank'))
-
-        doc.kg.add_subject(triple)
+        doc.kg.add_subject(douglas)
         return list()
 
 
