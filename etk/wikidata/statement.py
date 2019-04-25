@@ -1,22 +1,48 @@
 from etk.knowledge_graph.node import URI
-from etk.knowledge_graph.subject import Reification
+from etk.knowledge_graph.subject import Subject
+from enum import Enum
 import uuid
 
 
-class Statement(Reification):
-    def __init__(self, p1, p2, statement=None):
-        if not statement:
-            statement_id = str(uuid.uuid4())
-            statement = URI('wds:' + '' + statement_id)
-        super().__init__(p1, p2, statement)
+class Rank(Enum):
+    Normal = URI('wikibase:NormalRank')
+    Preferred = URI('wikibase:PreferredRank')
+    Deprecated = URI('wikibase:DeprecatedRank')
 
-    def add_qualifier(self, p, value):
-        statement_uri = URI('wdv:'+str(uuid.uuid4()))
-        reification = Reification(URI('pqv:'+p), value.predicate, statement_uri)
-        statement = self.add_property(URI('pq:'+p), value.value, reification)
-        self.add_property(URI('rdf:type'), value.type)
-        for p, v in value.properties:
-            statement.add_property(p, v)
+
+class BaseStatement(Subject):
+    def __init__(self, uri):
+        super().__init__(uri)
+
+    def _add_value_node(self, prefix, p, v):
+        self.add_property(URI(prefix+':'+p), v.value)
+        if v.full_value:
+            self.add_property(URI(prefix+'v:'+p), v.full_value)
+        if v.normalized_value:
+            self.add_property(URI(prefix+'n:'+p), v.normalized_value)
+
+
+class Statement(BaseStatement):
+    def __init__(self, node_id, rank):
+        statement_id = str(uuid.uuid4())
+        super().__init__(URI('wds:' + node_id + '-' + statement_id))
+        self.add_property(URI('rdf:type'), URI('wikibase:Statement'))
+        self.add_property(URI('wikibase:rank'), rank.value)
+
+    def add_value(self, p, v):
+        self._add_value_node('ps', p, v)
+
+    def add_qualifier(self, p, v):
+        self._add_value_node('pq', p, v)
 
     def add_reference(self, ref):
         self.add_property(URI('prov:wasDerivedFrom'), ref)
+
+
+class WDReference(BaseStatement):
+    def __init__(self):
+        super().__init__(URI('wdref:'+str(uuid.uuid4())))
+        self.add_property(URI('rdf:type'), URI('wikibase:Reference'))
+
+    def add_value(self, p, v):
+        self._add_value_node('pr', p, v)
