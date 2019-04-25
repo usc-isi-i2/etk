@@ -1,7 +1,7 @@
 from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, Literal
 from etk.wikidata.statement import Statement, Rank
-from etk.wikidata.value import Item, Property
+from etk.wikidata.value import Item, Property, Datatype
 
 
 class Entity(Subject):
@@ -37,10 +37,11 @@ class WDItem(Entity, Item):
 
 class WDProperty(Entity, Property):
     def __init__(self, s: str, property_type):
-        Entity.__init__(s)
-        Property.__init__(s)
+        Entity.__init__(self, s)
+        Property.__init__(self, s)
         self.add_property(URI('rdf:type'), URI('wikibase:Property'))
-        self.add_property(URI('wikibase:propertyType'), property_type) # TODO: need to change this
+        type_uri = property_type if not isinstance(property_type, Datatype) else Datatype(property_type)
+        self.add_property(URI('wikibase:propertyType'), type_uri.type)
 
         self.add_property(URI('wikibase:directClaim'), URI('wdt:'+s))
         self.add_property(URI('wikibase:directClaimNormalized'), URI('wdtn:'+s))

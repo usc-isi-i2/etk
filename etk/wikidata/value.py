@@ -16,10 +16,11 @@ class Precision(Enum):
     billion_years = Literal('0', type_=LiteralType.integer)
 
 
-class Value:
+class DataValue:
     value = None
     full_value = None
     normalized_value = None
+    type = None
 
     def _v_name(self):
         raise NotImplemented
@@ -28,7 +29,7 @@ class Value:
         self.full_value = Subject(URI('wdv:' + self._v_name()))
 
 
-class Item(Value):
+class Item(DataValue):
     type = URI('wikibase:WikibaseItem')
 
     def __init__(self, s):
@@ -36,7 +37,7 @@ class Item(Value):
         self.value = URI('wd:'+s)
 
 
-class Property(Value):
+class Property(DataValue):
     type = URI('wikibase:WikibaseProperty')
 
     def __init__(self, s):
@@ -44,7 +45,7 @@ class Property(Value):
         self.value = URI('wd:'+s)
 
 
-class TimeValue(Value):
+class TimeValue(DataValue):
     type = URI('wikibase:Time')
 
     def __init__(self, value, calendar, precision, time_zone):
@@ -79,16 +80,19 @@ class TimeValue(Value):
         return 'c'.join(('Time', time, calendar, precision, time_zone))
 
 
-class ExternalIdentifier(Value):
+class ExternalIdentifier(DataValue):
     type = URI('wikibase:ExternalId')
 
     def __init__(self, s, normalized_value=None):
         super().__init__()
         self.value = Literal(s, type_=LiteralType.string)
-        self.nomalized_value = normalized_value is not None and URI(normalized_value)
+        if isinstance(normalized_value, URI):
+            self.normalized_value = normalized_value
+        elif isinstance(normalized_value, str):
+            self.normalized_value = URI(normalized_value)
 
 
-class QuantityValue(Value):
+class QuantityValue(DataValue):
     type = URI('wikibase:Quantity')
 
     def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True):
@@ -121,7 +125,7 @@ class QuantityValue(Value):
         return 'c'.join(('Quantity', upper_bound, lower_bound, unit))
 
 
-class StringValue(Value):
+class StringValue(DataValue):
     type = URI('wikibase:String')
 
     def __init__(self, s):
@@ -129,7 +133,7 @@ class StringValue(Value):
         self.value = Literal(s, type_=LiteralType.string)
 
 
-class URLValue(Value, URI):
+class URLValue(DataValue, URI):
     type = URI('wikibase:Url')
 
     def __init__(self, s):
@@ -137,7 +141,7 @@ class URLValue(Value, URI):
         self.value = URI(s)
 
 
-class GlobeCoordinate(Value):
+class GlobeCoordinate(DataValue):
     type = URI('wikibase:GlobeCoordinate')
 
     def __init__(self, latitude, longitude, precision, globe=None):
@@ -167,8 +171,25 @@ class GlobeCoordinate(Value):
         return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
 
 
-class MonolingualText(Value):
+class MonolingualText(DataValue):
     type = URI('wikibase:Monolingualtext')
 
     def __init__(self, s, lang):
         self.value = Literal(s, lang=lang)
+
+
+class Datatype(Enum):
+    Item = Item
+    Property = Property
+    ExternalIdentifier = ExternalIdentifier
+    QuantityValue = QuantityValue
+    TimeValue = TimeValue
+    StringValue = StringValue
+    URLValue = URLValue
+    GlobeCoordinate = GlobeCoordinate
+    MonolingualText = MonolingualText
+
+    @property
+    def type(self):
+        return self.value.type
+
