@@ -30,6 +30,7 @@ class Value:
 
 class Item(Value):
     type = URI('wikibase:WikibaseItem')
+
     def __init__(self, s):
         super().__init__()
         self.value = URI('wd:'+s)
@@ -37,6 +38,7 @@ class Item(Value):
 
 class Property(Value):
     type = URI('wikibase:WikibaseProperty')
+
     def __init__(self, s):
         super().__init__()
         self.value = URI('wd:'+s)
@@ -44,6 +46,7 @@ class Property(Value):
 
 class TimeValue(Value):
     type = URI('wikibase:Time')
+
     def __init__(self, value, calendar, precision, time_zone):
         super().__init__()
         self.value = Literal(value, type_=LiteralType.date)
@@ -69,11 +72,16 @@ class TimeValue(Value):
         self.full_value.add_property(URI('wikibase:timeCalendarModel'), self._calendar.value)
 
     def _v_name(self):
-        return str(hash(self.value.value + self._calendar.value.value + self._precision.value + self._time_zone.value))
+        time = self.value.value.replace(':', '')
+        calendar = self._calendar.value.value[3]
+        precision = self._precision.value
+        time_zone = self._time_zone.value
+        return 'c'.join(('Time', time, calendar, precision, time_zone))
 
 
 class ExternalIdentifier(Value):
     type = URI('wikibase:ExternalId')
+
     def __init__(self, s, normalized_value=None):
         super().__init__()
         self.value = Literal(s, type_=LiteralType.string)
@@ -82,6 +90,7 @@ class ExternalIdentifier(Value):
 
 class QuantityValue(Value):
     type = URI('wikibase:Quantity')
+
     def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True):
         self.value = Literal(str(amount), type_=LiteralType.decimal)
         self.upper_bound = upper_bound is not None and Literal(upper_bound, type_=LiteralType.decimal)
@@ -94,7 +103,6 @@ class QuantityValue(Value):
             self.normalized_value = self.full_value
         self.full_value.add_property(URI('wikibase:quantityNormalized'), self.normalized_value)
 
-
     def __build_full_value(self):
         self._create_full_value()
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:QuantityValue'))
@@ -106,14 +114,16 @@ class QuantityValue(Value):
         if self.unit:
             self.full_value.add_property(URI('wikibase:quantityUnit'), self.unit.value)
 
-
     def _v_name(self):
-        # TODO: modify this v_name generate method
-        return '123'
+        upper_bound = self.upper_bound.value if self.upper_bound else '0'
+        lower_bound = self.lower_bound.value if self.lower_bound else '0'
+        unit = self.unit.value.value[3] if self.unit else '0'
+        return 'c'.join(('Quantity', upper_bound, lower_bound, unit))
 
 
 class StringValue(Value):
     type = URI('wikibase:String')
+
     def __init__(self, s):
         super().__init__()
         self.value = Literal(s, type_=LiteralType.string)
@@ -121,13 +131,15 @@ class StringValue(Value):
 
 class URLValue(Value, URI):
     type = URI('wikibase:Url')
+
     def __init__(self, s):
         super().__init__(s)
         self.value = URI(s)
 
 
-class GlobalCoordinate(Value):
+class GlobeCoordinate(Value):
     type = URI('wikibase:GlobeCoordinate')
+
     def __init__(self, latitude, longitude, precision, globe=None):
         self.globe = globe
         self.latitude = Literal(latitude, type_=LiteralType.decimal)
@@ -148,10 +160,15 @@ class GlobalCoordinate(Value):
         self.full_value.add_property(URI('wikibase:geoPrecision'), )
 
     def _v_name(self):
-        return '123'
+        globe = self.globe.value.value
+        latitude = self.latitude.value
+        longitude = self.longitude.value
+        precision = self.precision.value
+        return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
 
 
 class MonolingualText(Value):
     type = URI('wikibase:Monolingualtext')
+
     def __init__(self, s, lang):
         self.value = Literal(s, lang=lang)

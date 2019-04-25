@@ -4,7 +4,6 @@ from etk.wikidata.statement import Statement, Rank
 from etk.wikidata.value import Item, Property
 
 
-
 class Entity(Subject):
     def __init__(self, node):
         super().__init__(URI('wd:'+node))
@@ -58,12 +57,12 @@ class WDProperty(Entity, Property):
         self.add_property(URI('wikibase:novalue'), URI('wdno:'+s))
 
 
-
 if __name__ == '__main__':
     from etk.wikidata import *
     douglas = WDItem('Q42')
     douglas.add_label('Douglas Adams', lang='en')
     douglas.add_alias('Douglas Noël Adams', lang='fr')
+    # educated at
     statement = douglas.add_statement('P69', Item('Q691283'), rank=Rank.Normal)
     # education: start time
     statement.add_qualifier('P580', TimeValue('1971',
@@ -80,6 +79,11 @@ if __name__ == '__main__':
                                             calendar=Item('Q1985727'),
                                             precision=Precision.day,
                                             time_zone=0))
+    # reference
+    ref_1 = WDReference()
+    ref_1.add_value('P248', Item('Q5375741'))
+    statement.add_reference(ref_1)
+
     # height
     douglas.add_statement('P2048', QuantityValue(1.96, unit=Item('Q11573')))
 
@@ -89,10 +93,6 @@ if __name__ == '__main__':
 
     # Freebase ID
     douglas.add_statement('P646', ExternalIdentifier('/m/0282x', 'http://g.co/kg/m/0282x'))
-
-    ref_1 = WDReference()
-    ref_1.add_value('P248', Item('Q5375741'))
-    statement.add_reference(ref_1)
 
     # Test with Graph
     from etk.knowledge_graph.graph import Graph

@@ -1,5 +1,5 @@
 from etk.etk import ETK
-from etk.knowledge_graph import KGSchema, URI, BNode, Literal, LiteralType, Subject, Reification
+from etk.knowledge_graph import KGSchema, URI, Literal, LiteralType, Subject, Reification
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
 
