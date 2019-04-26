@@ -5,7 +5,7 @@ from etk.extraction import Extractable, Extraction
 from etk.extractor import Extractor, InputType
 from etk.segment import Segment
 from etk.tokenizer import Tokenizer
-from etk.knowledge_graph import KnowledgeGraph
+from etk.knowledge_graph.knowledge_graph import KnowledgeGraph
 from etk.utilities import Utility
 from etk.etk_exceptions import ErrorPolicy, ExtractorValueError
 import warnings
@@ -13,11 +13,10 @@ import warnings
 
 class Document(Segment):
     """
-        This class wraps raw CDR documents and provides a convenient API for ETK
-        to query elements of the document and to update the document with the results
-        of extractors.
-        """
-
+    This class wraps raw CDR documents and provides a convenient API for ETK
+    to query elements of the document and to update the document with the results
+    of extractors.
+    """
     def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None) -> None:
 
         """
@@ -39,7 +38,7 @@ class Document(Segment):
             self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = list()
         if self.etk.kg_schema:
-            self.kg = KnowledgeGraph(self.etk.kg_schema, self.etk.ontology, self)
+            self.kg = KnowledgeGraph(self.etk.kg_schema, self)
         else:
             self.kg = None
             if not self.etk.kg_schema:
@@ -297,7 +296,7 @@ class Document(Segment):
         return nested_docs
 
     def add_type(self, type_):
-        self.kg.add_value('@type', value=type_)
+        self.document.kg.add_types(type_)
 
     def with_type(self, type_):
         if type_:

@@ -1,7 +1,12 @@
 import re
-from typing import Optional
-from rdflib.namespace import OWL, Namespace, NamespaceManager
+from typing import Optional, Union
+import rdflib.namespace
+from rdflib.namespace import Namespace, OWL, RDF, XSD
 from rdflib import URIRef
+import warnings
+from etk.etk_exceptions import WrongFormatURIException, PrefixNotFoundException, PrefixAlreadyUsedException
+from etk.etk_exceptions import SplitURIWithUnknownPrefix
+from etk.knowledge_graph.node import URI
 
 
 SCHEMA = Namespace('http://schema.org/')
@@ -11,27 +16,12 @@ URI_PATTERN = re.compile(r'^http:|^urn:|^info:|^ftp:|^https:')
 URI_ABBR_PATTERN = re.compile(r'^(?:([^:]*):)?([^:]+)$')
 
 
-class WrongFormatURIException(Exception):
-    pass
-
-
-class PrefixNotFoundException(Exception):
-    pass
-
-
-class PrefixAlreadyUsedException(Exception):
-    pass
-
-
-class OntologyNamespaceManager(NamespaceManager):
+class NamespaceManager(rdflib.namespace.NamespaceManager):
     def __init__(self, *args, **kwargs):
-        super(OntologyNamespaceManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.graph.namespace_manager = self
-        self.bind('owl', OWL)
-        self.bind('schema', SCHEMA)
-        self.bind('dig', DIG)
 
-    def parse_uri(self, text: str) -> URIRef:
+    def parse_uri(self, text: Union[str, URI]) -> URIRef:
         """
         Parse input text into URI
 
@@ -52,9 +42,11 @@ class OntologyNamespaceManager(NamespaceManager):
                 if not base:
                     raise PrefixNotFoundException("Prefix: %s", prefix)
                 return URIRef(base + name)
-        raise WrongFormatURIException()
+        elif isinstance(text, URI):
+            return self.parse_uri(text.value)
+        raise WrongFormatURIException(text)
 
-    def bind(self, prefix: str, namespace: str, override=True, replace=False):
+    def bind(self, prefix: str, namespace: str, override=True, replace=True):
         """
         bind a given namespace to the prefix, forbids same prefix with different namespace
 
@@ -74,12 +66,12 @@ class OntologyNamespaceManager(NamespaceManager):
             bound_namespace = URIRef(bound_namespace)
         if bound_namespace and bound_namespace != namespace:
 
+            # prefix already in use for different namespace
             if replace:
                 self.store.bind(prefix, namespace)
-            # prefix already in use for different namespace
-            raise PrefixAlreadyUsedException("Prefix (%s, %s) already used, instead of (%s, %s).",
-                                             prefix, self.store.namespace(prefix).toPython(),
-                                             prefix, namespace.toPython())
+            else:
+                warnings.warn("Prefix ({}, {}) already defined, if want to replace it, set flag replace to True".format(
+                    prefix if prefix else None, self.store.namespace(prefix)))
         else:
             bound_prefix = self.store.prefix(namespace)
             if bound_prefix is None:
@@ -91,10 +83,31 @@ class OntologyNamespaceManager(NamespaceManager):
                     self.store.bind(prefix, namespace)
 
     @staticmethod
-    def check_uriref(text: str) -> Optional[URIRef]:
+    def check_uriref(text: Union[str, URI]) -> Optional[URIRef]:
+        """
+        Check if the input text is likely to be an URIRef and return None or URIRef
+        """
         if isinstance(text, URIRef):
             return text
+        if isinstance(text, URI):
+            text = text.value
         if isinstance(text, str):
             text = text.strip()
             if URI_PATTERN.match(text.strip()):
                 return URIRef(text)
+
+    def split_uri(self, uri: str):
+        """
+        Overwrite rdflib's implementation which has a lot of issues
+        """
+        for prefix, namespace in self.store.namespaces():
+            if uri.startswith(namespace):
+                return prefix, uri[len(namespace):]
+        raise SplitURIWithUnknownPrefix()
+
+    def bind_for_master_config(self):
+        """
+        Bind must-have namespaces for master config, note RDF and XSD are already bound
+        """
+        self.bind('owl', OWL)
+        self.bind('', 'http://isi.edu/default-ns/')
