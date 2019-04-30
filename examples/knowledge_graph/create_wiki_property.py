@@ -23,27 +23,8 @@ class ExampleETKModule(ETKModule):
             reference: stated_in Encyclopædia_Britannica_Online
             rank: normal
         """
-        doc.kg.bind('wikibase', 'http://wikiba.se/ontology#')
-        doc.kg.bind('wd', 'http://www.wikidata.org/entity/')
-        doc.kg.bind('wdt', 'http://www.wikidata.org/prop/direct/')
-        doc.kg.bind('wdtn', 'http://www.wikidata.org/prop/direct-normalized/')
-        doc.kg.bind('wdno', 'http://www.wikidata.org/prop/novalue/')
-        doc.kg.bind('wds', 'http://www.wikidata.org/entity/statement/')
-        doc.kg.bind('wdv', 'http://www.wikidata.org/value/')
-        doc.kg.bind('wdref', 'http://www.wikidata.org/reference/')
-        doc.kg.bind('p', 'http://www.wikidata.org/prop/')
-        doc.kg.bind('pr', 'http://www.wikidata.org/prop/reference/')
-        doc.kg.bind('prv', 'http://www.wikidata.org/prop/reference/value/')
-        doc.kg.bind('prn', 'http://www.wikidata.org/prop/reference/value-normalized/')
-        doc.kg.bind('ps', 'http://www.wikidata.org/prop/statement/')
-        doc.kg.bind('psv', 'http://www.wikidata.org/prop/statement/value/')
-        doc.kg.bind('psn', 'http://www.wikidata.org/prop/statement/value-normalized/')
-        doc.kg.bind('pq', 'http://www.wikidata.org/prop/qualifier/')
-        doc.kg.bind('pqv', 'http://www.wikidata.org/prop/qualifier/value/')
-        doc.kg.bind('pqn', 'http://www.wikidata.org/prop/qualifier/value-normalized/')
-        doc.kg.bind('skos', 'http://www.w3.org/2004/02/skos/core#')
-        doc.kg.bind('prov', 'http://www.w3.org/ns/prov#')
-        doc.kg.bind('schema', 'http://schema.org/')
+        for k, v in wiki_namespaces.items():
+            doc.kg.bind(k, v)
 
         p = WDProperty('C3001', Datatype.QuantityValue)
         p.add_label('violent crime offenses', lang='en')
