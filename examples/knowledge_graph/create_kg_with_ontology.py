@@ -57,24 +57,24 @@ if __name__ == "__main__":
     }
 
     ontology = """
-@prefix : <http://isi.edu/xij-rule-set#> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-:Software a owl:Class ;
-          rdfs:label "Software" .
-:Person a owl:Class ;
-        rdfs:label "Person" .
-:Developer a owl:Class ;
-           rdfs:label "Developer" .
-:name a owl:DatatypeProperty ;
-      rdf:domain :Person ;
-      rdf:range xsd:string .
-:developer a owl:ObjectProperty ;
-           rdfs:label "developer" ;
-           rdf:domain :Software ;
-           rdf:range :Developer .
+        @prefix : <http://example.org/> .
+        @prefix owl: <http://www.w3.org/2002/07/owl#> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+        :Software a owl:Class ;
+            rdfs:label "Software" .
+        :Person a owl:Class ;
+            rdfs:label "Person" .
+        :Developer a owl:Class ;
+            rdfs:label "Developer" .
+        :name a owl:DatatypeProperty ;
+            rdfs:domain :Person ;
+            rdfs:range xsd:string .
+        :developer a owl:ObjectProperty ;
+            rdfs:label "developer" ;
+            rdfs:domain :Software ;
+            rdfs:range :Developer .
     """
     kg_schema = KGSchema()
     kg_schema.add_schema(ontology, 'ttl')
@@ -83,6 +83,11 @@ if __name__ == "__main__":
 
     docs = etk.process_ems(doc)
 
-    print(docs[0].kg.serialize('ttl'))
-    print(docs[0].kg.serialize('nt'))
-    print(docs[0].kg._resolve_uri.cache_info())
+    conforms, result_graph = docs[0].kg.validate()
+    print(kg_schema.shacl.serialize('ttl'))
+    if conforms:
+        print(docs[0].kg.serialize('ttl'))
+        print(docs[0].kg.serialize('nt'))
+        print(docs[0].kg._resolve_uri.cache_info())
+    else:
+        print(result_graph.serialize('ttl'))
