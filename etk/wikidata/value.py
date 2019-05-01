@@ -71,6 +71,7 @@ class TimeValue(DataValue):
         self.full_value.add_property(URI('wikibase:timePrecision'), self._precision)
         self.full_value.add_property(URI('wikibase:timeTimezone'), self._time_zone)
         self.full_value.add_property(URI('wikibase:timeCalendarModel'), self._calendar.value)
+        self.full_value.add_property(URI('wikibase:timeValue'), self.value)
 
     def _v_name(self):
         time = self.value.value.replace(':', '')
