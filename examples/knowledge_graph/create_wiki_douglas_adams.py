@@ -69,7 +69,7 @@ if __name__ == "__main__":
     kg_schema = KGSchema()
     kg_schema.add_schema('@prefix : <http://isi.edu/> .', 'ttl')
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
-    doc = etk.create_document({}, doc_id="http://isi.edu/default-ns/projects")
+    doc = etk.create_document({}, doc_id="http://isi.edu/default-ns/projects", graph_id='http://www.example.com')
 
     docs = etk.process_ems(doc)
 

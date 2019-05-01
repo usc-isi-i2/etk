@@ -14,6 +14,7 @@ def run(args):
     tu = TruthyUpdater(args.endpoint)
     with open(args.file) as f:
         for l in f.readlines():
+            if not l: continue
             node, prop = l.strip().split('\t')
             tu.update(node, prop, args.dryrun)
     print('Update finished!')

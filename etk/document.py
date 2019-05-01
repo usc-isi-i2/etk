@@ -17,7 +17,7 @@ class Document(Segment):
     to query elements of the document and to update the document with the results
     of extractors.
     """
-    def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None) -> None:
+    def __init__(self, etk, cdr_document: Dict, mime_type, url, doc_id=None, graph_id=None) -> None:
 
         """
         Wrapper object for CDR documents.
@@ -38,7 +38,7 @@ class Document(Segment):
             self.cdr_document["doc_id"] = doc_id
         self.extraction_provenance_records = list()
         if self.etk.kg_schema:
-            self.kg = KnowledgeGraph(self.etk.kg_schema, self)
+            self.kg = KnowledgeGraph(self.etk.kg_schema, self, graph_id)
         else:
             self.kg = None
             if not self.etk.kg_schema:
