@@ -82,6 +82,7 @@ class TruthyUpdater:
         else:
             np.insert_other_rank_statements('NormalRank')
 
+
 if __name__ == '__main__':
     np = NodeProperty('Q42', 'P69', SPARQLUpdateStore('https://query.wikidata.org/sparql'), True)
     print(np.has_truthy_preferred_rank())

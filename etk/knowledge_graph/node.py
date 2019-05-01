@@ -14,7 +14,7 @@ class Node(object):
     def __eq__(self, other):
         if not isinstance(other, Node):
             return False
-        return self.value == other.value
+        return self._value == other._value
 
     def __hash__(self):
         return hash(self.value)
@@ -114,12 +114,15 @@ class __Type(type):
 
 
 class LiteralType(URI, metaclass=__Type):
-    def __init__(self, s):
+    def __init__(self, s, common_check=True):
+        self.common_check = common_check
         super().__init__(self._resolve(s))
 
     def _resolve(self, s):
         if not isinstance(s, str):
             raise UnknownLiteralType()
+        if not self.common_check:
+            return s
         if s.startswith(self.xsd) and s[len(self.xsd):] in self.xsd_tokens or \
                 s.startswith(self.rdf) and s[len(self.rdf)] in self.rdf_tokens:
             return s
