@@ -1,4 +1,4 @@
-from etk.wikidata.entity import WDItem, WDProperty
+from etk.wikidata.entity import WDItem, WDProperty, change_recorder, serialize_change_record
 from etk.wikidata.statement import Rank, WDReference
 from etk.wikidata.value import Precision, Item, Property, TimeValue, ExternalIdentifier, QuantityValue, StringValue, \
     URLValue, GlobeCoordinate, MonolingualText, Datatype

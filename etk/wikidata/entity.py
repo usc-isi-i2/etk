@@ -2,6 +2,14 @@ from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, Literal
 from etk.wikidata.statement import Statement, Rank
 from etk.wikidata.value import Item, Property, Datatype
+from collections import defaultdict
+
+
+change_recorder = set()
+
+
+def serialize_change_record(fp):
+    fp.writelines('{}\t{}\n'.format(node, prop) for node, prop in change_recorder)
 
 
 class Entity(Subject):
@@ -22,6 +30,7 @@ class Entity(Subject):
         self.add_property(URI('schema:description'), Literal(s, lang=lang))
 
     def add_statement(self, p: str, v, rank=Rank.Normal):
+        change_recorder.add((self.node_id, p))
         statement = Statement(self.node_id, rank)
         statement.add_value(p, v)
         self.add_property(URI('p:'+p), statement)

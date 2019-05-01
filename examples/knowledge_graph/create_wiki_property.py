@@ -46,3 +46,6 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
+    with open('p.tsv', 'w') as fp:
+        serialize_change_record(fp)
+
