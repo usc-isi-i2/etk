@@ -64,7 +64,7 @@ class ETK(object):
             self.error_policy = ErrorPolicy.PROCESS
 
     def create_document(self, doc: Dict, mime_type: str = None, url: str = "http://ex.com/123",
-                        doc_id=None, type_=None, graph_id=None) -> Document:
+                        doc_id=None, type_=None) -> Document:
         """
         Factory method to wrap input JSON docs in an ETK Document object.
 
@@ -78,7 +78,7 @@ class ETK(object):
         Returns: wrapped Document
 
         """
-        return Document(self, doc, mime_type, url, doc_id=doc_id, graph_id=graph_id).with_type(type_)
+        return Document(self, doc, mime_type, url, doc_id=doc_id).with_type(type_)
 
     def parse_json_path(self, jsonpath):
 
@@ -165,9 +165,10 @@ class ETK(object):
             #         self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
             #         raise e
 
-        # Do house cleaning.
-        doc.insert_kg_into_cdr()
-        Utility.make_json_serializable(doc.cdr_document)
+        if self.kg_schema.legacy:
+            # Do house cleaning.
+            doc.insert_kg_into_cdr()
+            Utility.make_json_serializable(doc.cdr_document)
 
         if self.output_kg_only:
             doc = doc.kg.value

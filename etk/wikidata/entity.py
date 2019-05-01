@@ -13,9 +13,10 @@ def serialize_change_record(fp):
 
 
 class Entity(Subject):
-    def __init__(self, node):
+    def __init__(self, node, creator):
         super().__init__(URI('wd:'+node))
         self.node_id = node
+        self.creator = URI(creator) if creator else None
 
     def add_label(self, s: str, lang='en'):
         literal = Literal(s, lang=lang)
@@ -33,20 +34,21 @@ class Entity(Subject):
         change_recorder.add((self.node_id, p))
         statement = Statement(self.node_id, rank)
         statement.add_value(p, v)
+        statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
         self.add_property(URI('p:'+p), statement)
         return statement
 
 
 class WDItem(Entity, Item):
-    def __init__(self, s: str):
-        Entity.__init__(self, s)
+    def __init__(self, s: str, creator='http://www.isi.edu/datamart'):
+        Entity.__init__(self, s, creator)
         Item.__init__(self, s)
         self.add_property(URI('rdf:type'), URI('wikibase:Item'))
 
 
 class WDProperty(Entity, Property):
-    def __init__(self, s: str, property_type):
-        Entity.__init__(self, s)
+    def __init__(self, s: str, property_type, creator='http://www.isi.edu/datamart'):
+        Entity.__init__(self, s, creator)
         Property.__init__(self, s)
         self.add_property(URI('rdf:type'), URI('wikibase:Property'))
         type_uri = property_type if not isinstance(property_type, Datatype) else Datatype(property_type)

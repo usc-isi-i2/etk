@@ -12,8 +12,8 @@ class KnowledgeGraph(Graph):
     This class is a knowledge graph object, provides API for user to construct their kg.
     Add field and value to the kg object, analysis on provenance
     """
-    def __init__(self, schema: KGSchema, doc, identifier=None):
-        super().__init__(identifier=identifier)
+    def __init__(self, schema: KGSchema, doc):
+        super().__init__()
         self.origin_doc = doc
         self.schema = schema
         self._fork_namespace_manager()

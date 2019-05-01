@@ -26,7 +26,9 @@ class NodeProperty:
             self.endpoint.update(query)
 
     def has_truthy_preferred_rank(self):
-        query = 'ask { wd:%(node)s p:%(prop)s [ a wikibase:BestRank ; wikibase:rank wikibase:PreferredRank ] }'
+        query = '''
+        ask { wd:%(node)s p:%(prop)s [ a wikibase:BestRank ; wikibase:rank wikibase:PreferredRank ] }
+        '''
         query = query % {'node': self.node, 'prop': self.prop}
         return self.ask(query)
 
