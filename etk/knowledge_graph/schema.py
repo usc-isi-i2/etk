@@ -16,7 +16,9 @@ class KGSchema(object):
         self.ontology = Ontology()
         self.shacl = SHACL()
         self.need_convert = False
+        self.legacy = False
         if content:
+            self.legacy = True
             self.need_convert = True
             self.add_schema(content, 'master_config')
 

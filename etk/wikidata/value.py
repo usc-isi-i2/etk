@@ -71,6 +71,7 @@ class TimeValue(DataValue):
         self.full_value.add_property(URI('wikibase:timePrecision'), self._precision)
         self.full_value.add_property(URI('wikibase:timeTimezone'), self._time_zone)
         self.full_value.add_property(URI('wikibase:timeCalendarModel'), self._calendar.value)
+        self.full_value.add_property(URI('wikibase:timeValue'), self.value)
 
     def _v_name(self):
         time = self.value.value.replace(':', '')
@@ -122,7 +123,7 @@ class QuantityValue(DataValue):
         upper_bound = self.upper_bound.value if self.upper_bound else '0'
         lower_bound = self.lower_bound.value if self.lower_bound else '0'
         unit = self.unit.value.value[3] if self.unit else '0'
-        return 'c'.join(('Quantity', upper_bound, lower_bound, unit))
+        return 'c'.join(('Quantity', self.value.value.replace('.', '-'), upper_bound, lower_bound, unit))
 
 
 class StringValue(DataValue):
@@ -146,22 +147,22 @@ class GlobeCoordinate(DataValue):
 
     def __init__(self, latitude, longitude, precision, globe=None):
         self.globe = globe
-        self.latitude = Literal(latitude, type_=LiteralType.decimal)
-        self.longitude = Literal(longitude, type_=LiteralType.decimal)
-        self.precision = Literal(precision, type_=LiteralType.decimal)
+        self.latitude = Literal(str(latitude), type_=LiteralType.decimal)
+        self.longitude = Literal(str(longitude), type_=LiteralType.decimal)
+        self.precision = Literal(str(precision), type_=LiteralType.decimal)
         s = 'Point({} {})'.format(latitude, longitude)
         if globe:
             s = '<{}> {}'.format(globe.value.value.replace('wd:', 'http://www.wikidata.org/entity/'), s)
-        self.value = Literal(s, type_='geo:wktLiteral')
+        self.value = Literal(s, type_=LiteralType('http://www.opengis.net/ont/geosparql#wktLiteral', common_check=False))
         self.__build_full_value()
 
     def __build_full_value(self):
         self._create_full_value()
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:GlobecoordinateValue'))
-        self.full_value.add_property(URI('wikibase:geoGlobe'), )
-        self.full_value.add_property(URI('wikibase:geoLatitude'), )
-        self.full_value.add_property(URI('wikibase:geoLongitude'), )
-        self.full_value.add_property(URI('wikibase:geoPrecision'), )
+        self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
+        self.full_value.add_property(URI('wikibase:geoLatitude'), self.latitude)
+        self.full_value.add_property(URI('wikibase:geoLongitude'), self.longitude)
+        self.full_value.add_property(URI('wikibase:geoPrecision'), self.precision)
 
     def _v_name(self):
         globe = self.globe.value.value

@@ -1,5 +1,5 @@
 from etk.etk import ETK
-from etk.knowledge_graph import KGSchema, URI, Literal, LiteralType, Subject, Reification
+from etk.knowledge_graph import KGSchema
 from etk.extractors.glossary_extractor import GlossaryExtractor
 from etk.etk_module import ETKModule
 from etk.wikidata import *
@@ -23,22 +23,8 @@ class ExampleETKModule(ETKModule):
             reference: stated_in Encyclopædia_Britannica_Online
             rank: normal
         """
-        doc.kg.bind('wikibase', 'http://wikiba.se/ontology#')
-        doc.kg.bind('wd', 'http://www.wikidata.org/entity/')
-        doc.kg.bind('wdt', 'http://www.wikidata.org/prop/direct/')
-        doc.kg.bind('wds', 'http://www.wikidata.org/entity/statement/')
-        doc.kg.bind('wdv', 'http://www.wikidata.org/value/')
-        doc.kg.bind('wdref', 'http://www.wikidata.org/reference/')
-        doc.kg.bind('p', 'http://www.wikidata.org/prop/')
-        doc.kg.bind('pr', 'http://www.wikidata.org/prop/reference/')
-        doc.kg.bind('ps', 'http://www.wikidata.org/prop/statement/')
-        doc.kg.bind('psv', 'http://www.wikidata.org/prop/statement/value/')
-        doc.kg.bind('psn', 'http://www.wikidata.org/prop/statement/value-normalized/')
-        doc.kg.bind('pq', 'http://www.wikidata.org/prop/qualifier/')
-        doc.kg.bind('pqv', 'http://www.wikidata.org/prop/qualifier/value/')
-        doc.kg.bind('skos', 'http://www.w3.org/2004/02/skos/core#')
-        doc.kg.bind('prov', 'http://www.w3.org/ns/prov#')
-        doc.kg.bind('schema', 'http://schema.org/')
+        for k, v in wiki_namespaces.items():
+            doc.kg.bind(k, v)
 
         douglas = WDItem('Q42')
         douglas.add_label('Douglas Adams', lang='en')
@@ -88,3 +74,5 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
+    with open('Q42.tsv', 'w') as fp:
+        serialize_change_record(fp)
