@@ -25,7 +25,7 @@ class TruthyUpdater:
                 for row in res:
                     print(' '.join(e.n3() for e in row))
             except ResultException:
-                print('Maybe empty')
+                pass
         else:
             self.endpoint.update(query)
 
