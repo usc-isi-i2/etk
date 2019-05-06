@@ -19,6 +19,28 @@ def run(args):
 
     query = '''
       DELETE {
+        ?statement a wikibase:BestRank .
+        ?entity ?wdt ?value .
+        ?entity ?wdtn ?normalValue .
+      } WHERE {
+        ?statement <http://www.isi.edu/etk/createdBy> <%s> ;
+                   a wikibase:BestRank .
+        ?entity ?p ?statement .
+        ?statement ?ps ?value .
+        ?entity ?wdt ?value .
+        FILTER (strStarts(str(?p), "http://www.wikidata.org/prop/") && strStarts(str(?ps), "http://www.wikidata.org/prop/statement/") && strStarts(str(?wdt), "http://www.wikidata.org/prop/direct/"))
+        OPTIONAL {
+            ?entity ?wdtn ?normalValue .
+            ?statement ?psn ?normalValue .
+            FILTER (strStarts(str(?psn), "http://www.wikidata.org/prop/statement/value-normalized/") && strStarts(str(?wdtn), "http://www.wikidata.org/prop/direct-normalized/"))
+        }
+      }
+    ''' %  creator
+    tu.update(query)
+
+
+    query = '''
+      DELETE {
         ?statement ?p1 ?o .
         ?s ?p2 ?statement
       } WHERE {
