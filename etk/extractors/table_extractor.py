@@ -8,7 +8,6 @@ from bs4.element import Comment
 import re
 import copy
 
-
 class Toolkit:
     @staticmethod
     def create_table_array(t, put_extractions=False):
@@ -190,7 +189,8 @@ class TableExtraction:
             uniq_list.remove(' ')
         return uniq_list
 
-    def extract(self, html_doc, min_data_rows = 1):
+    @staticmethod
+    def extract(html_doc, min_data_rows = 1):
         soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
@@ -232,14 +232,17 @@ class TableExtraction:
                         cspan = c.get('colspan')
                         rspan = c.get('rowspan')
                         ci += col_shift+rshift
-                        
-                        if ci in row_spans:
+
+                        # shift the col index if there are any spanning cells above it
+                        while ci in row_spans:
                             if row_spans[ci] <= 0:
                                 del row_spans[ci]
                             else:
                                 rshift += 1
                                 row_spans[ci] -= 1
                                 ci += 1
+
+                        # record spanned cell for later use
                         if cspan is not None and rspan is not None:
                             cspan = int(cspan)
                             rspan = int(rspan)
@@ -307,7 +310,7 @@ class TableExtraction:
                         cell_dict["id"] = 'row_{0}_col_{1}'.format(ri, ci)
                         
                         avg_cell_len += len(cell_dict["text"])
-                        
+
                         newr[ci] = cell_dict
                         cspan = c.get('colspan')
                         rspan = c.get('rowspan')
@@ -323,12 +326,12 @@ class TableExtraction:
                     
                     avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) if x else 0 for x in newr])
                     row_dict["cells"] = newr
-                    row_dict["text"] = self.row_to_text(newr)
-                    row_dict["html"] = self.row_to_html(newr)
+                    row_dict["text"] = TableExtraction.row_to_text(newr)
+                    row_dict["html"] = TableExtraction.row_to_html(newr)
                     row_dict["id"] = "row_{}".format(ri)
                     row_list.append(row_dict)
-                    
-                ## replicate merged cells
+
+                # replicate merged cells
                 for m in merged_cells:
                     for ii in range(m[0], m[1]):
                         for jj in range(m[2], m[3]):
@@ -414,10 +417,10 @@ class TableExtraction:
                 data_table["context_after"] = context_after
                 data_table["fingerprint"] = fingerprint
                 data_table['html'] = table_rep
-                data_table['text'] = self.table_to_text(row_list)
+                data_table['text'] = TableExtraction.table_to_text(row_list)
                 result_tables.append(data_table)
                 table.decompose()
-        return dict(tables=result_tables, html_text=self.text_from_html(soup))
+        return dict(tables=result_tables, html_text=TableExtraction.text_from_html(soup))
 
     @staticmethod
     def create_fingerprint(table):
@@ -484,16 +487,18 @@ class TableExtraction:
 
         return soup
 
-    def tag_visible(self, element):
+    @staticmethod
+    def tag_visible(element):
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
         if isinstance(element, Comment):
             return False
         return True
 
-    def text_from_html(self, soup):
+    @staticmethod
+    def text_from_html(soup):
         texts = soup.findAll(text=True)
-        visible_texts = filter(self.tag_visible, texts)
+        visible_texts = filter(TableExtraction.tag_visible, texts)
         # print([x.strip() for x in visible_texts])
         # exit(0)
         return u" ".join(t.strip() for t in visible_texts if t.strip() != "")
@@ -513,13 +518,12 @@ class TableExtractor(Extractor):
 
     """
 
-    tableExtractorInstance = TableExtraction()
-
     def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="content",
                            name="DigTableExtractor")
+        self.tableExtractorInstance = TableExtraction()
 
     def _wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
@@ -537,7 +541,7 @@ class TableExtractor(Extractor):
 
         """
         results = list()
-        temp_res = TableExtractor.tableExtractorInstance.extract(html)
+        temp_res = self.tableExtractorInstance.extract(html)
         if return_text:
             results.append(self._wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
         results.extend(map(lambda t: self._wrap_value_with_context(t, "tables"), temp_res['tables']))
