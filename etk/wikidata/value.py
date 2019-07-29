@@ -50,7 +50,7 @@ class TimeValue(DataValue):
 
     def __init__(self, value, calendar, precision, time_zone):
         super().__init__()
-        self.value = Literal(value, type_=LiteralType.date)
+        self.value = Literal(value, type_=LiteralType.dateTime)
         self._calendar = calendar
         if isinstance(precision, Precision):
             self._precision = precision.value
