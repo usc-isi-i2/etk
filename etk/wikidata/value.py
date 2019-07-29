@@ -74,7 +74,7 @@ class TimeValue(DataValue):
         self.full_value.add_property(URI('wikibase:timeValue'), self.value)
 
     def _v_name(self):
-        time = self.value.value.replace(':', '')
+        time = self.value.value.replace(':', '').replace(' ', '-')
         calendar = self._calendar.value.value[3]
         precision = self._precision.value
         time_zone = self._time_zone.value
