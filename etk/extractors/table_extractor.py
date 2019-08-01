@@ -190,7 +190,7 @@ class TableExtraction:
         return uniq_list
 
     @staticmethod
-    def extract(html_doc, min_data_rows = 1):
+    def extract(html_doc, expand_merged_cells, min_data_rows=1):
         soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
@@ -331,19 +331,23 @@ class TableExtraction:
                     row_dict["id"] = "row_{}".format(ri)
                     row_list.append(row_dict)
 
-                # replicate merged cells
-                for m in merged_cells:
-                    for ii in range(m[0], m[1]):
-                        for jj in range(m[2], m[3]):
-                            if ii == m[0] and jj == m[2]:
-                                continue
-                            row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
-                            row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
+                if expand_merged_cells:
+                    # replicate merged cells
+                    N = len(row_list)
+                    M = max_cols
+                    for m in merged_cells:
+                        for ii in range(m[0], min(m[1], N)):
+                            for jj in range(m[2], min(m[3], M)):
+                                if ii == m[0] and jj == m[2]:
+                                    continue
+                                row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
+                                row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
                 
-                # features["merged_cells"] = merged_cells
                 # To avoid division by zero
                 if len_row == 0:
                     tdcount = 1
+
+                features['merged_cells'] = merged_cells
                 features["no_of_rows"] = len_row
                 features["no_of_cells"] = tdcount
                 features["max_cols_in_a_row"] = max_tdcount
@@ -416,7 +420,7 @@ class TableExtraction:
                 data_table["context_before"] = context_before
                 data_table["context_after"] = context_after
                 data_table["fingerprint"] = fingerprint
-                data_table['html'] = table_rep
+                data_table['html'] = str(table)
                 data_table['text'] = TableExtraction.table_to_text(row_list)
                 result_tables.append(data_table)
                 table.decompose()
@@ -529,7 +533,7 @@ class TableExtractor(Extractor):
         """Wraps the final result"""
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
-    def extract(self, html: str, return_text: bool=False) -> List[Extraction]:
+    def extract(self, html: str, return_text: bool = False, expand_merged_cells: bool = True) -> List[Extraction]:
         """
         Args:
             html (str): raw html of the page
@@ -541,7 +545,7 @@ class TableExtractor(Extractor):
 
         """
         results = list()
-        temp_res = self.tableExtractorInstance.extract(html)
+        temp_res = self.tableExtractorInstance.extract(html, expand_merged_cells=expand_merged_cells)
         if return_text:
             results.append(self._wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
         results.extend(map(lambda t: self._wrap_value_with_context(t, "tables"), temp_res['tables']))
