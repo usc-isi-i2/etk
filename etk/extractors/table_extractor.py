@@ -194,7 +194,7 @@ class TableExtraction:
         soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
-        for table in tables:
+        for table_i, table in enumerate(tables):
             tdcount = 0
             max_tdcount = 0
             img_count = 0
@@ -227,10 +227,9 @@ class TableExtraction:
                     num_rows += 1
                     num_cols = 0
                     col_shift = 0
+                    ci = 0
                     for ci, c in enumerate(row.findAll(['td', 'th'])):
                         num_cols += 1
-                        cspan = c.get('colspan')
-                        rspan = c.get('rowspan')
                         ci += col_shift+rshift
 
                         # shift the col index if there are any spanning cells above it
@@ -241,6 +240,9 @@ class TableExtraction:
                                 rshift += 1
                                 row_spans[ci] -= 1
                                 ci += 1
+
+                        cspan = c.get('colspan')
+                        rspan = c.get('rowspan')
 
                         # record spanned cell for later use
                         if cspan is not None and rspan is not None:
@@ -254,11 +256,16 @@ class TableExtraction:
                             col_shift += cspan-1
                             merged_cells.append((ri, ri+1, ci, ci+cspan))
                         elif rspan is not None:
+
                             rspan = int(rspan)
                             row_spans[ci] = rspan-1
                             merged_cells.append((ri, ri+rspan, ci, ci+1))
                     if max_cols < num_cols:
                         max_cols = num_cols
+                    # update rowspan dict for columns not seen in this iteration
+                    for k, v in row_spans.items():
+                        if k > ci:
+                            row_spans[k] -= 1
                 if len(merged_cells) > 0:
                     max_cols = max(max_cols, max([x[3] for x in merged_cells]))
                     num_rows = max(len(rows), max([x[1] for x in merged_cells]))
@@ -300,6 +307,8 @@ class TableExtraction:
                                 rshift += 1
                                 row_spans[ci] -= 1
                                 ci += 1
+                        if ri == 17 and ci == 4:
+                            print('here!!')
                         for br in c.find_all("br"):
                             br.replace_with(" ")
                         for br in c.find_all("script"):
@@ -330,12 +339,13 @@ class TableExtraction:
                     row_dict["html"] = TableExtraction.row_to_html(newr)
                     row_dict["id"] = "row_{}".format(ri)
                     row_list.append(row_dict)
-
                 if expand_merged_cells:
                     # replicate merged cells
                     N = len(row_list)
                     M = max_cols
                     for m in merged_cells:
+                        if row_list[m[0]]['cells'][m[2]] is None:
+                            print(m)
                         for ii in range(m[0], min(m[1], N)):
                             for jj in range(m[2], min(m[3], M)):
                                 if ii == m[0] and jj == m[2]:
