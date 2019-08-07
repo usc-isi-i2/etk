@@ -231,7 +231,6 @@ class TableExtraction:
                     for ci, c in enumerate(row.findAll(['td', 'th'])):
                         num_cols += 1
                         ci += col_shift+rshift
-
                         # shift the col index if there are any spanning cells above it
                         while ci in row_spans:
                             if row_spans[ci] <= 0:
@@ -249,7 +248,8 @@ class TableExtraction:
                             cspan = int(cspan)
                             rspan = int(rspan)
                             col_shift += cspan-1
-                            row_spans[ci] = rspan-1
+                            for ii in range(ci, ci+cspan):
+                                row_spans[ii] = rspan-1
                             merged_cells.append((ri, ri+rspan, ci, ci+cspan))
                         elif cspan is not None:
                             cspan = int(cspan)
@@ -271,7 +271,6 @@ class TableExtraction:
                     num_rows = max(len(rows), max([x[1] for x in merged_cells]))
                 else:
                     num_rows = len(rows)
-                
                 ## create table array
                 row_spans = dict()
                 for ri, row in enumerate(rows):
@@ -307,8 +306,6 @@ class TableExtraction:
                                 rshift += 1
                                 row_spans[ci] -= 1
                                 ci += 1
-                        if ri == 17 and ci == 4:
-                            print('here!!')
                         for br in c.find_all("br"):
                             br.replace_with(" ")
                         for br in c.find_all("script"):
@@ -319,16 +316,22 @@ class TableExtraction:
                         cell_dict["id"] = 'row_{0}_col_{1}'.format(ri, ci)
                         
                         avg_cell_len += len(cell_dict["text"])
-
                         newr[ci] = cell_dict
                         cspan = c.get('colspan')
                         rspan = c.get('rowspan')
 
-                        if rspan is not None:
-                            # ci = i+shift
-                            row_spans[ci] = int(rspan)-1
-                        if cspan is not None:
-                            shift += int(cspan)-1
+                        if cspan is not None and rspan is not None:
+                            cspan = int(cspan)
+                            rspan = int(rspan)
+                            shift += cspan-1
+                            for ii in range(ci, ci+cspan):
+                                row_spans[ii] = rspan-1
+                        elif rspan is not None:
+                            rspan = int(rspan)
+                            row_spans[ci] = rspan-1
+                        elif cspan is not None:
+                            cspan = int(cspan)
+                            shift += cspan-1
                     for i in range(ci+1, max_cols):
                         if i in row_spans:
                             row_spans[i] -= 1
