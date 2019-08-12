@@ -8,7 +8,6 @@ from bs4.element import Comment
 import re
 import copy
 
-
 class Toolkit:
     @staticmethod
     def create_table_array(t, put_extractions=False):
@@ -190,11 +189,12 @@ class TableExtraction:
             uniq_list.remove(' ')
         return uniq_list
 
-    def extract(self, html_doc, min_data_rows = 1):
+    @staticmethod
+    def extract(html_doc, expand_merged_cells, min_data_rows=1):
         soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
-        for table in tables:
+        for table_i, table in enumerate(tables):
             tdcount = 0
             max_tdcount = 0
             img_count = 0
@@ -227,41 +227,50 @@ class TableExtraction:
                     num_rows += 1
                     num_cols = 0
                     col_shift = 0
+                    ci = 0
                     for ci, c in enumerate(row.findAll(['td', 'th'])):
                         num_cols += 1
-                        cspan = c.get('colspan')
-                        rspan = c.get('rowspan')
                         ci += col_shift+rshift
-                        
-                        if ci in row_spans:
+                        # shift the col index if there are any spanning cells above it
+                        while ci in row_spans:
                             if row_spans[ci] <= 0:
                                 del row_spans[ci]
                             else:
                                 rshift += 1
                                 row_spans[ci] -= 1
                                 ci += 1
+
+                        cspan = c.get('colspan')
+                        rspan = c.get('rowspan')
+
+                        # record spanned cell for later use
                         if cspan is not None and rspan is not None:
                             cspan = int(cspan)
                             rspan = int(rspan)
                             col_shift += cspan-1
-                            row_spans[ci] = rspan-1
+                            for ii in range(ci, ci+cspan):
+                                row_spans[ii] = rspan-1
                             merged_cells.append((ri, ri+rspan, ci, ci+cspan))
                         elif cspan is not None:
                             cspan = int(cspan)
                             col_shift += cspan-1
                             merged_cells.append((ri, ri+1, ci, ci+cspan))
                         elif rspan is not None:
+
                             rspan = int(rspan)
                             row_spans[ci] = rspan-1
                             merged_cells.append((ri, ri+rspan, ci, ci+1))
                     if max_cols < num_cols:
                         max_cols = num_cols
+                    # update rowspan dict for columns not seen in this iteration
+                    for k, v in row_spans.items():
+                        if k > ci:
+                            row_spans[k] -= 1
                 if len(merged_cells) > 0:
                     max_cols = max(max_cols, max([x[3] for x in merged_cells]))
                     num_rows = max(len(rows), max([x[1] for x in merged_cells]))
                 else:
                     num_rows = len(rows)
-                
                 ## create table array
                 row_spans = dict()
                 for ri, row in enumerate(rows):
@@ -290,7 +299,7 @@ class TableExtraction:
                     
                     for i, c in enumerate(row.findAll(['td', 'th'])):
                         ci = i+shift+rshift
-                        if ci in row_spans:
+                        while ci in row_spans:
                             if row_spans[ci] <= 0:
                                 del row_spans[ci]
                             else:
@@ -307,40 +316,51 @@ class TableExtraction:
                         cell_dict["id"] = 'row_{0}_col_{1}'.format(ri, ci)
                         
                         avg_cell_len += len(cell_dict["text"])
-                        
                         newr[ci] = cell_dict
                         cspan = c.get('colspan')
                         rspan = c.get('rowspan')
 
-                        if rspan is not None:
-                            # ci = i+shift
-                            row_spans[ci] = int(rspan)-1
-                        if cspan is not None:
-                            shift += int(cspan)-1
+                        if cspan is not None and rspan is not None:
+                            cspan = int(cspan)
+                            rspan = int(rspan)
+                            shift += cspan-1
+                            for ii in range(ci, ci+cspan):
+                                row_spans[ii] = rspan-1
+                        elif rspan is not None:
+                            rspan = int(rspan)
+                            row_spans[ci] = rspan-1
+                        elif cspan is not None:
+                            cspan = int(cspan)
+                            shift += cspan-1
                     for i in range(ci+1, max_cols):
                         if i in row_spans:
                             row_spans[i] -= 1
                     
                     avg_row_len_dev += TableExtraction.pstdev([len(x["text"]) if x else 0 for x in newr])
                     row_dict["cells"] = newr
-                    row_dict["text"] = self.row_to_text(newr)
-                    row_dict["html"] = self.row_to_html(newr)
+                    row_dict["text"] = TableExtraction.row_to_text(newr)
+                    row_dict["html"] = TableExtraction.row_to_html(newr)
                     row_dict["id"] = "row_{}".format(ri)
                     row_list.append(row_dict)
-                    
-                ## replicate merged cells
-                for m in merged_cells:
-                    for ii in range(m[0], m[1]):
-                        for jj in range(m[2], m[3]):
-                            if ii == m[0] and jj == m[2]:
-                                continue
-                            row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
-                            row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
+                if expand_merged_cells:
+                    # replicate merged cells
+                    N = len(row_list)
+                    M = max_cols
+                    for m in merged_cells:
+                        if row_list[m[0]]['cells'][m[2]] is None:
+                            print(m)
+                        for ii in range(m[0], min(m[1], N)):
+                            for jj in range(m[2], min(m[3], M)):
+                                if ii == m[0] and jj == m[2]:
+                                    continue
+                                row_list[ii]['cells'][jj] = copy.deepcopy(row_list[m[0]]['cells'][m[2]])
+                                row_list[ii]['cells'][jj]['id'] += '_span_row{}_col{}'.format(ii,jj)
                 
-                # features["merged_cells"] = merged_cells
                 # To avoid division by zero
                 if len_row == 0:
                     tdcount = 1
+
+                features['merged_cells'] = merged_cells
                 features["no_of_rows"] = len_row
                 features["no_of_cells"] = tdcount
                 features["max_cols_in_a_row"] = max_tdcount
@@ -413,11 +433,11 @@ class TableExtraction:
                 data_table["context_before"] = context_before
                 data_table["context_after"] = context_after
                 data_table["fingerprint"] = fingerprint
-                data_table['html'] = table_rep
-                data_table['text'] = self.table_to_text(row_list)
+                data_table['html'] = str(table)
+                data_table['text'] = TableExtraction.table_to_text(row_list)
                 result_tables.append(data_table)
                 table.decompose()
-        return dict(tables=result_tables, html_text=self.text_from_html(soup))
+        return dict(tables=result_tables, html_text=TableExtraction.text_from_html(soup))
 
     @staticmethod
     def create_fingerprint(table):
@@ -484,16 +504,18 @@ class TableExtraction:
 
         return soup
 
-    def tag_visible(self, element):
+    @staticmethod
+    def tag_visible(element):
         if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
             return False
         if isinstance(element, Comment):
             return False
         return True
 
-    def text_from_html(self, soup):
+    @staticmethod
+    def text_from_html(soup):
         texts = soup.findAll(text=True)
-        visible_texts = filter(self.tag_visible, texts)
+        visible_texts = filter(TableExtraction.tag_visible, texts)
         # print([x.strip() for x in visible_texts])
         # exit(0)
         return u" ".join(t.strip() for t in visible_texts if t.strip() != "")
@@ -513,19 +535,18 @@ class TableExtractor(Extractor):
 
     """
 
-    tableExtractorInstance = TableExtraction()
-
     def __init__(self) -> None:
         Extractor.__init__(self,
                            input_type=InputType.TEXT,
                            category="content",
                            name="DigTableExtractor")
+        self.tableExtractorInstance = TableExtraction()
 
     def _wrap_value_with_context(self, value: dict or str, field_name: str, start: int=0, end: int=0) -> Extraction:
         """Wraps the final result"""
         return Extraction(value, self.name, start_token=start, end_token=end, tag=field_name)
 
-    def extract(self, html: str, return_text: bool=False) -> List[Extraction]:
+    def extract(self, html: str, return_text: bool = False, expand_merged_cells: bool = True) -> List[Extraction]:
         """
         Args:
             html (str): raw html of the page
@@ -537,7 +558,7 @@ class TableExtractor(Extractor):
 
         """
         results = list()
-        temp_res = TableExtractor.tableExtractorInstance.extract(html)
+        temp_res = self.tableExtractorInstance.extract(html, expand_merged_cells=expand_merged_cells)
         if return_text:
             results.append(self._wrap_value_with_context(temp_res['html_text'], "text_without_tables"))
         results.extend(map(lambda t: self._wrap_value_with_context(t, "tables"), temp_res['tables']))

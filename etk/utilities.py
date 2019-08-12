@@ -3,6 +3,7 @@ import hashlib
 import json
 from typing import Dict
 import uuid
+import warnings
 
 
 class Utility(object):
@@ -61,3 +62,11 @@ class Utility(object):
             description += '"' + key + '":"' + str(doc_json[key]) + '", <br/>'
         description += '}'
         return description
+
+def deprecated(msg=''):
+    def deprecated_decorator(func):
+        def deprecated_func(*args, **kwargs):
+            warnings.warn("{}: this function is deprecated. {}".format(func.__name__, msg))
+            return func(*args, **kwargs)
+        return deprecated_func
+    return deprecated_decorator

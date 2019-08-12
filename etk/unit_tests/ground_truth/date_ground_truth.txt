@@ -201,7 +201,7 @@ Aug-06|2006-08-01|%b-%y
 2006|2006-01-01|%Y
 
 # mmm Aug
-Aug|2018-08-01|%b
+Aug|@year-08-01|%b
 
 # weekday	Tuesday
 Tuesday|@nearest[1]|%A

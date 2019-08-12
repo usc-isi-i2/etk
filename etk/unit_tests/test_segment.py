@@ -1,6 +1,6 @@
 import unittest, json
 from etk.etk import ETK
-from etk.knowledge_graph_schema import KGSchema
+from etk.knowledge_graph import KGSchema
 
 sample_input = {
     "projects": [

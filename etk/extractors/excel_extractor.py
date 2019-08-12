@@ -77,7 +77,7 @@ class ExcelExtractor(Extractor):
                     else:  # location
                         rr, cc = parsed_v
                         var[k] = sheet[rr, cc]
-                    extractions.append(var)
+                extractions.append(var)
 
                 c += 1
             r += 1
