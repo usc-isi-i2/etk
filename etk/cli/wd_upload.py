@@ -18,4 +18,6 @@ def run(args):
                              auth=HTTPBasicAuth(args.user, args.passwd))
 
     print('Upload finished with status code: {}!'.format(response.status_code))
+    if response.status_code // 100 != 2:
+        print(response.content)
 
