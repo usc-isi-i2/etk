@@ -32,17 +32,18 @@ class ExampleETKModule(ETKModule):
         # educated at
         statement = douglas.add_statement('P69', Item('Q691283'), rank=Rank.Normal)
         # education: start time
-        statement.add_qualifier('P580', TimeValue('1971',
+        statement.add_qualifier('P580', TimeValue('1971-01-01T00:00:00',
                                                   calendar=Item('Q1985727'),
                                                   precision=Precision.year,
                                                   time_zone=0))
         # education: end time
-        statement.add_qualifier('P582', TimeValue('1974',
+        statement.add_qualifier('P582', TimeValue('1974-01-01T00:00:00',
                                                   calendar=Item('Q1985727'),
                                                   precision=Precision.year,
                                                   time_zone=0))
+
         # birth date
-        douglas.add_statement('P569', TimeValue('1952-03-11T00:00:00+00:00',
+        douglas.add_statement('P569', TimeValue('1952-03-11T00:00:00',
                                                 calendar=Item('Q1985727'),
                                                 precision=Precision.day,
                                                 time_zone=0))

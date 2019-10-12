@@ -51,6 +51,8 @@ class TimeValue(DataValue):
     def __init__(self, value, calendar, precision, time_zone):
         super().__init__()
         self.value = Literal(value, type_=LiteralType.dateTime)
+        if not self.value.is_valid():
+            raise ValueError('Invalid datetime format')
         self._calendar = calendar
         if isinstance(precision, Precision):
             self._precision = precision.value

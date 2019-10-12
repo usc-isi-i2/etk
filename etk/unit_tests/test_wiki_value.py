@@ -18,8 +18,8 @@ class TestWikidataValue(unittest.TestCase):
         self.assertIsNone(p.normalized_value)
 
     def test_time_value(self):
-        tv = TimeValue('2019-05-05', Item('Q1985727'), Precision.day, 0)
-        self.assertEqual(tv.value, Literal('2019-05-05', type_=LiteralType.dateTime))
+        tv = TimeValue('2019-05-05T00:00:00', Item('Q1985727'), Precision.day, 0)
+        self.assertEqual(tv.value, Literal('2019-05-05T00:00:00', type_=LiteralType.dateTime))
         self.assertIsInstance(tv.full_value, Subject)
         self.assertIsNone(tv.normalized_value)
         self.assertEqual(tv.type, URI('wikibase:Time'))
