@@ -429,7 +429,7 @@ class DateExtractor(Extractor):
             try:
                 self._last_original_resolution = DateResolutionHelper.min_resolution(pattern)
                 if self._settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
-                    self._settings[MIN_RESOLUTION] = self._last_min_resolution
+                    self._settings[MIN_RESOLUTION] = self._last_original_resolution
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
                 try:
