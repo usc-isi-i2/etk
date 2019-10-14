@@ -4,6 +4,10 @@ from enum import Enum
 
 
 class Precision(Enum):
+    # https://www.wikidata.org/wiki/Help:Dates#Time_datatype
+    second = Literal('14', type_=LiteralType.integer)
+    minute = Literal('13', type_=LiteralType.integer)
+    hour = Literal('12', type_=LiteralType.integer)
     # https://www.wikidata.org/wiki/Help:Dates#Precision
     day = Literal('11', type_=LiteralType.integer)
     month = Literal('10', type_=LiteralType.integer)
