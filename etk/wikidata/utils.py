@@ -2,7 +2,7 @@ from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.wikidata.value import Precision
 
 
-def auto_strptime(s):
+def parse_datetime_string(s):
     """
     Automatically convert string to iso datetime string
 
@@ -15,7 +15,7 @@ def auto_strptime(s):
     if len(e) == 0:
         raise ValueError('No date / datetime detected')
 
-    dt_str = e[0]
+    dt_str = e[0].value
     orig_resolution = de._last_original_resolution
 
     wd_precision = None
@@ -32,6 +32,6 @@ def auto_strptime(s):
     elif orig_resolution == DateResolution.YEAR:
         wd_precision = Precision.year
 
-        # TODO: support more fine-grind precisions
+        # TODO: support more fine-grind year precisions
 
     return dt_str, wd_precision
