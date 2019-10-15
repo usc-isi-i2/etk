@@ -2,7 +2,7 @@ from etk.extractors.date_extractor import DateExtractor, DateResolution
 from etk.wikidata.value import Precision
 
 
-def parse_datetime_string(s):
+def parse_datetime_string(s, *args, **kwargs):
     """
     Automatically convert string to iso datetime string
 
@@ -10,8 +10,10 @@ def parse_datetime_string(s):
     :return: iso format datetime string, wikidata date precision
     """
 
+    kwargs['date_value_resolution'] = DateResolution.SECOND
+
     de = DateExtractor()
-    e = de.extract(s, date_value_resolution=DateResolution.SECOND)
+    e = de.extract(s, *args, **kwargs)
     if len(e) == 0:
         raise ValueError('No date / datetime detected')
 
