@@ -44,14 +44,14 @@ class Entity(Subject):
 
 
 class NSItem(Entity, Item):
-    def __init__(self, s: str, creator='http://www.isi.edu', namespace='wd'):
+    def __init__(self, s: str, creator='http://www.isi.edu/datamart', namespace='wd'):
         Entity.__init__(self, s, creator, namespace)
         Item.__init__(self, s, namespace)
         self.add_property(URI('rdf:type'), URI('wikibase:Item'))
 
 
 class NSProperty(Entity, Property):
-    def __init__(self, s: str, property_type, creator='http://www.isi.edu', namespace='wd'):
+    def __init__(self, s: str, property_type, creator='http://www.isi.edu/datamart', namespace='wd'):
         Entity.__init__(self, s, creator, namespace)
         Property.__init__(self, s, namespace)
         self.add_property(URI('rdf:type'), URI('wikibase:Property'))

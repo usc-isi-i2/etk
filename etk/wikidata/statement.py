@@ -41,7 +41,7 @@ class Statement(BaseStatement):
         self.add_property(URI('prov:wasDerivedFrom'), ref)
 
 
-class WDReference(BaseStatement):
+class NSReference(BaseStatement):
     def __init__(self, namespace='wd'):
         super().__init__(URI(namespace + 'ref:'+str(uuid.uuid4())))
         self.add_property(URI('rdf:type'), URI('wikibase:Reference'))
@@ -49,3 +49,12 @@ class WDReference(BaseStatement):
     def add_value(self, p, v, namespace='wd'):
         namespace = '' if namespace == 'wd' else namespace
         self._add_value_node(namespace + 'pr', p, v)
+
+
+class WDReference(BaseStatement):
+    def __init__(self):
+        super().__init__(URI('wdref:'+str(uuid.uuid4())))
+        self.add_property(URI('rdf:type'), URI('wikibase:Reference'))
+
+    def add_value(self, p, v):
+        self._add_value_node('pr', p, v)
