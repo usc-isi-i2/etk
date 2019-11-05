@@ -23,26 +23,29 @@ class BaseStatement(Subject):
 
 
 class Statement(BaseStatement):
-    def __init__(self, node_id, rank):
+    def __init__(self, node_id, rank, namespace='wd'):
         statement_id = str(uuid.uuid4())
-        super().__init__(URI('wds:' + node_id + '-' + statement_id))
+        super().__init__(URI(namespace + 's:' + node_id + '-' + statement_id))
         self.add_property(URI('rdf:type'), URI('wikibase:Statement'))
         self.add_property(URI('wikibase:rank'), rank.value)
 
-    def add_value(self, p, v):
-        self._add_value_node('ps', p, v)
+    def add_value(self, p, v, namespace='wd'):
+        namespace = '' if namespace == 'wd' else namespace
+        self._add_value_node(namespace + 'ps', p, v)
 
-    def add_qualifier(self, p, v):
-        self._add_value_node('pq', p, v)
+    def add_qualifier(self, p, v, namespace='wd'):
+        namespace = '' if namespace == 'wd' else namespace
+        self._add_value_node(namespace + 'pq', p, v)
 
     def add_reference(self, ref):
         self.add_property(URI('prov:wasDerivedFrom'), ref)
 
 
 class WDReference(BaseStatement):
-    def __init__(self):
-        super().__init__(URI('wdref:'+str(uuid.uuid4())))
+    def __init__(self, namespace='wd'):
+        super().__init__(URI(namespace + 'ref:'+str(uuid.uuid4())))
         self.add_property(URI('rdf:type'), URI('wikibase:Reference'))
 
-    def add_value(self, p, v):
-        self._add_value_node('pr', p, v)
+    def add_value(self, p, v, namespace='wd'):
+        namespace = '' if namespace == 'wd' else namespace
+        self._add_value_node(namespace + 'pr', p, v)
