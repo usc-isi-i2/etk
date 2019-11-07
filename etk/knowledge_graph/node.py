@@ -183,6 +183,7 @@ class LiteralType(URI, metaclass=__Type):
             pass
 
         valid_format = [
+            '%Y',
             '%Y-%m-%dT%H:%M:%S',
             '%Y-%m-%dT%H:%M:%S.%f%z'
         ]

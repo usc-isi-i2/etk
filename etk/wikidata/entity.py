@@ -19,7 +19,6 @@ class Entity(Subject):
         super().__init__(URI(namespace + ':'+node))
         self.node_id = node
         self.creator = URI(creator) if creator else None
-        self.namespace = namespace
 
     def add_label(self, s: str, lang='en'):
         literal = Literal(s, lang=lang)
@@ -35,7 +34,7 @@ class Entity(Subject):
 
     def add_statement(self, p: str, v, rank=Rank.Normal, namespace='wd'):
         change_recorder.add((self.node_id, p))
-        statement = Statement(self.node_id, rank, self.namespace)
+        statement = Statement(self.node_id, rank, namespace)
         statement.add_value(p, v, namespace)
         statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
         namespace = '' if namespace == 'wd' else namespace
@@ -43,14 +42,14 @@ class Entity(Subject):
         return statement
 
 
-class NSItem(Entity, Item):
+class WDItem(Entity, Item):
     def __init__(self, s: str, creator='http://www.isi.edu/datamart', namespace='wd'):
         Entity.__init__(self, s, creator, namespace)
         Item.__init__(self, s, namespace)
         self.add_property(URI('rdf:type'), URI('wikibase:Item'))
 
 
-class NSProperty(Entity, Property):
+class WDProperty(Entity, Property):
     def __init__(self, s: str, property_type, creator='http://www.isi.edu/datamart', namespace='wd'):
         Entity.__init__(self, s, creator, namespace)
         Property.__init__(self, s, namespace)
@@ -73,35 +72,3 @@ class NSProperty(Entity, Property):
         self.add_property(URI('wikibase:reference'), URI(namespace + 'pr:'+s))
         self.add_property(URI('wikibase:referenceValue'), URI(namespace + 'prv:'+s))
         self.add_property(URI('wikibase:referenceValueNormalized'), URI(namespace + 'prn:'+s))
-
-
-class WDItem(Entity, Item):
-    def __init__(self, s: str, creator='http://www.isi.edu/datamart'):
-        warnings.warn('WDItem(s) is discarded. Use NSItem(s, namespace=\'wd\') instead.')
-        Entity.__init__(self, s, creator)
-        Item.__init__(self, s)
-        self.add_property(URI('rdf:type'), URI('wikibase:Item'))
-
-
-class WDProperty(Entity, Property):
-    def __init__(self, s: str, property_type, creator='http://www.isi.edu/datamart'):
-        warnings.warn('WDProperty(s, type) is discarded. Use NSProperty(s, type, namespace=\'wd\') instead.')
-        Entity.__init__(self, s, creator)
-        Property.__init__(self, s)
-        self.add_property(URI('rdf:type'), URI('wikibase:Property'))
-        type_uri = property_type if not isinstance(property_type, Datatype) else Datatype(property_type)
-        self.add_property(URI('wikibase:propertyType'), type_uri.type)
-
-        self.add_property(URI('wikibase:directClaim'), URI('wdt:'+s))
-        self.add_property(URI('wikibase:directClaimNormalized'), URI('wdtn:'+s))
-        self.add_property(URI('wikibase:claim'), URI('p:'+s))
-        self.add_property(URI('wikibase:statementProperty'), URI('ps:'+s))
-        self.add_property(URI('wikibase:statementValue'), URI('psv:'+s))
-        self.add_property(URI('wikibase:statementValueNormalized'), URI('psn:'+s))
-        self.add_property(URI('wikibase:qualifier'), URI('pq:'+s))
-        self.add_property(URI('wikibase:qualifierValue'), URI('pqv:'+s))
-        self.add_property(URI('wikibase:qualifierValueNormalized'), URI('pqn:'+s))
-        self.add_property(URI('wikibase:reference'), URI('pr:'+s))
-        self.add_property(URI('wikibase:referenceValue'), URI('prv:'+s))
-        self.add_property(URI('wikibase:referenceValueNormalized'), URI('prn:'+s))
-        self.add_property(URI('wikibase:novalue'), URI('wdno:'+s))
