@@ -28,7 +28,7 @@ wiki_namespaces = {
 }
 
 
-def create_custom_prefix(doc, path_dict={}):
+def create_custom_prefix(doc, custom_dict={}):
     suffix = {'p': '/prop/', 'pq': '/prop/qualifier/', 'pqn': '/prop/qualifier/value-normalized/',
               'pqv': '/prop/qualifier/value/', 'pr': '/prop/reference/',
               'prn': '/prop/reference/value-normalized/', 'prv': '/prop/reference/value/',
@@ -42,7 +42,7 @@ def create_custom_prefix(doc, path_dict={}):
         doc.kg.bind(k, v)
 
     # bind custom namespaces
-    for prefix, path in path_dict.items():
+    for prefix, path in custom_dict.items():
         for k, v in suffix.items():
             doc.kg.bind(prefix + k, path + v)
 
