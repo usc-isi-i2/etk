@@ -34,7 +34,7 @@ class Entity(Subject):
         change_recorder.add((self.node_id, p))
         statement = Statement(self.node_id, rank, namespace)
         statement.add_value(p, v, namespace)
-        statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
+        statement.add_property(URI('ps:P170'), self.creator)
         namespace = '' if namespace == 'wd' else namespace
         self.add_property(URI(namespace + 'p:' + p), statement)
         return statement

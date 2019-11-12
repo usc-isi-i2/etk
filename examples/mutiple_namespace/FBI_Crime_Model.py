@@ -1,16 +1,15 @@
-import requests
-import os, json
+import json
 from etk.etk import ETK
 from etk.extractors.excel_extractor import ExcelExtractor
-from etk.knowledge_graph import KGSchema, URI, Literal, LiteralType, Subject, Reification
+from etk.knowledge_graph import KGSchema, URI, Literal
 from etk.etk_module import ETKModule
 from etk.wikidata.__init__ import create_custom_prefix
 from etk.wikidata.entity import WDProperty, WDItem
-from etk.wikidata.value import Datatype, Item, TimeValue, Precision, QuantityValue
+from etk.wikidata.value import Datatype, Item, QuantityValue
 from etk.wikidata.statement import WDReference
 
 
-class FBI_Crime_Model():
+class FBICrimeModel():
     def __init__(self):
 
         self.value_dict = {
@@ -24,26 +23,9 @@ class FBI_Crime_Model():
         self.county_QNode = dict()
 
         # hashmap for states and their abbrviate
-        self.state_abbr = {'alabama': 'al', 'alaska': 'ak', 'arizona': 'az', 'arkansas': 'ar', 'california': 'ca',
-                           'colorado': 'co', 'connecticut': 'ct', 'delaware': 'de', 'florida': 'fl', 'georgia': 'ga',
-                           'hawaii': 'hi',
-                           'idaho': 'id', 'illinois': 'il', 'indiana': 'in', 'iowa': 'ia', 'kansas': 'ks',
-                           'kentucky': 'ky',
-                           'louisiana': 'la', 'maine': 'me', 'maryland': 'md', 'massachusetts': 'ma', 'michigan': 'mi',
-                           'minnesota': 'mn',
-                           'mississippi': 'ms', 'missouri': 'mo', 'montana': 'mt', 'nebraska': 'ne', 'nevada': 'nv',
-                           'new-hampshire': 'nh', 'new-jersey': 'nj', 'new-mexico': 'nm', 'new-york': 'ny',
-                           'north-carolina': 'nc', 'north-dakota': 'nd', 'ohio': 'oh', 'oklahoma': 'ok', 'oregon': 'or',
-                           'pennsylvania': 'pa',
-                           'rhode-island': 'ri', 'south-carolina': 'sc', 'south-dakota': 'sd', 'tennessee': 'tn',
-                           'texas': 'tx', 'utah': 'ut', 'vermont': 'vt', 'virginia': 'va', 'washington': 'wa',
-                           'west-virginia': 'wv',
-                           'wisconsin': 'wi', 'wyoming': 'wy'}
+        self.state_abbr = {'alabama': 'al'}
 
-        # table list for every year
-        self.year_table = {2016: 8, 2017: 10}
-
-    def add_value(self, item, key, value, unit, year_value, reference):
+    def add_value(self, item, key, value, unit, reference):
 
         # manually define kv pairs dict
         kv_dict = {'Violent_crime': 'C3001', 'Murder_and_nonnegligent_manslaughter': 'C3002',
@@ -57,56 +39,36 @@ class FBI_Crime_Model():
 
         # add statement
         s = item.add_statement(kv_dict[key], QuantityValue(value, unit=unit, namespace='cm'), namespace='cm')
-        s.add_qualifier('P585', year_value)
         s.add_reference(reference)
 
-    def extract_data(self, year, states=None):
+    def extract_data(self, state=None):
 
         # Initiate Excel Extractor
         ee = ExcelExtractor()
-        state_list = list(self.state_abbr.keys())
+        # read file
+        file_path = state + '.xls'
+        print('Extracting crime data for ' + state)
 
-        # extract all data or designated states
-        if states is not None:
-            state_list = list()
-            for s in states:
-                s = s.lower().replace(' ', '-')
-                state_list.append(s)
-        res = dict()
-        for state in state_list:
+        # extract data from excel files
+        extractions = ee.extract(file_name=file_path,
+                                 sheet_name='16tbl08al',
+                                 region=['B,7', 'N,100'],
+                                 variables=self.value_dict)
+        # build dictionary
+        county_data = dict()
+        for e in extractions:
+            if len(e['county']) > 0:
 
-            # read file
-            file_path = 'data/' + str(year) + '/' + state + '.xls'
-            if not os.path.isfile(file_path):
-                # print('Crime data for ' + state + '_' + str(year) + ' does not exist. Please download it first!')
-                continue
-            else:
-                print('Extracting crime data for ' + state + '_' + str(year))
+                # build county dictionary
+                if e['county'] not in county_data:
+                    county_data[e['county']] = dict()
 
-                # extract data from excel files
-                sheet_year = '' + str(self.year_table[year]) if self.year_table[year] >= 10 else '0' + str(
-                    self.year_table[year])
-                sheet_name = str(year - 2000) + 'tbl' + sheet_year + self.state_abbr[state]
-                extractions = ee.extract(file_name=file_path,
-                                         sheet_name=sheet_name,
-                                         region=['B,7', 'N,100'],
-                                         variables=self.value_dict)
-                # build dictionary
-                county_data = dict()
-                for e in extractions:
-                    if len(e['county']) > 0:
-
-                        # build county dictionary
-                        if e['county'] not in county_data:
-                            county_data[e['county']] = dict()
-
-                        # add extracted data
-                        if e['value'] is not '' and isinstance(e['value'], int):
-                            e['category'] = e['category'].replace('\n', '_').replace(' ', '_')
-                            county_data[e['county']][e['category']] = e['value']
-                res[state + '_' + str(year)] = county_data
+                # add extracted data
+                if e['value'] is not '' and isinstance(e['value'], int):
+                    e['category'] = e['category'].replace('\n', '_').replace(' ', '_')
+                    county_data[e['county']][e['category']] = e['value']
         print('\n\nExtraction completed!')
-        return res
+        return county_data
 
     def model_data(self, crime_data, file_path, format='ttl'):
 
@@ -241,47 +203,36 @@ class FBI_Crime_Model():
         # doc.kg.add_subject(unit)
 
         # we begin to model data extracted
-        for state_year in crime_data:
-            print('Modeling data for ' + state_year)
-            state, year = state_year.split('_')
+        # add reference, data source
+        download_url = 'https://ucr.fbi.gov/crime-in-the-u.s/2016/crime-in-the-u.s.-2016/tables/table-8' \
+                       '/table-8-state-cuts/alabama.xls'
+        reference = WDReference()
+        reference.add_property(URI('P248'), URI('wd:Q8333'))
+        reference.add_property(URI('P854'), Literal(download_url))
 
-            # add year value
-            print(year)
-            year_value = TimeValue(year, calendar=Item('Q1985727'), precision=Precision.year, time_zone=0)
+        for county in crime_data.keys():
 
-            # add reference, data source
-            download_url = 'https://ucr.fbi.gov/crime-in-the-u.s/' + str(year) + '/crime-in-the-u.s.-' + str(
-                year) + '/tables/table-' + str(self.year_table[int(year)]) + '/table-' + str(
-                self.year_table[int(year)]) + '-state-cuts/' + str(state) + '.xls'
-            reference = WDReference()
-            reference.add_property(URI('P248'), URI('wd:Q8333'))
-            reference.add_property(URI('P854'), Literal(download_url))
+            # county entity
+            QNode = self.get_QNode(county)
+            if not QNode:
+                continue
+            q = WDItem(QNode)
 
-            for county in crime_data[state_year]:
-
-                # county entity
-                QNode = self.get_QNode(county, state)
-                if not QNode:
-                    continue
-                q = WDItem(QNode)
-
-                # add value for each property
-                for property in crime_data[state_year][county]:
-                    self.add_value(q, property, crime_data[state_year][county][property], unit, year_value,
-                                   reference)
-
-                # add the entity to kg
-                doc.kg.add_subject(q)
+            # add value for each property
+            for property in crime_data[county]:
+                self.add_value(q, property, crime_data[county][property], unit, reference)
+            # add the entity to kg
+            doc.kg.add_subject(q)
         print('\n\nModeling completed!\n\n')
         f = open(file_path, 'w')
         f.write(doc.kg.serialize(format))
         print('Serialization completed!')
 
-    def get_QNode(self, county, state):
+    def get_QNode(self, county, state='alabama'):
 
         # read county_QNode.json to build dictionary
         if len(self.county_QNode) == 0:
-            f = open('county_QNode.json', 'r')
+            f = open('county_qnode.json', 'r')
             self.county_QNode = json.loads(f.read())
             f.close()
         name = county.lower().replace(' ', '-')
@@ -302,13 +253,7 @@ class FBI_Crime_Model():
 
 
 if __name__ == "__main__":
-    model = FBI_Crime_Model()
+    model = FBICrimeModel()
 
-    # run once to get QNodes dictionary
-    # model.query_QNodes()
-
-    # run when you want to download new dataset
-    # model.download_data(2016)
-
-    res = model.extract_data(2016, ['alabama'])
+    res = model.extract_data('alabama')
     model.model_data(res, 'alabama.ttl')
