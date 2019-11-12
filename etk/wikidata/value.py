@@ -29,30 +29,30 @@ class DataValue:
     def _v_name(self):
         raise NotImplemented
 
-    def _create_full_value(self):
-        self.full_value = Subject(URI('wdv:' + self._v_name()))
+    def _create_full_value(self, namespace='wd'):
+        self.full_value = Subject(URI(namespace + 'v:' + self._v_name()))
 
 
 class Item(DataValue):
     type = URI('wikibase:WikibaseItem')
 
-    def __init__(self, s):
+    def __init__(self, s, namespace='wd'):
         super().__init__()
-        self.value = URI('wd:'+s)
+        self.value = URI(namespace + ':'+s)
 
 
 class Property(DataValue):
     type = URI('wikibase:WikibaseProperty')
 
-    def __init__(self, s):
+    def __init__(self, s, namespace='wd'):
         super().__init__()
-        self.value = URI('wd:'+s)
+        self.value = URI(namespace + ':'+s)
 
 
 class TimeValue(DataValue):
     type = URI('wikibase:Time')
 
-    def __init__(self, value, calendar, precision, time_zone):
+    def __init__(self, value, calendar, precision, time_zone, namespace='wd'):
         super().__init__()
         self.value = Literal(value, type_=LiteralType.dateTime)
         if not self.value.is_valid():
@@ -68,11 +68,11 @@ class TimeValue(DataValue):
             self._time_zone = time_zone
         else:
             self._time_zone = Literal(str(time_zone), type_=LiteralType.integer)
-
+        self.namespace = namespace
         self.__build_full_value()
 
     def __build_full_value(self):
-        self._create_full_value()
+        self._create_full_value(self.namespace)
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:Time'))
         self.full_value.add_property(URI('wikibase:timePrecision'), self._precision)
         self.full_value.add_property(URI('wikibase:timeTimezone'), self._time_zone)
@@ -102,11 +102,12 @@ class ExternalIdentifier(DataValue):
 class QuantityValue(DataValue):
     type = URI('wikibase:Quantity')
 
-    def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True):
+    def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True, namespace='wd'):
         self.value = Literal(str(amount), type_=LiteralType.decimal)
         self.upper_bound = upper_bound is not None and Literal(upper_bound, type_=LiteralType.decimal)
         self.lower_bound = lower_bound is not None and Literal(lower_bound, type_=LiteralType.decimal)
         self.unit = unit is not None and unit
+        self.namespace = namespace
         self.__build_full_value()
         if isinstance(normalized, QuantityValue):
             self.normalized_value = normalized.full_value
@@ -115,7 +116,7 @@ class QuantityValue(DataValue):
         self.full_value.add_property(URI('wikibase:quantityNormalized'), self.normalized_value)
 
     def __build_full_value(self):
-        self._create_full_value()
+        self._create_full_value(self.namespace)
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:QuantityValue'))
         self.full_value.add_property(URI('wikibase:quantityAmount'), self.value)
         if self.upper_bound:
@@ -151,19 +152,20 @@ class URLValue(DataValue, URI):
 class GlobeCoordinate(DataValue):
     type = URI('wikibase:GlobeCoordinate')
 
-    def __init__(self, latitude, longitude, precision, globe=None):
+    def __init__(self, latitude, longitude, precision, globe=None, namespace='wd'):
         self.globe = globe
         self.latitude = Literal(str(latitude), type_=LiteralType.decimal)
         self.longitude = Literal(str(longitude), type_=LiteralType.decimal)
         self.precision = Literal(str(precision), type_=LiteralType.decimal)
+        self.namespace = namespace
         s = 'Point({} {})'.format(latitude, longitude)
         if globe:
-            s = '<{}> {}'.format(globe.value.value.replace('wd:', 'http://www.wikidata.org/entity/'), s)
+            s = '<{}> {}'.format(globe.value.value.replace(namespace + ':', 'http://www.wikidata.org/entity/'), s)
         self.value = Literal(s, type_=LiteralType('http://www.opengis.net/ont/geosparql#wktLiteral', common_check=False))
         self.__build_full_value()
 
     def __build_full_value(self):
-        self._create_full_value()
+        self._create_full_value(self.namespace)
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:GlobecoordinateValue'))
         self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
         self.full_value.add_property(URI('wikibase:geoLatitude'), self.latitude)
