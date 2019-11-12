@@ -2,8 +2,6 @@ from etk.knowledge_graph.subject import Subject
 from etk.knowledge_graph.node import URI, Literal
 from etk.wikidata.statement import Statement, Rank
 from etk.wikidata.value import Item, Property, Datatype
-from collections import defaultdict
-import warnings
 
 
 change_recorder = set()
