@@ -206,6 +206,35 @@ class TableExtraction:
     def extract(input_data, expand_merged_cells=False, 
                 input_format='html', output_format='json', 
                 min_data_rows=1, output_path=None):
+        """extract tables from input data.
+
+        Args:
+            input_data (str): input url/html.
+            expand_merged_cells (bool): replicate the value of merged cells.
+            input_format (str): the form of input data, {html, pdf}
+            output_format (str): output format, {json, csv}
+            min_data_rows (int): minimum number of rows for data tables.
+            output_path (str): path to output file if output format is csv.
+
+        Returns:
+            bool: json object if output_format is json, None otherwise.
+            
+        Examples:
+
+        >>> url = 'https://en.wikipedia.org/wiki/United_States'
+        >>> html = requests.get(url).text
+        >>> te = TableExtraction()
+        >>> res = te.extract(html, expand_merged_cells=False, 
+                        output_format='csv', output_path='test.zip')
+
+        >>> res = te.extract(html)['tables'][0]['text']
+        United States of America | \nFlag Coat of arms | \nMot ....
+        
+        >>> url = 'https://www.imf.org/~/media/Files/Publications/WP/wp1715.ashx'
+        >>> te.extract(url, input_format='pdf',
+                        expand_merged_cells=False, output_format='csv', 
+                        output_path='test.csv')
+        """
         if input_format == 'html':
             json_output = TableExtraction.extract_html(input_data, expand_merged_cells, min_data_rows)
             if output_format == 'json':
