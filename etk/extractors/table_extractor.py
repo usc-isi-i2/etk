@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 import re
 import copy
+import pandas as pd
+from zipfile import ZipFile
+from requests import get
 
 class Toolkit:
     @staticmethod
@@ -190,7 +193,35 @@ class TableExtraction:
         return uniq_list
 
     @staticmethod
-    def extract(html_doc, expand_merged_cells, min_data_rows=1):
+    def convert_to_csv(jobj, outpath):
+        with ZipFile(outpath, 'w') as myzip:
+            for ti, t in enumerate(jobj['tables']):
+                with myzip.open(f't{ti}.csv', 'w') as myfile:
+                    tarr = [[c['text'] if c is not None else '' for c in r['cells']] for r in t['rows']]
+                    csv = pd.DataFrame(tarr).to_csv(index=False, header=False)
+                    myfile.write(csv.encode('utf-8'))
+                myfile.close()
+
+    @staticmethod
+    def extract(input_data, expand_merged_cells=False, 
+                input_format='html', output_format='json', 
+                min_data_rows=1, output_path=None):
+        if input_format == 'html':
+            json_output = TableExtraction.extract_html(input_data, expand_merged_cells, min_data_rows)
+            if output_format == 'json':
+                return json_output
+            elif output_format == 'csv':
+                return TableExtraction.convert_to_csv(json_output, output_path)
+        elif input_format == 'pdf':
+            import tabula
+            res = get(input_data)
+            with open(output_path+".pdf", 'wb') as tempfile:
+                tempfile.write(res.content)
+            tempfile.close()
+            tabula.convert_into(output_path+".pdf", output_path, output_format="zip", pages='all')
+
+    @staticmethod
+    def extract_html(html_doc, expand_merged_cells, min_data_rows=1):
         soup = BeautifulSoup(html_doc, 'html5lib')
         result_tables = list()
         tables = soup.findAll('table')
