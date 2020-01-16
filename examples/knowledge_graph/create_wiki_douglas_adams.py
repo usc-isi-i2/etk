@@ -72,6 +72,8 @@ if __name__ == "__main__":
     etk = ETK(kg_schema=kg_schema, modules=ExampleETKModule)
     doc = etk.create_document({}, doc_id="http://isi.edu/default-ns/projects")
 
+    revise(True)
+
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
