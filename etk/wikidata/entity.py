@@ -3,9 +3,24 @@ from etk.knowledge_graph.node import URI, Literal
 from etk.wikidata.statement import Statement, Rank
 from etk.wikidata.value import Item, Property, Datatype
 from collections import defaultdict
+from uuid import uuid4
 
 
 change_recorder = set()
+revision = None
+
+
+def revise(enable=False):
+    """
+    Tracking revision
+    :param enable: If False (default), tracking stops. If True, a new revision will be generated.
+    """
+    global revision
+
+    if not enable:
+        revision = None
+    else:
+        revision = URI('http://www.isi.edu/etk/revision#{}'.format(uuid4().hex))
 
 
 def serialize_change_record(fp):
@@ -31,10 +46,14 @@ class Entity(Subject):
         self.add_property(URI('schema:description'), Literal(s, lang=lang))
 
     def add_statement(self, p: str, v, rank=Rank.Normal):
+        global revision
+
         change_recorder.add((self.node_id, p))
         statement = Statement(self.node_id, rank)
         statement.add_value(p, v)
         statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
+        if revision:
+            statement.add_property(URI('http://www.isi.edu/etk/revision'), revision)
         self.add_property(URI('p:'+p), statement)
         return statement
 
