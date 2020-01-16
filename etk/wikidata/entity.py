@@ -45,11 +45,11 @@ class Entity(Subject):
     def add_description(self, s: str, lang='en'):
         self.add_property(URI('schema:description'), Literal(s, lang=lang))
 
-    def add_statement(self, p: str, v, rank=Rank.Normal):
+    def add_statement(self, p: str, v, rank=Rank.Normal, statement_id=None):
         global revision
 
         change_recorder.add((self.node_id, p))
-        statement = Statement(self.node_id, rank)
+        statement = Statement(self.node_id, rank, statement_id=statement_id)
         statement.add_value(p, v)
         statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
         if revision:
