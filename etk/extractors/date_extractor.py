@@ -135,6 +135,7 @@ class DateExtractor(Extractor):
         self._final_regex = d.final_regex
         self._symbol_list = d.symbol_list
         self._settings = {}
+        self._last_original_resolution = None
         self._etk = etk
         self._lan = 'en'
 
@@ -426,8 +427,9 @@ class DateExtractor(Extractor):
 
         if formatted and pattern:
             try:
+                self._last_original_resolution = DateResolutionHelper.min_resolution(pattern)
                 if self._settings[DATE_VALUE_RESOLUTION] == DateResolution.ORIGINAL:
-                    self._settings[MIN_RESOLUTION] = DateResolutionHelper.min_resolution(pattern)
+                    self._settings[MIN_RESOLUTION] = self._last_original_resolution
                 date = datetime.datetime.strptime('-'.join(formatted), '-'.join(pattern))
             except ValueError:
                 try:
@@ -478,11 +480,12 @@ class DateExtractor(Extractor):
                         date = last_year if date > today else date
                     elif self._settings[PREFER_DATES_FROM] == 'future':
                         date = next_year if date < today else date
-                    else:
-                        if date > today and (date-today > today-last_year):
-                            date = last_year
-                        elif date < today and (today-date > next_year-today):
-                            date = next_year
+                    else:  # current
+                        pass
+                        # if date > today and (date-today > today-last_year):
+                        #     date = last_year
+                        # elif date < today and (today-date > next_year-today):
+                        #     date = next_year
 
             date = self._post_process_date(date)
 

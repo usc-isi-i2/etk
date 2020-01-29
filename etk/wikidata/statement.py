@@ -23,8 +23,8 @@ class BaseStatement(Subject):
 
 
 class Statement(BaseStatement):
-    def __init__(self, node_id, rank):
-        statement_id = str(uuid.uuid4())
+    def __init__(self, node_id, rank, statement_id=None):
+        statement_id = statement_id or str(uuid.uuid4())
         super().__init__(URI('wds:' + node_id + '-' + statement_id))
         self.add_property(URI('rdf:type'), URI('wikibase:Statement'))
         self.add_property(URI('wikibase:rank'), rank.value)
@@ -40,8 +40,9 @@ class Statement(BaseStatement):
 
 
 class WDReference(BaseStatement):
-    def __init__(self):
-        super().__init__(URI('wdref:'+str(uuid.uuid4())))
+    def __init__(self, reference_id=None):
+        reference_id = reference_id or str(uuid.uuid4())
+        super().__init__(URI('wdref:'+reference_id))
         self.add_property(URI('rdf:type'), URI('wikibase:Reference'))
 
     def add_value(self, p, v):

@@ -4,6 +4,10 @@ from enum import Enum
 
 
 class Precision(Enum):
+    # https://www.wikidata.org/wiki/Help:Dates#Time_datatype
+    second = Literal('14', type_=LiteralType.integer)
+    minute = Literal('13', type_=LiteralType.integer)
+    hour = Literal('12', type_=LiteralType.integer)
     # https://www.wikidata.org/wiki/Help:Dates#Precision
     day = Literal('11', type_=LiteralType.integer)
     month = Literal('10', type_=LiteralType.integer)
@@ -51,6 +55,8 @@ class TimeValue(DataValue):
     def __init__(self, value, calendar, precision, time_zone):
         super().__init__()
         self.value = Literal(value, type_=LiteralType.dateTime)
+        if not self.value.is_valid():
+            raise ValueError('Invalid datetime format')
         self._calendar = calendar
         if isinstance(precision, Precision):
             self._precision = precision.value

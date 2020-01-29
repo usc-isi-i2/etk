@@ -105,7 +105,11 @@ class Literal(Node):
             return self._type.value
 
     def is_valid(self):
-        return self.value is not None and not (self._lang and self._type != LiteralType.string)
+        if self.value is None:
+            return False
+        if self._type == LiteralType.string and not self._lang:
+            return False
+        return self._type.is_value_valid(self.value)
 
 
 class __Type(type):
@@ -116,6 +120,7 @@ class __Type(type):
 class LiteralType(URI, metaclass=__Type):
     def __init__(self, s, common_check=True):
         self.common_check = common_check
+        self._type = None
         super().__init__(self._resolve(s))
 
     def _resolve(self, s):
@@ -123,26 +128,72 @@ class LiteralType(URI, metaclass=__Type):
             raise UnknownLiteralType()
         if not self.common_check:
             return s
-        if s.startswith(self.xsd) and s[len(self.xsd):] in self.xsd_tokens or \
-                s.startswith(self.rdf) and s[len(self.rdf)] in self.rdf_tokens:
+        # complete xsd uri
+        if s.startswith(self.xsd) and s[len(self.xsd):] in self.xsd_tokens:
+            self._type = s[len(self.xsd):]
             return s
+        # complete rdf uri
+        elif s.startswith(self.rdf) and s[len(self.rdf)] in self.rdf_tokens:
+            self._type = s[len(self.rdf)]
+            return s
+        # xsd prefix
         elif s.startswith('xsd:'):
             s = s[4:]
             if s in self.xsd_tokens:
+                self._type = s
                 return self.xsd + s
+        # rdf prefix
         elif s.startswith('rdf:'):
             s = s[4:]
             if s in self.rdf_tokens:
+                self._type = s
                 return self.rdf + s
+        # no prefix
         elif self._is_valid_field(s):
             if s in self.xsd_tokens:
+                self._type = s
                 return self.xsd + s
             elif s in self.rdf_tokens:
+                self._type = s
                 return self.rdf + s
         raise UnknownLiteralType()
 
     def _is_valid_field(self, s):
         return s in self.xsd_tokens or s in self.rdf_tokens
+
+    def is_value_valid(self, s):
+        """
+        If value `s` if valid in current LiteralType
+        """
+        if self._type in self.value_validator:
+            return self.value_validator[self._type](s)
+
+        return True
+
+    @staticmethod
+    def _is_valid_date_time(s):
+        if isinstance(s, datetime):
+            return True
+
+        try:
+            # python 3.7
+            datetime.fromisoformat(s)
+            return True
+        except:
+            pass
+
+        valid_format = [
+            '%Y-%m-%dT%H:%M:%S',
+            '%Y-%m-%dT%H:%M:%S.%f%z'
+        ]
+        try:
+            for f in valid_format:
+                datetime.strptime(s, f)
+                return True
+        except:
+            pass
+
+        return False
 
     xsd = 'http://www.w3.org/2001/XMLSchema#'
     rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
@@ -152,33 +203,36 @@ class LiteralType(URI, metaclass=__Type):
         'short', 'unsignedInt', 'byte', 'unsignedShort', 'unsignedByte', 'float', 'double', 'base64Binary', 'anyURI'
     }
     rdf_tokens = {'XMLLiteral', 'HTML'}
-    to_python_type = {
-        'time': time,
-        'date': date,
-        'dateTime': datetime,
-        'string': str,
-        'normalizedString': str,
-        'token': str,
-        'language': str,
-        'boolean': bool,
-        'decimal': float,
-        'integer': int,
-        'nonPositiveInteger': int,
-        'long': int,
-        'nonNegativeInteger': int,
-        'negativeInteger': int,
-        'int': int,
-        'unsignedLong': int,
-        'positiveInteger': int,
-        'short': int,
-        'unsignedInt': int,
-        'byte': int,
-        'unsignedShort': int,
-        'unsignedByte': int,
-        'float': float,
-        'double': float,
-        'base64Binary': str,
-        'anyURI': str,
-        'XMLLiteral': Document,
-        'HTML': DocumentFragment
+    value_validator = {
+        'dateTime': _is_valid_date_time.__func__,
     }
+    # to_python_type = {
+    #     'time': time,
+    #     'date': date,
+    #     'dateTime': datetime,
+    #     'string': str,
+    #     'normalizedString': str,
+    #     'token': str,
+    #     'language': str,
+    #     'boolean': bool,
+    #     'decimal': float,
+    #     'integer': int,
+    #     'nonPositiveInteger': int,
+    #     'long': int,
+    #     'nonNegativeInteger': int,
+    #     'negativeInteger': int,
+    #     'int': int,
+    #     'unsignedLong': int,
+    #     'positiveInteger': int,
+    #     'short': int,
+    #     'unsignedInt': int,
+    #     'byte': int,
+    #     'unsignedShort': int,
+    #     'unsignedByte': int,
+    #     'float': float,
+    #     'double': float,
+    #     'base64Binary': str,
+    #     'anyURI': str,
+    #     'XMLLiteral': Document,
+    #     'HTML': DocumentFragment
+    # }
