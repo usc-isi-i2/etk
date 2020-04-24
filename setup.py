@@ -20,6 +20,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/usc-isi-i2/etk",
     packages=setuptools.find_packages(),
+    entry_points={
+        'console_scripts': [
+            'etk = etk.cli_entry:cli_entry',
+        ],
+    },
     classifiers=(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
