@@ -4,7 +4,6 @@ cymem>=1.31.2
 cytoolz>=0.8.2
 decorator>=4.2.1
 dill>=0.2.7.1
-extruct>=0.4.0
 ftfy>=4.4.3
 html5lib>=1.0b8
 idna>=2.6
@@ -26,7 +25,7 @@ pygtrie>=2.2
 pyparsing>=2.2.0
 python-dateutil>=2.7.2
 pytz>=2018.3
-rdflib<5.0.0
+rdflib>=5.0.0
 rdflib-jsonld>=0.4.0
 requests>=2.18.4
 six>=1.11.0
