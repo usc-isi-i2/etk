@@ -43,9 +43,8 @@ class TestKGNamespaceManager(unittest.TestCase):
         # breaks `replace` argument in this workflow: graph.parse -> parser.parse -> graph.bind -> namespace.bind
         # concrete parsers don't pass this argument to graph.bind hence it's always False in namespace.bind
         # as its default value set in graph.bind
-        # the best solution is every concrete parser should accept argument `replace` and pass it to graph.bind
-        # hence, if no need to replace namespace, everything is fine
-        # otherwise change what I mentioned above or waiting for official update.
+        # the proper solution is: every concrete parser should accept argument `replace` and pass it to graph.bind
+        # hence, if you need to replace namespace, change what I mentioned above or wait for official update.
         # here I commented out the tests of this feature
         nm.graph.parse(data=replace_content, format='ttl')
         namespace = {x[0] for x in nm.namespaces()}
