@@ -46,7 +46,7 @@ class TestSpacyRuleExtractor(unittest.TestCase):
         extractions = sample_rule_extractor.extract(
             "version 2 of etk, implemented by Runqi Shao, DongYu94 Li, Sylvia lin, Amandeep and others.")
 
-        expected = [('rule_0', 'Name: Sylvia'), ('rule_0', 'Name: Amandeep')]
+        expected = [('rule_0', 'Name: Sylvia')]
         self.assertEqual([(x.rule_id, x.value) for x in extractions], expected)
 
     def test_SpacyRuleExtractor_word_5(self) -> None:

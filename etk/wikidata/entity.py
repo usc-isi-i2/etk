@@ -5,7 +5,6 @@ from etk.wikidata.value import Item, Property, Datatype
 from collections import defaultdict
 from uuid import uuid4
 
-
 change_recorder = set()
 revision = None
 
@@ -29,7 +28,7 @@ def serialize_change_record(fp):
 
 class Entity(Subject):
     def __init__(self, node, creator):
-        super().__init__(URI('wd:'+node))
+        super().__init__(URI('wd:' + node))
         self.node_id = node
         self.creator = URI(creator) if creator else None
 
@@ -54,7 +53,18 @@ class Entity(Subject):
         statement.add_property(URI('http://www.isi.edu/etk/createdBy'), self.creator)
         if revision:
             statement.add_property(URI('http://www.isi.edu/etk/revision'), revision)
-        self.add_property(URI('p:'+p), statement)
+        self.add_property(URI('p:' + p), statement)
+        return statement
+
+    def add_truthy_value_node(self, p, v):
+        self.add_property(URI('wdt:' + p), v.value)
+        if v.normalized_value:
+            self.add_property(URI('wdtn:' + p), v.normalized_value)
+
+    def add_truthy_statement(self, p: str, v, statement_id=None):
+        statement = self.add_statement(p, v, Rank.BestRank, statement_id)
+
+        self.add_truthy_value_node(p, v)
         return statement
 
 
@@ -73,16 +83,16 @@ class WDProperty(Entity, Property):
         type_uri = property_type if not isinstance(property_type, Datatype) else Datatype(property_type)
         self.add_property(URI('wikibase:propertyType'), type_uri.type)
 
-        self.add_property(URI('wikibase:directClaim'), URI('wdt:'+s))
-        self.add_property(URI('wikibase:directClaimNormalized'), URI('wdtn:'+s))
-        self.add_property(URI('wikibase:claim'), URI('p:'+s))
-        self.add_property(URI('wikibase:statementProperty'), URI('ps:'+s))
-        self.add_property(URI('wikibase:statementValue'), URI('psv:'+s))
-        self.add_property(URI('wikibase:statementValueNormalized'), URI('psn:'+s))
-        self.add_property(URI('wikibase:qualifier'), URI('pq:'+s))
-        self.add_property(URI('wikibase:qualifierValue'), URI('pqv:'+s))
-        self.add_property(URI('wikibase:qualifierValueNormalized'), URI('pqn:'+s))
-        self.add_property(URI('wikibase:reference'), URI('pr:'+s))
-        self.add_property(URI('wikibase:referenceValue'), URI('prv:'+s))
-        self.add_property(URI('wikibase:referenceValueNormalized'), URI('prn:'+s))
-        self.add_property(URI('wikibase:novalue'), URI('wdno:'+s))
+        self.add_property(URI('wikibase:directClaim'), URI('wdt:' + s))
+        self.add_property(URI('wikibase:directClaimNormalized'), URI('wdtn:' + s))
+        self.add_property(URI('wikibase:claim'), URI('p:' + s))
+        self.add_property(URI('wikibase:statementProperty'), URI('ps:' + s))
+        self.add_property(URI('wikibase:statementValue'), URI('psv:' + s))
+        self.add_property(URI('wikibase:statementValueNormalized'), URI('psn:' + s))
+        self.add_property(URI('wikibase:qualifier'), URI('pq:' + s))
+        self.add_property(URI('wikibase:qualifierValue'), URI('pqv:' + s))
+        self.add_property(URI('wikibase:qualifierValueNormalized'), URI('pqn:' + s))
+        self.add_property(URI('wikibase:reference'), URI('pr:' + s))
+        self.add_property(URI('wikibase:referenceValue'), URI('prv:' + s))
+        self.add_property(URI('wikibase:referenceValueNormalized'), URI('prn:' + s))
+        self.add_property(URI('wikibase:novalue'), URI('wdno:' + s))

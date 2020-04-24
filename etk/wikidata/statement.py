@@ -9,6 +9,10 @@ class Rank(Enum):
     Preferred = URI('wikibase:PreferredRank')
     Deprecated = URI('wikibase:DeprecatedRank')
 
+    # never set the rank to BestRank. This is only for truthy statements.
+    # Use this only if you are sure of what you are doing
+    BestRank = URI('wikibase:BestRank')
+
 
 class BaseStatement(Subject):
     def __init__(self, uri):

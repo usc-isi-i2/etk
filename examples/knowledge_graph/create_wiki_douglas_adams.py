@@ -9,6 +9,7 @@ class ExampleETKModule(ETKModule):
     """
     Abstract class for extraction module
     """
+
     def __init__(self, etk):
         ETKModule.__init__(self, etk)
         self.name_extractor = GlossaryExtractor(self.etk.load_glossary("./names.txt"), "name_extractor",
@@ -30,7 +31,7 @@ class ExampleETKModule(ETKModule):
         douglas.add_label('Douglas Adams', lang='en')
         douglas.add_alias('Douglas Noël Adams', lang='fr')
         # educated at
-        statement = douglas.add_statement('P69', Item('Q691283'), rank=Rank.Normal)
+        statement = douglas.add_truthy_statement('P69', Item('Q691283'))
         # education: start time
         statement.add_qualifier('P580', TimeValue('1971-01-01T00:00:00',
                                                   calendar=Item('Q1985727'),
@@ -56,7 +57,9 @@ class ExampleETKModule(ETKModule):
         douglas.add_statement('P2048', QuantityValue(1.96, unit=Item('Q11573')))
 
         # official website
-        statement = douglas.add_statement('P856', URLValue('http://douglasadams.com/'))
+        # statement = douglas.add_statement('P856', URLValue('http://douglasadams.com/'))
+        statement = douglas.add_truthy_statement('P856', URLValue('http://douglasadams.com/'))
+
         statement.add_qualifier('P407', Item('Q1860'))
 
         # Freebase ID
@@ -77,5 +80,3 @@ if __name__ == "__main__":
     docs = etk.process_ems(doc)
 
     print(docs[0].kg.serialize('ttl'))
-    with open('Q42.tsv', 'w') as fp:
-        serialize_change_record(fp)

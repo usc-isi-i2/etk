@@ -26,11 +26,11 @@ pygtrie>=2.2
 pyparsing>=2.2.0
 python-dateutil>=2.7.2
 pytz>=2018.3
-rdflib>=4.2.2
+rdflib<5.0.0
 rdflib-jsonld>=0.4.0
 requests>=2.18.4
 six>=1.11.0
-spacy==2.1.1
+spacy>=2.1.1
 termcolor>=1.1.0
 thinc>=6.10.2
 toolz>=0.9.0
