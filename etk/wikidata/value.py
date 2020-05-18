@@ -38,7 +38,7 @@ class Item(DataValue):
 
     def __init__(self, s):
         super().__init__()
-        self.value = URI('wd:'+s)
+        self.value = URI('wd:' + s)
 
 
 class Property(DataValue):
@@ -46,7 +46,7 @@ class Property(DataValue):
 
     def __init__(self, s):
         super().__init__()
-        self.value = URI('wd:'+s)
+        self.value = URI('wd:' + s)
 
 
 class TimeValue(DataValue):
@@ -102,10 +102,11 @@ class ExternalIdentifier(DataValue):
 class QuantityValue(DataValue):
     type = URI('wikibase:Quantity')
 
-    def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True):
-        self.value = Literal(str(amount), type_=LiteralType.decimal)
-        self.upper_bound = upper_bound is not None and Literal(upper_bound, type_=LiteralType.decimal)
-        self.lower_bound = lower_bound is not None and Literal(lower_bound, type_=LiteralType.decimal)
+    def __init__(self, amount, unit=None, upper_bound=None, lower_bound=None, normalized=True,
+                 type=LiteralType.decimal):
+        self.value = Literal(str(amount), type_=type)
+        self.upper_bound = upper_bound is not None and Literal(upper_bound, type_=type)
+        self.lower_bound = lower_bound is not None and Literal(lower_bound, type_=type)
         self.unit = unit is not None and unit
         self.__build_full_value()
         if isinstance(normalized, QuantityValue):
@@ -159,7 +160,8 @@ class GlobeCoordinate(DataValue):
         s = 'Point({} {})'.format(latitude, longitude)
         if globe:
             s = '<{}> {}'.format(globe.value.value.replace('wd:', 'http://www.wikidata.org/entity/'), s)
-        self.value = Literal(s, type_=LiteralType('http://www.opengis.net/ont/geosparql#wktLiteral', common_check=False))
+        self.value = Literal(s,
+                             type_=LiteralType('http://www.opengis.net/ont/geosparql#wktLiteral', common_check=False))
         self.__build_full_value()
 
     def __build_full_value(self):
@@ -199,4 +201,3 @@ class Datatype(Enum):
     @property
     def type(self):
         return self.value.type
-
