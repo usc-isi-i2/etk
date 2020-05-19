@@ -61,6 +61,14 @@ class TestWikidataValue(unittest.TestCase):
         self.assertIsInstance(gc.full_value, Subject)
         self.assertIsNone(gc.normalized_value)
         self.assertEqual(gc.type, URI('wikibase:GlobeCoordinate'))
+        self.assertEqual(gc.value.value, '<http://www.wikidata.org/entity/Q405> Point(45.0 -1)')
+
+    def test_globe_coordinate_2(self):
+        gc = GlobeCoordinate(45.0, -1, 1)
+        self.assertIsInstance(gc.full_value, Subject)
+        self.assertIsNone(gc.normalized_value)
+        self.assertEqual(gc.type, URI('wikibase:GlobeCoordinate'))
+        self.assertEqual(gc.value.value, 'Point(45.0 -1)')
 
     def test_monolingual_text(self):
         mt = MonolingualText('Gracias', lang='es')

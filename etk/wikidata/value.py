@@ -167,18 +167,21 @@ class GlobeCoordinate(DataValue):
     def __build_full_value(self):
         self._create_full_value()
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:GlobecoordinateValue'))
-        self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
+        if self.globe:
+            self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
         self.full_value.add_property(URI('wikibase:geoLatitude'), self.latitude)
         self.full_value.add_property(URI('wikibase:geoLongitude'), self.longitude)
         self.full_value.add_property(URI('wikibase:geoPrecision'), self.precision)
 
     def _v_name(self):
-        globe = self.globe.value.value.replace("wd:","")
         latitude = self.latitude.value
         longitude = self.longitude.value
         precision = self.precision.value
-        return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
-
+        if self.globe:
+            globe = self.globe.value.value.replace("wd:","")
+            return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
+        else:
+            return 'c'.join(('GlobeCoordinate', latitude, longitude, precision))
 
 class MonolingualText(DataValue):
     type = URI('wikibase:Monolingualtext')
