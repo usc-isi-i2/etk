@@ -173,7 +173,7 @@ class GlobeCoordinate(DataValue):
         self.full_value.add_property(URI('wikibase:geoPrecision'), self.precision)
 
     def _v_name(self):
-        globe = self.globe.value.value
+        globe = self.globe.value.value.replace("wd:","")
         latitude = self.latitude.value
         longitude = self.longitude.value
         precision = self.precision.value
