@@ -41,6 +41,15 @@ class TestWikidataValue(unittest.TestCase):
         self.assertEqual(qv.normalized_value, qv.full_value)
         self.assertEqual(qv.type, URI('wikibase:Quantity'))
 
+    def test_quantity_value_2(self):
+        qv = QuantityValue(1.5, Item('Q828224')) # kilometer
+        self.assertEqual(qv.value, Literal('1.5', type_=LiteralType.decimal))
+        self.assertIsInstance(qv.full_value, Subject)
+        self.assertIsInstance(qv.normalized_value, Subject)
+        self.assertEqual(qv.normalized_value, qv.full_value)
+        self.assertEqual(qv.type, URI('wikibase:Quantity'))
+        self.assertEqual(qv.unit.value.value[3:], 'Q828224')
+
     def test_string_value(self):
         sv = StringValue('blabla')
         self.assertEqual(sv.value, Literal('blabla', type_=LiteralType.string))
