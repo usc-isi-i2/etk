@@ -129,7 +129,7 @@ class QuantityValue(DataValue):
     def _v_name(self):
         upper_bound = self.upper_bound.value if self.upper_bound else '0'
         lower_bound = self.lower_bound.value if self.lower_bound else '0'
-        unit = self.unit.value.value[3] if self.unit else '0'
+        unit = self.unit.value.value[3:] if self.unit else '0'
         return 'c'.join(('Quantity', self.value.value.replace('.', '-'), upper_bound, lower_bound, unit))
 
 
@@ -167,17 +167,21 @@ class GlobeCoordinate(DataValue):
     def __build_full_value(self):
         self._create_full_value()
         self.full_value.add_property(URI('rdf:type'), URI('wikibase:GlobecoordinateValue'))
-        self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
+        if self.globe:
+            self.full_value.add_property(URI('wikibase:geoGlobe'), self.globe.value)
         self.full_value.add_property(URI('wikibase:geoLatitude'), self.latitude)
         self.full_value.add_property(URI('wikibase:geoLongitude'), self.longitude)
         self.full_value.add_property(URI('wikibase:geoPrecision'), self.precision)
 
     def _v_name(self):
-        globe = self.globe.value.value
         latitude = self.latitude.value
         longitude = self.longitude.value
         precision = self.precision.value
-        return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
+        if self.globe:
+            globe = self.globe.value.value.replace("wd:", "")
+            return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
+        else:
+            return 'c'.join(('GlobeCoordinate', latitude, longitude, precision))
 
 
 class MonolingualText(DataValue):

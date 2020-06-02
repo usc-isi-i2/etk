@@ -41,6 +41,15 @@ class TestWikidataValue(unittest.TestCase):
         self.assertEqual(qv.normalized_value, qv.full_value)
         self.assertEqual(qv.type, URI('wikibase:Quantity'))
 
+    def test_quantity_value_2(self):
+        qv = QuantityValue(1.5, Item('Q828224')) # kilometer
+        self.assertEqual(qv.value, Literal('1.5', type_=LiteralType.decimal))
+        self.assertIsInstance(qv.full_value, Subject)
+        self.assertIsInstance(qv.normalized_value, Subject)
+        self.assertEqual(qv.normalized_value, qv.full_value)
+        self.assertEqual(qv.type, URI('wikibase:Quantity'))
+        self.assertEqual(qv.unit.value.value[3:], 'Q828224')
+
     def test_string_value(self):
         sv = StringValue('blabla')
         self.assertEqual(sv.value, Literal('blabla', type_=LiteralType.string))
@@ -61,6 +70,14 @@ class TestWikidataValue(unittest.TestCase):
         self.assertIsInstance(gc.full_value, Subject)
         self.assertIsNone(gc.normalized_value)
         self.assertEqual(gc.type, URI('wikibase:GlobeCoordinate'))
+        self.assertEqual(gc.value.value, '<http://www.wikidata.org/entity/Q405> Point(45.0 -1)')
+
+    def test_globe_coordinate_2(self):
+        gc = GlobeCoordinate(45.0, -1, 1)
+        self.assertIsInstance(gc.full_value, Subject)
+        self.assertIsNone(gc.normalized_value)
+        self.assertEqual(gc.type, URI('wikibase:GlobeCoordinate'))
+        self.assertEqual(gc.value.value, 'Point(45.0 -1)')
 
     def test_monolingual_text(self):
         mt = MonolingualText('Gracias', lang='es')
