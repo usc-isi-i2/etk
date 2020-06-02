@@ -129,7 +129,7 @@ class QuantityValue(DataValue):
     def _v_name(self):
         upper_bound = self.upper_bound.value if self.upper_bound else '0'
         lower_bound = self.lower_bound.value if self.lower_bound else '0'
-        unit = self.unit.value.value[3] if self.unit else '0'
+        unit = self.unit.value.value[3:] if self.unit else '0'
         return 'c'.join(('Quantity', self.value.value.replace('.', '-'), upper_bound, lower_bound, unit))
 
 
@@ -178,10 +178,11 @@ class GlobeCoordinate(DataValue):
         longitude = self.longitude.value
         precision = self.precision.value
         if self.globe:
-            globe = self.globe.value.value.replace("wd:","")
+            globe = self.globe.value.value.replace("wd:", "")
             return 'c'.join(('GlobeCoordinate', globe, latitude, longitude, precision))
         else:
             return 'c'.join(('GlobeCoordinate', latitude, longitude, precision))
+
 
 class MonolingualText(DataValue):
     type = URI('wikibase:Monolingualtext')
