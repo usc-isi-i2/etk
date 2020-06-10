@@ -3,6 +3,7 @@ from time import time
 from datetime import date, datetime
 from xml.dom.minidom import Document, DocumentFragment
 from etk.etk_exceptions import InvalidGraphNodeValueError, UnknownLiteralType
+import re
 
 
 class Node(object):
@@ -192,8 +193,31 @@ class LiteralType(URI, metaclass=__Type):
                 return True
         except:
             pass
-
-        return False
+        valid_time_pattern = re.compile(r"[\-]?(\d{4})-((0[1-9])|(1[0-2]))-(0[1-9]|[12][0-9]|3[01])T(0[0-9]|1[0-9]|2[0-3]):(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]):(0[0-9]|1[0-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9])")
+        valid_month_pattern = re.compile(r"[\-]?(\d{4})-((0[1-9])|(1[0-2]))-(00)T00:00:00")
+        valid_year_decade_millennium_pattern = re.compile(r"[\-]?(\d{4})-(00)-(00)T00:00:00")
+        valid_hundred_thousand_years_pattern = re.compile(r"[\-]?(\d{6,7})-(0[0|1])-(0[0|1])T00:00:00")
+        valid_million_billion_years = re.compile(r"[\-]?(\d{8}\d+)-(0[0|1])-(0[0|1])T00:00:00")
+        # additional test for wikidata: https://www.wikidata.org/wiki/Help:Dates
+        # +2020-06-01T00:00:00Z/14 Precision.second
+        # +2020-06-01T00:00:00Z/13 Precision.minute
+        # +2020-06-01T00:00:00Z/12 Precision.hour
+        # +2020-06-01T00:00:00Z/11 Precision.day
+        # for above, it is not ok to have 00 in date part
+        # +2020-06-00T00:00:00Z/10 Precison.month
+        # +2020-00-00T00:00:00Z//9 Precision.year
+        # +2010-00-00T00:00:00Z/8 Precision.decade
+        # +1801-00-00T00:00:00Z/7 Precision.century
+        # +1500-00-00T00:00:00Z/6 Precison.millennium
+        # -2500000-01-01T00:00:00Z/4 Precision.hundred_thousand_years
+        # -13798000000-01-01T00:00:00Z/3 Precision.million_years
+        # -5000000000-00-00T00:00:00Z/0 Precision_billion_years
+        validity_list = [valid_time_pattern.match(s), 
+        valid_month_pattern.match(s),
+        valid_year_decade_millennium_pattern.match(s),
+        valid_hundred_thousand_years_pattern.match(s), 
+        valid_million_billion_years.match(s)]
+        return any(validity_list)
 
     xsd = 'http://www.w3.org/2001/XMLSchema#'
     rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
