@@ -12,7 +12,7 @@ with open('requirements.txt', 'r') as f:
 
 setuptools.setup(
     name="etk",
-    version="2.2.3",
+    version="2.2.3a",
     author="Amandeep Singh",
     author_email="amandeep.s.saggu@gmail.com",
     description="extraction toolkit",

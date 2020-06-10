@@ -28,9 +28,8 @@ rdflib>=5.0.0
 rdflib-jsonld>=0.4.0
 requests>=2.18.4
 six>=1.11.0
-spacy>=2.1.1
+spacy==2.2.4
 termcolor>=1.1.0
-thinc>=6.10.2
 toolz>=0.9.0
 tqdm>=4.19.5
 tzlocal>=1.5.1
