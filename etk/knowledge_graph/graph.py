@@ -47,7 +47,9 @@ class Graph(object):
             b_string = self._g.serialize(format=format, contexts=namespace_manager, **kwargs)
         else:
             b_string = self._g.serialize(format=format, **kwargs)
-        return b_string.decode('UTF-8')
+        if isinstance(b_string, bytes):
+            b_string.decode('UTF-8')
+        return b_string
 
     @lru_cache()
     def _resolve_uri(self, uri: URI) -> rdflib.URIRef:
