@@ -48,7 +48,7 @@ class Graph(object):
         else:
             b_string = self._g.serialize(format=format, **kwargs)
         if isinstance(b_string, bytes):
-            b_string.decode('UTF-8')
+            b_string = b_string.decode('UTF-8')
         return b_string
 
     @lru_cache()
