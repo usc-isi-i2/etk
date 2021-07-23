@@ -48,6 +48,6 @@ pyexcel-io>=0.5.6
 pyexcel-xls>=0.5.6
 pyexcel-xlsx>=0.5.6
 SPARQLWrapper>=1.8.2
-pyshacl==0.9.10
+pyshacl>=0.9.10
 tabula-py>=1.4.3
 requests>=2.18.4
