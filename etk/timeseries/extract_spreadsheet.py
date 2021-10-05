@@ -2,7 +2,6 @@ import os
 import argparse
 import pyexcel
 import logging
-import demjson
 import json
 import etk.timeseries.location_parser as lp
 import etk.timeseries.time_series_region as tsr
@@ -131,12 +130,13 @@ class ExtractSpreadsheet(object):
     #        return timeseries
     def load_annotations(self, annotations_fn):
         anfile = open(annotations_fn)
-        annotations_decoded = demjson.decode(anfile.read(), return_errors=True)
-        for msg in annotations_decoded[1]:
-            if msg.severity == "error":
-                logging.error(msg.pretty_description())
-        anfile.close()
-        return annotations_decoded[0]
+        # annotations_decoded = demjson.decode(anfile.read(), return_errors=True)
+        annotations_decoded = json.load(anfile)
+        # for msg in annotations_decoded[1]:
+        #     if msg.severity == "error":
+        #         logging.error(msg.pretty_description())
+        # anfile.close()
+        return annotations_decoded
 
 
 def main():
