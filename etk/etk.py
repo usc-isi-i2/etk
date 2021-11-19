@@ -165,7 +165,7 @@ class ETK(object):
             #         self.log(str(e) + " processing with " + str(type(a_em)), "error", doc.doc_id, doc.url)
             #         raise e
 
-        if self.kg_schema.legacy:
+        if self.kg_schema and self.kg_schema.legacy:
             # Do house cleaning.
             doc.insert_kg_into_cdr()
             Utility.make_json_serializable(doc.cdr_document)
